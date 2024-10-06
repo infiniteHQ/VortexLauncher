@@ -4,3 +4,9 @@
 [submodule "lib/restcpp"]
 	path = lib/restcpp
 	url = https://github.com/infiniteHQ/RestCpp
+[submodule "lib/json"]
+	path = lib/json
+	url = https://github.com/nlohmann/json
+[submodule "lib/spdlog"]
+	path = lib/spdlog
+	url = https://github.com/gabime/spdlog
