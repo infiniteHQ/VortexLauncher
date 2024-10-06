@@ -9,7 +9,7 @@
                 "docknodeparent": "default",
                 "dockplace": "default",
                 "id": "test_window",
-                "name": "locale_undefined####loc.window_names.content_browser",
+                "name": "Gestionnaire de fichiers####loc.window_names.content_browser",
                 "type": "instanciable,static",
                 "win": "0"
             },

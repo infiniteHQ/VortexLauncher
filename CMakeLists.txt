@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fPIC")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(VORTEX_VERSION "1.1")
 
 file(GLOB_RECURSE VORTEX_SHARED_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/main/src/*.cpp")
@@ -26,6 +27,3 @@ file(GLOB_RECURSE VORTEX_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/main/src/*.cpp")
 
 add_executable(vortex ${VORTEX_SOURCES} main.cpp)
 target_link_libraries(vortex PRIVATE vortex_shared)
-
-install(TARGETS vortex RUNTIME DESTINATION build/bin)
-install(TARGETS vortex_shared LIBRARY DESTINATION lib)
