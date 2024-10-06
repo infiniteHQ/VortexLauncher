@@ -177,6 +177,16 @@ VORTEX_API void VortexMaker::DestroyContext(VxContext *ctx)
     VX_DELETE(ctx);
 }
 
+VORTEX_API std::string VortexMaker::getHomeDirectory()
+{
+    const char *homePath = std::getenv("HOME");
+    if (homePath == nullptr)
+    {
+        throw std::runtime_error("HOME environment variable not set");
+    }
+    return std::string(homePath);
+}
+
 /**
  * @brief Set custom allocator functions and user data for VortexMaker.
  *
@@ -298,6 +308,8 @@ void VortexMaker::DebugAllocHook(VortexMakerDebugAllocInfo *info, void *ptr,
         //printf("[%05d] MemFree(0x%p)\n", frame_count, ptr);
     }*/
 }
+
+
 
 //-----------------------------------------------------------------------------
 // [SECTION] ImGuiTextBuffer, ImGuiTextIndex

@@ -24,6 +24,10 @@
 #include "vortex.h"
 #endif
 
+#include "./modules/interface.h"
+#include "./templates/install.h"
+#include "./templates/interface.h"
+
 //_____________________________________________________________________________
 
 // Enable SSE intrinsics if available
@@ -107,9 +111,64 @@ struct VortexMakerDebugAllocInfo
 // [SECTION]: Internal structures
 //_____________________________________________________________________________
 
+struct EnvProject
+{
+  std::string name;
+  std::string path;
+  std::string version;
+  std::string compatibleWith;
+  std::string description;
+  std::string logoPath;
+  std::string author;
+  std::string lastOpened;
+};
+
+struct VxSystemLog
+{
+  spdlog::level::level_enum m_level;
+  std::string m_filter;
+  std::string m_message;
+  std::string m_timestamp;
+
+  VxSystemLog(spdlog::level::level_enum level, std::string filter, std::string message) : m_level(level), m_filter(filter), m_message(message){};
+};
+
+struct SessionState
+{
+  //
+  std::string session_id;
+
+  // Master
+  std::string session_started_at;
+  std::string session_started_on_os;
+  std::string session_started_on_arch;
+
+  // Last module
+  std::shared_ptr<ModuleInterface> last_used_module;
+
+  bool master_initialized = false;
+  bool logs_modified = false;
+  bool last_used_module_modified = false;
+  bool last_used_plugin_modified = false;
+  bool last_used_module_input_event_modified = false;
+  bool last_used_module_output_event_modified = false;
+};
+
 struct VxIO
 {
   int MetricsActiveAllocations;
+
+  // EM / Editor Modules
+  std::vector<void *> em_handles;
+  std::vector<std::shared_ptr<ModuleInterface>> em;
+  std::vector<std::shared_ptr<ModuleInterface>> sys_em;
+
+  // Know projects in system
+  std::vector<std::shared_ptr<EnvProject>> sys_projects;
+
+  // Templates
+  std::vector<std::shared_ptr<TemplateInterface>> templates;
+  std::vector<std::shared_ptr<TemplateInterface>> sys_templates;
 };
 
 struct VxPaths
@@ -125,11 +184,39 @@ struct VxPaths
 // all instances of custom contents.
 //-----------------------------------------------------------------------------
 struct VxContext
-{
-  // Master flags
+{// Master flags
   bool initialized;
+
+  // Loger
+  bool logger;
+  bool logger_registering = true;
+  std::shared_ptr<spdlog::logger> global_logger;
+  std::shared_ptr<spdlog::logger> console_logger;
+  std::vector<std::pair<std::string, std::shared_ptr<spdlog::logger>>> pool_loggers;
+
+  // Components
   VxIO IO;
+  SessionState state;
   VortexMakerDebugAllocInfo debugAllocInfo;
+  std::vector<std::shared_ptr<VxSystemLog>> registered_logs;
+  fs::path projectPath;
+  fs::path logoPath;
+  VxPaths paths;
+  std::string configFilePath;
+  std::string author;
+  std::string compatibleWith;
+  std::string description;
+  std::string label;
+  std::string name;
+  std::string type;
+  std::string version;
+  std::string project_version;
+  std::string toolchainsPath;
+  std::string gposPath;
+  std::string packagesPath;
+  std::string scriptsPath;
+  std::string hostsPath;
+  bool include_system_templates;
 };
 //-----------------------------------------------------------------------------
 
