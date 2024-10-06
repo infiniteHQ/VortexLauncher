@@ -19,10 +19,13 @@ target_include_directories(vortex_shared PUBLIC
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ui/launcher ui_launcher_build)
 target_link_libraries(vortex_shared PUBLIC launcher)
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/lib/restcpp restcpp_build)
+target_link_libraries(vortex_shared PUBLIC restclient-cpp)
+
 file(GLOB_RECURSE VORTEX_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/main/src/*.cpp")
 
 add_executable(vortex ${VORTEX_SOURCES} main.cpp)
 target_link_libraries(vortex PRIVATE vortex_shared)
 
-install(TARGETS vortex RUNTIME DESTINATION bin)
+install(TARGETS vortex RUNTIME DESTINATION build/bin)
 install(TARGETS vortex_shared LIBRARY DESTINATION lib)

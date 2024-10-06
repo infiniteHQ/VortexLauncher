@@ -5,6 +5,7 @@
 
 // UI instances
 #include "./ui/launcher/launcher.hpp"
+#include "./lib/restcpp/include/restclient-cpp/restclient.h"
 
 #include "./main/include/vortex.h"
 
@@ -97,17 +98,16 @@ int main(int argc, char *argv[])
 {
     PrintInfinite();
 
-  std::thread mainthread;
-  std::thread Thread([&]()
-                     { Cherry::Main(argc, argv); });
-  mainthread.swap(Thread);
+    std::thread mainthread;
+    std::thread Thread([&]()
+                       { Cherry::Main(argc, argv); });
+    mainthread.swap(Thread);
 
-  while (g_ApplicationRunning)
-  {
-    /* Your program loop... */
-  }
+    RestClient::Response r = RestClient::get("http://api.infinite.si:8000/");
 
-  mainthread.join();
-  
+    std::cout << r.body << std::endl;
+
+    mainthread.join();
+
     return 0;
 }
