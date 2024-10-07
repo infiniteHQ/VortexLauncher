@@ -60,7 +60,6 @@
 #include <dirent.h>
 #include <deque>
 
-
 namespace fs = std::filesystem;
 
 #ifndef VORTEX_API

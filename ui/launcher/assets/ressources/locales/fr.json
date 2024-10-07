@@ -1,13 +1,20 @@
 {
     "locales": [
-        {"loc.window_names.details":"Détails"},
-        {"loc.window_names.content_browser":"Gestionnaire de fichiers"},
-        {"loc.window_names.props_editor":"Editeur de propriétés"},
-        {"loc.window_names.text_editor":"Editeur de texte"},
-        {"loc.window_names.outliner":"Liste"},
-        {"loc.window_names.node_editor":"Editeur de nodes"},
-        {"loc.content_browser.add":"Ajouter"},
-        {"loc.content_browser.import":"Importer"},
-        {"loc.content_browser.save_all":"Tout sauver"}
+        {"loc.menubar.show_logs_utility":"Afficher le journal"},
+        {"loc.menubar.show_logs_utility_brief":"Affiche le journal de logs."},
+
+        {"loc.window_names.project_manager":"Gestionnaire de projects"},
+        {"loc.window_names.settings":"Paramètres"},
+        {"loc.window_names.logs_utility":"Journal de logs"},
+
+        {"loc.window_names.welcome":"Bienvenue !"},
+        {"loc.window_names.welcome.title":"Bienvenue dans Vortex !"},
+        {"loc.window_names.welcome.fast_actions":"Action rapides"},
+        {"loc.window_names.welcome.trends":"Tendances"},
+        {"loc.window_names.welcome.overview":"Vue d'ensemble"},
+        {"loc.window_names.welcome.contribute":"Contribuer à Vortex"},
+        {"loc.window_names.welcome.sponsor":"Sponsorisze Vortex"},
+        {"loc.window_names.welcome.whats_news":"Nouveautés"},
+        {"loc.window_names.welcome.actuality":"Actualités"}
     ]
 }

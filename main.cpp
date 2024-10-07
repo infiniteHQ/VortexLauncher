@@ -8,6 +8,7 @@
 #include "./lib/restcpp/include/restclient-cpp/restclient.h"
 
 #include "./main/include/vortex.h"
+#include "./main/include/templates/load.h"
 
 static std::string session_id = "unknow";
 
@@ -45,7 +46,7 @@ void PrintHeader()
     std::cout << "\033[0m";
 
     std::cout << "\033[38;2;177;255;49m"
-              << " Vortex " << VORTEX_VERSION
+              << " Vortex Launcher " << VORTEX_VERSION
               << "\033[0m" << std::endl;
 
     std::cout << "┌────────────────────────────────────────────────────────────────────────────────────────────────┐" << std::endl;
@@ -91,13 +92,41 @@ void PrintHeader()
     std::cout << std::endl;
 }
 
+VxContext *InitBlankRuntime(bool logger)
+{
+    VxContext *ctx = VortexMaker::CreateContext();
+
+    ctx->state.session_id = session_id;
+
+    VortexMaker::CreateGlobalLogger();
+    VortexMaker::CreateConsoleLogger();
+    VortexMaker::LogInfo("Bootstrapp", "Initializing runtime...");
+
+    VortexMaker::CreateSessionTopic(ctx->state.session_id);
+
+    // Initialize environment
+    VortexMaker::InitEnvironment();
+
+    // Refresh environment registered projects
+    VortexMaker::RefreshEnvironmentProjects();
+
+    VortexMaker::LoadSystemTemplates(ctx->IO.sys_templates);
+
+    ctx->logger = logger;
+    return ctx;
+}
+
 /**
  * @brief : Entry point of main Vortex runtime command.
  */
 int main(int argc, char *argv[])
 {
-    PrintInfinite();
+    PrintHeader();
 
+    InitBlankRuntime(true);
+
+    VortexMaker::LogInfo("Bootstrapp", "Opening the graphical interface...");
+    
     std::thread mainthread;
     std::thread Thread([&]()
                        { Cherry::Main(argc, argv); });

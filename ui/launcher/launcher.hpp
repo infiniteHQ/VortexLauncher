@@ -1,5 +1,11 @@
+#pragma once
 #define CHERRY_V1
 #include "../../lib/cherry/cherry.hpp"
+
+#include "src/static/project_manager/project_manager.hpp"
+#include "src/static/main_settings/main_settings.hpp"
+#include "src/static/welcome/welcome.hpp"
+#include "src/static/logs/logs.hpp"
 
 #include <thread>
 #include <memory>
@@ -10,33 +16,125 @@ public:
   Layer() {};
 };
 
+class Launcher
+{
+public:
+  Launcher()
+  {
+    // Render static windows
+    welcome_window = std::make_shared<Cherry::WelcomeWindow>("?loc:loc.window_names.welcome");
+    welcome_window->RefreshRender(welcome_window);
+    Cherry::AddWindow(welcome_window->GetAppWindow()); // Publish this window into the workspace
+
+    project_manager = std::make_shared<ProjectManager>();
+    project_manager->RefreshRender(project_manager);
+    Cherry::AddWindow(project_manager->GetAppWindow()); // Publish this window into the workspace
+
+    system_settings = std::make_shared<Cherry::MainSettings>("?loc:loc.window_names.settings");
+    system_settings->RefreshRender(system_settings);
+    Cherry::AddWindow(system_settings->GetAppWindow()); // Publish this window into the workspace
+
+    Cherry::ApplicationSpecification spec;
+    std::shared_ptr<Layer> layer = std::make_shared<Layer>();
+
+    std::string name = "Vortex Crash";
+    spec.Name = name;
+    spec.MinHeight = 500;
+    spec.MinWidth = 500;
+    spec.Height = 600;
+    spec.Width = 1200;
+    spec.CustomTitlebar = true;
+    spec.DisableWindowManagerTitleBar = true;
+    spec.WindowOnlyClosable = true;
+    spec.IconPath = Cherry::GetPath("ressources/imgs/icon_crash.png");
+    spec.UniqueAppWindowName = "Test";
+    spec.RenderMode = Cherry::WindowRenderingMethod::SimpleWindow;
+
+    // If show logs
+    logs_window = std::make_shared<LauncherLogUtility>("Test");
+    logs_window->RefreshRender(logs_window);
+    Cherry::AddWindow(logs_window->GetAppWindow()); // Publish this window into the workspace
+
+
+    logs_window->GetAppWindow()->AttachOnNewWindow(spec);
+  };
+
+  void SetLogsVisibility(const bool &visibility)
+  {
+    logs_window->GetAppWindow()->SetVisibility(visibility);
+  }
+
+  void SetMainSettingsVisibility(const bool &visibility)
+  {
+    system_settings->GetAppWindow()->SetVisibility(visibility);
+  }
+
+  void SetProjectManagerVisibility(const bool &visibility)
+  {
+    project_manager->GetAppWindow()->SetVisibility(visibility);
+  }
+
+  void SetWelcomeWindowVisibility(const bool &visibility)
+  {
+    welcome_window->GetAppWindow()->SetVisibility(visibility);
+  }
+
+  bool GetLogsVisibility()
+  {
+    return logs_window->GetAppWindow()->m_Visible;
+  }
+
+  bool GetMainSettingsVisibility()
+  {
+    return system_settings->GetAppWindow()->m_Visible;
+  }
+
+  bool GetProjectManagerVisibility()
+  {
+    return project_manager->GetAppWindow()->m_Visible;
+  }
+
+  bool GetWelcomeWindowVisibility()
+  {
+    return welcome_window->GetAppWindow()->m_Visible;
+  }
+
+private:
+  std::shared_ptr<LauncherLogUtility> logs_window;
+  std::shared_ptr<Cherry::MainSettings> system_settings;
+  std::shared_ptr<ProjectManager> project_manager;
+  std::shared_ptr<Cherry::WelcomeWindow> welcome_window;
+};
+
+static std::shared_ptr<Launcher> c_Launcher;
+
 Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
 {
   Cherry::ApplicationSpecification spec;
   std::shared_ptr<Layer> layer = std::make_shared<Layer>();
 
-  std::string name = "UIKit example";
+  std::string name = "Vortex Launcher";
   spec.Name = name;
   spec.MinHeight = 500;
   spec.MinWidth = 500;
+  spec.Height = 600;
+  spec.Width = 1200;
   spec.CustomTitlebar = true;
   spec.DisableWindowManagerTitleBar = true;
+  spec.WindowOnlyClosable = true;
   spec.RenderMode = WindowRenderingMethod::DockingWindows;
 
-  spec.UniqueAppWindowName = "?loc:loc.window_names.demo";
   spec.DisableTitle = true;
-  spec.WindowSaves = true;
+  spec.WindowSaves = false;
   spec.IconPath = Application::CookPath("ressources/imgs/icon.png");
 
   Cherry::Application *app = new Cherry::Application(spec);
-  app->SetWindowSaveDataFile("savedatda.json", true);
   app->SetFavIconPath(Application::CookPath("ressources/imgs/favicon.png"));
   app->AddFont("Consola", Application::CookPath("ressources/fonts/consola.ttf"), 17.0f);
 
-  app->AddLocale("fr", Application::CookPath("ressources/locales/fr.json"));
-  app->AddLocale("en", Application::CookPath("ressources/locales/en.json"));
-  app->AddLocale("es", Application::CookPath("ressources/locales/es.json")); // With not suffisent locales to show the "default" behavior
-  app->SetDefaultLocale("en"); // The "default" behavior
+  app->AddLocale("fr", Cherry::GetPath("ressources/locales/fr.json"));
+  app->AddLocale("en", Cherry::GetPath("ressources/locales/en.json"));
+  app->SetDefaultLocale("en");
   app->SetLocale("fr");
 
   app->PushLayer(layer);
@@ -74,10 +172,10 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
                               ImGui::PopFont();
                               ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);
 
-                              if (ImGui::MenuItem("Project Settings", "Main configurations of this project", &t))
+                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.show_logs_utility").c_str(), Cherry::GetLocale("loc.menubar.show_logs_utility_brief").c_str(), c_Launcher->GetLogsVisibility()))
                               {
+                                c_Launcher->SetLogsVisibility(!c_Launcher->GetLogsVisibility());
                               }
-
 
                               if(ImGui::Button("Set en"))
                               {
@@ -147,85 +245,8 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
                             }
 
                             ImGui::PopStyleVar();  
-                            ImGui::PopStyleColor(2); 
-                            });
+                            ImGui::PopStyleColor(2); });
 
-
-  
-  /*std::shared_ptr<ContentOutlinerSimple> ContentOutliner = std::make_shared<Cherry::ContentOutlinerSimple>("?loc:loc.window_names.outliner"); // Create Window
-  ContentOutliner->RefreshRender(ContentOutliner); // Refresh the render channel
-  Application::Get().PutWindow(ContentOutliner->GetAppWindow()); // Publish this window into the workspace
-
-  std::shared_ptr<TextEditorSimple> TextEditor = std::make_shared<Cherry::TextEditorSimple>("?loc:loc.window_names.text_editor");
-  TextEditor->RefreshRender(TextEditor);
-  Application::Get().PutWindow(TextEditor->GetAppWindow()); // Publish this window into the workspace
-
-  std::shared_ptr<PropsEditorSimple> PropsEditor = std::make_shared<Cherry::PropsEditorSimple>("?loc:loc.window_names.props_editor");
-  PropsEditor->RefreshRender(PropsEditor);
-  Application::Get().PutWindow(PropsEditor->GetAppWindow()); // Publish this window into the workspace
-  
-  std::shared_ptr<ContentBrowserAppWindow> ContentBrowser = std::make_shared<Cherry::ContentBrowserAppWindow>("?loc:loc.window_names.content_browser", "/home/diego");
-  ContentBrowser->RefreshRender(ContentBrowser);
-  Application::Get().PutWindow(ContentBrowser->GetAppWindow()); // Publish this window into the workspace
-
-  std::shared_ptr<NodeEditorSimple> NodalEditor = std::make_shared<Cherry::NodeEditorSimple>("?loc:loc.window_names.node_editor");
-  NodalEditor->RefreshRender(NodalEditor);
-  Application::Get().PutWindow(NodalEditor->GetAppWindow()); // Publish this window into the workspace
-  
-  std::shared_ptr<DockingAppWindow> WindowWithDockspace = std::make_shared<Cherry::DockingAppWindow>("fqdow_names.texqsd");
-  Application::Get().PutWindow(WindowWithDockspace->GetAppWindow());
-   
-  std::shared_ptr<MultiChildTabs> TabsWindow = std::make_shared<Cherry::MultiChildTabs>("Vertical Tabs");
-  TabsWindow->AddChild("One", [](){ImGui::Text("One");});
-  TabsWindow->AddChild("Two", [](){ImGui::Text("Two");});
-  TabsWindow->AddChild("Three", [](){ImGui::Text("Three");});
-  TabsWindow->RefreshRender(TabsWindow);
-  Application::Get().PutWindow(TabsWindow->GetAppWindow()); // Publish this window into the workspace
-  
-  
-  std::shared_ptr<MultiChildList> ListWindow = std::make_shared<Cherry::MultiChildList>("indow_names.list");
-  ListWindow->AddChild("One", [](){ImGui::Text("One");});
-  ListWindow->AddChild("Two", [](){ImGui::Text("Two");});
-  ListWindow->AddChild("Three", [](){ImGui::Text("Three");});
-  ListWindow->AddChild("Four", [](){ImGui::Text("Four");});
-  ListWindow->RefreshRender(ListWindow);
-  Application::Get().PutWindow(ListWindow->GetAppWindow()); // Publish this window into the workspace
-
-
-
-  std::shared_ptr<MultiChildTabs> appTabs = std::make_shared<Cherry::MultiChildTabs>("indow_names.tabs");
-  appTabs->AddChild("One", [](){ImGui::Text("One");});
-  appTabs->AddChild("Two", [](){ImGui::Text("Two");});
-  appTabs->AddChild("Three", [](){ImGui::Text("Three");});
-  appTabs->AddChild("Four", [](){ImGui::Text("Four");});
-  appTabs->RefreshRender(appTabs);
-  
-  */
-  std::shared_ptr<ContentBrowserAppWindow> ContentBrowser = std::make_shared<Cherry::ContentBrowserAppWindow>("?loc:loc.window_names.content_browser", "/home/diego");
-  ContentBrowser->RefreshRender(ContentBrowser);
-  Application::Get().PutWindow(ContentBrowser->GetAppWindow()); // Publish this window into the workspace
-   
-  
-  // Multi childs
-  std::shared_ptr<MultiChildAreas> VerticalAreas = std::make_shared<Cherry::MultiChildAreas>("indow_names.content_browser");
-  VerticalAreas->m_IsHorizontal = false;
-  VerticalAreas->AddChild(Child("One", [](){ImGui::Text("One");}, 5.0f));
-  VerticalAreas->AddChild(Child("Two", [](){ImGui::Text("Two");}, 20.0f));
-  VerticalAreas->AddChild(Child("Three", [](){ImGui::Text("Three");}));
-  VerticalAreas->AddChild(Child("Four", [](){ImGui::Text("Four");}));
-  VerticalAreas->RefreshRender(VerticalAreas);
-  Application::Get().PutWindow(VerticalAreas->GetAppWindow()); // Publish this window into the workspace
-
-  std::shared_ptr<MultiChildAreas> HorizontalAreas = std::make_shared<Cherry::MultiChildAreas>("indow_names.content_browser2");
-  HorizontalAreas->m_IsHorizontal = true;
-  HorizontalAreas->AddChild(Child("One2", [](){ImGui::Text("One");}, 50.0f));
-  HorizontalAreas->AddChild(Child("Two2", [](){ImGui::Text("Two");}, 30.0f));
-  HorizontalAreas->AddChild(Child("Three2", [](){ImGui::Text("Three");}, 20.0f));
-  HorizontalAreas->AddChild(Child("Four2", [](){ImGui::Text("Four");}));
-  HorizontalAreas->RefreshRender(HorizontalAreas);
-  Application::Get().PutWindow(HorizontalAreas->GetAppWindow()); // Publish this window into the workspace
-
-  
-
+  c_Launcher = std::make_shared<Launcher>();
   return app;
 }
