@@ -162,7 +162,7 @@ namespace VortexMaker
 
     VORTEX_API void InitProject(const nlohmann::json &main_config);
 
-    VORTEX_API void UpdateProjectData(const std::string& old_name, const std::string& path);
+    VORTEX_API void UpdateProjectData(const std::string &old_name, const std::string &path);
     VORTEX_API void FinishProcess();
 
     // Logger functions
@@ -182,13 +182,12 @@ namespace VortexMaker
     VORTEX_API void LogFatal(const std::string &scope, const std::string &message);
 #define VXFATAL(scope, message) LogFatal(scope, message);
 
-    VORTEX_API void CreateSessionTopic(const std::string& post_topic);
+    VORTEX_API void CreateSessionTopic(const std::string &post_topic);
     VORTEX_API void DeleteSessionTopic(const std::string &post_topic);
-    VORTEX_API void PostSessionState(const std::string& post_topic);
-    VORTEX_API void PostSessionCoreDump(const std::string& post_topic);
-    VORTEX_API nlohmann::json GetLastModuleOfLastSession(const std::string& post_topic);
-    VORTEX_API nlohmann::json GetLastSession(const std::string& post_topic);
-
+    VORTEX_API void PostSessionState(const std::string &post_topic);
+    VORTEX_API void PostSessionCoreDump(const std::string &post_topic);
+    VORTEX_API nlohmann::json GetLastModuleOfLastSession(const std::string &post_topic);
+    VORTEX_API nlohmann::json GetLastSession(const std::string &post_topic);
 
     VORTEX_API void InitEnvironment();
     VORTEX_API std::shared_ptr<spdlog::logger> CreateLogPool(const std::string &pool_name);
@@ -197,7 +196,7 @@ namespace VortexMaker
     VORTEX_API void DropLoggers();
 
     VORTEX_API void InstallModuleToSystem(const std::string &path);
-    VORTEX_API void InstallModule(const std::string &module_name, const std::string &version, bool& restart_modules);
+    VORTEX_API void InstallModule(const std::string &module_name, const std::string &version, bool &restart_modules);
     VORTEX_API std::vector<std::string> SearchFiles(const std::string &path, const std::string &filename);
     VORTEX_API std::vector<std::string> SearchFiles(const std::string &path, const std::string &filename, int recursions);
     VORTEX_API std::vector<std::string> SearchSystemFiles(const std::string &path, const std::string &filename);
@@ -207,25 +206,28 @@ namespace VortexMaker
 
     VORTEX_API void ImportProject(const std::string &path);
     VORTEX_API std::vector<std::shared_ptr<EnvProject>> FindProjectInFolder(const std::string &path);
-    
-    VORTEX_API nlohmann::json DumpJSON(const std::string &file);    
-    VORTEX_API void PopulateJSON(const nlohmann::json& json_data, const std::string &file);
 
-    VORTEX_API void DeleteProject(const std::string &path, const std::string& project_name);
-    VORTEX_API void RemoveSystemProjectEntry(const std::string& project_name);
+    VORTEX_API nlohmann::json DumpJSON(const std::string &file);
+    VORTEX_API void PopulateJSON(const nlohmann::json &json_data, const std::string &file);
 
+    VORTEX_API void DeleteProject(const std::string &path, const std::string &project_name);
+    VORTEX_API void RemoveSystemProjectEntry(const std::string &project_name);
+
+    VORTEX_API void RefreshEnvironmentProjectsPools();
     VORTEX_API void RefreshEnvironmentProjects();
     VORTEX_API void UpdateEnvironmentProject();
-    VORTEX_API void UpdateEnvironmentProject(const std::string &name, const std::string &author, const std::string &version, const std::string& compatibleWith, const std::string &description, const std::string &path, const std::string &logo_path, const std::string &template_name);
-    VORTEX_API void UpdateEnvironmentProject(const std::string& oldname);
+    VORTEX_API void UpdateEnvironmentProject(const std::string &name, const std::string &author, const std::string &version, const std::string &compatibleWith, const std::string &description, const std::string &path, const std::string &logo_path, const std::string &template_name);
+    VORTEX_API void UpdateEnvironmentProject(const std::string &oldname);
 
     VORTEX_API std::string gen_random(const int len);
     VORTEX_API std::string getHomeDirectory();
-    VORTEX_API void createFolderIfNotExists(const std::string& path);
+    VORTEX_API void createFolderIfNotExists(const std::string &path);
     VORTEX_API void createJsonFileIfNotExists(const std::string &filename, const nlohmann::json &defaultData);
 
+    VORTEX_API void OpenProject(const std::string &path, const std::string &version);
+
     VORTEX_API void CreateProject(const std::string &name, const std::string &path);
-    VORTEX_API void CreateProject(const std::string &name, const std::string &author, const std::string &version, const std::string &description, const std::string &path, const std::string& logo_path, const std::string &template_name);
+    VORTEX_API void CreateProject(const std::string &name, const std::string &author, const std::string &version, const std::string &description, const std::string &path, const std::string &logo_path, const std::string &template_name);
 
     VORTEX_API std::string getCurrentTimeStamp();
 
@@ -910,8 +912,8 @@ private:
         T storedValue;
     };
 
-    public:
-    hArgs(){};
+public:
+    hArgs() {};
 
     template <typename T>
     void add(const hString &tag, T value)
@@ -950,7 +952,6 @@ private:
     }
 
     hVector<hString> registered_arguments;
-
 
     hMap<hString, ArgumentBase *> arguments;
 };

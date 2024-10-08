@@ -9,6 +9,7 @@
 
 #include "./main/include/vortex.h"
 #include "./main/include/templates/load.h"
+#include "./main/include/modules/load.h"
 
 static std::string session_id = "unknow";
 
@@ -108,13 +109,28 @@ VxContext *InitBlankRuntime(bool logger)
     VortexMaker::InitEnvironment();
 
     // Refresh environment registered projects
+    VortexMaker::RefreshEnvironmentProjectsPools();
     VortexMaker::RefreshEnvironmentProjects();
 
     VortexMaker::LoadSystemTemplates(ctx->IO.sys_templates);
 
+    // Load modules installed in the current project
+    VortexMaker::LoadSystemModules(ctx->IO.sys_em);
+
     ctx->logger = logger;
     return ctx;
 }
+
+// Install entrypoints
+/*
+vortex_launcher -i --module <path>
+vortex_launcher -i --template <path>
+vortex_launcher -i --plugin <path>
+vortex_launcher -i --vortex <path>
+
+
+
+*/
 
 /**
  * @brief : Entry point of main Vortex runtime command.
@@ -126,7 +142,7 @@ int main(int argc, char *argv[])
     InitBlankRuntime(true);
 
     VortexMaker::LogInfo("Bootstrapp", "Opening the graphical interface...");
-    
+
     std::thread mainthread;
     std::thread Thread([&]()
                        { Cherry::Main(argc, argv); });

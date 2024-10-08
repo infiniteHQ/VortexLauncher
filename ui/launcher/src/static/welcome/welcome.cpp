@@ -5,7 +5,7 @@ namespace Cherry
     WelcomeWindow::WelcomeWindow(const std::string &name)
     {
         m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
-        m_AppWindow->SetIcon("/usr/local/include/Vortex/imgs/vortex.png");
+        m_AppWindow->SetIcon(Cherry::GetPath("ressources/imgs/icons/misc/icon_home.png"));
         m_AppWindow->SetClosable(false);
 
         m_AppWindow->m_TabMenuCallback = []()

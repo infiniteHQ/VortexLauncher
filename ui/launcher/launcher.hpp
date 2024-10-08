@@ -6,6 +6,7 @@
 #include "src/static/main_settings/main_settings.hpp"
 #include "src/static/welcome/welcome.hpp"
 #include "src/static/logs/logs.hpp"
+#include "src/static/download_center/download_center.hpp"
 
 #include <thread>
 #include <memory>
@@ -26,37 +27,24 @@ public:
     welcome_window->RefreshRender(welcome_window);
     Cherry::AddWindow(welcome_window->GetAppWindow()); // Publish this window into the workspace
 
+    download_center = std::make_shared<DownloadCenter>("Download Center");
+    download_center->RefreshRender(download_center);
+    download_center->GetAppWindow()->SetVisibility(false);
+    Cherry::AddWindow(download_center->GetAppWindow()); // Publish this window into the workspace
+
     project_manager = std::make_shared<ProjectManager>();
     project_manager->RefreshRender(project_manager);
     Cherry::AddWindow(project_manager->GetAppWindow()); // Publish this window into the workspace
 
     system_settings = std::make_shared<Cherry::MainSettings>("?loc:loc.window_names.settings");
     system_settings->RefreshRender(system_settings);
+    system_settings->GetAppWindow()->SetVisibility(false);
     Cherry::AddWindow(system_settings->GetAppWindow()); // Publish this window into the workspace
 
-    Cherry::ApplicationSpecification spec;
-    std::shared_ptr<Layer> layer = std::make_shared<Layer>();
-
-    std::string name = "Vortex Crash";
-    spec.Name = name;
-    spec.MinHeight = 500;
-    spec.MinWidth = 500;
-    spec.Height = 600;
-    spec.Width = 1200;
-    spec.CustomTitlebar = true;
-    spec.DisableWindowManagerTitleBar = true;
-    spec.WindowOnlyClosable = true;
-    spec.IconPath = Cherry::GetPath("ressources/imgs/icon_crash.png");
-    spec.UniqueAppWindowName = "Test";
-    spec.RenderMode = Cherry::WindowRenderingMethod::SimpleWindow;
-
-    // If show logs
-    logs_window = std::make_shared<LauncherLogUtility>("Test");
+    logs_window = std::make_shared<LauncherLogUtility>("?loc:loc.window_names.logs_utility");
     logs_window->RefreshRender(logs_window);
+    logs_window->GetAppWindow()->SetVisibility(false);
     Cherry::AddWindow(logs_window->GetAppWindow()); // Publish this window into the workspace
-
-
-    logs_window->GetAppWindow()->AttachOnNewWindow(spec);
   };
 
   void SetLogsVisibility(const bool &visibility)
@@ -77,6 +65,39 @@ public:
   void SetWelcomeWindowVisibility(const bool &visibility)
   {
     welcome_window->GetAppWindow()->SetVisibility(visibility);
+  }
+
+  void SetDownloadCenterVisibility(const bool &visibility)
+  {
+    download_center->GetAppWindow()->SetVisibility(visibility);
+    if (visibility)
+    {
+      Cherry::ApplicationSpecification spec;
+      std::shared_ptr<Layer> layer = std::make_shared<Layer>();
+
+      std::string name = "Download Center";
+      spec.Name = name;
+      spec.MinHeight = 500;
+      spec.MinWidth = 500;
+      spec.Height = 500;
+      spec.Width = 950;
+      spec.CustomTitlebar = true;
+      spec.DisableWindowManagerTitleBar = true;
+      spec.WindowOnlyClosable = true;
+      spec.RenderMode = Cherry::WindowRenderingMethod::SimpleWindow;
+      spec.UniqueAppWindowName = download_center->GetAppWindow()->m_Name;
+
+      spec.DisableTitle = true;
+      spec.WindowSaves = false;
+      spec.IconPath = Cherry::GetPath("ressources/imgs/icon_update.png");
+      download_center->GetAppWindow()->AttachOnNewWindow(spec);
+    }
+
+  }
+
+  bool GetDownloadCenterVisibility()
+  {
+    return download_center->GetAppWindow()->m_Visible;
   }
 
   bool GetLogsVisibility()
@@ -103,6 +124,7 @@ private:
   std::shared_ptr<LauncherLogUtility> logs_window;
   std::shared_ptr<Cherry::MainSettings> system_settings;
   std::shared_ptr<ProjectManager> project_manager;
+  std::shared_ptr<DownloadCenter> download_center;
   std::shared_ptr<Cherry::WelcomeWindow> welcome_window;
 };
 
@@ -126,11 +148,11 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
 
   spec.DisableTitle = true;
   spec.WindowSaves = false;
-  spec.IconPath = Application::CookPath("ressources/imgs/icon.png");
+  spec.IconPath = Cherry::GetPath("ressources/imgs/icon.png");
 
   Cherry::Application *app = new Cherry::Application(spec);
-  app->SetFavIconPath(Application::CookPath("ressources/imgs/favicon.png"));
-  app->AddFont("Consola", Application::CookPath("ressources/fonts/consola.ttf"), 17.0f);
+  app->SetFavIconPath(Cherry::GetPath("ressources/imgs/favicon.png"));
+  app->AddFont("Consola", Cherry::GetPath("ressources/fonts/consola.ttf"), 17.0f);
 
   app->AddLocale("fr", Cherry::GetPath("ressources/locales/fr.json"));
   app->AddLocale("en", Cherry::GetPath("ressources/locales/en.json"));
@@ -161,7 +183,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
                               ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
 
                               ImGui::PushStyleColor(ImGuiCol_Text, grayColor);
-                              ImGui::Text("Main stuff");
+                              ImGui::Text("Settings");
                               ImGui::PopStyleColor();
 
                               ImGui::PushStyleColor(ImGuiCol_Separator, graySeparatorColor);
@@ -175,6 +197,16 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
                               if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.show_logs_utility").c_str(), Cherry::GetLocale("loc.menubar.show_logs_utility_brief").c_str(), c_Launcher->GetLogsVisibility()))
                               {
                                 c_Launcher->SetLogsVisibility(!c_Launcher->GetLogsVisibility());
+                              }
+
+                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.show_download_utility").c_str(), Cherry::GetLocale("loc.menubar.show_main_settings_brief").c_str(), c_Launcher->GetDownloadCenterVisibility()))
+                              {
+                                c_Launcher->SetDownloadCenterVisibility(!c_Launcher->GetDownloadCenterVisibility());
+                              }
+
+                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.show_main_settings").c_str(), Cherry::GetLocale("loc.menubar.show_main_settings_brief").c_str(), c_Launcher->GetMainSettingsVisibility()))
+                              {
+                                c_Launcher->SetMainSettingsVisibility(!c_Launcher->GetMainSettingsVisibility());
                               }
 
                               if(ImGui::Button("Set en"))

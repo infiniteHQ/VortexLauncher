@@ -165,6 +165,8 @@ struct VxIO
 
   // Know projects in system
   std::vector<std::shared_ptr<EnvProject>> sys_projects;
+  std::vector<std::string> sys_projects_pools;
+
 
   // Templates
   std::vector<std::shared_ptr<TemplateInterface>> templates;

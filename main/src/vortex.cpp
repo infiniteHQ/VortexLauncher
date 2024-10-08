@@ -187,6 +187,29 @@ VORTEX_API std::string VortexMaker::getHomeDirectory()
     return std::string(homePath);
 }
 
+void initialize_random()
+{
+    srand(static_cast<unsigned int>(time(0)));
+}
+
+VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::string &version)
+{
+    initialize_random();
+
+    std::string session_id = "editor-" + VortexMaker::gen_random(8);
+    // TODO : env path
+    std::string command = "/opt/Vortex/" + version + "/bin/vortex --editor --session_id=" + session_id;
+    std::string target_path = VortexMaker::getHomeDirectory() + "/.vx/sessions/" + session_id + "/crash/core_dumped.txt";
+    std::string crash_script_command = "bash /usr/local/bin/Vortex/" + version + "/handle_crash.sh " + target_path + " " + command;
+    std::cout << "Bootstrapp" << "Starting with command : " << crash_script_command << std::endl;
+
+    if (std::system(crash_script_command.c_str()) != 0)
+    {
+        std::string crash_handle_command = "/opt/Vortex/" + version + "/bin/vortex -crash --session_id=" + session_id;
+        std::system(crash_handle_command.c_str());
+    }
+}
+
 /**
  * @brief Set custom allocator functions and user data for VortexMaker.
  *
@@ -350,8 +373,6 @@ void VortexMaker::DebugAllocHook(VortexMakerDebugAllocInfo *info, void *ptr,
     }*/
 }
 
-
-
 //-----------------------------------------------------------------------------
 // [SECTION] ImGuiTextBuffer, ImGuiTextIndex
 //-----------------------------------------------------------------------------
@@ -429,6 +450,5 @@ bool VortexMaker::DebugCheckVersionAndDataLayout(const char *version)
     }
 
     return !error; // Return true if no error occurred
-
 }
 #endif // VORTEX_DISABLE

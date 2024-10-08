@@ -2,6 +2,8 @@
     "locales": [
         {"loc.menubar.show_logs_utility":"Afficher le journal"},
         {"loc.menubar.show_logs_utility_brief":"Affiche le journal de logs."},
+        {"loc.menubar.show_main_settings":"Paramètres de Vortex"},
+        {"loc.menubar.show_main_settings_brief":"Affiche les paramètres de Vortex"},
 
         {"loc.window_names.project_manager":"Gestionnaire de projects"},
         {"loc.window_names.settings":"Paramètres"},

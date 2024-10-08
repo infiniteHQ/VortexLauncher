@@ -1,7 +1,0 @@
-[Desktop Entry]
-Name=Vortex Creation Platform
-Exec=/bin/vx
-Icon=/usr/local/include/Vortex/imgs/vortex.png
-Terminal=false
-Type=Application
-Categories=Utility;Development;

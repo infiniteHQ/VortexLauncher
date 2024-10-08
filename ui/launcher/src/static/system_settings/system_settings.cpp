@@ -206,7 +206,7 @@ SystemSettings::SystemSettings()
     this->ctx = VortexMaker::GetCurrentContext();
 
     m_AppWindow = std::make_shared<Cherry::AppWindow>("?loc:loc.window_names.settings", "?loc:loc.window_names.settings");
-    m_AppWindow->SetIcon("/usr/local/include/Vortex/imgs/vortex.png");
+    m_AppWindow->SetIcon(Cherry::GetPath("ressources/imgs/icons/misc/icon_settings.png"));
     m_AppWindow->SetDefaultBehavior(Cherry::DefaultAppWindowBehaviors::DefaultDocking, "full");
 
     m_AppWindow->SetVisibility(false);

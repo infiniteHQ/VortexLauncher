@@ -33,42 +33,77 @@ VORTEX_API void VortexMaker::InitEnvironment()
     }
 }
 
-VORTEX_API void VortexMaker::RefreshEnvironmentProjects()
+VORTEX_API void VortexMaker::RefreshEnvironmentProjectsPools()
 {
     // Get reference to the Vortex context
     VxContext &ctx = *CVortexMaker;
 
     std::string path = VortexMaker::getHomeDirectory() + "/.vx/data/";
 
-    std::string json_file = path + "/projects.json";
+    std::string json_file = path + "/projects_pools.json";
 
     // Clear project list
-    ctx.IO.sys_projects.clear();
+    ctx.IO.sys_projects_pools.clear();
 
     // Verify if the project is valid
     try
     {
         // Load JSON data from the project configuration file
         auto json_data = VortexMaker::DumpJSON(json_file);
-        for (auto project : json_data["projects"])
+        for (auto pool : json_data["projects_pools"])
         {
-            std::shared_ptr<EnvProject> newproject = std::make_shared<EnvProject>();
-
-            newproject->name = project["name"].get<std::string>();
-            newproject->version = project["version"].get<std::string>();
-            newproject->description = project["description"].get<std::string>();
-            newproject->compatibleWith = project["compatibleWith"].get<std::string>();
-            newproject->path = project["path"].get<std::string>();
-            newproject->logoPath = project["logoPath"].get<std::string>();
-            newproject->lastOpened = project["lastOpened"].get<std::string>();
-
-            ctx.IO.sys_projects.push_back(newproject);
+            ctx.IO.sys_projects_pools.push_back(pool);
         }
     }
     catch (const std::exception &e)
     {
         // Print error if an exception occurs
         VortexMaker::LogError("Error: ", e.what());
+    }
+}
+
+void VortexMaker::RefreshEnvironmentProjects()
+{
+    VxContext &ctx = *CVortexMaker;
+
+    std::string path = VortexMaker::getHomeDirectory() + "/.vx/data/";
+
+    std::string json_file = path + "/projects.json";
+
+    ctx.IO.sys_projects.clear();
+
+    for (const auto& pool_path : ctx.IO.sys_projects_pools)
+    {
+        for (const auto& entry : std::filesystem::recursive_directory_iterator(pool_path))
+        {
+            if (entry.is_regular_file() && entry.path().filename() == "vortex.config")
+            {
+                std::ifstream file(entry.path());
+                if (file.is_open())
+                {
+                    nlohmann::json json_data;
+                    file >> json_data;
+                    
+                    if (json_data.contains("project"))
+                    {
+                        nlohmann::json project_data = json_data["project"];
+                        std::shared_ptr<EnvProject> project = std::make_shared<EnvProject>();
+
+
+                        project->name = project_data.value("name", "");
+                        project->path = entry.path().parent_path().string();
+                        project->version = project_data.value("version", "");
+                        project->compatibleWith = project_data.value("compatibleWith", "");
+                        project->description = project_data.value("description", "");
+                        project->logoPath = project_data.value("logoPath", "");
+                        project->author = project_data.value("author", "");
+                        project->lastOpened = project_data.value("lastOpened", "unknown");
+
+                        ctx.IO.sys_projects.push_back(project);
+                    }
+                }
+            }
+        }
     }
 }
 
