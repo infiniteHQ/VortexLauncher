@@ -67,40 +67,58 @@ void VortexMaker::RefreshEnvironmentProjects()
     VxContext &ctx = *CVortexMaker;
 
     std::string path = VortexMaker::getHomeDirectory() + "/.vx/data/";
-
     std::string json_file = path + "/projects.json";
 
     ctx.IO.sys_projects.clear();
 
-    for (const auto& pool_path : ctx.IO.sys_projects_pools)
+    for (const auto &pool_path : ctx.IO.sys_projects_pools)
     {
-        for (const auto& entry : std::filesystem::recursive_directory_iterator(pool_path))
+        // Check if pool_path is a directory before proceeding
+        if (!std::filesystem::is_directory(pool_path))
+        {
+            continue; // Skip to the next path
+        }
+
+        for (const auto &entry : std::filesystem::recursive_directory_iterator(pool_path))
         {
             if (entry.is_regular_file() && entry.path().filename() == "vortex.config")
             {
-                std::ifstream file(entry.path());
-                if (file.is_open())
+                try
                 {
-                    nlohmann::json json_data;
-                    file >> json_data;
-                    
-                    if (json_data.contains("project"))
+                    std::ifstream file(entry.path());
+                    if (file.is_open())
                     {
-                        nlohmann::json project_data = json_data["project"];
-                        std::shared_ptr<EnvProject> project = std::make_shared<EnvProject>();
+                        nlohmann::json json_data;
+                        file >> json_data;
 
+                        if (json_data.contains("project"))
+                        {
+                            nlohmann::json project_data = json_data["project"];
+                            std::shared_ptr<EnvProject> project = std::make_shared<EnvProject>();
 
-                        project->name = project_data.value("name", "");
-                        project->path = entry.path().parent_path().string();
-                        project->version = project_data.value("version", "");
-                        project->compatibleWith = project_data.value("compatibleWith", "");
-                        project->description = project_data.value("description", "");
-                        project->logoPath = project_data.value("logoPath", "");
-                        project->author = project_data.value("author", "");
-                        project->lastOpened = project_data.value("lastOpened", "unknown");
+                            project->name = project_data.value("name", "");
+                            project->path = entry.path().parent_path().string();
+                            project->version = project_data.value("version", "");
+                            project->compatibleWith = project_data.value("compatibleWith", "");
+                            project->description = project_data.value("description", "");             
 
-                        ctx.IO.sys_projects.push_back(project);
+                            std::string logo_path = entry.path().parent_path().string() + "/" + project_data.value("logoPath", "");
+                            if(std::filesystem::exists(logo_path))
+                            {
+                                project->logoPath = entry.path().parent_path().string() + "/" + project_data.value("logoPath", "");
+                            }           
+                            
+                            project->author = project_data.value("author", "");
+                            project->lastOpened = project_data.value("lastOpened", "unknown");
+
+                            ctx.IO.sys_projects.push_back(project);
+                        }
                     }
+                }
+                catch (const std::exception &e)
+                {
+                    // Print error if an exception occurs
+                    VortexMaker::LogError("Error: ", e.what());
                 }
             }
         }
