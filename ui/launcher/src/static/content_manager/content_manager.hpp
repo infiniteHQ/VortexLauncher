@@ -1,6 +1,9 @@
 #pragma once
 #include "../../../../../main/include/vortex.h"
 #include "../../../../../main/include/vortex_internals.h"
+#include "../../../../../main/include/templates/install.h"
+#include "../../../../../main/include/templates/delete.h"
+#include "../../../../../main/include/templates/load.h"
 #include "../../utils.hpp"
 
 #ifndef CONTENT_MANAGER_H

@@ -978,7 +978,7 @@ void SystemSettings::menubar()
                                     if (ImGui::Button(label.c_str()))
                                     {
                                         VxContext *ctx = VortexMaker::GetCurrentContext();
-                                        VortexMaker::InstallModuleToSystem(it->second.second->m_path);
+                                        //VortexMaker::InstallModuleToSystem(it->second.second->m_path);
                                         VortexMaker::LoadSystemModules(ctx->IO.sys_em);
                                         CheckAllModulesStates(VortexMaker::FindModulesInDirectory(path_input_all));
                                     }
@@ -988,7 +988,7 @@ void SystemSettings::menubar()
                                     if (ImGui::Button("Install"))
                                     {
                                         VxContext *ctx = VortexMaker::GetCurrentContext();
-                                        VortexMaker::InstallModuleToSystem(it->second.second->m_path);
+                                        //VortexMaker::InstallModuleToSystem(it->second.second->m_path);
                                         VortexMaker::LoadSystemModules(ctx->IO.sys_em);
                                         CheckAllModulesStates(VortexMaker::FindModulesInDirectory(path_input_all));
                                     }

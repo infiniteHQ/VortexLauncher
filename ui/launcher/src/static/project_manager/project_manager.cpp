@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cctype>
 #include <unordered_set>
+static std::vector<std::string> projectPoolsPaths = {};
 
 ProjectManager::ProjectManager()
 {
@@ -14,6 +15,32 @@ ProjectManager::ProjectManager()
 
     m_AppWindow->SetLeftMenubarCallback([this]()
                                         { this->mainButtonsMenuItem(); });
+
+    // Create project components
+    cp_SimpleTable = Cherry::Application::Get().CreateComponent<Cherry::SimpleTable>("simpletable_2", "KeyvA", std::vector<std::string>{"", ""});
+    cp_SimpleTable->SetHeaderCellPaddingY(12.0f);
+    cp_SimpleTable->SetHeaderCellPaddingX(10.0f);
+    cp_SimpleTable->SetRowsCellPaddingY(100.0f);
+
+    v_ProjectName = std::make_shared<std::string>("Vortex Project");
+    cp_ProjectName = Cherry::Application::Get().CreateComponent<Cherry::DoubleKeyValString>("keyvaldouble_1", v_ProjectName, "Project name");
+
+    v_ProjectDescription = std::make_shared<std::string>("This is a amazing description of the project.");
+    cp_ProjectDescription = Cherry::Application::Get().CreateComponent<Cherry::DoubleKeyValString>("keyvaldouble_2", v_ProjectDescription, "Description");
+
+    v_ProjectVersion = std::make_shared<std::string>("1.0.0");
+    cp_ProjectVersion = Cherry::Application::Get().CreateComponent<Cherry::DoubleKeyValString>("keyvaldouble_3", v_ProjectVersion, "Version");
+
+    v_ProjectAuthor = std::make_shared<std::string>("Your team");
+    cp_ProjectAuthor = Cherry::Application::Get().CreateComponent<Cherry::DoubleKeyValString>("keyvaldouble_4", v_ProjectAuthor, "Authors");
+
+    //v_ProjectAuthor = std::make_shared<std::string>("Your team");
+    std::string path = VortexMaker::getHomeDirectory() + "/.vx/configs/";
+    loadProjects(projectPoolsPaths, path + "/projects_pools.json");
+    cp_ProjectPath = Cherry::Application::Get().CreateComponent<Cherry::DoubleKeyValSimpleCombo>("keyvaldouble_5", projectPoolsPaths, 0, "Select a path");
+    
+	v_ProjectOpen = std::make_shared<bool>(true);
+    cp_ProjectOpen = Cherry::Application::Get().CreateComponent<Cherry::DoubleKeyValBoolean>("keyvaldouble_6", v_ProjectOpen, "Open after ?");
 
     this->ctx = VortexMaker::GetCurrentContext();
     this->Refresh();
@@ -201,7 +228,7 @@ void ProjectManager::RefreshRender(const std::shared_ptr<ProjectManager> &instan
                                        if (!project_creation)
                                        {
                                            ImGui::BeginChild("left_pane", ImVec2(leftPaneWidth, 0), true, ImGuiWindowFlags_NoBackground);
-                                           
+
                                            Cherry::TitleFourColored("All projects ", "#75757575");
                                            for (int row = 0; row < instance->ctx->IO.sys_projects.size(); row++)
                                            {
@@ -376,11 +403,11 @@ if (ImGui::BeginPopupModal("Project Already Running", NULL, ImGuiWindowFlags_Alw
                                                ImGui::BeginChild(ImGui::GetID((void *)(intptr_t)i), ImVec2(columnWidth, 0), true);
                                                if (i == 0)
                                                {
-                                                   MyBanner("/usr/local/include/Vortex/1.1/imgs/b_all_bases.png");
-                                                   MyBanner("/usr/local/include/Vortex/1.1/imgs/b_operating_systems.png");
-                                                   MyBanner("/usr/local/include/Vortex/1.1/imgs/b_app_svc.png");
-                                                   MyBanner("/usr/local/include/Vortex/1.1/imgs/b_tools_utils.png");
-                                                   MyBanner("/usr/local/include/Vortex/1.1/imgs/b_assets_components.png");
+                                                   MyBanner(Cherry::GetPath("ressources/imgs/banners/b_all_bases.png"));
+                                                   MyBanner(Cherry::GetPath("ressources/imgs/banners/b_operating_systems.png"));
+                                                   MyBanner(Cherry::GetPath("ressources/imgs/banners/b_app_svc.png"));
+                                                   MyBanner(Cherry::GetPath("ressources/imgs/banners/b_tools_utils.png"));
+                                                   MyBanner(Cherry::GetPath("ressources/imgs/banners/b_assets_components.png"));
                                                }
 
                                                else if (i == 1)
@@ -448,23 +475,64 @@ if (ImGui::BeginPopupModal("Project Already Running", NULL, ImGuiWindowFlags_Alw
                                                        }
 
                                                        ImGui::PopStyleVar(4);
-                                                       ImGui::InputText("Path", buf, sizeof(buf));
+                                                       /*ImGui::InputText("Path", buf, sizeof(buf));
                                                        ImGui::InputText("Name", name, 128);
                                                        ImGui::InputText("Description", desc, 128);
                                                        ImGui::InputText("Authors", auth, 128);
-                                                       ImGui::InputText("Version", version, 128);
+                                                       ImGui::InputText("Version", version, 128);*/
+
+                                                        std::vector<Cherry::SimpleTable::SimpleTableRow> keyvals;
+
+                                                        keyvals.push_back(Cherry::SimpleTable::SimpleTableRow({[&]()
+                                                                                { instance->cp_ProjectName->Render(0); },
+                                                                                [&]()
+                                                                                { instance->cp_ProjectName->Render(1); }
+                                                                                }));
+
+                                                        keyvals.push_back(Cherry::SimpleTable::SimpleTableRow({[&]()
+                                                                                { instance->cp_ProjectDescription->Render(0); },
+                                                                                [&]()
+                                                                                { instance->cp_ProjectDescription->Render(1); }
+                                                                                }));
+
+                                                        keyvals.push_back(Cherry::SimpleTable::SimpleTableRow({[&]()
+                                                                                { instance->cp_ProjectAuthor->Render(0); },
+                                                                                [&]()
+                                                                                { instance->cp_ProjectAuthor->Render(1); }
+                                                                                }));
+
+                                                        keyvals.push_back(Cherry::SimpleTable::SimpleTableRow({[&]()
+                                                                                { instance->cp_ProjectVersion->Render(0); },
+                                                                                [&]()
+                                                                                { instance->cp_ProjectVersion->Render(1); }
+                                                                                }));
+
+
+                                                        keyvals.push_back(Cherry::SimpleTable::SimpleTableRow({[&]()
+                                                                                { instance->cp_ProjectPath->Render(0); },
+                                                                                [&]()
+                                                                                { instance->cp_ProjectPath->Render(1); }
+                                                                                }));
+
+
+                                                        keyvals.push_back(Cherry::SimpleTable::SimpleTableRow({[&]()
+                                                                                { instance->cp_ProjectOpen->Render(0); },
+                                                                                [&]()
+                                                                                { instance->cp_ProjectOpen->Render(1); }
+                                                                                }));
+
+
+
+
+                                                        instance->cp_SimpleTable->Render(keyvals);
 
                                                        ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
                                                        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
                                                        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
                                                        ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 0.0f);
 
-                                                       float ysection = windowSize.y - 280;
-                                                       ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX(), ysection));
-
-                                                       ImGui::Text("Configuration of the project :");
-                                                       ImGui::Checkbox("Open the project after creation", &open);
-                                                       std::string path = s + name;
+                                                       std::string path = instance->cp_ProjectPath->GetData("selected") + "/" + name;
+                                                       std::cout << path << std::endl;
 
                                                        float firstButtonPosX = windowSize.x - buttonSize.x - bitButtonSize.y - 75 * 2 - ImGui::GetStyle().ItemSpacing.x * 3;
 
@@ -488,13 +556,7 @@ if (ImGui::BeginPopupModal("Project Already Running", NULL, ImGuiWindowFlags_Alw
 
                                                            if (open)
                                                            {
-                                                               std::string projectPath = path;
-
-                                                               std::thread([projectPath]()
-                                                                           {
-        std::string cmd = "cd " + projectPath + " && vortex -e";
-        system(cmd.c_str()); })
-                                                                   .detach();
+                                                            // TODO
                                                            }
                                                        }
                                                        ImGui::PopStyleColor(3);

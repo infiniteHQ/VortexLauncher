@@ -625,7 +625,7 @@ ImGui::SetNextWindowPos(ImVec2(center.x, center.y), ImGuiCond_Appearing, ImVec2(
                                {
                                    for (auto &module : to_import_modules)
                                    {
-                                    VortexMaker::InstallModuleToSystem(module->m_path);
+                                    //VortexMaker::InstallModuleToSystem(module->m_path);
                                    }
 
                                    VortexMaker::LoadSystemModules(VortexMaker::GetCurrentContext()->IO.sys_em);

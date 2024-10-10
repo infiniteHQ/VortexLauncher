@@ -590,6 +590,8 @@ static void MyBanner(const std::string &path)
     ImDrawList *drawList = ImGui::GetWindowDrawList();
 
     // getTexture(path, drawList, cursorPos, squareSize);
+    //ImGui::Image(path, drawList, cursorPos, squareSize);
+    drawList->AddImage(Cherry::GetTexture(path), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
 
     ImVec2 smallRectSize(40, 20);
     ImVec2 smallRectPos(cursorPos.x + squareSize.x - smallRectSize.x - 5, cursorPos.y + squareSize.y - smallRectSize.y - 5);

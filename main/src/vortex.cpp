@@ -391,9 +391,9 @@ void VortexMaker::GetAllocatorFunctions(VortexMakerMemAllocFunc *p_alloc_func,
     *p_user_data = CVxAllocatorUserData;
 }
 
-VORTEX_API void VortexMaker::InstallModuleToSystem(const std::string &path)
+VORTEX_API void VortexMaker::InstallModuleToSystem(const std::string &path, const std::string& pool_path)
 {
-    std::string modules_path = "~/.vx/modules";
+    std::string modules_path = pool_path;
     std::string json_file = path + "/module.json";
 
     // Verify if the module is valid

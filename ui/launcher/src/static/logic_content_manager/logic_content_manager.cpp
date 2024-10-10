@@ -3,7 +3,13 @@ using namespace Cherry;
 
 static std::vector<std::shared_ptr<ModuleInterface>> c_FindedModules;
 static std::vector<std::shared_ptr<ModuleInterface>> to_suppr_modules;
+
 static std::vector<std::shared_ptr<ModuleInterface>> to_import_modules;
+
+int to_import_destination_index;
+std::vector<std::string> modules_pools;
+std::string to_import_destination;
+
 
 static bool showModulesDeletionModal = false;
 static bool showModulesImportModal = false;
@@ -27,6 +33,8 @@ LogicContentManager::LogicContentManager(const std::string &name)
     m_FileBrowser = std::make_shared<FileBrowserAppWindow>("Search Folder", VortexMaker::getHomeDirectory());
     m_FileBrowser->RefreshRender(m_FileBrowser);
     m_FileBrowser->GetAppWindow()->SetVisibility(false);
+
+    modules_pools = VortexMaker::GetCurrentContext()->IO.sys_modules_pools;
 
     Cherry::AddWindow(m_FileBrowser->GetAppWindow());
 
@@ -565,6 +573,12 @@ to_suppr_modules.clear();
 
                                showModulesImportModal = true;
                            }
+
+                           ImGui::SameLine();
+
+                        static std::shared_ptr<Cherry::ComboSimple> combo_dest = std::make_shared<Cherry::ComboSimple>("combo", "Import to", modules_pools, 0);
+                        combo_dest->Render("qd");
+                        to_import_destination = combo_dest->GetData("selected_string");
                        }
 
                        if (showModulesImportModal)
@@ -635,7 +649,7 @@ ImGui::SetNextWindowPos(ImVec2(center.x, center.y), ImGuiCond_Appearing, ImVec2(
                                {
                                    for (auto &module : to_import_modules)
                                    {
-                                    VortexMaker::InstallModuleToSystem(module->m_path);
+                                    VortexMaker::InstallModuleToSystem(module->m_path, to_import_destination);
                                    }
 
                                    VortexMaker::LoadSystemModules(VortexMaker::GetCurrentContext()->IO.sys_em);

@@ -1,5 +1,10 @@
 #include "./content_manager.hpp"
 
+static std::vector<std::shared_ptr<TemplateInterface>> to_suppr_templates;
+
+static bool showTemplatesDeletionModal = false;
+static bool showTemplatesImportModal = false;
+
 namespace Cherry
 {
     ContentManager::ContentManager(const std::string &name)
@@ -44,10 +49,292 @@ namespace Cherry
         m_AppWindow->SetInternalPaddingX(10.0f);
         m_AppWindow->SetInternalPaddingY(10.0f);
 
-        this->AddChild("Manage content", "Installed template(s)", [this]()
+    this->AddChild("Manage content", "Installed template(s)", [this]()
+                   {
+                       TitleTwo("Installed template(s)");
+
+                       /*ImGui::Text("You can add paths here");
+                       ImGui::SameLine();
+                       Cherry::TextButtonUnderline("here", true, "#3434F7FF");*/
+
+                       static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
+
+                       static std::shared_ptr<Cherry::CustomDrowpdownImageButtonSimple> filter_btn = std::make_shared<Cherry::CustomDrowpdownImageButtonSimple>("LogicContentManager.FindModules.Filter", "####filder");
+                       filter_btn->SetScale(0.85f);
+                       filter_btn->SetInternalMarginX(10.0f);
+                       filter_btn->SetLogoSize(15, 15);
+
+                       filter_btn->SetDropDownImage(Application::CookPath("ressources/imgs/icons/misc/icon_down.png"));
+                       filter_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_filter.png"));
+
+                       static std::shared_ptr<Cherry::ImageTextButtonSimple> find_in_folder = std::make_shared<Cherry::ImageTextButtonSimple>("find_in_folder", "Find in folder");
+                       find_in_folder->SetScale(0.85f);
+                       find_in_folder->SetInternalMarginX(10.0f);
+                       find_in_folder->SetLogoSize(15, 15);
+                       find_in_folder->SetBackgroundColorIdle("#3232F7FF");
+                       find_in_folder->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_collection.png"));
+
+                       ImGui::Separator();
+
+                       if (filter_btn->Render("LogicContentManager"))
                        {
-                   
-                         });
+                           ImVec2 mousePos = ImGui::GetMousePos();
+                           ImGui::SetNextWindowPos(mousePos);
+                           ImGui::OpenPopup("ContextMenu");
+                       }
+
+                       if (ImGui::BeginPopup("ContextMenu"))
+                       {
+                           if (ImGui::MenuItem("Option 1"))
+                           {
+                           }
+                           if (ImGui::MenuItem("Option 2"))
+                           {
+                           }
+                           ImGui::EndPopup();
+                       }
+                       ImGui::SameLine();
+                       static char ContentPath[256] = "";
+
+                       ImGui::InputText("", ContentPath, sizeof(ContentPath));
+
+                       ImGui::Separator();
+
+                       static std::vector<bool> selectedRows(VortexMaker::GetCurrentContext()->IO.sys_templates.size(), false);
+
+                       if (ImGui::BeginTable("modules_tables", 6, flags))
+                       {
+                           ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed);
+                           ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed);
+                           ImGui::TableSetupColumn("Image", ImGuiTableColumnFlags_WidthFixed);
+                           ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed);
+                           ImGui::TableSetupColumn("Version", ImGuiTableColumnFlags_WidthFixed);
+                           ImGui::TableSetupColumn("Path", ImGuiTableColumnFlags_WidthFixed);
+                           ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed);
+                           ImGui::TableHeadersRow();
+
+                           for (int row = 0; row < VortexMaker::GetCurrentContext()->IO.sys_templates.size(); row++)
+                           {
+                               ImGui::TableNextRow();
+
+                               ImVec2 min = ImGui::GetItemRectMin();
+                               ImVec2 max = ImGui::GetItemRectMax();
+                               bool isHovered = ImGui::IsMouseHoveringRect(min, max);
+
+                               if (ImGui::IsMouseReleased(ImGuiMouseButton_Right) && isHovered)
+                               {
+                                   ImGui::OpenPopup(("context_menu_" + std::to_string(row)).c_str());
+                               }
+
+                               if (isHovered)
+                               {
+                                   ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImColor(0.3f, 0.3f, 0.3f));
+                               }
+                               if (selectedRows[row])
+                               {
+                                   ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImColor(0.5f, 0.5f, 0.9f));
+                               }
+
+                               for (int column = 0; column < 7; column++)
+                               {
+                                   ImGui::TableSetColumnIndex(column);
+                                   if (column == 0)
+                                   {
+                                       ImGui::PushID(row);
+
+                                       if (ImGui::Selectable("##RowSelectable", selectedRows[row], ImGuiSelectableFlags_SpanAllColumns, ImVec2(0, 30)))
+                                       {
+                                           bool isCtrlPressed = ImGui::GetIO().KeyCtrl;
+
+                                           if (!isCtrlPressed)
+                                           {
+                                               for (int i = 0; i < selectedRows.size(); ++i)
+                                               {
+                                                   selectedRows[i] = false;
+                                               }
+                                           }
+
+                                           selectedRows[row] = !selectedRows[row];
+                                       }
+                                   }
+                                   else if (column == 1)
+                                   {
+                                       bool checkboxValue = selectedRows[row];
+                                       if (ImGui::Checkbox("##SelectedCheckboxAfterImage", &checkboxValue))
+                                       {
+                                           selectedRows[row] = checkboxValue;
+                                       }
+                                   }
+                                   else if (column == 2)
+                                   {
+                                       ImGui::Image(Cherry::GetTexture(VortexMaker::GetCurrentContext()->IO.sys_templates[row]->m_logo_path), ImVec2(30, 30));
+                                   }
+                                   else if (column == 3)
+                                   {
+                                       ImGui::Text(VortexMaker::GetCurrentContext()->IO.sys_templates[row]->m_name.c_str());
+                                   }
+                                   else if (column == 4)
+                                   {
+                                       ImGui::Text(VortexMaker::GetCurrentContext()->IO.sys_templates[row]->m_version.c_str());
+                                   }
+                                   else if (column == 5)
+                                   {
+                                       ImGui::Text(VortexMaker::GetCurrentContext()->IO.sys_templates[row]->m_path.c_str());
+                                   }
+                                   else if (column == 6)
+                                   {
+                                       ImGui::Text(VortexMaker::GetCurrentContext()->IO.sys_templates[row]->m_type.c_str());
+                                   }
+                               }
+
+                               // Menu contextuel pour chaque ligne
+                               if (ImGui::BeginPopup(("context_menu_" + std::to_string(row)).c_str()))
+                               {
+                                   if (ImGui::MenuItem("Open"))
+                                   {
+                                       // Action pour "Open"
+                                       // Ajoute ta logique ici
+                                   }
+                                   if (ImGui::MenuItem("Delete"))
+                                   {
+                                       // Action pour "Delete"
+                                       // Ajoute ta logique ici
+                                   }
+                                   ImGui::EndPopup();
+                               }
+                           }
+
+                           ImGui::EndTable();
+                       }
+
+                       // Collecter les lignes sélectionnées
+                       std::vector<int> selectedIDs;
+                       for (int i = 0; i < selectedRows.size(); i++)
+                       {
+                           if (selectedRows[i])
+                           {
+                               selectedIDs.push_back(i);
+                           }
+                       }
+
+                       if (selectedIDs.size() > 0)
+                       {
+
+        std::string label = "Delete " + std::to_string(selectedIDs.size()) + " module(s)";
+
+
+    static std::shared_ptr<Cherry::ImageTextButtonSimple> del_btn = std::make_shared<Cherry::ImageTextButtonSimple>("delete_project_pool_button", "");
+    del_btn->SetScale(0.85f);
+    del_btn->SetInternalMarginX(10.0f);
+    del_btn->SetLogoSize(15, 15);
+    del_btn->SetBackgroundColorIdle("#00000000");
+    del_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_trash.png"));
+    del_btn->SetLabel(label);
+
+
+        if(del_btn->Render("del_btn"))
+        {
+            
+                           for (int row = 0; row < VortexMaker::GetCurrentContext()->IO.sys_templates.size(); row++)
+                           {
+                            for(auto &selected : selectedIDs)
+                            {
+                                if(row == selected)
+                                {
+                                    to_suppr_templates.push_back(VortexMaker::GetCurrentContext()->IO.sys_templates[row]);
+                                }
+                            }
+                           }
+
+            showTemplatesDeletionModal = true;
+        }
+                       }
+                       
+                       if (showTemplatesDeletionModal)
+                       {
+    ImGui::OpenPopup("Delete module(s)");
+
+
+    if (ImGui::BeginPopupModal("Delete module(s)", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove))
+                           {
+                               std::string text_label = "Are yout sure to delete theses " + std::to_string(selectedIDs.size()) + " modules ? ";
+                               ImGui::TextWrapped(text_label.c_str());                               
+                               ImGui::TextWrapped("Important: This action will not delete selected modules from projects you've got, this action will only uninstall project available from your system. To delete modules of your projects, go on the project editor, modules manager and delete modules manually.");
+                               ImGui::TextWrapped("Theses modules will be deleted :");
+
+
+            ImGui::Separator();
+if (ImGui::BeginTable("modules_will_be_deleted", 5, flags))
+                       {
+                           ImGui::TableSetupColumn("Image", ImGuiTableColumnFlags_WidthFixed); // Image + Checkbox
+                           ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed);      // Selectable + Checkbox
+                           ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed);      // Image + Checkbox
+                           ImGui::TableSetupColumn("Version", ImGuiTableColumnFlags_WidthFixed);
+                           ImGui::TableSetupColumn("Path", ImGuiTableColumnFlags_WidthFixed);
+                           ImGui::TableHeadersRow();
+
+                           for (int row = 0; row < to_suppr_templates.size(); row++)
+                           {
+                               ImGui::TableNextRow();
+                               for (int column = 0; column < 5; column++)
+                               {
+                                   ImGui::TableSetColumnIndex(column);
+                                   if (column == 0) // Selectable + Checkbox
+                                   {                                       
+                                    ImGui::Image(Cherry::GetTexture(to_suppr_templates[row]->m_logo_path), ImVec2(30, 30));
+                                   }
+                                   else if (column == 1) // Checkbox après Selectable
+                                   {                                       
+                                    ImGui::Text(to_suppr_templates[row]->m_name.c_str());
+
+                                   }
+                                   else if (column == 2) // Colonne Image
+                                   {
+                                    ImGui::Text(to_suppr_templates[row]->m_proper_name.c_str());
+                                   }
+                                   else if (column == 3)
+                                   {
+                                       ImGui::Text(to_suppr_templates[row]->m_version.c_str());
+                                   }
+                                   else if (column == 4)
+                                   {
+                                       ImGui::Text(to_suppr_templates[row]->m_path.c_str());
+                                   }
+                               }
+                           }
+
+                           ImGui::EndTable();
+                       }
+
+
+
+
+            ImGui::Separator();
+
+            if (ImGui::Button("Cancel")) {
+                ImGui::CloseCurrentPopup();
+                showTemplatesDeletionModal = false;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Confirm Delete")) {
+  for(auto &module : to_suppr_templates)
+                {
+                    VortexMaker::DeleteSystemTemplate(module->m_name, module->m_version);
+                }
+
+                VortexMaker::LoadSystemTemplates(VortexMaker::GetCurrentContext()->IO.sys_templates);
+
+to_suppr_templates.clear();              
+                ImGui::CloseCurrentPopup();
+                showTemplatesDeletionModal = false;
+            }
+
+                               ImGui::EndPopup();
+                           }
+ 
+  } 
+  }
+  );
         this->AddChild("Manage content", "Installed contents(s)", [this]()
                        {
                         
