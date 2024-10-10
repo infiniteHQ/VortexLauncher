@@ -165,7 +165,13 @@ struct VxIO
 
   // Know projects in system
   std::vector<std::shared_ptr<EnvProject>> sys_projects;
+
+  // Pools
   std::vector<std::string> sys_projects_pools;
+  std::vector<std::string> sys_vortex_versions_pools;
+  std::vector<std::string> sys_modules_pools;
+  std::vector<std::string> sys_templates_pools;
+  std::vector<std::string> sys_plugins_pools;
 
 
   // Templates
@@ -179,6 +185,13 @@ struct VxPaths
   std::string hostDistFolder;
 };
 
+enum class PlatformVendor
+{ 
+    Linux,
+    Window,
+    Macos
+};
+
 //-----------------------------------------------------------------------------
 // (Context) VortexMakerContext => Main VortexMaker context.
 //-----------------------------------------------------------------------------
@@ -188,6 +201,7 @@ struct VxPaths
 struct VxContext
 {// Master flags
   bool initialized;
+  int session_count = 0;
 
   // Loger
   bool logger;
@@ -195,6 +209,9 @@ struct VxContext
   std::shared_ptr<spdlog::logger> global_logger;
   std::shared_ptr<spdlog::logger> console_logger;
   std::vector<std::pair<std::string, std::shared_ptr<spdlog::logger>>> pool_loggers;
+
+
+  PlatformVendor m_PlatformVendor;
 
   // Components
   VxIO IO;

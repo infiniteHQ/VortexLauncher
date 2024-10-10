@@ -19,33 +19,6 @@ ProjectManager::ProjectManager()
     this->Refresh();
 }
 
-void loadProjects(std::vector<std::string> &projectPaths, const std::string &jsonFilePath)
-{
-    std::ifstream file(jsonFilePath);
-    if (file)
-    {
-        nlohmann::json jsonData;
-        file >> jsonData;
-        for (const auto &path : jsonData["projects_pools"])
-        {
-            projectPaths.push_back(path.get<std::string>());
-        }
-    }
-}
-
-// Fonction pour patcher le fichier JSON
-void saveProjects(const std::vector<std::string> &projectPaths, const std::string &jsonFilePath)
-{
-    nlohmann::json jsonData;
-    jsonData["projects_pools"] = projectPaths;
-
-    std::ofstream file(jsonFilePath);
-    if (file)
-    {
-        file << jsonData.dump(4); // Format JSON avec 4 espaces
-    }
-}
-
 void ProjectManager::RefreshRender(const std::shared_ptr<ProjectManager> &instance)
 {
     m_AppWindow->SetRenderCallback([instance]()
@@ -228,9 +201,7 @@ void ProjectManager::RefreshRender(const std::shared_ptr<ProjectManager> &instan
                                        if (!project_creation)
                                        {
                                            ImGui::BeginChild("left_pane", ImVec2(leftPaneWidth, 0), true, ImGuiWindowFlags_NoBackground);
-
-                                           // TODO Project filter (groups)
-
+                                           
                                            Cherry::TitleFourColored("All projects ", "#75757575");
                                            for (int row = 0; row < instance->ctx->IO.sys_projects.size(); row++)
                                            {
@@ -273,8 +244,6 @@ void ProjectManager::RefreshRender(const std::shared_ptr<ProjectManager> &instan
                                                {
                                                    ImGui::BeginChild("LOGO_", ImVec2(70, 70), false, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoScrollbar);
                                                    MyButton(selected_envproject->logoPath, 60, 60);
-
-                                                    std::cout << selected_envproject->logoPath << std::endl;
 
                                                    ImGui::EndChild();
                                                    ImGui::SameLine();
@@ -336,10 +305,38 @@ void ProjectManager::RefreshRender(const std::shared_ptr<ProjectManager> &instan
                                                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.2f, 1.0f, 0.8f));
                                                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.2f, 1.0f, 1.0f));
                                                ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.2f, 0.2f, 0.0f, 1.8f));
-                                               if (ImGui::Button("Open Project", buttonSize))
-                                               {
-                                                   VortexMaker::OpenProject(selected_envproject->path, selected_envproject->compatibleWith);
-                                               }
+
+if (ImGui::Button("Open Project", buttonSize))
+{
+    if (VortexMaker::CheckIfProjectRunning(selected_envproject->path))
+    {
+        ImGui::OpenPopup("Project Already Running");
+    }
+    else
+    {
+        VortexMaker::OpenProject(selected_envproject->path, selected_envproject->compatibleWith);
+    }
+}
+
+if (ImGui::BeginPopupModal("Project Already Running", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+{
+    ImGui::Text("The project seems to have already been launched. Would you like to relaunch a new instance?");
+
+    if (ImGui::Button("Retour", ImVec2(120, 0)))
+    {
+        ImGui::CloseCurrentPopup();
+    }
+    ImGui::SameLine();
+
+    if (ImGui::Button("Oui", ImVec2(120, 0)))
+    {
+        VortexMaker::OpenProject(selected_envproject->path, selected_envproject->compatibleWith);
+        ImGui::CloseCurrentPopup();
+    }
+
+    ImGui::EndPopup();
+}
+
                                                ImGui::PopStyleColor(3);
                                            }
 
@@ -516,42 +513,78 @@ void ProjectManager::RefreshRender(const std::shared_ptr<ProjectManager> &instan
     static char newPath[256] = "";               
     static bool initialized = false;
     if (!initialized) {
-        std::string path = VortexMaker::getHomeDirectory() + "/.vx/data/";
+        std::string path = VortexMaker::getHomeDirectory() + "/.vx/configs/";
         std::string json_file = path + "/projects_pools.json";
         loadProjects(projectPaths, json_file);
         initialized = true;
     }
-
+    
     if (showProjectPools) {
         ImGui::OpenPopup("Manage Project Pools");
-        if (ImGui::BeginPopupModal("Manage Project Pools", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
-            ImGui::Text("Project Paths:");
+        if (ImGui::BeginPopupModal("Manage Project Pools", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove)) {
+            ImGui::Text("Path where Vortex search projects:");
             ImGui::Separator();
 
-            if (ImGui::BeginTable("##project_paths", 2)) {
-                ImGui::TableSetupColumn("Path");
-                ImGui::TableSetupColumn("Action");
-                ImGui::TableHeadersRow();
 
-                for (size_t i = 0; i < projectPaths.size(); ++i) {
-                    ImGui::TableNextRow();
-                    ImGui::TableSetColumnIndex(0);
-                    ImGui::Text("%s", projectPaths[i].c_str());
-                    ImGui::TableSetColumnIndex(1);
-                    std::string delete_btn_label = "Delete####" + projectPaths[i];
-                    if (ImGui::Button(delete_btn_label.c_str())) {
-                        projectPaths.erase(projectPaths.begin() + i);
-                        --i;
-                    }
-                }
-                ImGui::EndTable();
-            }
+
+    ImGui::PushStyleColor(ImGuiCol_TableRowBg, Cherry::HexToRGBA("#151515FF"));
+if (ImGui::BeginTable("##project_paths", 2)) {
+    ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(8.0f, 8.0f));
+
+
+    ImGui::TableSetupColumn("Path");
+    ImGui::TableSetupColumn("Action");
+    ImGui::TableHeadersRow();
+
+    for (size_t i = 0; i < projectPaths.size(); ++i) {
+        ImGui::TableNextRow();
+
+        ImGui::TableSetColumnIndex(0);
+        ImGui::PushStyleColor(ImGuiCol_TableRowBg, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
+
+        ImGui::Text("%s", projectPaths[i].c_str());
+
+        ImGui::PopStyleColor();
+
+
+    static std::shared_ptr<Cherry::ImageTextButtonSimple> del_btn = std::make_shared<Cherry::ImageTextButtonSimple>("delete_project_pool_button", "");
+    del_btn->SetScale(0.85f);
+    del_btn->SetInternalMarginX(10.0f);
+    del_btn->SetLogoSize(15, 15);
+    del_btn->SetBackgroundColorIdle("#00000000");
+    del_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_delete.png"));
+
+        ImGui::TableSetColumnIndex(1);
+        std::string delete_btn_label = "Delete####" + projectPaths[i];
+        if (del_btn->Render(delete_btn_label.c_str())) {
+            projectPaths.erase(projectPaths.begin() + i);
+            --i;
+        }
+    }
+
+                ImGui::PopStyleVar();
+    ImGui::EndTable();
+}
+
+                ImGui::PopStyleColor();
+
+
+    static std::shared_ptr<Cherry::ImageTextButtonSimple> add_btn = std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "####add");
+    add_btn->SetScale(0.85f);
+    add_btn->SetInternalMarginX(10.0f);
+    add_btn->SetLogoSize(15, 15);
+    add_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_add.png"));
+
+    static std::shared_ptr<Cherry::ImageTextButtonSimple> save_btn = std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "Save");
+    save_btn->SetScale(0.85f);
+    save_btn->SetInternalMarginX(10.0f);
+    save_btn->SetLogoSize(15, 15);
+    save_btn->SetBackgroundColorIdle("#3232F7FF");
+    save_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_save.png"));
 
             ImGui::Separator();
 
-            ImGui::InputText("New Path", newPath, sizeof(newPath));
-            
-            if (ImGui::Button("Add")) {
+            if (add_btn->Render("add_pool")) {
                 if (newPath[0] != '\0') {
                     projectPaths.push_back(std::string(newPath));
                     newPath[0] = '\0';
@@ -559,7 +592,18 @@ void ProjectManager::RefreshRender(const std::shared_ptr<ProjectManager> &instan
             }
 
             ImGui::SameLine();
-            if (ImGui::Button("Save")) {
+
+            ImGui::InputText("", newPath, sizeof(newPath));
+            
+            ImGui::Separator();
+
+            if (ImGui::Button("Cancel")) {
+                ImGui::CloseCurrentPopup();
+                showProjectPools = false;
+            }
+            ImGui::SameLine();
+
+            if (save_btn->Render("save_pool")) {
                 std::string path = VortexMaker::getHomeDirectory() + "/.vx/data/";
                 std::string json_file = path + "/projects_pools.json";
                 saveProjects(projectPaths, json_file);
@@ -567,16 +611,9 @@ void ProjectManager::RefreshRender(const std::shared_ptr<ProjectManager> &instan
                 VortexMaker::RefreshEnvironmentProjectsPools();
                 VortexMaker::RefreshEnvironmentProjects();
             }
-
-            ImGui::Separator();
-            if (ImGui::Button("Cancel")) {
-                ImGui::CloseCurrentPopup();
-                showProjectPools = false;
-            }
             ImGui::EndPopup();
         }
-    }
-                                   });
+    } });
 }
 
 // Helper functions for menu items

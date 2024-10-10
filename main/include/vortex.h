@@ -162,6 +162,9 @@ namespace VortexMaker
 
     VORTEX_API void InitProject(const nlohmann::json &main_config);
 
+    VORTEX_API void DetectPlatformVendor();
+    VORTEX_API void GetPlatformVendor();
+
     VORTEX_API void UpdateProjectData(const std::string &old_name, const std::string &path);
     VORTEX_API void FinishProcess();
 
@@ -213,7 +216,12 @@ namespace VortexMaker
     VORTEX_API void DeleteProject(const std::string &path, const std::string &project_name);
     VORTEX_API void RemoveSystemProjectEntry(const std::string &project_name);
 
+    VORTEX_API void UpdateSessions();
     VORTEX_API void RefreshEnvironmentProjectsPools();
+    VORTEX_API void RefreshEnvironmentModulesPools();
+    VORTEX_API void RefreshEnvironmentTemplatesPools();
+    VORTEX_API void RefreshEnvironmentPluginsPools();
+    VORTEX_API void RefreshEnvironmentVortexVersionsPools();
     VORTEX_API void RefreshEnvironmentProjects();
     VORTEX_API void UpdateEnvironmentProject();
     VORTEX_API void UpdateEnvironmentProject(const std::string &name, const std::string &author, const std::string &version, const std::string &compatibleWith, const std::string &description, const std::string &path, const std::string &logo_path, const std::string &template_name);
@@ -224,6 +232,7 @@ namespace VortexMaker
     VORTEX_API void createFolderIfNotExists(const std::string &path);
     VORTEX_API void createJsonFileIfNotExists(const std::string &filename, const nlohmann::json &defaultData);
 
+    VORTEX_API bool CheckIfProjectRunning(const std::string &path);
     VORTEX_API void OpenProject(const std::string &path, const std::string &version);
 
     VORTEX_API void CreateProject(const std::string &name, const std::string &path);

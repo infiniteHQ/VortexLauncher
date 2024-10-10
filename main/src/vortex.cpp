@@ -192,21 +192,160 @@ void initialize_random()
     srand(static_cast<unsigned int>(time(0)));
 }
 
+std::string generateSessionID()
+{
+    auto t = std::time(nullptr);
+    auto tm = *std::localtime(&t);
+    char buffer[64];
+    std::strftime(buffer, sizeof(buffer), "editor-%m-%d-%Y-%H-%M-%S", &tm);
+
+    int random_number = rand() % 10000;
+    return std::string(buffer) + "-" + std::to_string(random_number);
+}
+
+void addSessionToJson(const std::string &session_id, const std::string &version, const std::string &user, const std::string &path)
+{
+    std::string json_path = "/home/diego/.vx/sessions/active_sessions.json";
+    std::ifstream file_in(json_path);
+    nlohmann::json active_sessions;
+
+    if (file_in.is_open())
+    {
+        file_in >> active_sessions;
+        file_in.close();
+    }
+
+    nlohmann::json new_session = {
+        {"session_path", path},
+        {"session_id", session_id},
+        {"session_start_at", std::time(nullptr)},
+        {"session_owner", user},
+        {"vortex_version", version},
+        {"vortex_exec_path", "/opt/Vortex/" + version + "/bin/vortex"}};
+
+    active_sessions["sessions"].push_back(new_session);
+
+    std::ofstream file_out(json_path);
+    file_out << active_sessions.dump(4);
+}
+
+// TODO : In editor (if the launcher is stopped before the editor.)
+void removeSessionFromJson(const std::string &session_id)
+{
+    std::string json_path = "/home/diego/.vx/sessions/active_sessions.json";
+    std::ifstream file_in(json_path);
+    nlohmann::json active_sessions;
+
+    if (file_in.is_open())
+    {
+        file_in >> active_sessions;
+        file_in.close();
+    }
+
+    for (auto it = active_sessions["sessions"].begin(); it != active_sessions["sessions"].end(); ++it)
+    {
+        if ((*it)["session_id"] == session_id)
+        {
+            active_sessions["sessions"].erase(it);
+            break;
+        }
+    }
+
+    std::ofstream file_out(json_path);
+    file_out << active_sessions.dump(4);
+}
+
+VORTEX_API bool VortexMaker::CheckIfProjectRunning(const std::string &path)
+{
+    std::string json_path = "/home/diego/.vx/sessions/active_sessions.json";
+    std::ifstream file_in(json_path);
+    nlohmann::json active_sessions;
+
+    if (file_in.is_open())
+    {
+        file_in >> active_sessions;
+        file_in.close();
+    }
+    else
+    {
+        std::cerr << "Fatal." << std::endl;
+        return false;
+    }
+
+    for (const auto &session : active_sessions["sessions"])
+    {
+        if (session.contains("session_path") && session["session_path"] == path)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void writeSessionEndState(const std::string &session_id, const std::string &state)
+{
+    std::string session_dir = "/home/diego/.vx/sessions/" + session_id;
+    std::string session_file_path = session_dir + "/session.json";
+
+    auto now = std::chrono::system_clock::now();
+    std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+    std::tm tm = *std::localtime(&now_time);
+    char buffer[32];
+    std::strftime(buffer, sizeof(buffer), "%Y-%m-%dT%H:%M:%S", &tm);
+
+    nlohmann::json session_data = {
+        {"SessionID", session_id},
+        {"SessionEndedAt", buffer},
+        {"SessionEndedWithState", state}};
+
+    std::filesystem::create_directories(session_dir);
+
+    std::ofstream session_file(session_file_path);
+    session_file << session_data.dump(4);
+}
+
+
 VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::string &version)
 {
-    initialize_random();
+    pid_t pid = fork();
 
-    std::string session_id = "editor-" + VortexMaker::gen_random(8);
-    // TODO : env path
-    std::string command = "/opt/Vortex/" + version + "/bin/vortex --editor --session_id=" + session_id;
-    std::string target_path = VortexMaker::getHomeDirectory() + "/.vx/sessions/" + session_id + "/crash/core_dumped.txt";
-    std::string crash_script_command = "bash /usr/local/bin/Vortex/" + version + "/handle_crash.sh " + target_path + " " + command;
-    std::cout << "Bootstrapp" << "Starting with command : " << crash_script_command << std::endl;
-
-    if (std::system(crash_script_command.c_str()) != 0)
+    if (pid == -1)
     {
-        std::string crash_handle_command = "/opt/Vortex/" + version + "/bin/vortex -crash --session_id=" + session_id;
-        std::system(crash_handle_command.c_str());
+        std::cerr << "Error while fork" << std::endl;
+        return;
+    }
+
+    if (pid == 0)
+    {
+        initialize_random();
+        std::string session_id = generateSessionID();
+
+        addSessionToJson(session_id, version, "diego", path);
+
+        std::string command = "/opt/Vortex/" + version + "/bin/vortex --editor --session_id=" + session_id;
+        std::string target_path = VortexMaker::getHomeDirectory() + "/.vx/sessions/" + session_id + "/crash/core_dumped.txt";
+        std::string crash_script_command = "bash /opt/Vortex/" + version + "/bin/handle_crash.sh " + target_path + " " + command;
+        std::cout << "Bootstrapp" << "Starting with command : " << crash_script_command << std::endl;
+
+        if (std::system(crash_script_command.c_str()) != 0)
+        {
+            std::string crash_handle_command = "/opt/Vortex/" + version + "/bin/vortex -crash --session_id=" + session_id;
+            std::system(crash_handle_command.c_str());
+            writeSessionEndState(session_id, "fail");
+        }
+        else
+        {
+            writeSessionEndState(session_id, "success");
+        }
+
+        removeSessionFromJson(session_id);
+
+        _exit(0); 
+    }
+    else
+    {
+        std::cout << "New PID : " << pid << std::endl;
     }
 }
 

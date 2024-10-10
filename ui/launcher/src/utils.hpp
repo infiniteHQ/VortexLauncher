@@ -27,6 +27,111 @@ static std::string _parent;
 static char ProjectSearch[256];
 static float threshold = 0.4;
 
+static void saveVortexVersions(const std::vector<std::string> &paths, const std::string &jsonFilePath)
+{
+    nlohmann::json jsonData;
+    jsonData["vortex_versions_pools"] = paths;
+
+    std::ofstream file(jsonFilePath);
+    if (file)
+    {
+        file << jsonData.dump(4);
+    }
+}
+
+static void loadVortexVersions(std::vector<std::string> &paths, const std::string &jsonFilePath)
+{
+    std::ifstream file(jsonFilePath);
+    if (file)
+    {
+        nlohmann::json jsonData;
+        file >> jsonData;
+        for (const auto &path : jsonData["vortex_versions_pools"])
+        {
+            paths.push_back(path.get<std::string>());
+        }
+    }
+}
+
+static void saveTemplates(const std::vector<std::string> &paths, const std::string &jsonFilePath)
+{
+    nlohmann::json jsonData;
+    jsonData["templates_pools"] = paths;
+
+    std::ofstream file(jsonFilePath);
+    if (file)
+    {
+        file << jsonData.dump(4);
+    }
+}
+
+static void loadTemplates(std::vector<std::string> &paths, const std::string &jsonFilePath)
+{
+    std::ifstream file(jsonFilePath);
+    if (file)
+    {
+        nlohmann::json jsonData;
+        file >> jsonData;
+        for (const auto &path : jsonData["templates_pools"])
+        {
+            paths.push_back(path.get<std::string>());
+        }
+    }
+}
+
+
+static void saveModules(const std::vector<std::string> &paths, const std::string &jsonFilePath)
+{
+    nlohmann::json jsonData;
+    jsonData["modules_pools"] = paths;
+
+    std::ofstream file(jsonFilePath);
+    if (file)
+    {
+        file << jsonData.dump(4);
+    }
+}
+
+static void loadModules(std::vector<std::string> &paths, const std::string &jsonFilePath)
+{
+    std::ifstream file(jsonFilePath);
+    if (file)
+    {
+        nlohmann::json jsonData;
+        file >> jsonData;
+        for (const auto &path : jsonData["modules_pools"])
+        {
+            paths.push_back(path.get<std::string>());
+        }
+    }
+}
+
+static void saveProjects(const std::vector<std::string> &projectPaths, const std::string &jsonFilePath)
+{
+    nlohmann::json jsonData;
+    jsonData["projects_pools"] = projectPaths;
+
+    std::ofstream file(jsonFilePath);
+    if (file)
+    {
+        file << jsonData.dump(4);
+    }
+}
+
+static void loadProjects(std::vector<std::string> &projectPaths, const std::string &jsonFilePath)
+{
+    std::ifstream file(jsonFilePath);
+    if (file)
+    {
+        nlohmann::json jsonData;
+        file >> jsonData;
+        for (const auto &path : jsonData["projects_pools"])
+        {
+            projectPaths.push_back(path.get<std::string>());
+        }
+    }
+}
+
 static bool isOnlySpacesOrEmpty(const char *str)
 {
     if (str == nullptr || std::strlen(str) == 0)

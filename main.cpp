@@ -108,8 +108,13 @@ VxContext *InitBlankRuntime(bool logger)
     // Initialize environment
     VortexMaker::InitEnvironment();
 
-    // Refresh environment registered projects
+    // Refresh environment pools
     VortexMaker::RefreshEnvironmentProjectsPools();
+    VortexMaker::RefreshEnvironmentModulesPools();
+    VortexMaker::RefreshEnvironmentTemplatesPools();
+    VortexMaker::RefreshEnvironmentPluginsPools();
+    VortexMaker::RefreshEnvironmentVortexVersionsPools();
+
     VortexMaker::RefreshEnvironmentProjects();
 
     VortexMaker::LoadSystemTemplates(ctx->IO.sys_templates);
