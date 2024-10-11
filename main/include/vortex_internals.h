@@ -188,7 +188,7 @@ struct VxPaths
 enum class PlatformVendor
 { 
     Linux,
-    Window,
+    Windows,
     Macos
 };
 
@@ -210,8 +210,14 @@ struct VxContext
   std::shared_ptr<spdlog::logger> console_logger;
   std::vector<std::pair<std::string, std::shared_ptr<spdlog::logger>>> pool_loggers;
 
-
+  // Vendor
   PlatformVendor m_PlatformVendor;
+  // Paths 
+  std::string m_VortexPath; // relative to ".vx"
+  std::string m_VortexLauncherPath; // relative to the emplacement where the Vortex Launcher is.
+  
+  
+
 
   // Components
   VxIO IO;

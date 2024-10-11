@@ -17,8 +17,6 @@ VORTEX_API std::vector<std::shared_ptr<EnvProject>> VortexMaker::FindProjectInFo
         // Load JSON data from the module configuration file
         auto json_data = VortexMaker::DumpJSON(file);
 
-        std::cout << json_data << std::endl;
-
         if (json_data.empty())
             continue;
 

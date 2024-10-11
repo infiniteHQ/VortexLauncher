@@ -210,6 +210,14 @@ namespace VortexMaker
     VORTEX_API void ImportProject(const std::string &path, const std::string& pool_path);
     VORTEX_API std::vector<std::shared_ptr<EnvProject>> FindProjectInFolder(const std::string &path);
 
+    VORTEX_API void InitializePlatformVendor();
+    VORTEX_API bool IsLinux();
+    VORTEX_API bool IsNotLinux();
+    VORTEX_API bool IsWindows();
+    VORTEX_API bool IsNotWindows();
+    VORTEX_API bool IsMacOs();
+    VORTEX_API bool IsNotMacOS();
+
     VORTEX_API nlohmann::json DumpJSON(const std::string &file);
     VORTEX_API void PopulateJSON(const nlohmann::json &json_data, const std::string &file);
 

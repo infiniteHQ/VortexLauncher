@@ -444,6 +444,7 @@ for (const auto &[parent, children] : groupedByParent)
                                            }
 
                                        }
+                                           
                                            ImGui::EndChild();
 
                                            ImGui::SameLine();

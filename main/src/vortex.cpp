@@ -179,12 +179,32 @@ VORTEX_API void VortexMaker::DestroyContext(VxContext *ctx)
 
 VORTEX_API std::string VortexMaker::getHomeDirectory()
 {
-    const char *homePath = std::getenv("HOME");
-    if (homePath == nullptr)
+    if (VortexMaker::IsLinux() || VortexMaker::IsMacOs())
     {
-        throw std::runtime_error("HOME environment variable not set");
+        const char *homePath = std::getenv("HOME");
+        if (homePath == nullptr)
+        {
+            throw std::runtime_error("HOME environment variable not set");
+        }
+        return std::string(homePath);
     }
-    return std::string(homePath);
+    else if (VortexMaker::IsWindows())
+    {
+        const char *homePath = std::getenv("USERPROFILE");
+        if (homePath == nullptr)
+        {
+            const char *homeDrive = std::getenv("HOMEDRIVE");
+            const char *homePathEnv = std::getenv("HOMEPATH");
+            if (homeDrive == nullptr || homePathEnv == nullptr)
+            {
+                throw std::runtime_error("HOME environment variables not set");
+            }
+            return std::string(homeDrive) + std::string(homePathEnv);
+        }
+        return std::string(homePath);
+    }
+
+    throw std::runtime_error("Unknown platform: Unable to determine home directory");
 }
 
 void initialize_random()
@@ -325,7 +345,7 @@ VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::str
 
         std::string command = "/opt/Vortex/" + version + "/bin/vortex --editor --session_id=" + session_id;
         std::string target_path = VortexMaker::getHomeDirectory() + "/.vx/sessions/" + session_id + "/crash/core_dumped.txt";
-        std::string crash_script_command = "bash /opt/Vortex/" + version + "/bin/handle_crash.sh " + target_path + " " + command;
+        std::string crash_script_command = "cd " + path + " && bash /opt/Vortex/" + version + "/bin/handle_crash.sh " + target_path + " " + command;
         std::cout << "Bootstrapp" << "Starting with command : " << crash_script_command << std::endl;
 
         if (std::system(crash_script_command.c_str()) != 0)
