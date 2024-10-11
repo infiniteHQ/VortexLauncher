@@ -353,10 +353,7 @@ VORTEX_API void VortexMaker::RefreshEnvironmentVortexVersionsPools()
 void VortexMaker::RefreshEnvironmentProjects()
 {
     VxContext &ctx = *CVortexMaker;
-
-    std::string path = VortexMaker::getHomeDirectory() + "/.vx/data/";
-    std::string json_file = path + "/projects.json";
-
+    
     ctx.IO.sys_projects.clear();
 
     for (const auto &pool_path : ctx.IO.sys_projects_pools)

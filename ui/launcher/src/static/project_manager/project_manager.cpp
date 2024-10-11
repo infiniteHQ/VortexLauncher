@@ -5,14 +5,25 @@
 #include <cctype>
 #include <unordered_set>
 static std::vector<std::string> projectPoolsPaths = {};
+static std::vector<std::shared_ptr<EnvProject>> finded_projects_to_import;
+static std::vector<bool> selectedRows(finded_projects_to_import.size(), false);
+
+std::vector<std::string> modules_projects;
+static std::vector<int> selectedIDs;
+
+int projetct_import_dest_index;
+std::vector<std::string> project_pools;
+std::string projetct_import_dest;
 
 ProjectManager::ProjectManager()
 {
+    RegisterAvailableVersions(); // TODO in main
     m_AppWindow = std::make_shared<Cherry::AppWindow>("?loc:loc.window_names.project_manager", "?loc:loc.window_names.project_manager");
     m_AppWindow->SetIcon(Cherry::GetPath("ressources/imgs/icons/misc/icon_collection.png"));
     m_AppWindow->SetDefaultBehavior(Cherry::DefaultAppWindowBehaviors::DefaultDocking, "full");
     m_AppWindow->SetClosable(false);
 
+    project_pools = VortexMaker::GetCurrentContext()->IO.sys_projects_pools;
     m_AppWindow->SetLeftMenubarCallback([this]()
                                         { this->mainButtonsMenuItem(); });
 
@@ -34,12 +45,12 @@ ProjectManager::ProjectManager()
     v_ProjectAuthor = std::make_shared<std::string>("Your team");
     cp_ProjectAuthor = Cherry::Application::Get().CreateComponent<Cherry::DoubleKeyValString>("keyvaldouble_4", v_ProjectAuthor, "Authors");
 
-    //v_ProjectAuthor = std::make_shared<std::string>("Your team");
+    // v_ProjectAuthor = std::make_shared<std::string>("Your team");
     std::string path = VortexMaker::getHomeDirectory() + "/.vx/configs/";
     loadProjects(projectPoolsPaths, path + "/projects_pools.json");
     cp_ProjectPath = Cherry::Application::Get().CreateComponent<Cherry::DoubleKeyValSimpleCombo>("keyvaldouble_5", projectPoolsPaths, 0, "Select a path");
-    
-	v_ProjectOpen = std::make_shared<bool>(true);
+
+    v_ProjectOpen = std::make_shared<bool>(true);
     cp_ProjectOpen = Cherry::Application::Get().CreateComponent<Cherry::DoubleKeyValBoolean>("keyvaldouble_6", v_ProjectOpen, "Open after ?");
 
     this->ctx = VortexMaker::GetCurrentContext();
@@ -60,7 +71,7 @@ void ProjectManager::RefreshRender(const std::shared_ptr<ProjectManager> &instan
 
                                        if (open_import_projects)
                                        {
-                                           static ImGuiTableFlags window_flags = ImGuiWindowFlags_MenuBar;
+                                           /*static ImGuiTableFlags window_flags = ImGuiWindowFlags_MenuBar;
                                            static bool first_time = true;
 
                                            static std::shared_ptr<Cherry::ImageTextButtonSimple> button = std::make_shared<Cherry::ImageTextButtonSimple>("Button");
@@ -70,7 +81,7 @@ void ProjectManager::RefreshRender(const std::shared_ptr<ProjectManager> &instan
                                                ImGui::SetNextWindowSize(ImVec2(820, 420));
                                            }
 
-                                           if (ImGui::BeginPopupModal("Search for project(s) to add", NULL, window_flags))
+                                          if (ImGui::BeginPopupModal("Search for project(s) to add", NULL, window_flags))
                                            {
                                                if (first_time)
                                                {
@@ -87,12 +98,12 @@ void ProjectManager::RefreshRender(const std::shared_ptr<ProjectManager> &instan
                                                    std::string label = "Find###templates";
                                                    if (ImGui::Button(label.c_str()))
                                                    {
-                                                       finded_projects = VortexMaker::FindProjectInFolder(path_input_all);
+                                                       finded_projects_to_import = VortexMaker::FindProjectInFolder(path_input_all);
                                                    }
                                                    ImGui::EndMenuBar();
                                                }
 
-                                               if (!finded_projects.empty())
+                                               if (!finded_projects_to_import.empty())
                                                {
                                                    static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
 
@@ -105,7 +116,7 @@ void ProjectManager::RefreshRender(const std::shared_ptr<ProjectManager> &instan
                                                        ImGui::TableSetupColumn("Vortex version", ImGuiTableColumnFlags_WidthFixed);
                                                        ImGui::TableHeadersRow();
 
-                                                       for (int i = 0; i <= finded_projects.size(); i++)
+                                                       for (int i = 0; i <= finded_projects_to_import.size(); i++)
                                                        {
                                                            static std::pair<char[128], char[128]> newItem;
                                                            static char label[128];
@@ -131,15 +142,15 @@ void ProjectManager::RefreshRender(const std::shared_ptr<ProjectManager> &instan
                                                                }
                                                                else if (column == 1)
                                                                {
-                                                                   ImGui::Text(finded_projects[i]->name.c_str());
+                                                                   ImGui::Text(finded_projects_to_import[i]->name.c_str());
                                                                }
                                                                else if (column == 2)
                                                                {
-                                                                   ImGui::Text(finded_projects[i]->author.c_str());
+                                                                   ImGui::Text(finded_projects_to_import[i]->author.c_str());
                                                                }
                                                                else if (column == 3)
                                                                {
-                                                                   ImGui::Text(finded_projects[i]->compatibleWith.c_str());
+                                                                   ImGui::Text(finded_projects_to_import[i]->compatibleWith.c_str());
                                                                }
                                                            }
                                                        }
@@ -174,6 +185,9 @@ void ProjectManager::RefreshRender(const std::shared_ptr<ProjectManager> &instan
                                                }
                                                ImGui::EndPopup();
                                            }
+                                      */
+                                      
+                                      
                                        }
 
                                        if (open_deletion_modal)
@@ -223,7 +237,161 @@ void ProjectManager::RefreshRender(const std::shared_ptr<ProjectManager> &instan
                                            ImGui::OpenPopup("Delete a project");
 
                                        if (open_import_projects)
-                                           ImGui::OpenPopup("Search for project(s) to add");
+                                       {
+    ImGui::OpenPopup("Import project(s)");
+
+    ImVec2 main_window_size = ImGui::GetWindowSize();
+    ImVec2 window_pos = ImGui::GetWindowPos();  
+
+    ImGui::SetNextWindowPos(ImVec2(window_pos.x + (main_window_size.x * 0.5f) - 300, window_pos.y + 150));
+
+    ImGui::SetNextWindowSize(ImVec2(600, 0), ImGuiCond_Always);
+
+    if (ImGui::BeginPopupModal("Import project(s)", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove))
+    {
+        std::string text_label = "Search projects to import... ";
+        ImGui::TextWrapped(text_label.c_str());
+        ImGui::TextWrapped("Important: This action will not delete/change selected modules...");
+        ImGui::TextWrapped("These modules will be imported:");
+
+        ImGui::Separator();
+
+        static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
+
+        float max_table_height = 200.0f;
+        ImGui::BeginChild("TableScrollRegion", ImVec2(0, max_table_height), true, ImGuiWindowFlags_HorizontalScrollbar);
+
+        static char pathToFolder[512]{};
+        ImGui::InputText("Folder", pathToFolder, sizeof(pathToFolder));
+        ImGui::SameLine();
+        if(ImGui::Button("Search"))
+        {
+            finded_projects_to_import = VortexMaker::FindProjectInFolder(pathToFolder);
+        }
+
+        static int project_to_import_size = finded_projects_to_import.size();
+
+        if(project_to_import_size != finded_projects_to_import.size())
+        {
+            selectedRows.resize(finded_projects_to_import.size());
+        }
+
+        if (ImGui::BeginTable("projects_will_be_imported", 5, flags))
+        {
+            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed);
+            ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed); 
+            ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed); 
+            ImGui::TableSetupColumn("Version", ImGuiTableColumnFlags_WidthFixed);
+            ImGui::TableSetupColumn("Path", ImGuiTableColumnFlags_WidthFixed);
+            ImGui::TableHeadersRow();
+
+            for (int row = 0; row < finded_projects_to_import.size(); row++)
+            {
+                ImGui::TableNextRow();
+                ImVec2 min = ImGui::GetItemRectMin();
+                               ImVec2 max = ImGui::GetItemRectMax();
+                               bool isHovered = ImGui::IsMouseHoveringRect(min, max);
+
+                               if (isHovered)
+                               {
+                                   ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImColor(0.3f, 0.3f, 0.3f));
+                               }
+                               if (selectedRows[row])
+                               {
+                                   ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImColor(0.5f, 0.5f, 0.9f));
+                               }
+
+                for (int column = 0; column < 5; column++)
+                {
+                    ImGui::TableSetColumnIndex(column);
+                    if (column == 0)
+                    {
+                                       if (ImGui::Selectable("##RowSelectable", selectedRows[row], ImGuiSelectableFlags_SpanAllColumns, ImVec2(0, 30)))
+                                       {
+                                           bool isCtrlPressed = ImGui::GetIO().KeyCtrl;
+
+                                           if (!isCtrlPressed)
+                                           {
+                                               for (int i = 0; i < selectedRows.size(); ++i)
+                                               {
+                                                   selectedRows[i] = false;
+                                               }
+                                           }
+
+                                           selectedRows[row] = !selectedRows[row];
+                                       }
+                    }
+                    else if (column == 1)
+                    {
+                        ImGui::Text(finded_projects_to_import[row]->name.c_str());
+                    }
+                }
+            }
+
+            ImGui::EndTable();
+        }
+ selectedIDs.clear();
+                       for (int i = 0; i < selectedRows.size(); i++)
+                       {
+                           if (selectedRows[i])
+                           {
+                               selectedIDs.push_back(i);
+                           }
+                       }
+  if (selectedIDs.size() > 0)
+                       {
+
+        std::string label = "Import " + std::to_string(selectedIDs.size()) + " project(s)";
+
+
+    static std::shared_ptr<Cherry::ImageTextButtonSimple> import_btn = std::make_shared<Cherry::ImageTextButtonSimple>("delete_project_pool_button", "");
+    import_btn->SetScale(0.85f);
+    import_btn->SetInternalMarginX(10.0f);
+    import_btn->SetLogoSize(15, 15);
+    import_btn->SetBackgroundColorIdle("#00000000");
+    import_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_trash.png"));
+    import_btn->SetLabel(label);
+static std::string to_import_destination;
+
+static std::shared_ptr<Cherry::ComboSimple> combo_dest = std::make_shared<Cherry::ComboSimple>("combo", "Import to", project_pools, 0);
+                        combo_dest->Render("qd");
+                        to_import_destination = combo_dest->GetData("selected_string");
+
+        if(import_btn->Render("import_btn"))
+        {
+            for (auto &module : finded_projects_to_import)
+            {
+                VortexMaker::ImportProject(module->path, to_import_destination);
+            }
+
+            VortexMaker::RefreshEnvironmentProjects();
+
+            finded_projects_to_import.clear();
+            ImGui::CloseCurrentPopup();
+            open_import_projects = false;
+            
+        }
+                       }
+
+        if (ImGui::Button("Cancel"))
+        {
+            ImGui::CloseCurrentPopup();
+            open_import_projects = false;
+        }
+
+        ImGui::EndChild();
+
+        ImGui::Separator();
+        
+
+        ImGui::Separator();
+
+        ImGui::EndPopup();
+    
+}
+
+
+                                       }
 
                                        if (!project_creation)
                                        {
@@ -609,16 +777,16 @@ if (ImGui::BeginTable("##project_paths", 2)) {
         ImGui::PopStyleColor();
 
 
-    static std::shared_ptr<Cherry::ImageTextButtonSimple> del_btn = std::make_shared<Cherry::ImageTextButtonSimple>("delete_project_pool_button", "");
-    del_btn->SetScale(0.85f);
-    del_btn->SetInternalMarginX(10.0f);
-    del_btn->SetLogoSize(15, 15);
-    del_btn->SetBackgroundColorIdle("#00000000");
-    del_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_delete.png"));
+    static std::shared_ptr<Cherry::ImageTextButtonSimple> import_btn = std::make_shared<Cherry::ImageTextButtonSimple>("delete_project_pool_button", "");
+    import_btn->SetScale(0.85f);
+    import_btn->SetInternalMarginX(10.0f);
+    import_btn->SetLogoSize(15, 15);
+    import_btn->SetBackgroundColorIdle("#00000000");
+    import_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_delete.png"));
 
         ImGui::TableSetColumnIndex(1);
         std::string delete_btn_label = "Delete####" + projectPaths[i];
-        if (del_btn->Render(delete_btn_label.c_str())) {
+        if (import_btn->Render(delete_btn_label.c_str())) {
             projectPaths.erase(projectPaths.begin() + i);
             --i;
         }
@@ -751,7 +919,7 @@ void ProjectManager::mainButtonsMenuItem()
             project_creation = true;
         }
 
-        if (import_project_button->Render())
+        if (import_project_button->Render("import"))
         {
             open_import_projects = true;
         }

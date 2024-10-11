@@ -6,10 +6,11 @@ static std::vector<std::shared_ptr<ModuleInterface>> to_suppr_modules;
 
 static std::vector<std::shared_ptr<ModuleInterface>> to_import_modules;
 
+static std::vector<int> selectedIDs;
+
 int to_import_destination_index;
 std::vector<std::string> modules_pools;
 std::string to_import_destination;
-
 
 static bool showModulesDeletionModal = false;
 static bool showModulesImportModal = false;
@@ -210,18 +211,13 @@ LogicContentManager::LogicContentManager(const std::string &name)
                                    }
                                }
 
-                               // Menu contextuel pour chaque ligne
                                if (ImGui::BeginPopup(("context_menu_" + std::to_string(row)).c_str()))
                                {
                                    if (ImGui::MenuItem("Open"))
                                    {
-                                       // Action pour "Open"
-                                       // Ajoute ta logique ici
                                    }
                                    if (ImGui::MenuItem("Delete"))
                                    {
-                                       // Action pour "Delete"
-                                       // Ajoute ta logique ici
                                    }
                                    ImGui::EndPopup();
                                }
@@ -230,8 +226,7 @@ LogicContentManager::LogicContentManager(const std::string &name)
                            ImGui::EndTable();
                        }
 
-                       // Collecter les lignes sélectionnées
-                       std::vector<int> selectedIDs;
+                       selectedIDs.clear();
                        for (int i = 0; i < selectedRows.size(); i++)
                        {
                            if (selectedRows[i])
@@ -273,103 +268,14 @@ LogicContentManager::LogicContentManager(const std::string &name)
         }
                        }
                        
-                       if (showModulesDeletionModal)
-                       {
-    ImGui::OpenPopup("Delete module(s)");
-
-
-    if (ImGui::BeginPopupModal("Delete module(s)", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove))
-                           {
-                               std::string text_label = "Are yout sure to delete theses " + std::to_string(selectedIDs.size()) + " modules ? ";
-                               ImGui::TextWrapped(text_label.c_str());                               
-                               ImGui::TextWrapped("Important: This action will not delete selected modules from projects you've got, this action will only uninstall project available from your system. To delete modules of your projects, go on the project editor, modules manager and delete modules manually.");
-                               ImGui::TextWrapped("Theses modules will be deleted :");
-
-
-            ImGui::Separator();
-if (ImGui::BeginTable("modules_will_be_deleted", 5, flags))
-                       {
-                           ImGui::TableSetupColumn("Image", ImGuiTableColumnFlags_WidthFixed); // Image + Checkbox
-                           ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed);      // Selectable + Checkbox
-                           ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed);      // Image + Checkbox
-                           ImGui::TableSetupColumn("Version", ImGuiTableColumnFlags_WidthFixed);
-                           ImGui::TableSetupColumn("Path", ImGuiTableColumnFlags_WidthFixed);
-                           ImGui::TableHeadersRow();
-
-                           for (int row = 0; row < to_suppr_modules.size(); row++)
-                           {
-                               ImGui::TableNextRow();
-                               for (int column = 0; column < 5; column++)
-                               {
-                                   ImGui::TableSetColumnIndex(column);
-                                   if (column == 0) // Selectable + Checkbox
-                                   {                                       
-                                    ImGui::Image(Cherry::GetTexture(to_suppr_modules[row]->m_logo_path), ImVec2(30, 30));
-                                   }
-                                   else if (column == 1) // Checkbox après Selectable
-                                   {                                       
-                                    ImGui::Text(to_suppr_modules[row]->m_name.c_str());
-
-                                   }
-                                   else if (column == 2) // Colonne Image
-                                   {
-                                    ImGui::Text(to_suppr_modules[row]->m_proper_name.c_str());
-                                   }
-                                   else if (column == 3)
-                                   {
-                                       ImGui::Text(to_suppr_modules[row]->m_version.c_str());
-                                   }
-                                   else if (column == 4)
-                                   {
-                                       ImGui::Text(to_suppr_modules[row]->m_path.c_str());
-                                   }
-                               }
-                           }
-
-                           ImGui::EndTable();
-                       }
-
-
-
-
-            ImGui::Separator();
-
-            if (ImGui::Button("Cancel")) {
-                ImGui::CloseCurrentPopup();
-                showModulesDeletionModal = false;
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Confirm Delete")) {
-  for(auto &module : to_suppr_modules)
-                {
-                    VortexMaker::DeleteSystemModule(module->m_name, module->m_version);
-                }
-
-                VortexMaker::LoadSystemModules(VortexMaker::GetCurrentContext()->IO.sys_em);
-
-to_suppr_modules.clear();              
-                ImGui::CloseCurrentPopup();
-                showModulesDeletionModal = false;
-            }
-
-                               ImGui::EndPopup();
-                           }
- 
-  } 
-  }
-  );
+  
+  });
 
     this->AddChild("Manage content", "Installed plugin(s)", [this]()
                    { TitleTwo("Plugins aren't available for the moment"); });
 
-    this->AddChild("Manage content", "Import plugin(s)", [this]()
-                   {
-                       TitleTwo("Import plugin(s)");
-                       ImGui::TextWrapped("This section allow you to import plugin(s) into one of your plugins pools. After that you will can install these plugins into your projects");
-                       //
-                   });
 
-    this->AddChild("Manage content", "Import module(s)", [this]()
+    this->AddChild("Import content", "Import module(s)", [this]()
                    {
                        TitleTwo("Import module(s)");
                        ImGui::TextWrapped("This section allow you to import module(s) into one of your plugins pools. After that you will can install these plugins into your projects");
@@ -410,7 +316,6 @@ to_suppr_modules.clear();
                        ImGui::SameLine();
                        if (find_in_folder->Render("qsdqsd"))
                        {
-
                            Cherry::ApplicationSpecification spec;
                            std::shared_ptr<Layer> layer = std::make_shared<Layer>();
 
@@ -476,8 +381,6 @@ to_suppr_modules.clear();
                                    ImGui::TableSetColumnIndex(column);
                                    if (column == 0)
                                    {
-                                       ImGui::PushID(row);
-
                                        if (ImGui::Selectable("##RowSelectable", selectedRows[row], ImGuiSelectableFlags_SpanAllColumns, ImVec2(0, 30)))
                                        {
                                            bool isCtrlPressed = ImGui::GetIO().KeyCtrl;
@@ -537,7 +440,8 @@ to_suppr_modules.clear();
 
                            ImGui::EndTable();
                        }
-                       std::vector<int> selectedIDs;
+ 
+                        selectedIDs.clear();
                        for (int i = 0; i < selectedRows.size(); i++)
                        {
                            if (selectedRows[i])
@@ -579,89 +483,15 @@ to_suppr_modules.clear();
                         static std::shared_ptr<Cherry::ComboSimple> combo_dest = std::make_shared<Cherry::ComboSimple>("combo", "Import to", modules_pools, 0);
                         combo_dest->Render("qd");
                         to_import_destination = combo_dest->GetData("selected_string");
-                       }
-
-                       if (showModulesImportModal)
-                       {
-                           ImGui::OpenPopup("Import module(s)");
-                           ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-ImGui::SetNextWindowPos(ImVec2(center.x, center.y), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-
-
-                           if (ImGui::BeginPopupModal("Import module(s)", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove))
-                           {
-                               std::string text_label = "Are yout sure to import theses " + std::to_string(selectedIDs.size()) + " modules ? ";
-                               ImGui::TextWrapped(text_label.c_str());
-                               ImGui::TextWrapped("Important: This action will not delete/change selected modules from projects you've got, this action will only uninstall project available from your system. To delete modules of your projects, go on the project editor, modules manager and delete modules manually.");
-                               ImGui::TextWrapped("Theses modules will be imported :");
-
-                               ImGui::Separator();
-                               if (ImGui::BeginTable("modules_will_be_imported", 5, flags))
-                               {
-                                   ImGui::TableSetupColumn("Image", ImGuiTableColumnFlags_WidthFixed); // Image + Checkbox
-                                   ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed);  // Selectable + Checkbox
-                                   ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed); // Image + Checkbox
-                                   ImGui::TableSetupColumn("Version", ImGuiTableColumnFlags_WidthFixed);
-                                   ImGui::TableSetupColumn("Path", ImGuiTableColumnFlags_WidthFixed);
-                                   ImGui::TableHeadersRow();
-
-                                   for (int row = 0; row < to_import_modules.size(); row++)
-                                   {
-                                       ImGui::TableNextRow();
-                                       for (int column = 0; column < 5; column++)
-                                       {
-                                           ImGui::TableSetColumnIndex(column);
-                                           if (column == 0) // Selectable + Checkbox
-                                           {
-                                               ImGui::Image(Cherry::GetTexture(to_import_modules[row]->m_logo_path), ImVec2(30, 30));
-                                           }
-                                           else if (column == 1) // Checkbox après Selectable
-                                           {
-                                               ImGui::Text(to_import_modules[row]->m_name.c_str());
-                                           }
-                                           else if (column == 2) // Colonne Image
-                                           {
-                                               ImGui::Text(to_import_modules[row]->m_proper_name.c_str());
-                                           }
-                                           else if (column == 3)
-                                           {
-                                               ImGui::Text(to_import_modules[row]->m_version.c_str());
-                                           }
-                                           else if (column == 4)
-                                           {
-                                               ImGui::Text(to_import_modules[row]->m_path.c_str());
-                                           }
-                                       }
-                                   }
-
-                                   ImGui::EndTable();
-                               }
-
-                               ImGui::Separator();
-
-                               if (ImGui::Button("Cancel"))
-                               {
-                                   ImGui::CloseCurrentPopup();
-                                   showModulesImportModal = false;
-                               }
-                               ImGui::SameLine();
-                               if (ImGui::Button("Confirm Import"))
-                               {
-                                   for (auto &module : to_import_modules)
-                                   {
-                                    VortexMaker::InstallModuleToSystem(module->m_path, to_import_destination);
-                                   }
-
-                                   VortexMaker::LoadSystemModules(VortexMaker::GetCurrentContext()->IO.sys_em);
-
-                                   to_import_modules.clear();
-                                   ImGui::CloseCurrentPopup();
-                                   showModulesImportModal = false;
-                               }
-
-                               ImGui::EndPopup();
-                           }
                        } });
+
+    this->AddChild("Import content", "Import plugin(s)", [this]()
+                   {
+                       TitleTwo("Import plugin(s)");
+                       ImGui::TextWrapped("This section allow you to import plugin(s) into one of your plugins pools. After that you will can install these plugins into your projects");
+                       //
+                   });
+
 
     this->AddChild("Settings", "Modules pools", [this]()
                    {
@@ -703,6 +533,197 @@ void LogicContentManager::RefreshRender(const std::shared_ptr<LogicContentManage
 {
     m_AppWindow->SetRenderCallback([instance]()
                                    {
+if (showModulesImportModal)
+{
+    ImGui::OpenPopup("Import module(s)");
+
+
+    ImVec2 main_window_size = ImGui::GetWindowSize();
+    ImVec2 window_pos = ImGui::GetWindowPos();  
+
+    ImGui::SetNextWindowPos(ImVec2(window_pos.x + (main_window_size.x * 0.5f) - 300, window_pos.y + 150));
+
+    ImGui::SetNextWindowSize(ImVec2(600, 0), ImGuiCond_Always);
+
+    if (ImGui::BeginPopupModal("Import module(s)", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove))
+    {
+        std::string text_label = "Are you sure to import these " + std::to_string(selectedIDs.size()) + " modules ? ";
+        ImGui::TextWrapped(text_label.c_str());
+        ImGui::TextWrapped("Important: This action will not delete/change selected modules...");
+        ImGui::TextWrapped("These modules will be imported:");
+
+        ImGui::Separator();
+
+        static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
+
+        float max_table_height = 200.0f;
+        ImGui::BeginChild("TableScrollRegion", ImVec2(0, max_table_height), true, ImGuiWindowFlags_HorizontalScrollbar);
+
+        if (ImGui::BeginTable("modules_will_be_imported", 5, flags))
+        {
+            ImGui::TableSetupColumn("Image", ImGuiTableColumnFlags_WidthFixed);
+            ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed);
+            ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed); 
+            ImGui::TableSetupColumn("Version", ImGuiTableColumnFlags_WidthFixed);
+            ImGui::TableSetupColumn("Path", ImGuiTableColumnFlags_WidthFixed);
+            ImGui::TableHeadersRow();
+
+            for (int row = 0; row < to_import_modules.size(); row++)
+            {
+                ImGui::TableNextRow();
+                for (int column = 0; column < 5; column++)
+                {
+                    ImGui::TableSetColumnIndex(column);
+                    if (column == 0) // Selectable + Checkbox
+                    {
+                        ImGui::Image(Cherry::GetTexture(to_import_modules[row]->m_logo_path), ImVec2(30, 30));
+                    }
+                    else if (column == 1) // Checkbox après Selectable
+                    {
+                        ImGui::Text(to_import_modules[row]->m_name.c_str());
+                    }
+                    else if (column == 2) // Colonne Image
+                    {
+                        ImGui::Text(to_import_modules[row]->m_proper_name.c_str());
+                    }
+                    else if (column == 3)
+                    {
+                        ImGui::Text(to_import_modules[row]->m_version.c_str());
+                    }
+                    else if (column == 4)
+                    {
+                        ImGui::Text(to_import_modules[row]->m_path.c_str());
+                    }
+                }
+            }
+
+            ImGui::EndTable();
+        }
+
+        ImGui::EndChild();
+
+        ImGui::Separator();
+
+        if (ImGui::Button("Cancel"))
+        {
+            ImGui::CloseCurrentPopup();
+            showModulesImportModal = false;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Confirm Import"))
+        {
+            for (auto &module : to_import_modules)
+            {
+                VortexMaker::InstallModuleToSystem(module->m_path, to_import_destination);
+            }
+
+            VortexMaker::LoadSystemModules(VortexMaker::GetCurrentContext()->IO.sys_em);
+
+            to_import_modules.clear();
+            ImGui::CloseCurrentPopup();
+            showModulesImportModal = false;
+        }
+
+        ImGui::EndPopup();
+    }
+}
+
+
+                       if (showModulesDeletionModal)
+                       {
+    ImGui::OpenPopup("Delete module(s)");
+
+
+    ImVec2 main_window_size = ImGui::GetWindowSize();
+    ImVec2 window_pos = ImGui::GetWindowPos();  
+
+    ImGui::SetNextWindowPos(ImVec2(window_pos.x + (main_window_size.x * 0.5f) - 300, window_pos.y + 150));
+
+    ImGui::SetNextWindowSize(ImVec2(600, 0), ImGuiCond_Always);
+
+    if (ImGui::BeginPopupModal("Delete module(s)", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove))
+                           {
+                               std::string text_label = "Are yout sure to delete theses " + std::to_string(selectedIDs.size()) + " modules ? ";
+                               ImGui::TextWrapped(text_label.c_str());                               
+                               ImGui::TextWrapped("Important: This action will not delete selected modules from projects you've got, this action will only uninstall project available from your system. To delete modules of your projects, go on the project editor, modules manager and delete modules manually.");
+                               ImGui::TextWrapped("Theses modules will be deleted :");
+
+
+            ImGui::Separator();
+
+                                   static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
+
+if (ImGui::BeginTable("modules_will_be_deleted", 5, flags))
+                       {
+                           ImGui::TableSetupColumn("Image", ImGuiTableColumnFlags_WidthFixed);
+                           ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed);
+                           ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed);
+                           ImGui::TableSetupColumn("Version", ImGuiTableColumnFlags_WidthFixed);
+                           ImGui::TableSetupColumn("Path", ImGuiTableColumnFlags_WidthFixed);
+                           ImGui::TableHeadersRow();
+
+                           for (int row = 0; row < to_suppr_modules.size(); row++)
+                           {
+                               ImGui::TableNextRow();
+                               for (int column = 0; column < 5; column++)
+                               {
+                                   ImGui::TableSetColumnIndex(column);
+                                   if (column == 0)
+                                   {                                       
+                                    ImGui::Image(Cherry::GetTexture(to_suppr_modules[row]->m_logo_path), ImVec2(30, 30));
+                                   }
+                                   else if (column == 1)
+                                   {                                       
+                                    ImGui::Text(to_suppr_modules[row]->m_name.c_str());
+
+                                   }
+                                   else if (column == 2)
+                                   {
+                                    ImGui::Text(to_suppr_modules[row]->m_proper_name.c_str());
+                                   }
+                                   else if (column == 3)
+                                   {
+                                       ImGui::Text(to_suppr_modules[row]->m_version.c_str());
+                                   }
+                                   else if (column == 4)
+                                   {
+                                       ImGui::Text(to_suppr_modules[row]->m_path.c_str());
+                                   }
+                               }
+                           }
+
+                           ImGui::EndTable();
+                       }
+
+
+
+
+            ImGui::Separator();
+
+            if (ImGui::Button("Cancel")) {
+                ImGui::CloseCurrentPopup();
+                showModulesDeletionModal = false;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Confirm Delete")) {
+  for(auto &module : to_suppr_modules)
+                {
+                    VortexMaker::DeleteSystemModule(module->m_name, module->m_version);
+                }
+
+                VortexMaker::LoadSystemModules(VortexMaker::GetCurrentContext()->IO.sys_em);
+
+to_suppr_modules.clear();              
+                ImGui::CloseCurrentPopup();
+                showModulesDeletionModal = false;
+            }
+
+                               ImGui::EndPopup();
+                           }
+ 
+  } 
+  
+
                                            static float leftPaneWidth = 300.0f;
                                            const float minPaneWidth = 50.0f;
                                            const float splitterWidth = 1.5f;

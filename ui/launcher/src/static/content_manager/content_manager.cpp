@@ -49,8 +49,8 @@ namespace Cherry
         m_AppWindow->SetInternalPaddingX(10.0f);
         m_AppWindow->SetInternalPaddingY(10.0f);
 
-    this->AddChild("Manage content", "Installed template(s)", [this]()
-                   {
+        this->AddChild("Manage content", "Installed template(s)", [this]()
+                       {
                        TitleTwo("Installed template(s)");
 
                        /*ImGui::Text("You can add paths here");
@@ -332,13 +332,10 @@ to_suppr_templates.clear();
                                ImGui::EndPopup();
                            }
  
-  } 
-  }
-  );
-        this->AddChild("Manage content", "Installed contents(s)", [this]()
-                       {
-                        
-                       });
+  } });
+        this->AddChild("Manage content", "Installed contents(s)", [this]() {
+
+        });
 
         this->AddChild("Manage content", "Import template(s)", [this]()
                        {
@@ -349,7 +346,7 @@ to_suppr_templates.clear();
                        {
                            //
                        });
-                       
+
         this->AddChild("Settings", "Template(s) pools", [this]()
                        {
                            //
@@ -359,7 +356,6 @@ to_suppr_templates.clear();
                        {
                            //
                        });
-
 
         std::shared_ptr<Cherry::AppWindow> win = m_AppWindow;
         m_AppWindow->SetLeftMenubarCallback([]() {});

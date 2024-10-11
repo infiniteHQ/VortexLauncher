@@ -13,6 +13,9 @@
 
 static std::string session_id = "unknow";
 
+// TODO vortex -i --module --path
+// TODO vortex -d --module --url
+
 void PrintInfinite()
 {
     std::cout << R"(

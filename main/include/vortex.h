@@ -207,7 +207,7 @@ namespace VortexMaker
     VORTEX_API std::string SearchFilesRecursive(const fs::path &chemin, const std::string &filename, std::vector<std::string> &file, int recursions, int counter);
     bool DebugCheckVersionAndDataLayout(const char *version);
 
-    VORTEX_API void ImportProject(const std::string &path);
+    VORTEX_API void ImportProject(const std::string &path, const std::string& pool_path);
     VORTEX_API std::vector<std::shared_ptr<EnvProject>> FindProjectInFolder(const std::string &path);
 
     VORTEX_API nlohmann::json DumpJSON(const std::string &file);

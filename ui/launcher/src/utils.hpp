@@ -79,7 +79,6 @@ static void loadTemplates(std::vector<std::string> &paths, const std::string &js
     }
 }
 
-
 static void saveModules(const std::vector<std::string> &paths, const std::string &jsonFilePath)
 {
     nlohmann::json jsonData;
@@ -288,7 +287,7 @@ static void DrawHighlightedText(ImDrawList *drawList, ImVec2 textPos, const char
     }
 }
 
-static void VersionButton(const std::string& envproject, int xsize = 100, int ysize = 100, const std::string& version = "?")
+static void VersionButton(const std::string &envproject, int xsize = 100, int ysize = 100, const std::string &version = "?")
 {
     ImVec2 squareSize(xsize, ysize);
 
@@ -314,7 +313,7 @@ static void VersionButton(const std::string& envproject, int xsize = 100, int ys
     std::string button_id = envproject + "squareButtonWithText" + envproject;
     if (ImGui::InvisibleButton(button_id.c_str(), totalSize))
     {
-        //selected_envproject = envproject;
+        // selected_envproject = envproject;
     }
 
     if (ImGui::IsItemHovered())
@@ -360,7 +359,6 @@ static void VersionButton(const std::string& envproject, int xsize = 100, int ys
         ImGui::SameLine();
 }
 
-
 struct VortexVersion
 {
     std::string m_Version;
@@ -397,53 +395,67 @@ static bool TestVortexExecutable(const std::string &path)
     return (result.find("ok") != std::string::npos) && (return_code == 0);
 }
 
+static bool CheckIfVortexVersionExist(const std::string &version)
+{
+    for (auto &ver : m_VortexRegisteredVersions)
+    {
+        if (ver->m_Version == version)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 static void RegisterAvailableVersions()
 {
-    const std::string base_path = "/opt/Vortex";
+    // const std::string base_path = "/opt/Vortex";
     available_versions.clear();
     m_VortexRegisteredVersions.clear();
-
-    for (const auto &entry : std::filesystem::directory_iterator(base_path))
+    for (auto &base_path : VortexMaker::GetCurrentContext()->IO.sys_vortex_versions_pools)
     {
-        if (entry.is_directory())
+
+        for (const auto &entry : std::filesystem::directory_iterator(base_path))
         {
-            std::string version_dir = entry.path().filename().string();
-            std::string manifest_path = entry.path().string() + "/manifest.json";
-            std::string vortex_executable = entry.path().string() + "/bin/vortex";
-
-            if (std::filesystem::exists(manifest_path))
+            if (entry.is_directory())
             {
-                try
+                std::string version_dir = entry.path().filename().string();
+                std::string manifest_path = entry.path().string() + "/manifest.json";
+                std::string vortex_executable = entry.path().string() + "/bin/vortex";
+
+                if (std::filesystem::exists(manifest_path))
                 {
-                    std::ifstream manifest_file(manifest_path);
-                    nlohmann::json manifest_json;
-                    manifest_file >> manifest_json;
+                    try
+                    {
+                        std::ifstream manifest_file(manifest_path);
+                        nlohmann::json manifest_json;
+                        manifest_file >> manifest_json;
 
-                    std::string version = manifest_json["version"];
-                    std::string version_name = manifest_json["name"];
-                    std::string image_path = base_path + "/" + version_dir + "/" + manifest_json["image"].get<std::string>();
+                        std::string version = manifest_json["version"];
+                        std::string version_name = manifest_json["name"];
+                        std::string image_path = base_path + "/" + version_dir + "/" + manifest_json["image"].get<std::string>();
 
-                    bool is_working = TestVortexExecutable(vortex_executable);
+                        bool is_working = TestVortexExecutable(vortex_executable);
 
-                    auto vortex_version = std::make_shared<VortexVersion>();
-                    vortex_version->m_Version = version;
-                    vortex_version->m_VersionName = version_name;
-                    vortex_version->m_VersionImagePath = image_path;
-                    vortex_version->m_VersionPath = entry.path().string();
-                    vortex_version->m_VersionWorking = is_working;
+                        auto vortex_version = std::make_shared<VortexVersion>();
+                        vortex_version->m_Version = version;
+                        vortex_version->m_VersionName = version_name;
+                        vortex_version->m_VersionImagePath = image_path;
+                        vortex_version->m_VersionPath = entry.path().string();
+                        vortex_version->m_VersionWorking = is_working;
 
-                    m_VortexRegisteredVersions.push_back(vortex_version);
-                    available_versions.push_back(version);
-                }
-                catch (const std::exception &e)
-                {
-                    std::cerr << "Erreur lors de la lecture de " << manifest_path << ": " << e.what() << std::endl;
+                        m_VortexRegisteredVersions.push_back(vortex_version);
+                        available_versions.push_back(version);
+                    }
+                    catch (const std::exception &e)
+                    {
+                        std::cerr << "Erreur lors de la lecture de " << manifest_path << ": " << e.what() << std::endl;
+                    }
                 }
             }
         }
     }
 }
-
 
 static void MyButton(const std::shared_ptr<EnvProject> envproject, int xsize = 100, int ysize = 100)
 {
@@ -495,7 +507,18 @@ static void MyButton(const std::shared_ptr<EnvProject> envproject, int xsize = 1
 
     drawList->AddRectFilled(smallRectPos, ImVec2(smallRectPos.x + smallRectSize.x, smallRectPos.y + smallRectSize.y), IM_COL32(0, 0, 0, 255));
     ImVec2 versionTextPos = ImVec2(smallRectPos.x + (smallRectSize.x - ImGui::CalcTextSize(versionText).x) / 2, smallRectPos.y + (smallRectSize.y - ImGui::CalcTextSize("version").y) / 2);
+    
+    if(CheckIfVortexVersionExist(envproject->compatibleWith))
+    {
     drawList->AddText(versionTextPos, IM_COL32(255, 255, 255, 255), versionText);
+
+    }
+    else{
+    drawList->AddText(versionTextPos, IM_COL32(255, 20, 20, 255), versionText);
+
+    }
+    
+    
 
     ImVec2 textPos = ImVec2(cursorPos.x + (squareSize.x - textSize.x) / 2, cursorPos.y + squareSize.y + 5);
 
@@ -590,7 +613,7 @@ static void MyBanner(const std::string &path)
     ImDrawList *drawList = ImGui::GetWindowDrawList();
 
     // getTexture(path, drawList, cursorPos, squareSize);
-    //ImGui::Image(path, drawList, cursorPos, squareSize);
+    // ImGui::Image(path, drawList, cursorPos, squareSize);
     drawList->AddImage(Cherry::GetTexture(path), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
 
     ImVec2 smallRectSize(40, 20);

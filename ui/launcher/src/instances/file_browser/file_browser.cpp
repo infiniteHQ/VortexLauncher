@@ -632,7 +632,7 @@ bool FileBrowserAppWindow::MyButton(const std::string &name, const std::string &
     ImVec2 sizePos = ImVec2(cursorPos.x + padding, cursorPos.y + squareSize.y + thumbnailIconOffsetY - 20 + textOffsetY);
     ImGui::SetCursorScreenPos(sizePos);
 
-    static ImTextureID logotexture = Application::GetCurrentRenderedWindow()->get_texture(logo);
+    ImTextureID logotexture = Application::GetCurrentRenderedWindow()->get_texture(logo);
     drawList->AddImage(logotexture, logoPos, ImVec2(logoPos.x + squareSize.x, logoPos.y + squareSize.y));
 
     ImGui::GetFont()->Scale *= 0.7;
