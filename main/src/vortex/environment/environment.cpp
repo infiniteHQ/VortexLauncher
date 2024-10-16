@@ -86,7 +86,7 @@ VORTEX_API void VortexMaker::InitEnvironment()
     }
 
     {
-        std::string path = vxBasePath + "configs/";
+        std::string path = vxBasePath + "configs/contents/";
         std::string file = path + "modules_pools.json";
 
         nlohmann::json default_data = {
@@ -96,7 +96,7 @@ VORTEX_API void VortexMaker::InitEnvironment()
     }
 
     {
-        std::string path = vxBasePath + "configs/";
+        std::string path = vxBasePath + "configs/contents/";
         std::string file = path + "plugins_pools.json";
 
         nlohmann::json default_data = {
@@ -106,7 +106,7 @@ VORTEX_API void VortexMaker::InitEnvironment()
     }
 
     {
-        std::string path = vxBasePath + "configs/";
+        std::string path = vxBasePath + "configs/contents/";
         std::string file = path + "templates_pools.json";
 
         nlohmann::json default_data = {

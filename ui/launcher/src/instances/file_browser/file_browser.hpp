@@ -147,11 +147,7 @@ using namespace Cherry;
         std::vector<std::string> m_Pools;
 
         std::vector<std::filesystem::path> m_Favorites;
-
-        std::shared_ptr<Cherry::Image> m_ProjectIcon;
-        std::shared_ptr<Cherry::Image> m_FileIcon;
-        std::shared_ptr<Cherry::Image> m_DirectoryIcon;
-
+        
         std::shared_ptr<Cherry::AppWindow> m_AppWindow;
 
         std::function<void(const std::string &)> m_DeletePathCallback;

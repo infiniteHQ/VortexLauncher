@@ -7,26 +7,29 @@
 
 #define CHERRY_V1
 #include "../../../../../lib/cherry/cherry.hpp"
-class LauncherLogUtility
+
+namespace VortexLauncher
 {
-public:
-    LauncherLogUtility(const std::string &name);
 
-    void RefreshRender(const std::shared_ptr<LauncherLogUtility> &instance);
-
-    void menubar();
-
-    std::shared_ptr<Cherry::AppWindow> &GetAppWindow()
+    class LauncherLogUtility : public std::enable_shared_from_this<LauncherLogUtility>
     {
-        return m_AppWindow;
-    }
+    public:
+        LauncherLogUtility(const std::string &name);
 
-    VxContext *ctx;
+        void menubar();
 
-private:
-    bool opened;
-    std::string parent;
-    std::shared_ptr<Cherry::AppWindow> m_AppWindow;
-};
+        std::shared_ptr<Cherry::AppWindow> &GetAppWindow();
+        static std::shared_ptr<LauncherLogUtility> Create(const std::string &name);
+        void SetupRenderCallback();
+        void Render();
+
+        VxContext *ctx;
+
+    private:
+        bool opened;
+        std::string parent;
+        std::shared_ptr<Cherry::AppWindow> m_AppWindow;
+    };
+} // namespace VortexLauncher
 
 #endif // LOG_UTILITY_H

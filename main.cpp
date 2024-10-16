@@ -77,11 +77,8 @@ void PrintHeader()
               << "\033[0m"
               << "                                                                           │ " << std::endl;
     std::cout << "│ -h   --help :                          See all parameters                                      │ " << std::endl;
-    std::cout << "│ -l   --launcher :                      Open the Vortex launcher (for projects, components...)  │ " << std::endl;
-    std::cout << "│ -e   --editor :                        Open the Vortex graphical interface                     │ " << std::endl;
-    std::cout << "│ -cp  --create-project  <...> :         Create a new project                                    │ " << std::endl;
-    std::cout << "│ -i   --install  <...> :                Install a ressource into the user environment           │ " << std::endl;
-    std::cout << "│ -bi  --build-install  <...> :          Build & Install a ressource into the user environment   │ " << std::endl;
+    std::cout << "│ -i   --install :                       Install contents/components on the system               │ " << std::endl;
+    std::cout << "│ -d   --download :                      Download contents/components to install on the system   │ " << std::endl;
     std::cout << "├────────────────────────────────────────────────────────────────────────────────────────────────┤" << std::endl;
     std::cout << "│"
               << "\033[38;2;177;255;49m"
@@ -143,8 +140,40 @@ vortex_launcher -i --vortex <path>
 /**
  * @brief : Entry point of main Vortex runtime command.
  */
+
 int main(int argc, char *argv[])
 {
+    // Check command-line arguments for --install, -i, --download, -d
+    bool installFlag = false;
+    bool downloadFlag = false;
+
+    for (int i = 1; i < argc; ++i)
+    {
+        std::string arg = argv[i];
+        if (arg == "-i" || arg == "--install")
+        {
+            installFlag = true;
+        }
+        else if (arg == "-d" || arg == "--download")
+        {
+            downloadFlag = true;
+        }
+    }
+
+    // If install flag is set, print "install" and exit
+    if (installFlag)
+    {
+        std::cout << "install" << std::endl;
+        return 0;  // Exit without starting the UI
+    }
+
+    // If download flag is set, print "download" and exit
+    if (downloadFlag)
+    {
+        std::cout << "download" << std::endl;
+        return 0;  // Exit without starting the UI
+    }
+
     PrintHeader();
 
     InitBlankRuntime(true);

@@ -27,7 +27,7 @@
         }
     };
 
-    class VersionManagerAppWindow
+    class VersionManagerAppWindow : public std::enable_shared_from_this<VersionManagerAppWindow>
     {
     public:
         VersionManagerAppWindow(const std::string &name);
@@ -37,11 +37,10 @@
         std::function<void()> GetChild(const std::string &child_name);
         void RefreshRender(const std::shared_ptr<VersionManagerAppWindow> &instance);
 
-        std::shared_ptr<Cherry::AppWindow> &GetAppWindow()
-        {
-            return m_AppWindow;
-        }
-
+        std::shared_ptr<Cherry::AppWindow> &GetAppWindow();
+        static std::shared_ptr<VersionManagerAppWindow> Create(const std::string &name);
+        void SetupRenderCallback();
+        void Render();
         std::vector<VersionManagerAppWindowChild> m_Childs;
 
         std::string m_SelectedChildName;

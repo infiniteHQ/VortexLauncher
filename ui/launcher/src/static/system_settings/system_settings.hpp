@@ -12,27 +12,22 @@
 #ifndef SYSTEMSETTINGS_H
 #define SYSTEMSETTINGS_H
 
-class SystemSettings
+class SystemSettings : public std::enable_shared_from_this<SystemSettings>
 {
 public:
-    SystemSettings();
+    SystemSettings(const std::string &name);
 
-    void OnImGuiRender(const std::string &parent, std::function<void(ImGuiWindow *)> controller);
     void menubar();
     void addModuleModal();
 
-    void RefreshRender(const std::shared_ptr<SystemSettings> &instance);
-
     void Refresh();
     void Update();
-    std::shared_ptr<Cherry::AppWindow> &GetAppWindow()
-    {
-        return m_AppWindow;
-    }
 
-    /**
-     * @brief Menu items
-     */
+    std::shared_ptr<Cherry::AppWindow> &GetAppWindow();
+    static std::shared_ptr<SystemSettings> Create(const std::string &name);
+    void SetupRenderCallback();
+    void Render();
+
     void mainButtonsMenuItem();
     void filterMenuItem();
     void createMenuItem();

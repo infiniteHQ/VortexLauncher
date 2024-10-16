@@ -51,7 +51,7 @@ bash ./build.sh
 ```bash
 cd path/to/a/module
 bash ./build.sh
-bash ./install.sh # or copy the folder on the .vx/modules of a project
+bash ./install.sh # or copy the folder on the .vx/contents/modules of a project
 ```
 
 ## Quick start

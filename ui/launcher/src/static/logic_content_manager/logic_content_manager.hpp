@@ -14,6 +14,8 @@
 #define CHERRY_V1
 #include "../../../../../lib/cherry/cherry.hpp"
 
+namespace VortexLauncher
+{
     struct LogicContentManagerChild
     {
         std::string m_Parent;
@@ -27,7 +29,7 @@
         }
     };
 
-    class LogicContentManager
+    class LogicContentManager : public std::enable_shared_from_this<LogicContentManager>
     {
     public:
         LogicContentManager(const std::string &name);
@@ -35,12 +37,11 @@
         void AddChild(const std::string &parent_name, const std::string &child_name, const std::function<void()> &child);
         void RemoveChild(const std::string &child_name);
         std::function<void()> GetChild(const std::string &child_name);
-        void RefreshRender(const std::shared_ptr<LogicContentManager> &instance);
-
-        std::shared_ptr<Cherry::AppWindow> &GetAppWindow()
-        {
-            return m_AppWindow;
-        }
+        
+        std::shared_ptr<Cherry::AppWindow> &GetAppWindow();
+        static std::shared_ptr<LogicContentManager> Create(const std::string &name);
+        void SetupRenderCallback();
+        void Render();
 
         std::vector<LogicContentManagerChild> m_Childs;
 
@@ -50,5 +51,6 @@
         std::shared_ptr<Cherry::AppWindow> m_AppWindow;
     };
 
+}
 
 #endif // MODULES_PLUGINS_HANDLER_H

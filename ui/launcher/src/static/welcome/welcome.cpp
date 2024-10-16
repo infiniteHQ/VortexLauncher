@@ -1,6 +1,6 @@
 #include "./welcome.hpp"
 
-namespace Cherry
+namespace VortexLauncher
 {
     WelcomeWindow::WelcomeWindow(const std::string &name)
     {
@@ -88,6 +88,28 @@ namespace Cherry
         }
     }
 
+    std::shared_ptr<Cherry::AppWindow> &WelcomeWindow::GetAppWindow()
+    {
+        return m_AppWindow;
+    }
+
+    std::shared_ptr<WelcomeWindow> WelcomeWindow::Create(const std::string &name)
+    {
+        auto instance = std::shared_ptr<WelcomeWindow>(new WelcomeWindow(name));
+        instance->SetupRenderCallback();
+        return instance;
+    }
+
+    void WelcomeWindow::SetupRenderCallback()
+    {
+        auto self = shared_from_this();
+        m_AppWindow->SetRenderCallback([self]()
+                                       {
+            if (self) {
+                self->Render();
+            } });
+    }
+
     std::function<void()> WelcomeWindow::GetChild(const std::string &child_name)
     {
         auto it = m_Childs.find(child_name);
@@ -98,85 +120,80 @@ namespace Cherry
         return nullptr;
     }
 
-    void WelcomeWindow::RefreshRender(const std::shared_ptr<WelcomeWindow> &instance)
+    void WelcomeWindow::Render()
     {
-        m_AppWindow->SetRenderCallback([instance]()
-                                       {
-                                           static float leftPaneWidth = 300.0f;
-                                           const float minPaneWidth = 50.0f;
-                                           const float splitterWidth = 1.5f;
-                                           static int selected;
+        static float leftPaneWidth = 300.0f;
+        const float minPaneWidth = 50.0f;
+        const float splitterWidth = 1.5f;
+        static int selected;
 
+        ImGui::BeginChild("left_pane", ImVec2(leftPaneWidth, 0), true, ImGuiWindowFlags_NoBackground);
 
-                                           ImGui::BeginChild("left_pane", ImVec2(leftPaneWidth, 0), true, ImGuiWindowFlags_NoBackground);
+        Cherry::TitleThree(Cherry::GetLocale("loc.window_names.welcome.title"));
 
-
-            TitleThree(Cherry::GetLocale("loc.window_names.welcome.title"));
-
-        for (const auto &child : instance->m_Childs)                                           
+        for (const auto &child : m_Childs)
         {
-                                               if (child.first == instance->m_SelectedChildName)
-                                               {
-                                                   ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f)); 
-                                               }
-                                               else
-                                               {
-                                                   ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); 
-                                               }
-                                                 std::string child_name;
+            if (child.first == m_SelectedChildName)
+            {
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+            }
+            else
+            {
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+            }
+            std::string child_name;
 
-        if (child.first.rfind("?loc:", 0) == 0)
-        {
-            std::string localeName = child.first.substr(5);
-            child_name = Application::Get().GetLocale(localeName) + "####" + localeName;
+            if (child.first.rfind("?loc:", 0) == 0)
+            {
+                std::string localeName = child.first.substr(5);
+                child_name = Cherry::GetLocale(localeName) + "####" + localeName;
+            }
+            else
+            {
+                child_name = child.first;
+            }
+
+            if (Cherry::TextButtonUnderline(child_name.c_str()))
+            {
+                m_SelectedChildName = child.first;
+            }
+
+            ImGui::PopStyleColor();
         }
-        else
+        ImGui::EndChild();
+
+        ImGui::SameLine();
+
+        ImGui::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#44444466"));
+        ImGui::Button("splitter", ImVec2(splitterWidth, -1));
+        ImGui::PopStyleVar();
+
+        if (ImGui::IsItemHovered())
         {
-            child_name = child.first;
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
         }
 
+        if (ImGui::IsItemActive())
+        {
+            float delta = ImGui::GetIO().MouseDelta.x;
+            leftPaneWidth += delta;
+            if (leftPaneWidth < minPaneWidth)
+                leftPaneWidth = minPaneWidth;
+        }
 
-                                               if (TextButtonUnderline(child_name.c_str()))
-                                               {
-                                                   instance->m_SelectedChildName = child.first;
-                                               }
+        ImGui::SameLine();
+        ImGui::BeginGroup();
 
-                                               ImGui::PopStyleColor();
-                                           }
-                                           ImGui::EndChild();
+        if (!m_SelectedChildName.empty())
+        {
+            std::function<void()> pannel_render = GetChild(m_SelectedChildName);
+            if (pannel_render)
+            {
+                pannel_render();
+            }
+        }
 
-                                           ImGui::SameLine();
-
-                                           ImGui::PushStyleColor(ImGuiCol_Button, HexToRGBA("#44444466"));
-                                           ImGui::Button("splitter", ImVec2(splitterWidth, -1));
-                                           ImGui::PopStyleVar();
-
-                                           if (ImGui::IsItemHovered())
-                                           {
-                                               ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-                                           }
-
-                                           if (ImGui::IsItemActive())
-                                           {
-                                               float delta = ImGui::GetIO().MouseDelta.x;
-                                               leftPaneWidth += delta;
-                                               if (leftPaneWidth < minPaneWidth)
-                                                   leftPaneWidth = minPaneWidth;
-                                           }
-
-                                           ImGui::SameLine();
-                                           ImGui::BeginGroup();
-
-                                           if(!instance->m_SelectedChildName.empty())
-                                           {
-                                                std::function<void()> pannel_render = instance->GetChild(instance->m_SelectedChildName);
-                                                if(pannel_render)
-                                                {
-                                                    pannel_render();
-                                                }
-                                           }
-                                        
-                                           ImGui::EndGroup(); });
+        ImGui::EndGroup();
     }
 
 }

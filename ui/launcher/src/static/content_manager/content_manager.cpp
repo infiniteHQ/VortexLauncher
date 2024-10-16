@@ -5,7 +5,7 @@ static std::vector<std::shared_ptr<TemplateInterface>> to_suppr_templates;
 static bool showTemplatesDeletionModal = false;
 static bool showTemplatesImportModal = false;
 
-namespace Cherry
+namespace VortexLauncher
 {
     ContentManager::ContentManager(const std::string &name)
     {
@@ -51,7 +51,7 @@ namespace Cherry
 
         this->AddChild("Manage content", "Installed template(s)", [this]()
                        {
-                       TitleTwo("Installed template(s)");
+                       Cherry::TitleTwo("Installed template(s)");
 
                        /*ImGui::Text("You can add paths here");
                        ImGui::SameLine();
@@ -64,7 +64,7 @@ namespace Cherry
                        filter_btn->SetInternalMarginX(10.0f);
                        filter_btn->SetLogoSize(15, 15);
 
-                       filter_btn->SetDropDownImage(Application::CookPath("ressources/imgs/icons/misc/icon_down.png"));
+                       filter_btn->SetDropDownImage(Cherry::GetPath("ressources/imgs/icons/misc/icon_down.png"));
                        filter_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_filter.png"));
 
                        static std::shared_ptr<Cherry::ImageTextButtonSimple> find_in_folder = std::make_shared<Cherry::ImageTextButtonSimple>("find_in_folder", "Find in folder");
@@ -383,102 +383,120 @@ to_suppr_templates.clear();
         return nullptr;
     }
 
-    void ContentManager::RefreshRender(const std::shared_ptr<ContentManager> &instance)
+    std::shared_ptr<Cherry::AppWindow> &ContentManager::GetAppWindow()
     {
-        m_AppWindow->SetRenderCallback([instance]()
+        return m_AppWindow;
+    }
+
+    std::shared_ptr<ContentManager> ContentManager::Create(const std::string &name)
+    {
+        auto instance = std::shared_ptr<ContentManager>(new ContentManager(name));
+        instance->SetupRenderCallback();
+        return instance;
+    }
+
+    void ContentManager::SetupRenderCallback()
+    {
+        auto self = shared_from_this();
+        m_AppWindow->SetRenderCallback([self]()
                                        {
-                                           static float leftPaneWidth = 300.0f;
-                                           const float minPaneWidth = 50.0f;
-                                           const float splitterWidth = 1.5f;
-                                           static int selected;
-      std::map<std::string, std::vector<ContentManagerChild>> groupedByParent;
-                                       for (const auto &child : instance->m_Childs)
-                                       {
-                                           groupedByParent[child.m_Parent].push_back(child);
-                                       }
+            if (self) {
+                self->Render();
+            } });
+    }
 
-                                           ImGui::BeginChild("left_pane", ImVec2(leftPaneWidth, 0), true, ImGuiWindowFlags_NoBackground);
+    void ContentManager::Render()
+    {
+        static float leftPaneWidth = 300.0f;
+        const float minPaneWidth = 50.0f;
+        const float splitterWidth = 1.5f;
+        static int selected;
+        std::map<std::string, std::vector<ContentManagerChild>> groupedByParent;
+        for (const auto &child : m_Childs)
+        {
+            groupedByParent[child.m_Parent].push_back(child);
+        }
 
+        ImGui::BeginChild("left_pane", ImVec2(leftPaneWidth, 0), true, ImGuiWindowFlags_NoBackground);
 
-                            ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);        
-                            ImVec4 graySeparatorColor = ImVec4(0.4f, 0.4f, 0.4f, 0.5f);
+        ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
+        ImVec4 graySeparatorColor = ImVec4(0.4f, 0.4f, 0.4f, 0.5f);
 
-            TitleThree("Manage Modules & Plugins");
-for (const auto &[parent, children] : groupedByParent)
-                                       {
-                                        
-                              ImGui::GetFont()->Scale *= 0.8;
-                              ImGui::PushFont(ImGui::GetFont());
+        Cherry::TitleThree("Manage Modules & Plugins");
+        for (const auto &[parent, children] : groupedByParent)
+        {
 
-                              ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
+            ImGui::GetFont()->Scale *= 0.8;
+            ImGui::PushFont(ImGui::GetFont());
 
-                              ImGui::PushStyleColor(ImGuiCol_Text, grayColor);
-                              ImGui::Text(parent.c_str());
-                              ImGui::PopStyleColor();
+            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
 
-                              ImGui::PushStyleColor(ImGuiCol_Separator, graySeparatorColor);
-                              ImGui::Separator();
-                              ImGui::PopStyleColor();
+            ImGui::PushStyleColor(ImGuiCol_Text, grayColor);
+            ImGui::Text(parent.c_str());
+            ImGui::PopStyleColor();
 
-                              ImGui::GetFont()->Scale = 0.84;
-                              ImGui::PopFont();
-                              ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);
+            ImGui::PushStyleColor(ImGuiCol_Separator, graySeparatorColor);
+            ImGui::Separator();
+            ImGui::PopStyleColor();
 
-                                           for (const auto &child : children)
-                                           {
-                                               if (child.m_ChildName == instance->m_SelectedChildName)
-                                               {
-                                                   ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
-                                               }
-                                               else
-                                               {
-                                                   ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
-                                               }
+            ImGui::GetFont()->Scale = 0.84;
+            ImGui::PopFont();
+            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);
 
-                                               if (TextButtonUnderline(child.m_ChildName.c_str()))
-                                               {
-                                                   instance->m_SelectedChildName = child.m_ChildName;
-                                               }
+            for (const auto &child : children)
+            {
+                if (child.m_ChildName == m_SelectedChildName)
+                {
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+                }
+                else
+                {
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+                }
 
-                                               ImGui::PopStyleColor();
-                                           }
+                if (Cherry::TextButtonUnderline(child.m_ChildName.c_str()))
+                {
+                    m_SelectedChildName = child.m_ChildName;
+                }
 
-                                       }
-                                           
-                                           ImGui::EndChild();
+                ImGui::PopStyleColor();
+            }
+        }
 
-                                           ImGui::SameLine();
+        ImGui::EndChild();
 
-                                           ImGui::PushStyleColor(ImGuiCol_Button, HexToRGBA("#44444466"));
-                                           ImGui::Button("splitter", ImVec2(splitterWidth, -1));
-                                           ImGui::PopStyleVar();
+        ImGui::SameLine();
 
-                                           if (ImGui::IsItemHovered())
-                                           {
-                                               ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-                                           }
+        ImGui::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#44444466"));
+        ImGui::Button("splitter", ImVec2(splitterWidth, -1));
+        ImGui::PopStyleVar();
 
-                                           if (ImGui::IsItemActive())
-                                           {
-                                               float delta = ImGui::GetIO().MouseDelta.x;
-                                               leftPaneWidth += delta;
-                                               if (leftPaneWidth < minPaneWidth)
-                                                   leftPaneWidth = minPaneWidth;
-                                           }
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+        }
 
-                                           ImGui::SameLine();
-                                           ImGui::BeginGroup();
+        if (ImGui::IsItemActive())
+        {
+            float delta = ImGui::GetIO().MouseDelta.x;
+            leftPaneWidth += delta;
+            if (leftPaneWidth < minPaneWidth)
+                leftPaneWidth = minPaneWidth;
+        }
 
-                                           if(!instance->m_SelectedChildName.empty())
-                                           {
-                                                std::function<void()> pannel_render = instance->GetChild(instance->m_SelectedChildName);
-                                                if(pannel_render)
-                                                {
-                                                    pannel_render();
-                                                }
-                                           }
-                                        
-                                           ImGui::EndGroup(); });
+        ImGui::SameLine();
+        ImGui::BeginGroup();
+
+        if (!m_SelectedChildName.empty())
+        {
+            std::function<void()> pannel_render = GetChild(m_SelectedChildName);
+            if (pannel_render)
+            {
+                pannel_render();
+            }
+        }
+
+        ImGui::EndGroup();
     }
 
 }

@@ -5,7 +5,7 @@ static std::vector<std::string> modulesPoolsPaths;
 static std::vector<std::string> templatesPoolsPaths;
 static std::vector<std::string> vortexVersionPoolsPaths;
 
-namespace Cherry
+namespace VortexLauncher
 {
     MainSettings::MainSettings(const std::string &name)
     {
@@ -150,10 +150,7 @@ namespace Cherry
 
                 VortexMaker::RefreshEnvironmentProjectsPools();
                 VortexMaker::RefreshEnvironmentProjects();
-            }
-             });
-
-
+            } });
 
         this->AddChild("Contents", "Modules pools paths", [this]()
                        {
@@ -249,14 +246,9 @@ namespace Cherry
 
                 VortexMaker::RefreshEnvironmentProjectsPools();
                 VortexMaker::RefreshEnvironmentProjects();
-            }
-             });
+            } });
 
-
-
-
-
-              this->AddChild("Contents", "Projects pools paths", [this]()
+        this->AddChild("Contents", "Projects pools paths", [this]()
                        {
             static char newPath[256] = "";
 
@@ -350,11 +342,7 @@ namespace Cherry
 
                 VortexMaker::RefreshEnvironmentProjectsPools();
                 VortexMaker::RefreshEnvironmentProjects();
-            }
-             });
-
-
-
+            } });
 
         this->AddChild("Contents", "Vortex versions paths", [this]()
                        {
@@ -567,101 +555,119 @@ namespace Cherry
         return nullptr;
     }
 
-    void MainSettings::RefreshRender(const std::shared_ptr<MainSettings> &instance)
+    std::shared_ptr<Cherry::AppWindow> &MainSettings::GetAppWindow()
     {
-        m_AppWindow->SetRenderCallback([instance]()
+        return m_AppWindow;
+    }
+
+    std::shared_ptr<MainSettings> MainSettings::Create(const std::string &name)
+    {
+        auto instance = std::shared_ptr<MainSettings>(new MainSettings(name));
+        instance->SetupRenderCallback();
+        return instance;
+    }
+
+    void MainSettings::SetupRenderCallback()
+    {
+        auto self = shared_from_this();
+        m_AppWindow->SetRenderCallback([self]()
                                        {
-                                           static float leftPaneWidth = 300.0f;
-                                           const float minPaneWidth = 50.0f;
-                                           const float splitterWidth = 1.5f;
-                                           static int selected;
-      std::map<std::string, std::vector<MainSettingsChild>> groupedByParent;
-                                       for (const auto &child : instance->m_Childs)
-                                       {
-                                           groupedByParent[child.m_Parent].push_back(child);
-                                       }
+            if (self) {
+                self->Render();
+            } });
+    }
 
-                                           ImGui::BeginChild("left_pane", ImVec2(leftPaneWidth, 0), true, ImGuiWindowFlags_NoBackground);
+    void MainSettings::Render()
+    {
+        static float leftPaneWidth = 300.0f;
+        const float minPaneWidth = 50.0f;
+        const float splitterWidth = 1.5f;
+        static int selected;
+        std::map<std::string, std::vector<MainSettingsChild>> groupedByParent;
+        for (const auto &child : m_Childs)
+        {
+            groupedByParent[child.m_Parent].push_back(child);
+        }
 
+        ImGui::BeginChild("left_pane", ImVec2(leftPaneWidth, 0), true, ImGuiWindowFlags_NoBackground);
 
-                            ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);        
-                            ImVec4 graySeparatorColor = ImVec4(0.4f, 0.4f, 0.4f, 0.5f);
+        ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
+        ImVec4 graySeparatorColor = ImVec4(0.4f, 0.4f, 0.4f, 0.5f);
 
-            TitleThree("Settings of Vortex");
-for (const auto &[parent, children] : groupedByParent)
-                                       {
-                                        
-                              ImGui::GetFont()->Scale *= 0.8;
-                              ImGui::PushFont(ImGui::GetFont());
+        Cherry::TitleThree("Settings of Vortex");
+        for (const auto &[parent, children] : groupedByParent)
+        {
 
-                              ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
+            ImGui::GetFont()->Scale *= 0.8;
+            ImGui::PushFont(ImGui::GetFont());
 
-                              ImGui::PushStyleColor(ImGuiCol_Text, grayColor);
-                              ImGui::Text(parent.c_str());
-                              ImGui::PopStyleColor();
+            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
 
-                              ImGui::PushStyleColor(ImGuiCol_Separator, graySeparatorColor);
-                              ImGui::Separator();
-                              ImGui::PopStyleColor();
+            ImGui::PushStyleColor(ImGuiCol_Text, grayColor);
+            ImGui::Text(parent.c_str());
+            ImGui::PopStyleColor();
 
-                              ImGui::GetFont()->Scale = 0.84;
-                              ImGui::PopFont();
-                              ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);
+            ImGui::PushStyleColor(ImGuiCol_Separator, graySeparatorColor);
+            ImGui::Separator();
+            ImGui::PopStyleColor();
 
-                                           for (const auto &child : children)
-                                           {
-                                               if (child.m_ChildName == instance->m_SelectedChildName)
-                                               {
-                                                   ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
-                                               }
-                                               else
-                                               {
-                                                   ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
-                                               }
+            ImGui::GetFont()->Scale = 0.84;
+            ImGui::PopFont();
+            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);
 
-                                               if (TextButtonUnderline(child.m_ChildName.c_str()))
-                                               {
-                                                   instance->m_SelectedChildName = child.m_ChildName;
-                                               }
+            for (const auto &child : children)
+            {
+                if (child.m_ChildName == m_SelectedChildName)
+                {
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+                }
+                else
+                {
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+                }
 
-                                               ImGui::PopStyleColor();
-                                           }
+                if (Cherry::TextButtonUnderline(child.m_ChildName.c_str()))
+                {
+                    m_SelectedChildName = child.m_ChildName;
+                }
 
-                                       }
-                                           ImGui::EndChild();
+                ImGui::PopStyleColor();
+            }
+        }
+        ImGui::EndChild();
 
-                                           ImGui::SameLine();
+        ImGui::SameLine();
 
-                                           ImGui::PushStyleColor(ImGuiCol_Button, HexToRGBA("#44444466"));
-                                           ImGui::Button("splitter", ImVec2(splitterWidth, -1));
-                                           ImGui::PopStyleVar();
+        ImGui::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#44444466"));
+        ImGui::Button("splitter", ImVec2(splitterWidth, -1));
+        ImGui::PopStyleVar();
 
-                                           if (ImGui::IsItemHovered())
-                                           {
-                                               ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-                                           }
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+        }
 
-                                           if (ImGui::IsItemActive())
-                                           {
-                                               float delta = ImGui::GetIO().MouseDelta.x;
-                                               leftPaneWidth += delta;
-                                               if (leftPaneWidth < minPaneWidth)
-                                                   leftPaneWidth = minPaneWidth;
-                                           }
+        if (ImGui::IsItemActive())
+        {
+            float delta = ImGui::GetIO().MouseDelta.x;
+            leftPaneWidth += delta;
+            if (leftPaneWidth < minPaneWidth)
+                leftPaneWidth = minPaneWidth;
+        }
 
-                                           ImGui::SameLine();
-                                           ImGui::BeginGroup();
+        ImGui::SameLine();
+        ImGui::BeginGroup();
 
-                                           if(!instance->m_SelectedChildName.empty())
-                                           {
-                                                std::function<void()> pannel_render = instance->GetChild(instance->m_SelectedChildName);
-                                                if(pannel_render)
-                                                {
-                                                    pannel_render();
-                                                }
-                                           }
-                                        
-                                           ImGui::EndGroup(); });
+        if (!m_SelectedChildName.empty())
+        {
+            std::function<void()> pannel_render = GetChild(m_SelectedChildName);
+            if (pannel_render)
+            {
+                pannel_render();
+            }
+        }
+
+        ImGui::EndGroup();
     }
 
 }

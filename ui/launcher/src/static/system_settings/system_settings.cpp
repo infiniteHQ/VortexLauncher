@@ -201,26 +201,22 @@ static void MyButton(const std::string &name, int w, int h)
         ImGui::SameLine();
 }
 
-SystemSettings::SystemSettings()
+SystemSettings::SystemSettings(const std::string &name)
 {
     this->ctx = VortexMaker::GetCurrentContext();
 
-    m_AppWindow = std::make_shared<Cherry::AppWindow>("?loc:loc.window_names.settings", "?loc:loc.window_names.settings");
+    m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
     m_AppWindow->SetIcon(Cherry::GetPath("ressources/imgs/icons/misc/icon_settings.png"));
     m_AppWindow->SetDefaultBehavior(Cherry::DefaultAppWindowBehaviors::DefaultDocking, "full");
 
     m_AppWindow->SetVisibility(false);
-    m_AppWindow->SetCloseCallback([this](){
-        m_AppWindow->SetVisibility(false);
-    });
+    m_AppWindow->SetCloseCallback([this]()
+                                  { m_AppWindow->SetVisibility(false); });
 
     m_AppWindow->SetInternalPaddingY(8.0f);
 
     m_AppWindow->SetLeftMenubarCallback([this]()
-                                         {
-        this->menubar();
-        });
-
+                                        { this->menubar(); });
 
     this->Refresh();
 
@@ -255,10 +251,8 @@ bool MyParamBanner(const std::string &path)
     return pressed;
 }
 
-void SystemSettings::RefreshRender(const std::shared_ptr<SystemSettings> &instance)
+void SystemSettings::Render()
 {
-    m_AppWindow->SetRenderCallback([instance]()
-                                   {
     float columnWidths[3] = {100.0f, 250.0f, 150.0f};
 
     ImVec2 windowSize = ImGui::GetWindowSize();
@@ -332,7 +326,7 @@ void SystemSettings::RefreshRender(const std::shared_ptr<SystemSettings> &instan
 
                     ImGui::PopStyleVar(4);
 
-                    for (int row = 0; row < instance->ctx->IO.sys_em.size(); row++)
+                    for (int row = 0; row < ctx->IO.sys_em.size(); row++)
                     {
                         static std::pair<char[128], char[128]> newItem;
                         static char label[128];
@@ -349,28 +343,28 @@ void SystemSettings::RefreshRender(const std::shared_ptr<SystemSettings> &instan
 
                                 if (create_project_button->Render())
                                 {
-                                    selected_module = instance->ctx->IO.sys_em[row];
+                                    selected_module = ctx->IO.sys_em[row];
                                 }
                             }
                             else if (column == 1)
                             {
-                                ImGui::Text(instance->ctx->IO.sys_em[row]->m_proper_name.c_str());
+                                ImGui::Text(ctx->IO.sys_em[row]->m_proper_name.c_str());
                             }
                             else if (column == 2)
                             {
-                                ImGui::Text(instance->ctx->IO.sys_em[row]->m_name.c_str());
+                                ImGui::Text(ctx->IO.sys_em[row]->m_name.c_str());
                             }
                             else if (column == 3)
                             {
-                                ImGui::Text(instance->ctx->IO.sys_em[row]->m_version.c_str());
+                                ImGui::Text(ctx->IO.sys_em[row]->m_version.c_str());
                             }
                             else if (column == 4)
                             {
-                                ImGui::Text(instance->ctx->IO.sys_em[row]->m_path.c_str());
+                                ImGui::Text(ctx->IO.sys_em[row]->m_path.c_str());
                             }
                             else if (column == 5)
                             {
-                                ImGui::Text(instance->ctx->IO.sys_em[row]->m_type.c_str());
+                                ImGui::Text(ctx->IO.sys_em[row]->m_type.c_str());
                             }
                         }
                     }
@@ -401,7 +395,7 @@ void SystemSettings::RefreshRender(const std::shared_ptr<SystemSettings> &instan
 
                     ImGui::PopStyleVar(4);
 
-                    for (int row = 0; row < instance->ctx->IO.sys_templates.size(); row++)
+                    for (int row = 0; row < ctx->IO.sys_templates.size(); row++)
                     {
                         static std::pair<char[128], char[128]> newItem;
                         static char label[128];
@@ -418,24 +412,24 @@ void SystemSettings::RefreshRender(const std::shared_ptr<SystemSettings> &instan
 
                                 if (delete_button->Render())
                                 {
-                                    selected_template = instance->ctx->IO.sys_templates[row];
+                                    selected_template = ctx->IO.sys_templates[row];
                                 }
                             }
                             else if (column == 1)
                             {
-                                ImGui::Text(instance->ctx->IO.sys_templates[row]->m_proper_name.c_str());
+                                ImGui::Text(ctx->IO.sys_templates[row]->m_proper_name.c_str());
                             }
                             else if (column == 2)
                             {
-                                ImGui::Text(instance->ctx->IO.sys_templates[row]->m_name.c_str());
+                                ImGui::Text(ctx->IO.sys_templates[row]->m_name.c_str());
                             }
                             else if (column == 3)
                             {
-                                ImGui::Text(instance->ctx->IO.sys_templates[row]->m_path.c_str());
+                                ImGui::Text(ctx->IO.sys_templates[row]->m_path.c_str());
                             }
                             else if (column == 4)
                             {
-                                ImGui::Text(instance->ctx->IO.sys_templates[row]->m_type.c_str());
+                                ImGui::Text(ctx->IO.sys_templates[row]->m_type.c_str());
                             }
                         }
                     }
@@ -620,7 +614,29 @@ void SystemSettings::RefreshRender(const std::shared_ptr<SystemSettings> &instan
         if (i < 2)
             ImGui::NextColumn();
     }
-    ImGui::PopStyleVar(4); });
+    ImGui::PopStyleVar(4);
+}
+
+std::shared_ptr<Cherry::AppWindow> &SystemSettings::GetAppWindow()
+{
+    return m_AppWindow;
+}
+
+std::shared_ptr<SystemSettings> SystemSettings::Create(const std::string &name)
+{
+    auto instance = std::shared_ptr<SystemSettings>(new SystemSettings(name));
+    instance->SetupRenderCallback();
+    return instance;
+}
+
+void SystemSettings::SetupRenderCallback()
+{
+    auto self = shared_from_this();
+    m_AppWindow->SetRenderCallback([self]()
+                                   {
+            if (self) {
+                self->Render();
+            } });
 }
 
 // Helper functions for menu items
@@ -978,7 +994,7 @@ void SystemSettings::menubar()
                                     if (ImGui::Button(label.c_str()))
                                     {
                                         VxContext *ctx = VortexMaker::GetCurrentContext();
-                                        //VortexMaker::InstallModuleToSystem(it->second.second->m_path);
+                                        // VortexMaker::InstallModuleToSystem(it->second.second->m_path);
                                         VortexMaker::LoadSystemModules(ctx->IO.sys_em);
                                         CheckAllModulesStates(VortexMaker::FindModulesInDirectory(path_input_all));
                                     }
@@ -988,7 +1004,7 @@ void SystemSettings::menubar()
                                     if (ImGui::Button("Install"))
                                     {
                                         VxContext *ctx = VortexMaker::GetCurrentContext();
-                                        //VortexMaker::InstallModuleToSystem(it->second.second->m_path);
+                                        // VortexMaker::InstallModuleToSystem(it->second.second->m_path);
                                         VortexMaker::LoadSystemModules(ctx->IO.sys_em);
                                         CheckAllModulesStates(VortexMaker::FindModulesInDirectory(path_input_all));
                                     }

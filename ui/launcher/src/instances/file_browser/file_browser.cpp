@@ -235,7 +235,7 @@ static std::vector<std::pair<std::shared_ptr<ContenBrowserItem>, std::string>> r
 FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::string &start_path)
 {
     m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
-    m_AppWindow->SetIcon("/usr/local/include/Vortex/imgs/vortex.png");
+    m_AppWindow->SetIcon(Cherry::Application::CookPath("ressources/imgs/icons/misc/icon_arrow_l_disabled.png"));
     std::shared_ptr<Cherry::AppWindow> win = m_AppWindow;
 
     cp_SaveButton = Application::Get().CreateComponent<ImageTextButtonSimple>("save_button", Application::Get().GetLocale("loc.content_browser.save_all") + "####content_browser.save_all", Cherry::Application::CookPath("ressources/imgs/icons/misc/icon_save.png"));
@@ -261,15 +261,14 @@ FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::s
     cp_SettingsButton->SetLogoSize(15, 15);
 
     cp_DirectoryUndo = Application::Get().CreateComponent<ImageButtonSimple>("directory_undo", Cherry::Application::CookPath("ressources/imgs/icons/misc/icon_arrow_l_disabled.png"));
-    cp_DirectoryRedo = Application::Get().CreateComponent<ImageButtonSimple>("directory_redo", Cherry::Application::CookPath("ressources/imgs/icons/misc/icon_arrow_r_disabled.png"));
-
-    cp_DirectoryRedo->SetBackgroundColorIdle("#00000000");
-    cp_DirectoryRedo->SetBorderColorIdle("#00000000");
-    cp_DirectoryRedo->SetScale(0.85f);
-
     cp_DirectoryUndo->SetBackgroundColorIdle("#00000000");
     cp_DirectoryUndo->SetBorderColorIdle("#00000000");
     cp_DirectoryUndo->SetScale(0.85f);
+
+    cp_DirectoryRedo = Application::Get().CreateComponent<ImageButtonSimple>("directory_redo", Cherry::Application::CookPath("ressources/imgs/icons/misc/icon_arrow_r_disabled.png"));
+    cp_DirectoryRedo->SetBackgroundColorIdle("#00000000");
+    cp_DirectoryRedo->SetBorderColorIdle("#00000000");
+    cp_DirectoryRedo->SetScale(0.85f);
 
     m_AppWindow->SetLeftMenubarCallback([this]()
                                         {
@@ -349,7 +348,7 @@ FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::s
     FileBrowserChild contentbar("RenderContentBar", [this]()
                                 { RenderContentBar(); });
     contentbar.Enable();
-    AddChild(FileBrowserChild(contentbar));
+    AddChild(contentbar);
 }
 
 void FileBrowserAppWindow::AddChild(const FileBrowserChild &child)

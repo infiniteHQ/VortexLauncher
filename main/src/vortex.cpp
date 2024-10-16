@@ -225,62 +225,101 @@ std::string generateSessionID()
 
 void addSessionToJson(const std::string &session_id, const std::string &version, const std::string &user, const std::string &path)
 {
-    std::string json_path = "/home/diego/.vx/sessions/active_sessions.json";
+    // Set path depending on platform
+    std::string json_path;
+    if (VortexMaker::IsWindows())
+    {
+        json_path = VortexMaker::getHomeDirectory() + "\\.vx\\sessions\\active_sessions.json";
+    }
+    else
+    {
+        json_path = VortexMaker::getHomeDirectory() + "/.vx/sessions/active_sessions.json";
+    }
+
     std::ifstream file_in(json_path);
     nlohmann::json active_sessions;
 
+    // Load existing active sessions from the JSON file
     if (file_in.is_open())
     {
         file_in >> active_sessions;
         file_in.close();
     }
 
+    // Create a new session entry
     nlohmann::json new_session = {
         {"session_path", path},
         {"session_id", session_id},
         {"session_start_at", std::time(nullptr)},
         {"session_owner", user},
         {"vortex_version", version},
-        {"vortex_exec_path", "/opt/Vortex/" + version + "/bin/vortex"}};
+        {"vortex_exec_path", "/opt/Vortex/" + version + "/bin/vortex"}
+    };
 
+    // Add the new session to the sessions array
     active_sessions["sessions"].push_back(new_session);
 
+    // Save the updated sessions back to the JSON file
     std::ofstream file_out(json_path);
-    file_out << active_sessions.dump(4);
+    file_out << active_sessions.dump(4); // Pretty print with indentation
 }
 
 // TODO : In editor (if the launcher is stopped before the editor.)
 void removeSessionFromJson(const std::string &session_id)
 {
-    std::string json_path = "/home/diego/.vx/sessions/active_sessions.json";
+    // Set path depending on platform
+    std::string json_path;
+    if (VortexMaker::IsWindows())
+    {
+        json_path = VortexMaker::getHomeDirectory() + "\\.vx\\sessions\\active_sessions.json";
+    }
+    else
+    {
+        json_path = VortexMaker::getHomeDirectory() + "/.vx/sessions/active_sessions.json";
+    }
+
     std::ifstream file_in(json_path);
     nlohmann::json active_sessions;
 
+    // Load existing active sessions from the JSON file
     if (file_in.is_open())
     {
         file_in >> active_sessions;
         file_in.close();
     }
 
+    // Find and remove the session with the given session_id
     for (auto it = active_sessions["sessions"].begin(); it != active_sessions["sessions"].end(); ++it)
     {
         if ((*it)["session_id"] == session_id)
         {
             active_sessions["sessions"].erase(it);
-            break;
+            break; // Exit loop after removing the session
         }
     }
 
+    // Save the updated sessions back to the JSON file
     std::ofstream file_out(json_path);
-    file_out << active_sessions.dump(4);
+    file_out << active_sessions.dump(4); // Pretty print with indentation
 }
 
 VORTEX_API bool VortexMaker::CheckIfProjectRunning(const std::string &path)
 {
-    std::string json_path = "/home/diego/.vx/sessions/active_sessions.json";
+    // Set path depending on platform
+    std::string json_path;
+    if (VortexMaker::IsWindows())
+    {
+        json_path = VortexMaker::getHomeDirectory() + "\\.vx\\sessions\\active_sessions.json";
+    }
+    else
+    {
+        json_path = VortexMaker::getHomeDirectory() + "/.vx/sessions/active_sessions.json";
+    }
+
     std::ifstream file_in(json_path);
     nlohmann::json active_sessions;
 
+    // Load existing active sessions from the JSON file
     if (file_in.is_open())
     {
         file_in >> active_sessions;
@@ -288,26 +327,38 @@ VORTEX_API bool VortexMaker::CheckIfProjectRunning(const std::string &path)
     }
     else
     {
-        std::cerr << "Fatal." << std::endl;
+        std::cerr << "Fatal: Could not open the active sessions file." << std::endl;
         return false;
     }
 
+    // Check if the session with the given path is currently running
     for (const auto &session : active_sessions["sessions"])
     {
         if (session.contains("session_path") && session["session_path"] == path)
         {
-            return true;
+            return true; // Project is running
         }
     }
 
-    return false;
+    return false; // Project is not running
 }
 
 void writeSessionEndState(const std::string &session_id, const std::string &state)
 {
-    std::string session_dir = "/home/diego/.vx/sessions/" + session_id;
+    // Set the session directory path depending on the platform
+    std::string session_dir;
+    if (VortexMaker::IsWindows())
+    {
+        session_dir = VortexMaker::getHomeDirectory() + "\\.vx\\sessions\\" + session_id;
+    }
+    else
+    {
+        session_dir = VortexMaker::getHomeDirectory() + "/.vx/sessions/" + session_id;
+    }
+
     std::string session_file_path = session_dir + "/session.json";
 
+    // Get current time in ISO 8601 format
     auto now = std::chrono::system_clock::now();
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::tm tm = *std::localtime(&now_time);
@@ -319,38 +370,81 @@ void writeSessionEndState(const std::string &session_id, const std::string &stat
         {"SessionEndedAt", buffer},
         {"SessionEndedWithState", state}};
 
+    // Create the session directory if it does not exist
     std::filesystem::create_directories(session_dir);
 
+    // Write session data to the JSON file
     std::ofstream session_file(session_file_path);
-    session_file << session_data.dump(4);
+    if (session_file.is_open())
+    {
+        session_file << session_data.dump(4); // Pretty print with indentation
+        session_file.close();
+    }
+    else
+    {
+        std::cerr << "Error: Could not open session file for writing." << std::endl;
+    }
 }
 
 
+// TODO Remove opt & c: program files, add Vortex Version pools.
 VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::string &version)
 {
     pid_t pid = fork();
 
     if (pid == -1)
     {
-        std::cerr << "Error while fork" << std::endl;
+        std::cerr << "Error while forking" << std::endl;
         return;
     }
 
-    if (pid == 0)
+    if (pid == 0) // Child process
     {
         initialize_random();
         std::string session_id = generateSessionID();
 
         addSessionToJson(session_id, version, "diego", path);
 
-        std::string command = "/opt/Vortex/" + version + "/bin/vortex --editor --session_id=" + session_id;
-        std::string target_path = VortexMaker::getHomeDirectory() + "/.vx/sessions/" + session_id + "/crash/core_dumped.txt";
-        std::string crash_script_command = "cd " + path + " && bash /opt/Vortex/" + version + "/bin/handle_crash.sh " + target_path + " " + command;
-        std::cout << "Bootstrapp" << "Starting with command : " << crash_script_command << std::endl;
+        // Determine the command based on the platform
+        std::string command;
+        if (VortexMaker::IsWindows())
+        {
+            command = "cmd.exe /C \"\"C:\\Program Files\\Vortex\\" + version + "\\bin\\vortex.exe\" --editor --session_id=" + session_id + "\"";
+        }
+        else
+        {
+            command = "/opt/Vortex/" + version + "/bin/vortex --editor --session_id=" + session_id;
+        }
 
+        // Set the target path for crash handling
+        std::string target_path = VortexMaker::getHomeDirectory() + "/.vx/sessions/" + session_id + "/crash/core_dumped.txt";
+        std::string crash_script_command;
+
+        if (VortexMaker::IsWindows())
+        {
+            crash_script_command = "cd \"" + path + "\" && call \"C:\\Program Files\\Vortex\\" + version + "\\bin\\handle_crash.bat\" " + target_path + " " + command;
+        }
+        else
+        {
+            crash_script_command = "cd " + path + " && bash /opt/Vortex/" + version + "/bin/handle_crash.sh " + target_path + " " + command;
+        }
+
+        std::cout << "Bootstrap: Starting with command: " << crash_script_command << std::endl;
+
+        // Execute the crash script
         if (std::system(crash_script_command.c_str()) != 0)
         {
-            std::string crash_handle_command = "/opt/Vortex/" + version + "/bin/vortex -crash --session_id=" + session_id;
+            // If the crash script fails, handle the crash
+            std::string crash_handle_command;
+            if (VortexMaker::IsWindows())
+            {
+                crash_handle_command = "\"C:\\Program Files\\Vortex\\" + version + "\\bin\\vortex.exe\" -crash --session_id=" + session_id;
+            }
+            else
+            {
+                crash_handle_command = "/opt/Vortex/" + version + "/bin/vortex -crash --session_id=" + session_id;
+            }
+
             std::system(crash_handle_command.c_str());
             writeSessionEndState(session_id, "fail");
         }
@@ -363,9 +457,9 @@ VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::str
 
         _exit(0); 
     }
-    else
+    else // Parent process
     {
-        std::cout << "New PID : " << pid << std::endl;
+        std::cout << "New PID: " << pid << std::endl;
     }
 }
 

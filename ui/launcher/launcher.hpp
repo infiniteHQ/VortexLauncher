@@ -14,6 +14,8 @@
 #include <thread>
 #include <memory>
 
+using namespace VortexLauncher;
+
 class Layer : public Cherry::Layer
 {
 public:
@@ -25,44 +27,47 @@ class Launcher
 public:
   Launcher()
   {
-    // Render static windows
-    welcome_window = std::make_shared<Cherry::WelcomeWindow>("?loc:loc.window_names.welcome");
-    welcome_window->RefreshRender(welcome_window);
-    Cherry::AddWindow(welcome_window->GetAppWindow()); // Publish this window into the workspace
+    //
+    // Static app windows
+    //
 
-    download_center = std::make_shared<DownloadCenter>("Download Center");
-    download_center->RefreshRender(download_center);
+    // Welcome
+    welcome_window = WelcomeWindow::Create("?loc:loc.window_names.welcome");
+    Cherry::AddAppWindow(welcome_window->GetAppWindow());    
+    
+    // Project manager
+    project_manager = ProjectManager::Create("?loc:loc.window_names.project_manager");
+    Cherry::AddAppWindow(project_manager->GetAppWindow());
+
+    // Download center (change to Vortex Lab integratio)
+    download_center = DownloadCenter::Create("Download Center");
     download_center->GetAppWindow()->SetVisibility(false);
-    Cherry::AddWindow(download_center->GetAppWindow()); // Publish this window into the workspace
+    Cherry::AddAppWindow(download_center->GetAppWindow());
 
-    project_manager = std::make_shared<ProjectManager>();
-    project_manager->RefreshRender(project_manager);
-    Cherry::AddWindow(project_manager->GetAppWindow()); // Publish this window into the workspace
-
-    system_settings = std::make_shared<Cherry::MainSettings>("?loc:loc.window_names.settings");
-    system_settings->RefreshRender(system_settings);
+    // Main settings
+    system_settings = MainSettings::Create("?loc:loc.window_names.settings");
     system_settings->GetAppWindow()->SetVisibility(false);
-    Cherry::AddWindow(system_settings->GetAppWindow()); // Publish this window into the workspace
+    Cherry::AddAppWindow(system_settings->GetAppWindow());
 
-    logs_window = std::make_shared<LauncherLogUtility>("?loc:loc.window_names.logs_utility");
-    logs_window->RefreshRender(logs_window);
+    // Logs window
+    logs_window = LauncherLogUtility::Create("?loc:loc.window_names.logs_utility");
     logs_window->GetAppWindow()->SetVisibility(false);
-    Cherry::AddWindow(logs_window->GetAppWindow()); // Publish this window into the workspace
- 
-    logic_content_manager = std::make_shared<LogicContentManager>("?loc:loc.window_names.logic_content_manager");
-    logic_content_manager->RefreshRender(logic_content_manager);
+    Cherry::AddAppWindow(logs_window->GetAppWindow());
+
+    // Logic content manager
+    logic_content_manager = LogicContentManager::Create("?loc:loc.window_names.logic_content_manager");
     logic_content_manager->GetAppWindow()->SetVisibility(false);
-    Cherry::AddWindow(logic_content_manager->GetAppWindow()); // Publish this window into the workspace
+    Cherry::AddAppWindow(logic_content_manager->GetAppWindow());
 
-    content_manager = std::make_shared<Cherry::ContentManager>("?loc:loc.window_names.content_manager");
-    content_manager->RefreshRender(content_manager);
+    // Content manager
+    content_manager = ContentManager::Create("?loc:loc.window_names.content_manager");
     content_manager->GetAppWindow()->SetVisibility(false);
-    Cherry::AddWindow(content_manager->GetAppWindow()); // Publish this window into the workspace
+    Cherry::AddAppWindow(content_manager->GetAppWindow());
 
-    version_manager = std::make_shared<VersionManagerAppWindow>("?loc:loc.window_names.version_manager");
-    version_manager->RefreshRender(version_manager);
+    // Version manager
+    version_manager = VersionManagerAppWindow::Create("?loc:loc.window_names.version_manager");
     version_manager->GetAppWindow()->SetVisibility(false);
-    Cherry::AddWindow(version_manager->GetAppWindow()); // Publish this window into the workspace
+    Cherry::AddAppWindow(version_manager->GetAppWindow());
  
  
  
@@ -169,13 +174,13 @@ public:
 
 private:
   std::shared_ptr<LauncherLogUtility> logs_window;
-  std::shared_ptr<Cherry::MainSettings> system_settings;
+  std::shared_ptr<MainSettings> system_settings;
   std::shared_ptr<ProjectManager> project_manager;
   std::shared_ptr<DownloadCenter> download_center;
-  std::shared_ptr<Cherry::WelcomeWindow> welcome_window;
+  std::shared_ptr<WelcomeWindow> welcome_window;
   std::shared_ptr<LogicContentManager> logic_content_manager;
   std::shared_ptr<VersionManagerAppWindow> version_manager;
-  std::shared_ptr<Cherry::ContentManager> content_manager;
+  std::shared_ptr<ContentManager> content_manager;
 };
 
 static std::shared_ptr<Launcher> c_Launcher;

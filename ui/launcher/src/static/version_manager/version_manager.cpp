@@ -24,11 +24,11 @@ VersionManagerAppWindow::VersionManagerAppWindow(const std::string &name)
     m_AppWindow->SetCloseCallback([this]()
                                   { m_AppWindow->SetVisibility(false); });
 
-    m_FileBrowser = std::make_shared<FileBrowserAppWindow>("Search Folder", VortexMaker::getHomeDirectory());
+    /*m_FileBrowser = std::make_shared<FileBrowserAppWindow>("Search Folder", VortexMaker::getHomeDirectory());
     m_FileBrowser->RefreshRender(m_FileBrowser);
     m_FileBrowser->GetAppWindow()->SetVisibility(false);
 
-    Cherry::AddWindow(m_FileBrowser->GetAppWindow());
+    Cherry::AddAppWindow(m_FileBrowser->GetAppWindow());*/
 
     m_AppWindow->m_TabMenuCallback = []()
     {
@@ -347,9 +347,7 @@ to_suppr_modules.clear();
                                ImGui::EndPopup();
                            }
  
-  } 
-  }
-  );
+  } });
 
     this->AddChild("Manage versions", "Import Vortex version(s)", [this]()
                    {
@@ -663,6 +661,28 @@ void VersionManagerAppWindow::RemoveChild(const std::string &child_name)
 {
 }
 
+std::shared_ptr<Cherry::AppWindow> &VersionManagerAppWindow::GetAppWindow()
+{
+    return m_AppWindow;
+}
+
+std::shared_ptr<VersionManagerAppWindow> VersionManagerAppWindow::Create(const std::string &name)
+{
+    auto instance = std::shared_ptr<VersionManagerAppWindow>(new VersionManagerAppWindow(name));
+    instance->SetupRenderCallback();
+    return instance;
+}
+
+void VersionManagerAppWindow::SetupRenderCallback()
+{
+    auto self = shared_from_this();
+    m_AppWindow->SetRenderCallback([self]()
+                                   {
+            if (self) {
+                self->Render();
+            } });
+}
+
 std::function<void()> VersionManagerAppWindow::GetChild(const std::string &child_name)
 {
     for (auto &child : m_Childs)
@@ -675,99 +695,95 @@ std::function<void()> VersionManagerAppWindow::GetChild(const std::string &child
     return nullptr;
 }
 
-void VersionManagerAppWindow::RefreshRender(const std::shared_ptr<VersionManagerAppWindow> &instance)
+void VersionManagerAppWindow::Render()
 {
-    m_AppWindow->SetRenderCallback([instance]()
-                                   {
-                                           static float leftPaneWidth = 300.0f;
-                                           const float minPaneWidth = 50.0f;
-                                           const float splitterWidth = 1.5f;
-                                           static int selected;
-      std::map<std::string, std::vector<VersionManagerAppWindowChild>> groupedByParent;
-                                       for (const auto &child : instance->m_Childs)
-                                       {
-                                           groupedByParent[child.m_Parent].push_back(child);
-                                       }
+    static float leftPaneWidth = 300.0f;
+    const float minPaneWidth = 50.0f;
+    const float splitterWidth = 1.5f;
+    static int selected;
+    std::map<std::string, std::vector<VersionManagerAppWindowChild>> groupedByParent;
+    for (const auto &child : m_Childs)
+    {
+        groupedByParent[child.m_Parent].push_back(child);
+    }
 
-                                           ImGui::BeginChild("left_pane", ImVec2(leftPaneWidth, 0), true, ImGuiWindowFlags_NoBackground);
+    ImGui::BeginChild("left_pane", ImVec2(leftPaneWidth, 0), true, ImGuiWindowFlags_NoBackground);
 
+    ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
+    ImVec4 graySeparatorColor = ImVec4(0.4f, 0.4f, 0.4f, 0.5f);
 
-                            ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);        
-                            ImVec4 graySeparatorColor = ImVec4(0.4f, 0.4f, 0.4f, 0.5f);
+    TitleThree("Manage Vortex version(s)");
+    for (const auto &[parent, children] : groupedByParent)
+    {
 
-            TitleThree("Manage Vortex version(s)");
-for (const auto &[parent, children] : groupedByParent)
-                                       {
-                                        
-                              ImGui::GetFont()->Scale *= 0.8;
-                              ImGui::PushFont(ImGui::GetFont());
+        ImGui::GetFont()->Scale *= 0.8;
+        ImGui::PushFont(ImGui::GetFont());
 
-                              ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
 
-                              ImGui::PushStyleColor(ImGuiCol_Text, grayColor);
-                              ImGui::Text(parent.c_str());
-                              ImGui::PopStyleColor();
+        ImGui::PushStyleColor(ImGuiCol_Text, grayColor);
+        ImGui::Text(parent.c_str());
+        ImGui::PopStyleColor();
 
-                              ImGui::PushStyleColor(ImGuiCol_Separator, graySeparatorColor);
-                              ImGui::Separator();
-                              ImGui::PopStyleColor();
+        ImGui::PushStyleColor(ImGuiCol_Separator, graySeparatorColor);
+        ImGui::Separator();
+        ImGui::PopStyleColor();
 
-                              ImGui::GetFont()->Scale = 0.84;
-                              ImGui::PopFont();
-                              ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);
+        ImGui::GetFont()->Scale = 0.84;
+        ImGui::PopFont();
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);
 
-                                           for (const auto &child : children)
-                                           {
-                                               if (child.m_ChildName == instance->m_SelectedChildName)
-                                               {
-                                                   ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
-                                               }
-                                               else
-                                               {
-                                                   ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
-                                               }
+        for (const auto &child : children)
+        {
+            if (child.m_ChildName == m_SelectedChildName)
+            {
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+            }
+            else
+            {
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+            }
 
-                                               if (TextButtonUnderline(child.m_ChildName.c_str()))
-                                               {
-                                                   instance->m_SelectedChildName = child.m_ChildName;
-                                               }
+            if (TextButtonUnderline(child.m_ChildName.c_str()))
+            {
+                m_SelectedChildName = child.m_ChildName;
+            }
 
-                                               ImGui::PopStyleColor();
-                                           }
+            ImGui::PopStyleColor();
+        }
+    }
+    ImGui::EndChild();
 
-                                       }
-                                           ImGui::EndChild();
+    ImGui::SameLine();
 
-                                           ImGui::SameLine();
+    ImGui::PushStyleColor(ImGuiCol_Button, HexToRGBA("#44444466"));
+    ImGui::Button("splitter", ImVec2(splitterWidth, -1));
+    ImGui::PopStyleVar();
 
-                                           ImGui::PushStyleColor(ImGuiCol_Button, HexToRGBA("#44444466"));
-                                           ImGui::Button("splitter", ImVec2(splitterWidth, -1));
-                                           ImGui::PopStyleVar();
+    if (ImGui::IsItemHovered())
+    {
+        ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+    }
 
-                                           if (ImGui::IsItemHovered())
-                                           {
-                                               ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-                                           }
+    if (ImGui::IsItemActive())
+    {
+        float delta = ImGui::GetIO().MouseDelta.x;
+        leftPaneWidth += delta;
+        if (leftPaneWidth < minPaneWidth)
+            leftPaneWidth = minPaneWidth;
+    }
 
-                                           if (ImGui::IsItemActive())
-                                           {
-                                               float delta = ImGui::GetIO().MouseDelta.x;
-                                               leftPaneWidth += delta;
-                                               if (leftPaneWidth < minPaneWidth)
-                                                   leftPaneWidth = minPaneWidth;
-                                           }
+    ImGui::SameLine();
+    ImGui::BeginGroup();
 
-                                           ImGui::SameLine();
-                                           ImGui::BeginGroup();
+    if (!m_SelectedChildName.empty())
+    {
+        std::function<void()> pannel_render = GetChild(m_SelectedChildName);
+        if (pannel_render)
+        {
+            pannel_render();
+        }
+    }
 
-                                           if(!instance->m_SelectedChildName.empty())
-                                           {
-                                                std::function<void()> pannel_render = instance->GetChild(instance->m_SelectedChildName);
-                                                if(pannel_render)
-                                                {
-                                                    pannel_render();
-                                                }
-                                           }
-                                        
-                                           ImGui::EndGroup(); });
+    ImGui::EndGroup();
 }

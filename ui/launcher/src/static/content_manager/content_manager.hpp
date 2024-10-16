@@ -12,7 +12,7 @@
 #define CHERRY_V1
 #include "../../../../../lib/cherry/cherry.hpp"
 
-namespace Cherry
+namespace VortexLauncher
 {
     // This window can be a "subappwindow" of a parent if you use the constructor with parent parameter.
 
@@ -29,7 +29,7 @@ namespace Cherry
         }
     };
 
-    class ContentManager
+    class ContentManager : public std::enable_shared_from_this<ContentManager>
     {
     public:
         ContentManager(const std::string &name);
@@ -39,10 +39,11 @@ namespace Cherry
         std::function<void()> GetChild(const std::string &child_name);
         void RefreshRender(const std::shared_ptr<ContentManager> &instance);
 
-        std::shared_ptr<Cherry::AppWindow> &GetAppWindow()
-        {
-            return m_AppWindow;
-        }
+
+        std::shared_ptr<Cherry::AppWindow> &GetAppWindow();
+        static std::shared_ptr<ContentManager> Create(const std::string &name);
+        void SetupRenderCallback();
+        void Render();
 
         std::vector<ContentManagerChild> m_Childs;
 

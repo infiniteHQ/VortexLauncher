@@ -9,19 +9,17 @@
 #ifndef PROJECTMANAGER_H
 #define PROJECTMANAGER_H
 
-class ProjectManager
+class ProjectManager : public std::enable_shared_from_this<ProjectManager>
 {
 public:
-	ProjectManager();
+	ProjectManager(const std::string &name);
 
 	void addModuleModal();
 
-	void RefreshRender(const std::shared_ptr<ProjectManager> &instance);
-
-	std::shared_ptr<Cherry::AppWindow> &GetAppWindow()
-	{
-		return m_AppWindow;
-	}
+    std::shared_ptr<Cherry::AppWindow> &GetAppWindow();
+    static std::shared_ptr<ProjectManager> Create(const std::string &name);
+    void SetupRenderCallback();
+    void Render();
 
 	void Refresh();
 	void Update();
