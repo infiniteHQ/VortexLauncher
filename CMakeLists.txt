@@ -32,7 +32,7 @@ target_link_libraries(vortex_launcher PRIVATE vortex_launcher_shared)
 
 # Set the installation directories
 if(UNIX AND NOT APPLE)
-    set(INSTALL_BASE_DIR /opt/VortexLauncher/)
+    set(INSTALL_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build/dist/)
     set(INSTALL_MAIN_DIR ${INSTALL_BASE_DIR}/)
     set(INSTALL_BIN_DIR ${INSTALL_BASE_DIR}/bin)
     set(INSTALL_LIB_DIR ${INSTALL_BASE_DIR}/lib)

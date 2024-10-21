@@ -158,6 +158,11 @@ int main(int argc, char *argv[])
         {
             downloadFlag = true;
         }
+        else if (arg == "--test" || arg == "--download")
+        {
+            std::cout << "OK" << std::endl;
+            return 0;
+        }
     }
 
     // If install flag is set, print "install" and exit
