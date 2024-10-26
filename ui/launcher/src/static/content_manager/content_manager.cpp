@@ -10,7 +10,7 @@ namespace VortexLauncher
     ContentManager::ContentManager(const std::string &name)
     {
         m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
-        m_AppWindow->SetIcon(Cherry::GetPath("ressources/imgs/icons/misc/icon_home.png"));
+        m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/icons/misc/icon_home.png"));
 
         m_AppWindow->SetVisibility(false);
         m_AppWindow->SetCloseCallback([this]()
@@ -64,15 +64,15 @@ namespace VortexLauncher
                        filter_btn->SetInternalMarginX(10.0f);
                        filter_btn->SetLogoSize(15, 15);
 
-                       filter_btn->SetDropDownImage(Cherry::GetPath("ressources/imgs/icons/misc/icon_down.png"));
-                       filter_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_filter.png"));
+                       filter_btn->SetDropDownImage(Cherry::GetPath("resources/imgs/icons/misc/icon_down.png"));
+                       filter_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_filter.png"));
 
                        static std::shared_ptr<Cherry::ImageTextButtonSimple> find_in_folder = std::make_shared<Cherry::ImageTextButtonSimple>("find_in_folder", "Find in folder");
                        find_in_folder->SetScale(0.85f);
                        find_in_folder->SetInternalMarginX(10.0f);
                        find_in_folder->SetLogoSize(15, 15);
                        find_in_folder->SetBackgroundColorIdle("#3232F7FF");
-                       find_in_folder->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_collection.png"));
+                       find_in_folder->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_collection.png"));
 
                        ImGui::Separator();
 
@@ -228,7 +228,7 @@ namespace VortexLauncher
     del_btn->SetInternalMarginX(10.0f);
     del_btn->SetLogoSize(15, 15);
     del_btn->SetBackgroundColorIdle("#00000000");
-    del_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_trash.png"));
+    del_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_trash.png"));
     del_btn->SetLabel(label);
 
 

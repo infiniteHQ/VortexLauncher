@@ -485,55 +485,70 @@ void VortexMaker::RefreshEnvironmentProjects()
 
     for (const auto &pool_path : ctx.IO.sys_projects_pools)
     {
-        if (!std::filesystem::is_directory(pool_path))
+        try
         {
-            continue;
-        }
-
-        for (const auto &entry : std::filesystem::recursive_directory_iterator(pool_path))
-        {
-            // Check if the entry is a regular file and has the correct filename
-            if (entry.is_regular_file() && entry.path().filename() == "vortex.config")
+            if (!std::filesystem::exists(pool_path))
             {
-                try
+                VortexMaker::LogError("Error: Pool path does not exist - ", pool_path.c_str());
+                continue;
+            }
+
+            if (!std::filesystem::is_directory(pool_path))
+            {
+                VortexMaker::LogError("Error: Pool path is not a directory - ", pool_path.c_str());
+                continue;
+            }
+
+            for (const auto &entry : std::filesystem::recursive_directory_iterator(pool_path))
+            {
+                if (entry.is_regular_file() && entry.path().filename() == "vortex.config")
                 {
-                    std::ifstream file(entry.path());
-                    if (file.is_open())
+                    try
                     {
-                        nlohmann::json json_data;
-                        file >> json_data;
-
-                        // Check if the "project" key exists
-                        if (json_data.contains("project"))
+                        std::ifstream file(entry.path());
+                        if (file.is_open())
                         {
-                            nlohmann::json project_data = json_data["project"];
-                            auto project = std::make_shared<EnvProject>();
+                            nlohmann::json json_data;
+                            file >> json_data;
 
-                            project->name = project_data.value("name", "");
-                            project->path = entry.path().parent_path().string();
-                            project->version = project_data.value("version", "");
-                            project->compatibleWith = project_data.value("compatibleWith", "");
-                            project->description = project_data.value("description", "");
-
-                            // Construct logo path
-                            std::filesystem::path logo_path = entry.path().parent_path() / project_data.value("logoPath", "");
-                            if (std::filesystem::exists(logo_path))
+                            if (json_data.contains("project"))
                             {
-                                project->logoPath = logo_path.string();
+                                nlohmann::json project_data = json_data["project"];
+                                auto project = std::make_shared<EnvProject>();
+
+                                project->name = project_data.value("name", "");
+                                project->path = entry.path().parent_path().string();
+                                project->version = project_data.value("version", "");
+                                project->compatibleWith = project_data.value("compatibleWith", "");
+                                project->description = project_data.value("description", "");
+
+                                std::filesystem::path logo_path = entry.path().parent_path() / project_data.value("logoPath", "");
+                                if (std::filesystem::exists(logo_path))
+                                {
+                                    project->logoPath = logo_path.string();
+                                }
+
+                                project->author = project_data.value("author", "");
+                                project->lastOpened = project_data.value("lastOpened", "unknown");
+
+                                ctx.IO.sys_projects.push_back(project);
                             }
-
-                            project->author = project_data.value("author", "");
-                            project->lastOpened = project_data.value("lastOpened", "unknown");
-
-                            ctx.IO.sys_projects.push_back(project);
+                        }
+                        else
+                        {
+                            VortexMaker::LogError("Error: Failed to open file - ", entry.path().string());
                         }
                     }
-                }
-                catch (const std::exception &e)
-                {
-                    VortexMaker::LogError("Error: ", e.what());
+                    catch (const std::exception &e)
+                    {
+                        VortexMaker::LogError("Error reading config file: ", e.what());
+                    }
                 }
             }
+        }
+        catch (const std::exception &e)
+        {
+            VortexMaker::LogError("Error accessing pool path: ", e.what());
         }
     }
 }

@@ -19,7 +19,7 @@ ProjectManager::ProjectManager(const std::string &name)
 {
     RegisterAvailableVersions(); // TODO in main
     m_AppWindow = std::make_shared<Cherry::AppWindow>(name,name);
-    m_AppWindow->SetIcon(Cherry::GetPath("ressources/imgs/icons/misc/icon_collection.png"));
+    m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/icons/misc/icon_collection.png"));
     m_AppWindow->SetDefaultBehavior(Cherry::DefaultAppWindowBehaviors::DefaultDocking, "full");
     m_AppWindow->SetClosable(false);
 
@@ -344,7 +344,7 @@ void ProjectManager::Render()
                 import_btn->SetInternalMarginX(10.0f);
                 import_btn->SetLogoSize(15, 15);
                 import_btn->SetBackgroundColorIdle("#00000000");
-                import_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_trash.png"));
+                import_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_trash.png"));
                 import_btn->SetLabel(label);
                 static std::string to_import_destination;
 
@@ -561,11 +561,11 @@ void ProjectManager::Render()
             ImGui::BeginChild(ImGui::GetID((void *)(intptr_t)i), ImVec2(columnWidth, 0), true);
             if (i == 0)
             {
-                MyBanner(Cherry::GetPath("ressources/imgs/banners/b_all_bases.png"));
-                MyBanner(Cherry::GetPath("ressources/imgs/banners/b_operating_systems.png"));
-                MyBanner(Cherry::GetPath("ressources/imgs/banners/b_app_svc.png"));
-                MyBanner(Cherry::GetPath("ressources/imgs/banners/b_tools_utils.png"));
-                MyBanner(Cherry::GetPath("ressources/imgs/banners/b_assets_components.png"));
+                MyBanner(Cherry::GetPath("resources/imgs/banners/b_all_bases.png"));
+                MyBanner(Cherry::GetPath("resources/imgs/banners/b_operating_systems.png"));
+                MyBanner(Cherry::GetPath("resources/imgs/banners/b_app_svc.png"));
+                MyBanner(Cherry::GetPath("resources/imgs/banners/b_tools_utils.png"));
+                MyBanner(Cherry::GetPath("resources/imgs/banners/b_assets_components.png"));
             }
 
             else if (i == 1)
@@ -762,7 +762,7 @@ void ProjectManager::Render()
                     import_btn->SetInternalMarginX(10.0f);
                     import_btn->SetLogoSize(15, 15);
                     import_btn->SetBackgroundColorIdle("#00000000");
-                    import_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_delete.png"));
+                    import_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_delete.png"));
 
                     ImGui::TableSetColumnIndex(1);
                     std::string delete_btn_label = "Delete####" + projectPaths[i];
@@ -783,14 +783,14 @@ void ProjectManager::Render()
             add_btn->SetScale(0.85f);
             add_btn->SetInternalMarginX(10.0f);
             add_btn->SetLogoSize(15, 15);
-            add_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_add.png"));
+            add_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));
 
             static std::shared_ptr<Cherry::ImageTextButtonSimple> save_btn = std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "Save");
             save_btn->SetScale(0.85f);
             save_btn->SetInternalMarginX(10.0f);
             save_btn->SetLogoSize(15, 15);
             save_btn->SetBackgroundColorIdle("#3232F7FF");
-            save_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_save.png"));
+            save_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_save.png"));
 
             ImGui::Separator();
 
@@ -895,28 +895,28 @@ void ProjectManager::mainButtonsMenuItem()
     create_project_button->SetScale(0.85f);
     create_project_button->SetInternalMarginX(10.0f);
     create_project_button->SetLogoSize(15, 15);
-    create_project_button->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_add.png"));
+    create_project_button->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));
 
     static std::shared_ptr<Cherry::ImageTextButtonSimple> import_project_button = std::make_shared<Cherry::ImageTextButtonSimple>("import_btn", "Import a project");
     import_project_button->SetScale(0.85f);
     import_project_button->SetInternalMarginX(10.0f);
     import_project_button->SetLogoSize(15, 15);
-    import_project_button->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_import.png"));
+    import_project_button->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_import.png"));
 
     static std::shared_ptr<Cherry::ImageTextButtonSimple> open_project_button = std::make_shared<Cherry::ImageTextButtonSimple>("open_btn", "Open a project");
     open_project_button->SetScale(0.85f);
     open_project_button->SetInternalMarginX(10.0f);
     open_project_button->SetLogoSize(15, 15);
-    open_project_button->SetImagePath(Cherry::GetPath("ressources/imgs/icon.png"));
+    open_project_button->SetImagePath(Cherry::GetPath("resources/imgs/icon.png"));
 
     static std::shared_ptr<Cherry::ImageTextButtonSimple> add_pools_btn = std::make_shared<Cherry::ImageTextButtonSimple>("add_pools_btn", "Search folders");
     add_pools_btn->SetScale(0.85f);
     add_pools_btn->SetInternalMarginX(10.0f);
     add_pools_btn->SetLogoSize(15, 15);
-    add_pools_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icon.png"));
+    add_pools_btn->SetImagePath(Cherry::GetPath("resources/imgs/icon.png"));
 
     static std::shared_ptr<std::string> v_SearchString = std::make_shared<std::string>("");
-    static std::shared_ptr<Cherry::ImageStringInput> input_search = std::make_shared<Cherry::ImageStringInput>("open_btn", v_SearchString, Cherry::GetPath("ressources/imgs/icon.png"), "Open a project");
+    static std::shared_ptr<Cherry::ImageStringInput> input_search = std::make_shared<Cherry::ImageStringInput>("open_btn", v_SearchString, Cherry::GetPath("resources/imgs/icon.png"), "Open a project");
 
     if (!project_creation)
     {

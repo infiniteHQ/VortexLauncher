@@ -10,7 +10,7 @@ namespace VortexLauncher
     MainSettings::MainSettings(const std::string &name)
     {
         m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
-        m_AppWindow->SetIcon(Cherry::GetPath("ressources/imgs/icons/misc/icon_home.png"));
+        m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/icons/misc/icon_home.png"));
 
         std::string path = VortexMaker::getHomeDirectory() + "/.vx/configs/";
 
@@ -88,7 +88,7 @@ namespace VortexLauncher
                     del_btn->SetInternalMarginX(10.0f);
                     del_btn->SetLogoSize(15, 15);
                     del_btn->SetBackgroundColorIdle("#00000000");
-                    del_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_delete.png"));
+                    del_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_delete.png"));
 
                     ImGui::TableSetColumnIndex(1);
                     std::string delete_btn_label = "Delete####" + templatesPoolsPaths[i];
@@ -109,14 +109,14 @@ namespace VortexLauncher
             add_btn->SetScale(0.85f);
             add_btn->SetInternalMarginX(10.0f);
             add_btn->SetLogoSize(15, 15);
-            add_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_add.png"));
+            add_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));
 
             static std::shared_ptr<Cherry::ImageTextButtonSimple> save_btn = std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "Save");
             save_btn->SetScale(0.85f);
             save_btn->SetInternalMarginX(10.0f);
             save_btn->SetLogoSize(15, 15);
             save_btn->SetBackgroundColorIdle("#3232F7FF");
-            save_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_save.png"));
+            save_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_save.png"));
 
             ImGui::Separator();
 
@@ -184,7 +184,7 @@ namespace VortexLauncher
                     del_btn->SetInternalMarginX(10.0f);
                     del_btn->SetLogoSize(15, 15);
                     del_btn->SetBackgroundColorIdle("#00000000");
-                    del_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_delete.png"));
+                    del_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_delete.png"));
 
                     ImGui::TableSetColumnIndex(1);
                     std::string delete_btn_label = "Delete####" + modulesPoolsPaths[i];
@@ -205,14 +205,14 @@ namespace VortexLauncher
             add_btn->SetScale(0.85f);
             add_btn->SetInternalMarginX(10.0f);
             add_btn->SetLogoSize(15, 15);
-            add_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_add.png"));
+            add_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));
 
             static std::shared_ptr<Cherry::ImageTextButtonSimple> save_btn = std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "Save");
             save_btn->SetScale(0.85f);
             save_btn->SetInternalMarginX(10.0f);
             save_btn->SetLogoSize(15, 15);
             save_btn->SetBackgroundColorIdle("#3232F7FF");
-            save_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_save.png"));
+            save_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_save.png"));
 
             ImGui::Separator();
 
@@ -280,7 +280,7 @@ namespace VortexLauncher
                     del_btn->SetInternalMarginX(10.0f);
                     del_btn->SetLogoSize(15, 15);
                     del_btn->SetBackgroundColorIdle("#00000000");
-                    del_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_delete.png"));
+                    del_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_delete.png"));
 
                     ImGui::TableSetColumnIndex(1);
                     std::string delete_btn_label = "Delete####" + projectPoolsPaths[i];
@@ -301,14 +301,14 @@ namespace VortexLauncher
             add_btn->SetScale(0.85f);
             add_btn->SetInternalMarginX(10.0f);
             add_btn->SetLogoSize(15, 15);
-            add_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_add.png"));
+            add_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));
 
             static std::shared_ptr<Cherry::ImageTextButtonSimple> save_btn = std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "Save");
             save_btn->SetScale(0.85f);
             save_btn->SetInternalMarginX(10.0f);
             save_btn->SetLogoSize(15, 15);
             save_btn->SetBackgroundColorIdle("#3232F7FF");
-            save_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_save.png"));
+            save_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_save.png"));
 
             ImGui::Separator();
 
@@ -378,7 +378,7 @@ namespace VortexLauncher
                     del_btn->SetInternalMarginX(10.0f);
                     del_btn->SetLogoSize(15, 15);
                     del_btn->SetBackgroundColorIdle("#00000000");
-                    del_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_delete.png"));
+                    del_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_delete.png"));
 
                     ImGui::TableSetColumnIndex(1);
                     std::string delete_btn_label = "Delete####" + vortexVersionPoolsPaths[i];
@@ -399,14 +399,14 @@ namespace VortexLauncher
             add_btn->SetScale(0.85f);
             add_btn->SetInternalMarginX(10.0f);
             add_btn->SetLogoSize(15, 15);
-            add_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_add.png"));
+            add_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));
 
             static std::shared_ptr<Cherry::ImageTextButtonSimple> save_btn = std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "Save");
             save_btn->SetScale(0.85f);
             save_btn->SetInternalMarginX(10.0f);
             save_btn->SetLogoSize(15, 15);
             save_btn->SetBackgroundColorIdle("#3232F7FF");
-            save_btn->SetImagePath(Cherry::GetPath("ressources/imgs/icons/misc/icon_save.png"));
+            save_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_save.png"));
 
             ImGui::Separator();
 

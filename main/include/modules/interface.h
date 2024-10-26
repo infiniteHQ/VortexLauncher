@@ -110,6 +110,8 @@ public:
 
     std::string m_state = "unknow";
 
+    bool m_selected = false; // Launcher only
+
     std::vector<std::shared_ptr<ModuleFunction>> m_functions;
     std::vector<std::shared_ptr<ModuleOutputEvent>> m_output_events;
     std::vector<std::shared_ptr<ModuleInputEvent>> m_input_events;

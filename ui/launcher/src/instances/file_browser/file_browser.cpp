@@ -235,37 +235,37 @@ static std::vector<std::pair<std::shared_ptr<ContenBrowserItem>, std::string>> r
 FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::string &start_path)
 {
     m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
-    m_AppWindow->SetIcon(Cherry::Application::CookPath("ressources/imgs/icons/misc/icon_arrow_l_disabled.png"));
+    m_AppWindow->SetIcon(Cherry::Application::CookPath("resources/imgs/icons/misc/icon_arrow_l_disabled.png"));
     std::shared_ptr<Cherry::AppWindow> win = m_AppWindow;
 
-    cp_SaveButton = Application::Get().CreateComponent<ImageTextButtonSimple>("save_button", Application::Get().GetLocale("loc.content_browser.save_all") + "####content_browser.save_all", Cherry::Application::CookPath("ressources/imgs/icons/misc/icon_save.png"));
+    cp_SaveButton = Application::Get().CreateComponent<ImageTextButtonSimple>("save_button", Application::Get().GetLocale("loc.content_browser.save_all") + "####content_browser.save_all", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_save.png"));
     cp_SaveButton->SetScale(0.85f);
     cp_SaveButton->SetLogoSize(15, 15);
     cp_SaveButton->SetBackgroundColorIdle("#00000000");
     cp_SaveButton->SetBorderColorIdle("#00000000");
 
-    cp_ImportButton = Application::Get().CreateComponent<ImageTextButtonSimple>("import_button", Application::Get().GetLocale("loc.content_browser.import") + "####content_browser.import", Cherry::Application::CookPath("ressources/imgs/icons/misc/icon_import.png"));
+    cp_ImportButton = Application::Get().CreateComponent<ImageTextButtonSimple>("import_button", Application::Get().GetLocale("loc.content_browser.import") + "####content_browser.import", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_import.png"));
     cp_ImportButton->SetScale(0.85f);
     cp_ImportButton->SetLogoSize(15, 15);
     cp_ImportButton->SetBackgroundColorIdle("#00000000");
     cp_ImportButton->SetBorderColorIdle("#00000000");
 
-    cp_AddButton = Application::Get().CreateComponent<ImageTextButtonSimple>("add_button", Application::Get().GetLocale("loc.content_browser.add") + "####content_browser.add", Cherry::Application::CookPath("ressources/imgs/icons/misc/icon_add.png"));
+    cp_AddButton = Application::Get().CreateComponent<ImageTextButtonSimple>("add_button", Application::Get().GetLocale("loc.content_browser.add") + "####content_browser.add", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_add.png"));
     cp_AddButton->SetScale(0.85f);
     cp_AddButton->SetInternalMarginX(10.0f);
     cp_AddButton->SetLogoSize(15, 15);
 
-    cp_SettingsButton = Application::Get().CreateComponent<CustomDrowpdownImageButtonSimple>("setgings_button", Application::Get().GetLocale("loc.content_browser.add") + "####content_browser.settings", Cherry::Application::CookPath("ressources/imgs/icons/misc/icon_add.png"));
+    cp_SettingsButton = Application::Get().CreateComponent<CustomDrowpdownImageButtonSimple>("setgings_button", Application::Get().GetLocale("loc.content_browser.add") + "####content_browser.settings", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_add.png"));
     cp_SettingsButton->SetScale(0.85f);
     cp_SettingsButton->SetInternalMarginX(10.0f);
     cp_SettingsButton->SetLogoSize(15, 15);
 
-    cp_DirectoryUndo = Application::Get().CreateComponent<ImageButtonSimple>("directory_undo", Cherry::Application::CookPath("ressources/imgs/icons/misc/icon_arrow_l_disabled.png"));
+    cp_DirectoryUndo = Application::Get().CreateComponent<ImageButtonSimple>("directory_undo", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_arrow_l_disabled.png"));
     cp_DirectoryUndo->SetBackgroundColorIdle("#00000000");
     cp_DirectoryUndo->SetBorderColorIdle("#00000000");
     cp_DirectoryUndo->SetScale(0.85f);
 
-    cp_DirectoryRedo = Application::Get().CreateComponent<ImageButtonSimple>("directory_redo", Cherry::Application::CookPath("ressources/imgs/icons/misc/icon_arrow_r_disabled.png"));
+    cp_DirectoryRedo = Application::Get().CreateComponent<ImageButtonSimple>("directory_redo", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_arrow_r_disabled.png"));
     cp_DirectoryRedo->SetBackgroundColorIdle("#00000000");
     cp_DirectoryRedo->SetBorderColorIdle("#00000000");
     cp_DirectoryRedo->SetScale(0.85f);
@@ -278,7 +278,7 @@ FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::s
 
 		if (m_BackHistory.empty())
 		{
-            cp_DirectoryUndo->SetImagePath(Application::Get().CookPath("ressources/imgs/icons/misc/icon_arrow_l_disabled.png"));
+            cp_DirectoryUndo->SetImagePath(Application::Get().CookPath("resources/imgs/icons/misc/icon_arrow_l_disabled.png"));
 			if (cp_DirectoryUndo->Render("normal"))
 			{
 				//
@@ -286,7 +286,7 @@ FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::s
 		}
 		else
 		{
-            cp_DirectoryUndo->SetImagePath(Application::Get().CookPath("ressources/imgs/icons/misc/icon_arrow_l_enabled.png"));
+            cp_DirectoryUndo->SetImagePath(Application::Get().CookPath("resources/imgs/icons/misc/icon_arrow_l_enabled.png"));
 			if (cp_DirectoryUndo->Render("normal"))
 			{
 				GoBack();
@@ -300,7 +300,7 @@ FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::s
 
 		if (m_ForwardHistory.empty())
 		{
-            cp_DirectoryUndo->SetImagePath(Application::Get().CookPath("ressources/imgs/icons/misc/icon_arrow_r_disabled.png"));
+            cp_DirectoryUndo->SetImagePath(Application::Get().CookPath("resources/imgs/icons/misc/icon_arrow_r_disabled.png"));
 			if (cp_DirectoryRedo->Render("normal"))
 			{
 				//
@@ -308,7 +308,7 @@ FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::s
 		}
 		else
 		{
-            cp_DirectoryUndo->SetImagePath(Application::Get().CookPath("ressources/imgs/icons/misc/icon_arrow_r_enabled.png"));
+            cp_DirectoryUndo->SetImagePath(Application::Get().CookPath("resources/imgs/icons/misc/icon_arrow_r_enabled.png"));
 			if (cp_DirectoryRedo->Render("normal"))
 			{
 				GoForward();
@@ -320,11 +320,10 @@ FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::s
 			}
 		}
 		ImGui::PopStyleVar();
-		ImGui::PopStyleColor();
-	 });
+		ImGui::PopStyleColor(); });
 
     m_AppWindow->SetLeftMenubarCallback([this]()
-                                         {
+                                        {
             ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.4f, 0.4f, 0.4f, 0.7f));
 
             ImGui::Text(m_CurrentDirectory.c_str());
@@ -334,7 +333,6 @@ FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::s
             }
             
 		ImGui::PopStyleColor(); });
-
 
     m_BaseDirectory = start_path;
     m_CurrentDirectory = m_BaseDirectory;
@@ -803,17 +801,17 @@ void FileBrowserAppWindow::DrawHierarchy(std::filesystem::path path, bool isDir,
 
 void FileBrowserAppWindow::RenderSideBar()
 {
-    CustomCollapsingHeaderLogo("Favorite", Cherry::Application::CookPath("ressources/imgs/icons/misc/icon_star.png"), [this]()
+    CustomCollapsingHeaderLogo("Favorite", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_star.png"), [this]()
                                {
                                        for (auto custom_dir : m_FavoriteFolders)
                                        {
                                            DrawHierarchy(custom_dir, true);
                                        } });
 
-    CustomCollapsingHeaderLogo("Main", Cherry::Application::CookPath("ressources/imgs/icons/misc/icon_home.png"), [this]()
+    CustomCollapsingHeaderLogo("Main", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_home.png"), [this]()
                                { DrawHierarchy(m_BaseDirectory, true, "Main"); });
 
-    CustomCollapsingHeaderLogo("Pools & Collections", Cherry::Application::CookPath("ressources/imgs/icons/misc/icon_collection.png"), [this]()
+    CustomCollapsingHeaderLogo("Pools & Collections", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_collection.png"), [this]()
                                {
                                        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(12.0f, 2.0f));
 
@@ -1109,125 +1107,147 @@ void FileBrowserAppWindow::RenderContentBar()
     ImGui::Columns(1);
 }
 
-void FileBrowserAppWindow::RefreshRender(const std::shared_ptr<FileBrowserAppWindow> &instance)
+std::shared_ptr<Cherry::AppWindow> &FileBrowserAppWindow::GetAppWindow()
 {
-    m_AppWindow->SetRenderCallback([instance]()
+    return m_AppWindow;
+}
+
+std::shared_ptr<FileBrowserAppWindow> FileBrowserAppWindow::Create(const std::string &name, const std::string &base_path)
+{
+    auto instance = std::shared_ptr<FileBrowserAppWindow>(new FileBrowserAppWindow(name, base_path));
+    instance->SetupRenderCallback();
+    return instance;
+}
+
+void FileBrowserAppWindow::SetupRenderCallback()
+{
+    auto self = shared_from_this();
+    m_AppWindow->SetRenderCallback([self]()
                                    {
-                                           const float splitterWidth = 2.5f;
-                                           const float margin = 10.0f;
+            if (self) {
+                self->Render();
+            } });
+}
 
-                                           auto &children = instance->m_Childs;
-                                           static float lastTotalWidth = 0.0f;
-                                           
-                                           ImVec2 availableSize = ImGui::GetContentRegionAvail();
-                                           float totalAvailableSize = availableSize.x - (children.size() - 1) * splitterWidth - 40.0f;
+void FileBrowserAppWindow::Render()
+{
+std::cout << "BEGIN Render" << std::endl;
+    const float splitterWidth = 2.5f;
+    const float margin = 10.0f;
 
-                                           float usedSize = 0.0f;
-                                           int childrenWithoutDefaultSize = 0;
+    auto &children = m_Childs;
+    static float lastTotalWidth = 0.0f;
 
-                                           if (totalAvailableSize != lastTotalWidth && lastTotalWidth > 0.0f)
-                                           {
-                                               float scale = totalAvailableSize / lastTotalWidth;
+    ImVec2 availableSize = ImGui::GetContentRegionAvail();
+    float totalAvailableSize = availableSize.x - (children.size() - 1) * splitterWidth - 40.0f;
 
-                                               for (auto &child : children)
-                                               {
-                                                   child.m_Size *= scale;
-                                               }
+    float usedSize = 0.0f;
+    int childrenWithoutDefaultSize = 0;
 
-                                               lastTotalWidth = totalAvailableSize;
-                                           }
+    if (totalAvailableSize != lastTotalWidth && lastTotalWidth > 0.0f)
+    {
+        float scale = totalAvailableSize / lastTotalWidth;
 
-                                           if (lastTotalWidth == 0.0f)
-                                           {
-                                               float totalSizeAssigned = 0.0f;
+        for (auto &child : children)
+        {
+            child.m_Size *= scale;
+        }
 
-                                               for (auto &child : children)
-                                               {
-                                                if(child.m_Disabled)
-                                                {
-                                                    continue;
-                                                }
-                                                
-                                                   if (!child.m_Initialized || totalAvailableSize != lastTotalWidth)
-                                                   {
-                                                       if (child.m_DefaultSize > 0.0f)
-                                                       {
-                                                           child.m_Size = child.m_DefaultSize;
-                                                       }
-                                                       else
-                                                       {
-                                                           child.m_Size = totalAvailableSize / children.size();
-                                                       }
-                                                       child.m_Initialized = true;
-                                                   }
-                                                   totalSizeAssigned += child.m_Size;
-                                               }
+        lastTotalWidth = totalAvailableSize;
+    }
 
-                                               if (totalSizeAssigned < totalAvailableSize)
-                                               {
-                                                   float remainingSize = totalAvailableSize - totalSizeAssigned;
-                                                   for (auto &child : children)
-                                                   {
-                                                       child.m_Size += remainingSize / children.size();
-                                                   }
-                                               }
+    if (lastTotalWidth == 0.0f)
+    {
+        float totalSizeAssigned = 0.0f;
 
-                                               lastTotalWidth = totalAvailableSize;
-                                           }
+        for (auto &child : children)
+        {
+            if (child.m_Disabled)
+            {
+                continue;
+            }
 
-                                           for (size_t i = 0; i < children.size(); ++i)
-                                           {
-                                               auto &child = children[i];
-                                               
-                                               ImGui::PushStyleColor(ImGuiCol_ChildBg, child.m_BackgroundColor);
-                                               ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+            if (!child.m_Initialized || totalAvailableSize != lastTotalWidth)
+            {
+                if (child.m_DefaultSize > 0.0f)
+                {
+                    child.m_Size = child.m_DefaultSize;
+                }
+                else
+                {
+                    child.m_Size = totalAvailableSize / children.size();
+                }
+                child.m_Initialized = true;
+            }
+            totalSizeAssigned += child.m_Size;
+        }
 
-                                               std::string childname = child.m_Name + "##cbchildnh" + instance->m_AppWindow->m_Name;
-                                               ImGui::BeginChild(childname.c_str(), ImVec2(child.m_Size, availableSize.y), true);
+        if (totalSizeAssigned < totalAvailableSize)
+        {
+            float remainingSize = totalAvailableSize - totalSizeAssigned;
+            for (auto &child : children)
+            {
+                child.m_Size += remainingSize / children.size();
+            }
+        }
 
-                                               child.m_Child();
+        lastTotalWidth = totalAvailableSize;
+    }
 
-                                               ImGui::EndChild();
-                                               ImGui::PopStyleColor(2);
+    for (size_t i = 0; i < children.size(); ++i)
+    {
+        auto &child = children[i];
 
-                                               if (i + 1 < children.size())
-                                               {
-                                                   auto &next_child = children[i + 1];
-                                                   ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, child.m_BackgroundColor);
+        ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
 
-                                                   std::string lab = "##cbsplitter" + child.m_Name + instance->m_AppWindow->m_Name;
+        std::string childname = child.m_Name + "##cbchildnh" + m_AppWindow->m_Name;
+        ImGui::BeginChild(childname.c_str(), ImVec2(child.m_Size, availableSize.y), true);
 
-                                                   ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
-                                                   ImGui::Button(lab.c_str(), ImVec2(splitterWidth, -1));
-                                                   ImGui::PopStyleColor();
+        child.m_Child();
 
-                                                   if (ImGui::IsItemHovered())
-                                                   {
-                                                       ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-                                                   }
+        ImGui::EndChild();
+        ImGui::PopStyleColor(2);
 
-                                                   if (ImGui::IsItemActive())
-                                                   {
-                                                       float delta = ImGui::GetIO().MouseDelta.x;
+        if (i + 1 < children.size())
+        {
+            auto &next_child = children[i + 1];
+            ImGui::SameLine();
 
-                                                       if (child.m_Size + delta < child.m_MinSize + margin)
-                                                       {
-                                                           delta = child.m_MinSize + margin - child.m_Size;
-                                                       }
-                                                       if (next_child.m_Size - delta < next_child.m_MinSize + margin)
-                                                       {
-                                                           delta = next_child.m_Size - next_child.m_MinSize - margin;
-                                                       }
+            std::string lab = "##cbsplitter" + child.m_Name + m_AppWindow->m_Name;
 
-                                                       if (child.m_Size + delta >= child.m_MinSize + margin && next_child.m_Size - delta >= next_child.m_MinSize + margin)
-                                                       {
-                                                           child.m_Size += delta;
-                                                           next_child.m_Size -= delta;
-                                                           lastTotalWidth = totalAvailableSize;
-                                                       }
-                                                   }
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+            ImGui::Button(lab.c_str(), ImVec2(splitterWidth, -1));
+            ImGui::PopStyleColor();
 
-                                                   ImGui::SameLine();
-                                               }
-                                           } });
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+            }
+
+            if (ImGui::IsItemActive())
+            {
+                float delta = ImGui::GetIO().MouseDelta.x;
+
+                if (child.m_Size + delta < child.m_MinSize + margin)
+                {
+                    delta = child.m_MinSize + margin - child.m_Size;
+                }
+                if (next_child.m_Size - delta < next_child.m_MinSize + margin)
+                {
+                    delta = next_child.m_Size - next_child.m_MinSize - margin;
+                }
+
+                if (child.m_Size + delta >= child.m_MinSize + margin && next_child.m_Size - delta >= next_child.m_MinSize + margin)
+                {
+                    child.m_Size += delta;
+                    next_child.m_Size -= delta;
+                    lastTotalWidth = totalAvailableSize;
+                }
+            }
+
+            ImGui::SameLine();
+        }
+    }
+std::cout << "END Render" << std::endl;
 }

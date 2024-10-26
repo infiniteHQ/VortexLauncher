@@ -114,7 +114,7 @@ public:
 
       spec.DisableTitle = true;
       spec.WindowSaves = false;
-      spec.IconPath = Cherry::GetPath("ressources/imgs/icon_update.png");
+      spec.IconPath = Cherry::GetPath("resources/imgs/icon_update.png");
       download_center->GetAppWindow()->AttachOnNewWindow(spec);
     }
   }
@@ -203,16 +203,18 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
 
   spec.DisableTitle = true;
   spec.WindowSaves = false;
-  spec.IconPath = Cherry::GetPath("ressources/imgs/icon.png");
+  spec.IconPath = Cherry::GetPath("resources/imgs/icon.png");
 
   Cherry::Application *app = new Cherry::Application(spec);
-  app->SetFavIconPath(Cherry::GetPath("ressources/imgs/favicon.png"));
-  app->AddFont("Consola", Cherry::GetPath("ressources/fonts/consola.ttf"), 17.0f);
+  app->SetFavIconPath(Cherry::GetPath("resources/imgs/favicon.png"));
+  app->AddFont("Consola", Cherry::GetPath("resources/fonts/consola.ttf"), 17.0f);
 
-  app->AddLocale("fr", Cherry::GetPath("ressources/locales/fr.json"));
-  app->AddLocale("en", Cherry::GetPath("ressources/locales/en.json"));
-  app->SetDefaultLocale("en");
-  app->SetLocale("fr");
+  app->AddLocale("fr", Cherry::GetPath("resources/locales/fr.json"));
+  app->AddLocale("en", Cherry::GetPath("resources/locales/en.json"));
+  app->AddLocale("es", Cherry::GetPath("resources/locales/es.json"));
+  app->AddLocale("pt", Cherry::GetPath("resources/locales/pt.json"));
+  app->AddLocale("de", Cherry::GetPath("resources/locales/de.json"));
+  app->SetDefaultLocale("fr");
 
   app->PushLayer(layer);
   app->SetMenubarCallback([app, layer]()
@@ -230,113 +232,50 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
 
                             static bool t;
 
- if (ImGui::BeginMenu("Vortex"))
+ if (ImGui::BeginMenu(Cherry::GetLocale("loc.menubar.menu.vortex").c_str()))
                             {
+                              Cherry::MenuItemTextSeparator(Cherry::GetLocale("loc.menubar.menu.general").c_str());
 
-                               ImGui::GetFont()->Scale *= 0.8;
-                              ImGui::PushFont(ImGui::GetFont());
-
-                              ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
-
-                              ImGui::PushStyleColor(ImGuiCol_Text, grayColor);
-                              ImGui::Text("General");
-                              ImGui::PopStyleColor();
-
-                              ImGui::PushStyleColor(ImGuiCol_Separator, graySeparatorColor);
-                              ImGui::Separator();
-                              ImGui::PopStyleColor();
-
-                              ImGui::GetFont()->Scale = 0.84;
-                              ImGui::PopFont();
-                              ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);
-
-
-                              if (ImGui::MenuItem("Update Vortex Launcher",  "", Cherry::GetTexture(Cherry::GetPath("ressources/imgs/icon.png")), c_Launcher->GetDownloadCenterVisibility()))
+                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.update_vortex").c_str(),  Cherry::GetLocale("loc.menubar.menuitem.update_vortex_desc").c_str(), Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_update.png")), c_Launcher->GetDownloadCenterVisibility()))
                               {
                               }
+                              
+                              Cherry::MenuItemTextSeparator(Cherry::GetLocale("loc.menubar.summary.vortex_labs").c_str());
 
 
-                               ImGui::GetFont()->Scale *= 0.8;
-                              ImGui::PushFont(ImGui::GetFont());
-
-                              ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
-
-                              ImGui::PushStyleColor(ImGuiCol_Text, grayColor);
-                              ImGui::Text("Vortex Labs");
-                              ImGui::PopStyleColor();
-
-                              ImGui::PushStyleColor(ImGuiCol_Separator, graySeparatorColor);
-                              ImGui::Separator();
-                              ImGui::PopStyleColor();
-
-                              ImGui::GetFont()->Scale = 0.84;
-                              ImGui::PopFont();
-                              ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);
-
-
-                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.show_download_utility").c_str(), Cherry::GetLocale("loc.menubar.show_main_settings_brief").c_str(), Cherry::GetTexture(Cherry::GetPath("ressources/imgs/icon.png")), c_Launcher->GetDownloadCenterVisibility()))
+                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.vortex_labs").c_str(), Cherry::GetLocale("loc.menubar.menuitem.vortex_labs_desc").c_str(), Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_net.png")), c_Launcher->GetDownloadCenterVisibility()))
                               {
                                 c_Launcher->SetDownloadCenterVisibility(!c_Launcher->GetDownloadCenterVisibility());
                               }
 
-                              ImGui::GetFont()->Scale *= 0.8;
-                              ImGui::PushFont(ImGui::GetFont());
+                              Cherry::MenuItemTextSeparator(Cherry::GetLocale("loc.menubar.summary.manage").c_str());
 
-                              ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
-
-                              ImGui::PushStyleColor(ImGuiCol_Text, grayColor);
-                              ImGui::Text("Manage");
-                              ImGui::PopStyleColor();
-
-                              ImGui::PushStyleColor(ImGuiCol_Separator, graySeparatorColor);
-                              ImGui::Separator();
-                              ImGui::PopStyleColor();
-
-                              ImGui::GetFont()->Scale = 0.84;
-                              ImGui::PopFont();
-                              ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);
-
-                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.manage_modulesplugins").c_str(), "",  Cherry::GetTexture(Cherry::GetPath("ressources/imgs/icon.png")), c_Launcher->GetLogicContentManager()))
+                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.logical_contents").c_str(), Cherry::GetLocale("loc.menubar.menuitem.logical_content_desc").c_str(),  Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_bricksearch.png")), c_Launcher->GetLogicContentManager()))
                               {
                                 c_Launcher->SetLogicContentManager(!c_Launcher->GetLogicContentManager());
                               }
 
-                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.manage_contents").c_str(),  "", Cherry::GetTexture(Cherry::GetPath("ressources/imgs/icon.png")), c_Launcher->GetContentManager()))
+                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.static_contents").c_str(), Cherry::GetLocale("loc.menubar.menuitem.static_contents_desc").c_str(), Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_stack.png")), c_Launcher->GetContentManager()))
                               {
                                 c_Launcher->SetContentManager(!c_Launcher->GetContentManager());
                               }
 
-                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.manage_vortex").c_str(),  "", c_Launcher->GetVersionManager()))
+                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.vortex_versions").c_str(), Cherry::GetLocale("loc.menubar.menuitem.vortex_versions_desc").c_str(), Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_versions.png")), c_Launcher->GetVersionManager()))
                               {
                                 c_Launcher->SetVersionManager(!c_Launcher->GetVersionManager());
                               }
 
-                              ImGui::GetFont()->Scale *= 0.8;
-                              ImGui::PushFont(ImGui::GetFont());
+                              Cherry::MenuItemTextSeparator(Cherry::GetLocale("loc.menubar.summary.other").c_str());
 
-                              ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
-
-                              ImGui::PushStyleColor(ImGuiCol_Text, grayColor);
-                              ImGui::Text("Other");
-                              ImGui::PopStyleColor();
-
-                              ImGui::PushStyleColor(ImGuiCol_Separator, graySeparatorColor);
-                              ImGui::Separator();
-                              ImGui::PopStyleColor();
-
-                              ImGui::GetFont()->Scale = 0.84;
-                              ImGui::PopFont();
-                              ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);
-
-                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.about_vortex").c_str(), "", c_Launcher->GetLogsVisibility()))
+                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.about_vortex").c_str(), Cherry::GetLocale("loc.menubar.menuitem.about_vortex_desc").c_str(), Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_info.png")), c_Launcher->GetLogsVisibility()))
                               {
                               }
 
-                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.contributors").c_str(),  "", Cherry::GetTexture(Cherry::GetPath("ressources/imgs/icon.png")), c_Launcher->GetDownloadCenterVisibility()))
+                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.about_contributors").c_str(),  Cherry::GetLocale("loc.menubar.menuitem.about_contributors_desc").c_str(), Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_people.png")), c_Launcher->GetDownloadCenterVisibility()))
                               {
                               }
 
-                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.documentation").c_str(),  "", c_Launcher->GetMainSettingsVisibility()))
+                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.documentation").c_str(),  Cherry::GetLocale("loc.menubar.menuitem.documentation_desc").c_str(), Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_book.png")), c_Launcher->GetMainSettingsVisibility()))
                               {
                               }
 
@@ -344,7 +283,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
                               ImGui::EndMenu();
                             }
 
-                            if (ImGui::BeginMenu("Options"))
+ if (ImGui::BeginMenu(Cherry::GetLocale("loc.menubar.menu.options").c_str()))
                             {
                               ImGui::GetFont()->Scale *= 0.8;
                               ImGui::PushFont(ImGui::GetFont());
@@ -352,7 +291,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
                               ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
 
                               ImGui::PushStyleColor(ImGuiCol_Text, grayColor);
-                              ImGui::Text("Utilities");
+                              ImGui::Text(Cherry::GetLocale("loc.menubar.summary.utilities").c_str());
                               ImGui::PopStyleColor();
 
                               ImGui::PushStyleColor(ImGuiCol_Separator, graySeparatorColor);
@@ -364,16 +303,16 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
                               ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);
 
 
-                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.show_logs_utility").c_str(), Cherry::GetLocale("loc.menubar.show_logs_utility_brief").c_str(), c_Launcher->GetLogsVisibility()))
+                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.logs").c_str(), Cherry::GetLocale("loc.menubar.menuitem.logs_desc").c_str(), c_Launcher->GetLogsVisibility()))
                               {
                                 c_Launcher->SetLogsVisibility(!c_Launcher->GetLogsVisibility());
                               }
 
-                              if (ImGui::MenuItem("Sessions utility", Cherry::GetLocale("loc.menubar.show_logs_utility_brief").c_str(), c_Launcher->GetLogsVisibility()))
+                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.session_utility").c_str(), Cherry::GetLocale("loc.menubar.menuitem.session_utility_desc").c_str(), c_Launcher->GetLogsVisibility()))
                               {
                               }
 
-                              if (ImGui::MenuItem("Last crash", Cherry::GetLocale("loc.menubar.show_logs_utility_brief").c_str(), c_Launcher->GetLogsVisibility()))
+                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.latest_crash").c_str(), Cherry::GetLocale("loc.menubar.menuitem.latest_crash_desc").c_str(), c_Launcher->GetLogsVisibility()))
                               {
                               }
                               
@@ -384,7 +323,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
                               ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
 
                               ImGui::PushStyleColor(ImGuiCol_Text, grayColor);
-                              ImGui::Text("Settings");
+                              ImGui::Text(Cherry::GetLocale("loc.menubar.summary.settings").c_str());
                               ImGui::PopStyleColor();
 
                               ImGui::PushStyleColor(ImGuiCol_Separator, graySeparatorColor);
@@ -404,25 +343,33 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
     if (ImGui::BeginMenu("Switch language"))
     {
 
-                              if (ImGui::MenuItem("English", "Switch language to english (en)", Cherry::GetTexture(Cherry::GetPath("ressources/imgs/icons/flags/us.png")), c_Launcher->GetMainSettingsVisibility()))
+                              if (ImGui::MenuItem("English", "Switch language to english (en)", Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/us.png")), c_Launcher->GetMainSettingsVisibility()))
                               {
   app->SetLocale("en");
                               }
-                              if (ImGui::MenuItem("Français", "Changer la langue pour le Français (fr)", Cherry::GetTexture(Cherry::GetPath("ressources/imgs/icons/flags/fr.png")), c_Launcher->GetMainSettingsVisibility()))
+                              if (ImGui::MenuItem("Français", "Changer la langue pour le Français (fr)", Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/fr.png")), c_Launcher->GetMainSettingsVisibility()))
                               {
   app->SetLocale("fr");
                               }
-                              if (ImGui::MenuItem("Español", "Cambiar el idioma a español", Cherry::GetTexture(Cherry::GetPath("ressources/imgs/icons/flags/es.png")), c_Launcher->GetMainSettingsVisibility()))
+                              if (ImGui::MenuItem("Español", "Cambiar el idioma a español", Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/es.png")), c_Launcher->GetMainSettingsVisibility()))
                               {
-  app->SetLocale("en");
+  app->SetLocale("es");
                               }
-                              if (ImGui::MenuItem("Português", "Alterar o idioma para Português", Cherry::GetTexture(Cherry::GetPath("ressources/imgs/icons/flags/po.png")), c_Launcher->GetMainSettingsVisibility()))
+                              if (ImGui::MenuItem("Português", "Alterar o idioma para Português", Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/po.png")), c_Launcher->GetMainSettingsVisibility()))
                               {
-  app->SetLocale("en");
+  app->SetLocale("pt");
                               }
-                              if (ImGui::MenuItem("Deutsch", "Ändern Sie die Sprache auf Deutsch", Cherry::GetTexture(Cherry::GetPath("ressources/imgs/icons/flags/po.png")), c_Launcher->GetMainSettingsVisibility()))
+                              if (ImGui::MenuItem("Deutsch", "Ändern Sie die Sprache auf Deutsch", Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/po.png")), c_Launcher->GetMainSettingsVisibility()))
                               {
-  app->SetLocale("ge");
+  app->SetLocale("de");
+                              }
+                              if (ImGui::MenuItem("Russe", "Ändern Sie die Sprache auf Deutsch", Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/po.png")), c_Launcher->GetMainSettingsVisibility()))
+                              {
+  app->SetLocale("ru");
+                              }
+                              if (ImGui::MenuItem("Arabe", "Ändern Sie die Sprache auf Deutsch", Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/po.png")), c_Launcher->GetMainSettingsVisibility()))
+                              {
+  app->SetLocale("ar");
                               }
 
       ImGui::EndMenu();

@@ -180,7 +180,6 @@ int main(int argc, char *argv[])
     }
 
     PrintHeader();
-
     InitBlankRuntime(true);
 
     VortexMaker::LogInfo("Bootstrapp", "Opening the graphical interface...");

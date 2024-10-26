@@ -53,19 +53,18 @@ using namespace Cherry;
               m_MaxSize(max_size) {}
     };
 
-    // This window can be a "subappwindow" of a parent if you use the constructor with parent parameter.
-    class FileBrowserAppWindow
+    class FileBrowserAppWindow : public std::enable_shared_from_this<FileBrowserAppWindow>
     {
     public:
         FileBrowserAppWindow(const std::string &name, const std::string &start_path);
         // FileBrowserAppWindow(const std::string &name);
 
-        std::shared_ptr<Cherry::AppWindow> &GetAppWindow()
-        {
-            return m_AppWindow;
-        }
 
-        void RefreshRender(const std::shared_ptr<FileBrowserAppWindow> &instance);
+        std::shared_ptr<Cherry::AppWindow> &GetAppWindow();
+        static std::shared_ptr<FileBrowserAppWindow> Create(const std::string &name, const std::string &base_path);
+        void SetupRenderCallback();
+        void Render();
+
         bool MyButton(const std::string &name, const std::string &path, const std::string &description, const std::string &size, bool selected, const std::string &logo, ImU32 bgColor, ImU32 borderColor, ImU32 lineColor, float maxTextWidth, float borderRadius);
         void AddChild(const FileBrowserChild &child);
         void ChangeDirectory(const std::filesystem::path &newDirectory);

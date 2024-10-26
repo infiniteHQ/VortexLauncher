@@ -237,7 +237,7 @@ static void MyButton(const std::string &name, int w, int h)
     }
     else
     {
-        drawList->AddImage(Cherry::GetTexture(Cherry::GetPath("ressources/imgs/icons/misc/icon_vortex_default.png")), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+        drawList->AddImage(Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_vortex_default.png")), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
     }
 
     ImVec2 smallRectSize(40, 20);
@@ -329,7 +329,7 @@ static void VersionButton(const std::string &envproject, int xsize = 100, int ys
     }
     else
     {
-        drawList->AddImage(Cherry::GetTexture(Cherry::GetPath("ressources/imgs/vortex_banner_unknow.png")), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+        drawList->AddImage(Cherry::GetTexture(Cherry::GetPath("resources/imgs/vortex_banner_unknow.png")), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
     }
 
     ImVec2 smallRectSize(40, 20);
@@ -406,14 +406,17 @@ static bool CheckIfVortexVersionExist(const std::string &version)
     }
     return false;
 }
-
 static void RegisterAvailableVersions()
 {
-    // const std::string base_path = "/opt/Vortex";
     available_versions.clear();
     m_VortexRegisteredVersions.clear();
+
     for (auto &base_path : VortexMaker::GetCurrentContext()->IO.sys_vortex_versions_pools)
     {
+        if (!std::filesystem::exists(base_path))
+        {
+            continue;
+        }
 
         for (const auto &entry : std::filesystem::directory_iterator(base_path))
         {
@@ -433,7 +436,12 @@ static void RegisterAvailableVersions()
 
                         std::string version = manifest_json["version"];
                         std::string version_name = manifest_json["name"];
+
                         std::string image_path = base_path + "/" + version_dir + "/" + manifest_json["image"].get<std::string>();
+                        if (!std::filesystem::exists(image_path))
+                        {
+                            continue;
+                        }
 
                         bool is_working = TestVortexExecutable(vortex_executable);
 
@@ -449,8 +457,12 @@ static void RegisterAvailableVersions()
                     }
                     catch (const std::exception &e)
                     {
-                        std::cerr << "Erreur lors de la lecture de " << manifest_path << ": " << e.what() << std::endl;
+                        continue;
                     }
+                }
+                else
+                {
+                    continue; 
                 }
             }
         }
@@ -499,7 +511,7 @@ static void MyButton(const std::shared_ptr<EnvProject> envproject, int xsize = 1
     }
     else
     {
-        drawList->AddImage(Cherry::GetTexture(Cherry::GetPath("ressources/imgs/icons/misc/icon_vortex_default.png")), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+        drawList->AddImage(Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_vortex_default.png")), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
     }
 
     ImVec2 smallRectSize(40, 20);

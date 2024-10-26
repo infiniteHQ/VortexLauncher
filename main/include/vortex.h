@@ -8,7 +8,7 @@
 // Versions & Build identification
 //_____________________________________________________________________________
 // (Integer encoded as XYYZZ for use in #if preprocessor conditionals, e.g. '#if VORTEX_VERSION_NUM >= 12345')
-#define VORTEX_VERSION "1.1.3"
+#define VORTEX_VERSION "1.4.0"
 #define VORTEX_VERSION_NUM 10000
 
 //_____________________________________________________________________________
