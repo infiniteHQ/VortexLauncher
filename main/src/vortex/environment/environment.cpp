@@ -86,31 +86,31 @@ VORTEX_API void VortexMaker::InitEnvironment()
     }
 
     {
-        std::string path = vxBasePath + "configs/contents/";
+        std::string path = vxBasePath + "configs/";
         std::string file = path + "modules_pools.json";
 
         nlohmann::json default_data = {
-            {"modules_pools", nlohmann::json::array({vxBasePath + "modules/"})}};
+            {"modules_pools", nlohmann::json::array({vxBasePath + "contents/modules/"})}};
 
         VortexMaker::createJsonFileIfNotExists(file, default_data);
     }
 
     {
-        std::string path = vxBasePath + "configs/contents/";
+        std::string path = vxBasePath + "configs/";
         std::string file = path + "plugins_pools.json";
 
         nlohmann::json default_data = {
-            {"plugins_pools", nlohmann::json::array({vxBasePath + "plugins/"})}};
+            {"plugins_pools", nlohmann::json::array({vxBasePath + "contents/plugins/"})}};
 
         VortexMaker::createJsonFileIfNotExists(file, default_data);
     }
 
     {
-        std::string path = vxBasePath + "configs/contents/";
+        std::string path = vxBasePath + "configs/";
         std::string file = path + "templates_pools.json";
 
         nlohmann::json default_data = {
-            {"templates_pools", nlohmann::json::array({vxBasePath + "templates/"})}};
+            {"templates_pools", nlohmann::json::array({vxBasePath + "contents/templates/"})}};
 
         VortexMaker::createJsonFileIfNotExists(file, default_data);
     }

@@ -214,7 +214,8 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
   app->AddLocale("es", Cherry::GetPath("resources/locales/es.json"));
   app->AddLocale("pt", Cherry::GetPath("resources/locales/pt.json"));
   app->AddLocale("de", Cherry::GetPath("resources/locales/de.json"));
-  app->SetDefaultLocale("fr");
+  app->SetDefaultLocale("en");
+  app->SetLocale("en");
 
   app->PushLayer(layer);
   app->SetMenubarCallback([app, layer]()

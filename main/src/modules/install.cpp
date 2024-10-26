@@ -214,95 +214,59 @@ VORTEX_API std::vector<std::shared_ptr<ModuleInterface>> VortexMaker::FindModule
     return interfaces;
 }
 
-// Recursive function that performs the module search in the given directory
-void VortexMaker::RecursiveModuleSearch(const std::string &current_directory,
-                                        std::vector<std::shared_ptr<ModuleInterface>> &interfaces,
-                                        std::atomic<bool> &still_searching)
-{
-    // Check if the search was canceled
-    if (!still_searching)
-    {
-        VortexMaker::LogInfo("Core", "Search canceled by user.");
-        return;
-    }
 
-    try
-    {
-        // Check if the directory exists and is accessible
-        if (!std::filesystem::exists(current_directory) || !std::filesystem::is_directory(current_directory))
-        {
-            VortexMaker::LogError("Core", "Directory does not exist or is not accessible: " + current_directory);
-            return;
-        }
+std::vector<std::shared_ptr<ModuleInterface>> VortexMaker::FindModulesRecursively(const std::string &root_directory, std::atomic<bool> &still_searching, std::string &elapsed_time) {
+    std::vector<std::shared_ptr<ModuleInterface>> interfaces;
+    std::unordered_set<std::string> seen_modules;
 
-        // Attempt to find modules in the current directory
-        auto module = VortexMaker::FindModuleInDirectory(current_directory);
-        if (module)
-        {
-            // If a module is found, add it to the interfaces vector
-            interfaces.push_back(module);
-        }
-
-        // Recursively search in subdirectories
-        for (const auto &entry : std::filesystem::directory_iterator(current_directory))
-        {
-            if (!still_searching)
-            {
-                VortexMaker::LogInfo("Core", "Search canceled during subdirectory exploration.");
-                return;
-            }
-
-            // Check if the entry is a directory
-            if (entry.is_directory())
-            {
-                // Recursive call for subdirectories
-                RecursiveModuleSearch(entry.path().string(), interfaces, still_searching);
-            }
-        }
-    }
-    catch (const std::filesystem::filesystem_error &e)
-    {
-        // Handle permission errors and continue
-    }
-    catch (const std::exception &e)
-    {
-        // Handle any other exceptions and log the error
-    }
-}
-
-// Function to initiate the recursive search in a detached thread
-void VortexMaker::StartRecursiveModuleSearch(const std::string &directory,
-                                             std::vector<std::shared_ptr<ModuleInterface>> &interfaces,
-                                             std::atomic<bool> &still_searching,
-                                             std::string &elapsed_time)
-{
-    // Capture the start time for elapsed time calculation
     auto start_time = std::chrono::steady_clock::now();
 
-    // Launch a detached thread for the search
-    std::thread([directory, &interfaces, &still_searching, &elapsed_time, start_time]()
-                {
-        try {
-            // Start the recursive search
-            RecursiveModuleSearch(directory, interfaces, still_searching);
+    try {
+        for (const auto &entry : std::filesystem::recursive_directory_iterator(root_directory)) {
+            if (!still_searching) {
+                VortexMaker::LogInfo("Core", "Search canceled by user.");
+                break;
+            }
 
-            // Mark search as completed and calculate elapsed time
-            still_searching = false;
-            auto end_time = std::chrono::steady_clock::now();
-            auto duration = std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time).count();
+            if (entry.is_directory()) {
+                auto module = VortexMaker::FindModuleInDirectory(entry.path().string());
+                if (module) {
+                    std::string module_path = entry.path().string();
+                    if (seen_modules.insert(module_path).second) {
+                        interfaces.push_back(module);
+                    }
+                }
+            }
 
-            // Update the elapsed_time string with the total search duration
+            auto current_time = std::chrono::steady_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::seconds>(current_time - start_time).count();
             std::ostringstream oss;
             oss << duration << " seconds";
             elapsed_time = oss.str();
-
-            // Log the result count and time
-            VortexMaker::LogInfo("Core", std::to_string(interfaces.size()) + " modules found in " + elapsed_time);
-
         }
-        catch (const std::exception& e) {
-            VortexMaker::LogError("Core", "Unexpected error: " + std::string(e.what()));
-            still_searching = false;
-        } })
-        .detach();
+
+        still_searching = false;
+
+        auto end_time = std::chrono::steady_clock::now();
+        auto final_duration = std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time).count();
+
+        std::ostringstream oss;
+        oss << final_duration << " seconds";
+        elapsed_time = oss.str();
+
+        VortexMaker::LogInfo("Core", std::to_string(interfaces.size()) + " modules found in " + elapsed_time);
+
+    } catch (const std::filesystem::filesystem_error &e) {
+        VortexMaker::LogError("Core", "Filesystem error: " + std::string(e.what()) + " [" + root_directory + "]");
+    } catch (const std::exception &e) {
+        VortexMaker::LogError("Core", "Unexpected error: " + std::string(e.what()));
+    }
+
+    return interfaces;
+}
+
+void VortexMaker::StartModuleSearch(const std::string &root_directory, std::vector<std::shared_ptr<ModuleInterface>> &interfaces, std::atomic<bool> &still_searching, std::string &elapsed_time) {
+    std::thread([root_directory, &interfaces, &still_searching, &elapsed_time]() {
+        interfaces = VortexMaker::FindModulesRecursively(root_directory, still_searching, elapsed_time);
+    }).detach();
 }

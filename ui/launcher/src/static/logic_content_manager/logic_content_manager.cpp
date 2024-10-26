@@ -12,8 +12,6 @@ namespace VortexLauncher
         m_AppWindow->SetCloseCallback([this]()
                                       { m_AppWindow->SetVisibility(false); });
 
-        m_ModulesPool = VortexMaker::GetCurrentContext()->IO.sys_modules_pools;
-
         m_AppWindow->m_TabMenuCallback = []()
         {
             ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
@@ -273,7 +271,7 @@ namespace VortexLauncher
     {
         m_StillSearching = true;
         m_SearchStarted = true;
-        VortexMaker::StartRecursiveModuleSearch(path, m_FindedModules, m_StillSearching, m_SearchElapsedTime);
+        VortexMaker::StartModuleSearch(path, m_FindedModules, m_StillSearching, m_SearchElapsedTime);
     }
 
     void LogicContentManager::AddChild(const std::string &parent_name, const std::string &child_name, const std::function<void()> &child)
@@ -429,31 +427,7 @@ namespace VortexLauncher
 
     void LogicContentManager::RenderImportModules()
     {
-        TitleTwo("Import module(s)");
-        ImGui::TextWrapped("This section allow you to import module(s) into one of your plugins pools. After that you will can install these plugins into your projects");
-
-        if (m_StillSearching)
-        {
-            std::string label = "Searching..." + std::to_string(m_FindedModules.size()) + " module(s) founded yet. Elapsed time : " + m_SearchElapsedTime;
-            ImGui::TextWrapped(label.c_str());
-            ImGui::SameLine();
-            if (ImGui::Button("Stop"))
-            {
-                m_StillSearching = false;
-            }
-        }
-        else
-        {
-            if (m_SearchStarted)
-            {
-                std::string label = "" + std::to_string(m_FindedModules.size()) + " module(s) founded on " + m_SearchElapsedTime + ".";
-                ImGui::TextWrapped(label.c_str());
-            }
-            else
-            {
-                ImGui::TextWrapped("Please select a folder to search for module(s)...");
-            }
-        }
+        TitleFour("Import module(s) to system");
 
         static std::vector<bool> selectedRows(m_FindedModules.size(), false);
         static char ContentPath[512] = "";
@@ -518,10 +492,7 @@ namespace VortexLauncher
             Cherry::AddAppWindow(m_FileBrowser->GetAppWindow());
         }
 
-        std::cout << "Modules : " << m_FindedModules.size() << std::endl;
-        ;
-
-        const float padding = 10.0f;
+        const float padding = 30.0f;
         const float thumbnailSize = 94.0f;
 
         float cellSize = thumbnailSize + padding;
@@ -535,43 +506,67 @@ namespace VortexLauncher
 
         for (auto &itemEntry : m_FindedModules)
         {
-
-            bool selected = false;
-
-            if (MyButton(itemEntry->m_proper_name, itemEntry->m_path, itemEntry->m_name, itemEntry->m_version, itemEntry->m_selected, Application::CookPath("ressources/imgs/icons/files/icon_picture_file.png"), IM_COL32(56, 56, 56, 150), IM_COL32(50, 50, 50, 255), Cherry::HexToImU32("#B1FF31FF")))
+            if (MyButton(itemEntry->m_name, itemEntry->m_path, itemEntry->m_name, itemEntry->m_version, itemEntry->m_selected, Application::CookPath("ressources/imgs/icons/files/icon_picture_file.png"), IM_COL32(56, 56, 56, 150), IM_COL32(50, 50, 50, 255), Cherry::HexToImU32("#B1FF31FF")))
             {
                 itemEntry->m_selected = !itemEntry->m_selected;
 
-                            m_SelectedModules.push_back(itemEntry);
-                    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) || ImGui::IsKeyDown(ImGuiKey_RightCtrl))
+                if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) || ImGui::IsKeyDown(ImGuiKey_RightCtrl))
+                {
+                    if (itemEntry->m_selected)
                     {
-                        if (itemEntry->m_selected)
+                        if (std::find(m_SelectedModules.begin(), m_SelectedModules.end(), itemEntry) == m_SelectedModules.end())
                         {
                             m_SelectedModules.push_back(itemEntry);
-                        }
-                        else
-                        {
                         }
                     }
                     else
                     {
-                        if (itemEntry->m_selected)
-                        {
-                            m_SelectedModules.clear();
-                            m_SelectedModules.push_back(itemEntry);
-                        }
-                        else
-                        {
-                            m_SelectedModules.erase(
-                                std::remove(m_SelectedModules.begin(), m_SelectedModules.end(), itemEntry),
-                                m_SelectedModules.end());
-                        }
+                        m_SelectedModules.erase(
+                            std::remove(m_SelectedModules.begin(), m_SelectedModules.end(), itemEntry),
+                            m_SelectedModules.end());
                     }
-                
+                }
+                else
+                {
+                    m_SelectedModules.clear();
+
+                    if (itemEntry->m_selected)
+                    {
+                        m_SelectedModules.push_back(itemEntry);
+                    }
+                    else
+                    {
+                        itemEntry->m_selected = false;
+                    }
+                }
             }
 
             ImGui::PopID();
             ImGui::NextColumn();
+        }
+        ImGui::EndColumns();
+
+        if (m_StillSearching)
+        {
+            std::string label = "Searching..." + std::to_string(m_FindedModules.size()) + " module(s) founded yet. Elapsed time : " + m_SearchElapsedTime;
+            ImGui::TextWrapped(label.c_str());
+            ImGui::SameLine();
+            if (ImGui::Button("Stop"))
+            {
+                m_StillSearching = false;
+            }
+        }
+        else
+        {
+            if (m_SearchStarted)
+            {
+                std::string label = "" + std::to_string(m_FindedModules.size()) + " module(s) founded on " + m_SearchElapsedTime + ".";
+                ImGui::TextWrapped(label.c_str());
+            }
+            else
+            {
+                ImGui::TextWrapped("Please select a folder to search for module(s)...");
+            }
         }
 
         if (m_SelectedModules.size() > 0)
@@ -597,8 +592,10 @@ namespace VortexLauncher
             }
 
             ImGui::SameLine();
+            m_ModulesPool = VortexMaker::GetCurrentContext()->IO.sys_modules_pools;
 
             static std::shared_ptr<Cherry::ComboSimple> combo_dest = std::make_shared<Cherry::ComboSimple>("combo", "Import to", m_ModulesPool, 0);
+
             combo_dest->Render("qd");
             m_ToImportDestination = combo_dest->GetData("selected_string");
         }
