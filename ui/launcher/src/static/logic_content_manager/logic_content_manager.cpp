@@ -271,7 +271,7 @@ namespace VortexLauncher
     {
         m_StillSearching = true;
         m_SearchStarted = true;
-        VortexMaker::StartModuleSearch(path, m_FindedModules, m_StillSearching, m_SearchElapsedTime);
+        VortexMaker::FindModulesInDirectoryRecursively(path, m_FindedModules, m_StillSearching, m_SearchElapsedTime);
     }
 
     void LogicContentManager::AddChild(const std::string &parent_name, const std::string &child_name, const std::function<void()> &child)
@@ -446,7 +446,7 @@ namespace VortexLauncher
                 m_FileBrowser->GetAppWindow()->SetParentWindow(Cherry::Application::GetCurrentRenderedWindow()->GetName());
             }
         }
-
+// TODO : Recursive search fix + better ui + update launcher + install/remove vx! 
         selectedRows.resize(m_FindedModules.size());
 
         static std::shared_ptr<Cherry::ImageTextButtonSimple> add_btn = std::make_shared<Cherry::ImageTextButtonSimple>("add_btn_module", "####add");
