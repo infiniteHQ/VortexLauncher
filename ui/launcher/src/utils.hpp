@@ -18,11 +18,13 @@ static bool showProjectPools = false;
 static std::shared_ptr<TemplateInterface> selected_template_object;
 static std::shared_ptr<EnvProject> selected_envproject;
 static std::shared_ptr<EnvProject> selected_envproject_to_remove;
-static std::vector<std::shared_ptr<EnvProject>> finded_projects;
 static std::string title = "none";
 static std::string default_project_avatar = "/usr/local/include/Vortex/imgs/base_vortex.png";
 static std::string operating_system_banner = "/usr/local/include/Vortex/1.1/imgs/operating_system_banner.png";
 static std::string _parent;
+
+static std::vector<std::shared_ptr<EnvProject>> finded_projects;
+static std::vector<std::shared_ptr<EnvProject>> finded_projects_to_import;
 
 static char ProjectSearch[256];
 static float threshold = 0.4;
@@ -462,7 +464,7 @@ static void RegisterAvailableVersions()
                 }
                 else
                 {
-                    continue; 
+                    continue;
                 }
             }
         }
@@ -519,18 +521,95 @@ static void MyButton(const std::shared_ptr<EnvProject> envproject, int xsize = 1
 
     drawList->AddRectFilled(smallRectPos, ImVec2(smallRectPos.x + smallRectSize.x, smallRectPos.y + smallRectSize.y), IM_COL32(0, 0, 0, 255));
     ImVec2 versionTextPos = ImVec2(smallRectPos.x + (smallRectSize.x - ImGui::CalcTextSize(versionText).x) / 2, smallRectPos.y + (smallRectSize.y - ImGui::CalcTextSize("version").y) / 2);
-    
-    if(CheckIfVortexVersionExist(envproject->compatibleWith))
+
+    if (CheckIfVortexVersionExist(envproject->compatibleWith))
     {
-    drawList->AddText(versionTextPos, IM_COL32(255, 255, 255, 255), versionText);
-
+        drawList->AddText(versionTextPos, IM_COL32(255, 255, 255, 255), versionText);
     }
-    else{
-    drawList->AddText(versionTextPos, IM_COL32(255, 20, 20, 255), versionText);
-
+    else
+    {
+        drawList->AddText(versionTextPos, IM_COL32(255, 20, 20, 255), versionText);
     }
-    
-    
+
+    ImVec2 textPos = ImVec2(cursorPos.x + (squareSize.x - textSize.x) / 2, cursorPos.y + squareSize.y + 5);
+
+    ImU32 textColor = IM_COL32(255, 255, 255, 255);
+    ImU32 highlightColor = IM_COL32(255, 255, 0, 255);
+    ImU32 highlightTextColor = IM_COL32(0, 0, 0, 255);
+
+    if (ImGui::IsItemHovered())
+    {
+        ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+
+        drawList->AddRect(cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y), IM_COL32(135, 135, 135, 255), 0.0f, 0, 2.0f);
+    }
+
+    DrawHighlightedText(drawList, textPos, truncatedText, ProjectSearch, highlightColor, textColor, highlightTextColor);
+
+    float windowVisibleX2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
+    if (cursorPos.x + totalSize.x < windowVisibleX2)
+        ImGui::SameLine();
+}
+
+static void ProjectImportButton(const std::shared_ptr<EnvProject> envproject, int xsize = 100, int ysize = 100)
+{
+    ImVec2 squareSize(xsize, ysize);
+
+    const char *originalText = envproject->name.c_str();
+    char truncatedText[12];
+    const char *versionText = envproject->compatibleWith.c_str();
+
+    if (strlen(originalText) > 8)
+    {
+        strncpy(truncatedText, originalText, 8);
+        strcpy(truncatedText + 8, "...");
+    }
+    else
+    {
+        strcpy(truncatedText, originalText);
+    }
+
+    ImVec2 textSize = ImGui::CalcTextSize(truncatedText);
+    ImVec2 totalSize(squareSize.x, squareSize.y + textSize.y + 5);
+
+    ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+
+    std::string button_id = envproject->name + "squareButtonWithText" + envproject->lastOpened;
+    if (ImGui::InvisibleButton(button_id.c_str(), totalSize))
+    {
+        finded_projects_to_import.push_back(envproject);
+    }
+
+    if (ImGui::IsItemHovered())
+    {
+        ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+    }
+
+    ImDrawList *drawList = ImGui::GetWindowDrawList();
+
+    if (!envproject->logoPath.empty())
+    {
+        drawList->AddImage(Cherry::GetTexture(envproject->logoPath), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+    }
+    else
+    {
+        drawList->AddImage(Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_vortex_default.png")), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+    }
+
+    ImVec2 smallRectSize(40, 20);
+    ImVec2 smallRectPos(cursorPos.x + squareSize.x - smallRectSize.x - 5, cursorPos.y + squareSize.y - smallRectSize.y - 5);
+
+    drawList->AddRectFilled(smallRectPos, ImVec2(smallRectPos.x + smallRectSize.x, smallRectPos.y + smallRectSize.y), IM_COL32(0, 0, 0, 255));
+    ImVec2 versionTextPos = ImVec2(smallRectPos.x + (smallRectSize.x - ImGui::CalcTextSize(versionText).x) / 2, smallRectPos.y + (smallRectSize.y - ImGui::CalcTextSize("version").y) / 2);
+
+    if (CheckIfVortexVersionExist(envproject->compatibleWith))
+    {
+        drawList->AddText(versionTextPos, IM_COL32(255, 255, 255, 255), versionText);
+    }
+    else
+    {
+        drawList->AddText(versionTextPos, IM_COL32(255, 20, 20, 255), versionText);
+    }
 
     ImVec2 textPos = ImVec2(cursorPos.x + (squareSize.x - textSize.x) / 2, cursorPos.y + squareSize.y + 5);
 

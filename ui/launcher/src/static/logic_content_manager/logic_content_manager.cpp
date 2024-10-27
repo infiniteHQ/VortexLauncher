@@ -506,7 +506,7 @@ namespace VortexLauncher
 
         for (auto &itemEntry : m_FindedModules)
         {
-            if (MyButton(itemEntry->m_name, itemEntry->m_path, itemEntry->m_name, itemEntry->m_version, itemEntry->m_selected, Application::CookPath("ressources/imgs/icons/files/icon_picture_file.png"), IM_COL32(56, 56, 56, 150), IM_COL32(50, 50, 50, 255), Cherry::HexToImU32("#B1FF31FF")))
+            if (MyButton(itemEntry->m_name, itemEntry->m_path, itemEntry->m_name, itemEntry->m_version, itemEntry->m_selected, itemEntry->m_logo_path, IM_COL32(56, 56, 56, 150), IM_COL32(50, 50, 50, 255), Cherry::HexToImU32("#B1FF31FF")))
             {
                 itemEntry->m_selected = !itemEntry->m_selected;
 

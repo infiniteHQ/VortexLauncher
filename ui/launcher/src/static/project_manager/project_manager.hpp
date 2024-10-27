@@ -65,6 +65,9 @@ private:
 	std::shared_ptr<std::string> v_ProjectAuthor;
 	std::shared_ptr<std::string> v_ProjectDescription;
 	std::shared_ptr<bool> v_ProjectOpen;
+	std::atomic<bool> m_StillSearching = false;
+	bool SearchStarted = false;
+	std::string m_ElapsedTime;
 
 	std::shared_ptr<Cherry::AppWindow> m_AppWindow;
 

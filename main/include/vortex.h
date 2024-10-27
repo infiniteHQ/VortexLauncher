@@ -208,6 +208,8 @@ namespace VortexMaker
     bool DebugCheckVersionAndDataLayout(const char *version);
 
     VORTEX_API void ImportProject(const std::string &path, const std::string& pool_path);
+    VORTEX_API void FindpProjectsInDirectoryRecursively(const std::string &directory, std::vector<std::shared_ptr<EnvProject>> &projects, std::atomic<bool>& stillSearching, std::string& elapsedTime);
+
     VORTEX_API std::vector<std::shared_ptr<EnvProject>> FindProjectInFolder(const std::string &path);
 
     VORTEX_API void InitializePlatformVendor();

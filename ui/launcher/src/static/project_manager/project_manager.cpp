@@ -5,8 +5,7 @@
 #include <cctype>
 #include <unordered_set>
 static std::vector<std::string> projectPoolsPaths = {};
-static std::vector<std::shared_ptr<EnvProject>> finded_projects_to_import;
-static std::vector<bool> selectedRows(finded_projects_to_import.size(), false);
+static std::vector<bool> selectedRows(finded_projects.size(), false);
 
 std::vector<std::string> modules_projects;
 static std::vector<int> selectedIDs;
@@ -18,7 +17,7 @@ std::string projetct_import_dest;
 ProjectManager::ProjectManager(const std::string &name)
 {
     RegisterAvailableVersions(); // TODO in main
-    m_AppWindow = std::make_shared<Cherry::AppWindow>(name,name);
+    m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
     m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/icons/misc/icon_collection.png"));
     m_AppWindow->SetDefaultBehavior(Cherry::DefaultAppWindowBehaviors::DefaultDocking, "full");
     m_AppWindow->SetClosable(false);
@@ -96,12 +95,12 @@ void ProjectManager::Render()
                 std::string label = "Find###templates";
                 if (ImGui::Button(label.c_str()))
                 {
-                    finded_projects_to_import = VortexMaker::FindProjectInFolder(path_input_all);
+                    finded_projects = VortexMaker::FindProjectInFolder(path_input_all);
                 }
                 ImGui::EndMenuBar();
             }
 
-            if (!finded_projects_to_import.empty())
+            if (!finded_projects.empty())
             {
                 static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
 
@@ -114,7 +113,7 @@ void ProjectManager::Render()
                     ImGui::TableSetupColumn("Vortex version", ImGuiTableColumnFlags_WidthFixed);
                     ImGui::TableHeadersRow();
 
-                    for (int i = 0; i <= finded_projects_to_import.size(); i++)
+                    for (int i = 0; i <= finded_projects.size(); i++)
                     {
                         static std::pair<char[128], char[128]> newItem;
                         static char label[128];
@@ -140,15 +139,15 @@ void ProjectManager::Render()
                             }
                             else if (column == 1)
                             {
-                                ImGui::Text(finded_projects_to_import[i]->name.c_str());
+                                ImGui::Text(finded_projects[i]->name.c_str());
                             }
                             else if (column == 2)
                             {
-                                ImGui::Text(finded_projects_to_import[i]->author.c_str());
+                                ImGui::Text(finded_projects[i]->author.c_str());
                             }
                             else if (column == 3)
                             {
-                                ImGui::Text(finded_projects_to_import[i]->compatibleWith.c_str());
+                                ImGui::Text(finded_projects[i]->compatibleWith.c_str());
                             }
                         }
                     }
@@ -260,84 +259,47 @@ void ProjectManager::Render()
             static char pathToFolder[512]{};
             ImGui::InputText("Folder", pathToFolder, sizeof(pathToFolder));
             ImGui::SameLine();
+
             if (ImGui::Button("Search"))
             {
-                finded_projects_to_import = VortexMaker::FindProjectInFolder(pathToFolder);
+                finded_projects.clear();
+                m_StillSearching = true;
+                SearchStarted = true;
+                VortexMaker::FindpProjectsInDirectoryRecursively(pathToFolder, finded_projects, m_StillSearching, m_ElapsedTime);
             }
 
-            static int project_to_import_size = finded_projects_to_import.size();
-
-            if (project_to_import_size != finded_projects_to_import.size())
+            if (m_StillSearching)
             {
-                selectedRows.resize(finded_projects_to_import.size());
-            }
-
-            if (ImGui::BeginTable("projects_will_be_imported", 5, flags))
-            {
-                ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("Version", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("Path", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableHeadersRow();
-
-                for (int row = 0; row < finded_projects_to_import.size(); row++)
+                ImGui::Text("Searching....");
+                ImGui::SameLine();
+                if (ImGui::Button("Stop"))
                 {
-                    ImGui::TableNextRow();
-                    ImVec2 min = ImGui::GetItemRectMin();
-                    ImVec2 max = ImGui::GetItemRectMax();
-                    bool isHovered = ImGui::IsMouseHoveringRect(min, max);
-
-                    if (isHovered)
-                    {
-                        ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImColor(0.3f, 0.3f, 0.3f));
-                    }
-                    if (selectedRows[row])
-                    {
-                        ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImColor(0.5f, 0.5f, 0.9f));
-                    }
-
-                    for (int column = 0; column < 5; column++)
-                    {
-                        ImGui::TableSetColumnIndex(column);
-                        if (column == 0)
-                        {
-                            if (ImGui::Selectable("##RowSelectable", selectedRows[row], ImGuiSelectableFlags_SpanAllColumns, ImVec2(0, 30)))
-                            {
-                                bool isCtrlPressed = ImGui::GetIO().KeyCtrl;
-
-                                if (!isCtrlPressed)
-                                {
-                                    for (int i = 0; i < selectedRows.size(); ++i)
-                                    {
-                                        selectedRows[i] = false;
-                                    }
-                                }
-
-                                selectedRows[row] = !selectedRows[row];
-                            }
-                        }
-                        else if (column == 1)
-                        {
-                            ImGui::Text(finded_projects_to_import[row]->name.c_str());
-                        }
-                    }
-                }
-
-                ImGui::EndTable();
-            }
-            selectedIDs.clear();
-            for (int i = 0; i < selectedRows.size(); i++)
-            {
-                if (selectedRows[i])
-                {
-                    selectedIDs.push_back(i);
+                    m_StillSearching == false;
                 }
             }
-            if (selectedIDs.size() > 0)
+
+            if (!m_StillSearching && SearchStarted)
+            {
+                std::string label = std::to_string(finded_projects.size()) + " project(s) finded in over " + m_ElapsedTime;
+                ImGui::Text(label.c_str());
+            }
+
+            static int project_to_import_size = finded_projects.size();
+
+            if (project_to_import_size != finded_projects.size())
+            {
+                selectedRows.resize(finded_projects.size());
+            }
+
+            for (auto &project : finded_projects)
+            {
+                ProjectImportButton(project);
+            }
+
+            if (!finded_projects_to_import.empty())
             {
 
-                std::string label = "Import " + std::to_string(selectedIDs.size()) + " project(s)";
+                std::string label = "Import " + std::to_string(finded_projects_to_import.size()) + " project(s)";
 
                 static std::shared_ptr<Cherry::ImageTextButtonSimple> import_btn = std::make_shared<Cherry::ImageTextButtonSimple>("delete_project_pool_button", "");
                 import_btn->SetScale(0.85f);
