@@ -250,6 +250,9 @@ namespace VortexMaker
 
     VORTEX_API std::string getCurrentTimeStamp();
 
+    VORTEX_API void UpdateVortexLauncherWebData(); // Fetch latests versions of the Vortex Launcher
+    VORTEX_API void UpdateVortexWebData(); // Fetch all available versions of Vortex.
+
     bool DebugCheckVersionAndDataLayout(const char *version);
 
     // Memory Allocators

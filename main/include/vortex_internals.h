@@ -192,6 +192,26 @@ enum class PlatformVendor
     Macos
 };
 
+struct VortexLauncherVersion
+{
+  std::string version;
+  std::string dist;
+  std::string arch;
+  std::string path;
+  std::string sum;
+  std::string created_at;
+};
+
+struct VortexVersion
+{
+  std::string version;
+  std::string name;
+  std::string path;
+  std::string sum;
+  std::string date;
+  std::string banner;
+};
+
 //-----------------------------------------------------------------------------
 // (Context) VortexMakerContext => Main VortexMaker context.
 //-----------------------------------------------------------------------------
@@ -215,9 +235,11 @@ struct VxContext
   // Paths 
   std::string m_VortexPath; // relative to ".vx"
   std::string m_VortexLauncherPath; // relative to the emplacement where the Vortex Launcher is.
-  
-  
 
+  std::vector<VortexVersion> latest_vortex_versions;
+  VortexLauncherVersion latest_launcher_version;
+  VortexVersion latest_vortex_version;
+  bool latest_launcher_is_higher = false;
 
   // Components
   VxIO IO;

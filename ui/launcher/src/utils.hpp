@@ -361,7 +361,7 @@ static void VersionButton(const std::string &envproject, int xsize = 100, int ys
         ImGui::SameLine();
 }
 
-struct VortexVersion
+struct VortexVersionUtility
 {
     std::string m_Version;
     std::string m_VersionName;
@@ -370,7 +370,7 @@ struct VortexVersion
     bool m_VersionWorking;
 };
 
-static std::vector<std::shared_ptr<VortexVersion>> m_VortexRegisteredVersions;
+static std::vector<std::shared_ptr<VortexVersionUtility>> m_VortexRegisteredVersions;
 
 static std::vector<std::string> available_versions;
 
@@ -397,7 +397,7 @@ static bool TestVortexExecutable(const std::string &path)
     return (result.find("ok") != std::string::npos) && (return_code == 0);
 }
 
-static bool CheckIfVortexVersionExist(const std::string &version)
+static bool CheckIfVortexVersionUtilityExist(const std::string &version)
 {
     for (auto &ver : m_VortexRegisteredVersions)
     {
@@ -447,7 +447,7 @@ static void RegisterAvailableVersions()
 
                         bool is_working = TestVortexExecutable(vortex_executable);
 
-                        auto vortex_version = std::make_shared<VortexVersion>();
+                        auto vortex_version = std::make_shared<VortexVersionUtility>();
                         vortex_version->m_Version = version;
                         vortex_version->m_VersionName = version_name;
                         vortex_version->m_VersionImagePath = image_path;
@@ -522,7 +522,7 @@ static void MyButton(const std::shared_ptr<EnvProject> envproject, int xsize = 1
     drawList->AddRectFilled(smallRectPos, ImVec2(smallRectPos.x + smallRectSize.x, smallRectPos.y + smallRectSize.y), IM_COL32(0, 0, 0, 255));
     ImVec2 versionTextPos = ImVec2(smallRectPos.x + (smallRectSize.x - ImGui::CalcTextSize(versionText).x) / 2, smallRectPos.y + (smallRectSize.y - ImGui::CalcTextSize("version").y) / 2);
 
-    if (CheckIfVortexVersionExist(envproject->compatibleWith))
+    if (CheckIfVortexVersionUtilityExist(envproject->compatibleWith))
     {
         drawList->AddText(versionTextPos, IM_COL32(255, 255, 255, 255), versionText);
     }
@@ -602,7 +602,7 @@ static void ProjectImportButton(const std::shared_ptr<EnvProject> envproject, in
     drawList->AddRectFilled(smallRectPos, ImVec2(smallRectPos.x + smallRectSize.x, smallRectPos.y + smallRectSize.y), IM_COL32(0, 0, 0, 255));
     ImVec2 versionTextPos = ImVec2(smallRectPos.x + (smallRectSize.x - ImGui::CalcTextSize(versionText).x) / 2, smallRectPos.y + (smallRectSize.y - ImGui::CalcTextSize("version").y) / 2);
 
-    if (CheckIfVortexVersionExist(envproject->compatibleWith))
+    if (CheckIfVortexVersionUtilityExist(envproject->compatibleWith))
     {
         drawList->AddText(versionTextPos, IM_COL32(255, 255, 255, 255), versionText);
     }
