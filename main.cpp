@@ -98,6 +98,7 @@ VxContext *InitBlankRuntime(bool logger)
     VxContext *ctx = VortexMaker::CreateContext();
 
     ctx->state.session_id = session_id;
+    ctx->version = VORTEX_VERSION;
 
     VortexMaker::CreateGlobalLogger();
     VortexMaker::CreateConsoleLogger();
@@ -107,6 +108,8 @@ VxContext *InitBlankRuntime(bool logger)
 
     // Initialize environment
     VortexMaker::InitEnvironment();
+
+    ctx->m_VortexLauncherPath = Cherry::GetPath("");
 
     // Refresh environment pools
     VortexMaker::RefreshEnvironmentProjectsPools();

@@ -27,6 +27,16 @@ VORTEX_API void VortexMaker::InitEnvironment()
     }
 
     {
+        std::string path = vxBasePath + "data/";
+        std::string file = path + "launcher_data.json";
+
+        nlohmann::json default_data = {
+            {"latest_saved_version", nlohmann::json::object()}};
+
+        VortexMaker::createJsonFileIfNotExists(file, default_data);
+    }
+
+    {
         std::string path = vxBasePath + "configs/";
         VortexMaker::createFolderIfNotExists(path);
     }
@@ -775,4 +785,74 @@ VORTEX_API void VortexMaker::UpdateEnvironmentProject(const std::string &oldname
         // Print error if an exception occurs
         VortexMaker::LogError("Error: ", e.what());
     }
+}
+
+VORTEX_API void VortexMaker::PostLatestVortexVersion(const VortexVersion &version)
+{
+    VxContext &ctx = *CVortexMaker;
+
+    std::string path = VortexMaker::getHomeDirectory() + (VortexMaker::IsWindows() ? "\\.vx\\data\\" : "/.vx/data/");
+    std::string json_file = path + (VortexMaker::IsWindows() ? "launcher_data.json" : "launcher_data.json");
+
+    nlohmann::json default_data = {
+        {"latest_saved_version", nlohmann::json::array()}
+    };
+
+    VortexMaker::createJsonFileIfNotExists(json_file, default_data);
+
+    std::ifstream file_in(json_file);
+    nlohmann::json data;
+    if (file_in.is_open())
+    {
+        file_in >> data;
+        file_in.close();
+    }
+
+    nlohmann::json version_data = {
+        {"version", ctx.latest_vortex_version.version},
+        {"name", ctx.latest_vortex_version.name},
+        {"path", ctx.latest_vortex_version.path},
+        {"sum", ctx.latest_vortex_version.sum},
+        {"date", ctx.latest_vortex_version.date},
+        {"banner", ctx.latest_vortex_version.banner}
+    };
+
+    data["latest_saved_version"] = version_data;
+
+    std::ofstream file_out(json_file);
+    if (file_out.is_open())
+    {
+        file_out << data.dump(4);
+        file_out.close();
+    }
+}
+
+VORTEX_API VortexVersion VortexMaker::CheckLatestVortexVersion()
+{
+    VxContext &ctx = *CVortexMaker;
+
+    std::string path = VortexMaker::getHomeDirectory() + (VortexMaker::IsWindows() ? "\\.vx\\data\\" : "/.vx/data/");
+    std::string json_file = path + (VortexMaker::IsWindows() ? "launcher_data.json" : "launcher_data.json");
+
+    VortexVersion latest_version;
+
+    std::ifstream file_in(json_file);
+    if (file_in.is_open())
+    {
+        nlohmann::json data;
+        file_in >> data;
+        file_in.close();
+
+        if (data.contains("latest_saved_version"))
+        {
+            latest_version.version = data["latest_saved_version"].value("version", "");
+            latest_version.name = data["latest_saved_version"].value("name", "");
+            latest_version.path = data["latest_saved_version"].value("path", "");
+            latest_version.sum = data["latest_saved_version"].value("sum", "");
+            latest_version.date = data["latest_saved_version"].value("date", "");
+            latest_version.banner = data["latest_saved_version"].value("banner", "");
+        }
+    }
+
+    return latest_version;
 }

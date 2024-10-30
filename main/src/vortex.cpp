@@ -253,8 +253,7 @@ void addSessionToJson(const std::string &session_id, const std::string &version,
         {"session_start_at", std::time(nullptr)},
         {"session_owner", user},
         {"vortex_version", version},
-        {"vortex_exec_path", "/opt/Vortex/" + version + "/bin/vortex"}
-    };
+        {"vortex_exec_path", "/opt/Vortex/" + version + "/bin/vortex"}};
 
     // Add the new session to the sessions array
     active_sessions["sessions"].push_back(new_session);
@@ -386,7 +385,6 @@ void writeSessionEndState(const std::string &session_id, const std::string &stat
     }
 }
 
-
 // TODO Remove opt & c: program files, add Vortex Version pools.
 VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::string &version)
 {
@@ -455,7 +453,39 @@ VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::str
 
         removeSessionFromJson(session_id);
 
-        _exit(0); 
+        _exit(0);
+    }
+    else // Parent process
+    {
+        std::cout << "New PID: " << pid << std::endl;
+    }
+}
+
+VORTEX_API void VortexMaker::OpenLauncherUpdater()
+{
+    // Get reference to the Vortex context
+    VxContext &ctx = *CVortexMaker;
+    std::cout << "Path : " << ctx.m_VortexLauncherPath<< std::endl;
+     pid_t pid = fork();
+
+    if (pid == -1)
+    {
+        std::cerr << "Error while forking" << std::endl;
+        return;
+    }
+
+    if (pid == 0) // Child process
+    {
+        std::string command;
+        if (std::system(command.c_str()) != 0)
+        {
+           
+        }
+        else
+        {
+        }
+
+        _exit(0);
     }
     else // Parent process
     {
@@ -505,7 +535,7 @@ void VortexMaker::GetAllocatorFunctions(VortexMakerMemAllocFunc *p_alloc_func,
     *p_user_data = CVxAllocatorUserData;
 }
 
-VORTEX_API void VortexMaker::InstallModuleToSystem(const std::string &path, const std::string& pool_path)
+VORTEX_API void VortexMaker::InstallModuleToSystem(const std::string &path, const std::string &pool_path)
 {
     std::string modules_path = pool_path;
     std::string json_file = path + "/module.json";

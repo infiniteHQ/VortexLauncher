@@ -8,7 +8,7 @@
 // Versions & Build identification
 //_____________________________________________________________________________
 // (Integer encoded as XYYZZ for use in #if preprocessor conditionals, e.g. '#if VORTEX_VERSION_NUM >= 12345')
-#define VORTEX_VERSION "1.4.0"
+#define VORTEX_VERSION "1.1.0"
 #define VORTEX_VERSION_NUM 10000
 
 //_____________________________________________________________________________
@@ -133,6 +133,7 @@ struct VxDistHost;
 // struct VxPackage;
 struct VxDistToolchain;
 struct TaskProcessor;
+struct VortexVersion;
 
 struct Task;
 
@@ -198,7 +199,7 @@ namespace VortexMaker
     VORTEX_API std::shared_ptr<spdlog::logger> CreateConsoleLogger();
     VORTEX_API void DropLoggers();
 
-    VORTEX_API void InstallModuleToSystem(const std::string &path, const std::string& pool_path);
+    VORTEX_API void InstallModuleToSystem(const std::string &path, const std::string &pool_path);
     VORTEX_API void InstallModule(const std::string &module_name, const std::string &version, bool &restart_modules);
     VORTEX_API std::vector<std::string> SearchFiles(const std::string &path, const std::string &filename);
     VORTEX_API std::vector<std::string> SearchFiles(const std::string &path, const std::string &filename, int recursions);
@@ -207,8 +208,8 @@ namespace VortexMaker
     VORTEX_API std::string SearchFilesRecursive(const fs::path &chemin, const std::string &filename, std::vector<std::string> &file, int recursions, int counter);
     bool DebugCheckVersionAndDataLayout(const char *version);
 
-    VORTEX_API void ImportProject(const std::string &path, const std::string& pool_path);
-    VORTEX_API void FindpProjectsInDirectoryRecursively(const std::string &directory, std::vector<std::shared_ptr<EnvProject>> &projects, std::atomic<bool>& stillSearching, std::string& elapsedTime);
+    VORTEX_API void ImportProject(const std::string &path, const std::string &pool_path);
+    VORTEX_API void FindpProjectsInDirectoryRecursively(const std::string &directory, std::vector<std::shared_ptr<EnvProject>> &projects, std::atomic<bool> &stillSearching, std::string &elapsedTime);
 
     VORTEX_API std::vector<std::shared_ptr<EnvProject>> FindProjectInFolder(const std::string &path);
 
@@ -251,7 +252,16 @@ namespace VortexMaker
     VORTEX_API std::string getCurrentTimeStamp();
 
     VORTEX_API void UpdateVortexLauncherWebData(); // Fetch latests versions of the Vortex Launcher
-    VORTEX_API void UpdateVortexWebData(); // Fetch all available versions of Vortex.
+    VORTEX_API void UpdateVortexWebData();         // Fetch all available versions of Vortex.
+
+    VORTEX_API std::vector<int> SplitVersion(const std::string &version);
+    VORTEX_API bool IsVersionGreater(const std::string &manifestVersion, const std::string &requestVersion);
+    VORTEX_API std::string NormalizeVersion(const std::string &version);
+
+    VORTEX_API void PostLatestVortexVersion(const VortexVersion& version);
+    VORTEX_API VortexVersion CheckLatestVortexVersion();
+
+    VORTEX_API void OpenLauncherUpdater();
 
     bool DebugCheckVersionAndDataLayout(const char *version);
 

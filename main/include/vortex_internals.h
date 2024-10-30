@@ -239,7 +239,8 @@ struct VxContext
   std::vector<VortexVersion> latest_vortex_versions;
   VortexLauncherVersion latest_launcher_version;
   VortexVersion latest_vortex_version;
-  bool latest_launcher_is_higher = false;
+  bool launcher_update_available = false;
+  bool vortex_update_available = false;
 
   // Components
   VxIO IO;

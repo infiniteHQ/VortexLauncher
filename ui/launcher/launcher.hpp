@@ -21,7 +21,7 @@ class Layer : public Cherry::Layer
 public:
   Layer() {};
 };
-
+  
 class Launcher
 {
 public:
@@ -33,8 +33,8 @@ public:
 
     // Welcome
     welcome_window = WelcomeWindow::Create("?loc:loc.window_names.welcome");
-    Cherry::AddAppWindow(welcome_window->GetAppWindow());    
-    
+    Cherry::AddAppWindow(welcome_window->GetAppWindow());
+
     // Project manager
     project_manager = ProjectManager::Create("?loc:loc.window_names.project_manager");
     Cherry::AddAppWindow(project_manager->GetAppWindow());
@@ -67,10 +67,15 @@ public:
     // Version manager
     version_manager = VersionManagerAppWindow::Create("?loc:loc.window_names.version_manager");
     version_manager->GetAppWindow()->SetVisibility(false);
-    Cherry::AddAppWindow(version_manager->GetAppWindow());
- 
- 
- 
+    Cherry::AddAppWindow(version_manager->GetAppWindow()); 
+                            
+    std::thread([](){
+         VxContext &ctx = *CVortexMaker;
+        if (VortexMaker::IsVersionGreater(ctx.version, ctx.latest_launcher_version.version))
+        {
+          ctx.launcher_update_available = true;
+        }
+    }).detach();
   };
 
   void SetLogsVisibility(const bool &visibility)
@@ -233,6 +238,36 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
 
                             static bool t;
 
+                               VxContext &ctx = *CVortexMaker;
+                            if(ctx.launcher_update_available)
+                            {
+                              ImGuiToast toast(ImGuiToastType::None, 100000);
+                              toast.setTitle("Update Vortex Launcher");
+                              toast.setContent("A new update for the launcher is available ! (%s)", ctx.latest_launcher_version.version.c_str());
+                              toast.setOnButtonPress([](){
+                                VortexMaker::OpenLauncherUpdater();
+                              });
+                              toast.setButtonLabel("Update now");
+
+                              ImGui::InsertNotification(toast);
+                              ctx.launcher_update_available = false;
+                            }
+
+                            if(ctx.vortex_update_available)
+                            {
+                              ImGuiToast toast(ImGuiToastType::None, 100000);
+                              toast.setTitle("Vortex %s is live !", ctx.latest_vortex_version.version.c_str());
+                              toast.setContent("A new update of Vortex is available ! Try it now");
+                              toast.setOnButtonPress([](){
+                                // Go on the vortex version download page....
+                              });
+                              toast.setButtonLabel("Update now");
+
+                              ImGui::InsertNotification(toast);
+                              ctx.vortex_update_available = false;
+                            }
+                            
+
  if (ImGui::BeginMenu(Cherry::GetLocale("loc.menubar.menu.vortex").c_str()))
                             {
                               Cherry::MenuItemTextSeparator(Cherry::GetLocale("loc.menubar.menu.general").c_str());
@@ -375,14 +410,12 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
 
       ImGui::EndMenu();
     }
-
-                          
-
                               ImGui::EndMenu();
                             }
 
                             ImGui::PopStyleVar();  
-                            ImGui::PopStyleColor(2); });
+                            ImGui::PopStyleColor(2); 
+    });
 
   c_Launcher = std::make_shared<Launcher>();
   return app;
