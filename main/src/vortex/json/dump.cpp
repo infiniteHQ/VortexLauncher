@@ -12,19 +12,17 @@
  */
 VORTEX_API nlohmann::json VortexMaker::DumpJSON(const std::string &file)
 {
-    // Vérifiez si le fichier existe avant de l'ouvrir
     if (!std::filesystem::exists(file))
     {
-        // Lancez une exception si le fichier n'existe pas
         VortexMaker::LogError("Core", "File not found: " + file);
         return "{}";
     }
 
     // Open the file for reading
-    std::ifstream fichier(file);
+    std::ifstream readed_file(file);
 
     // Check if the file is opened successfully
-    if (!fichier.is_open())
+    if (!readed_file.is_open())
     {
         // Throw an exception if the file cannot be opened
         VortexMaker::LogError("Core", "Error while opening file " + file);
@@ -35,7 +33,7 @@ VORTEX_API nlohmann::json VortexMaker::DumpJSON(const std::string &file)
     nlohmann::json json_data;
 
     // Read data from the file into the JSON object
-    fichier >> json_data;
+    readed_file >> json_data;
 
     // Return the JSON object containing the data from the file
     return json_data;

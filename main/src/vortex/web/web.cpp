@@ -63,7 +63,8 @@ VORTEX_API void VortexMaker::UpdateVortexWebData()
         VortexVersion version;
         version.version = item["version"].get<std::string>();
         version.name = item["name"].get<std::string>();
-        version.path = item["link"].get<std::string>();
+        version.path = item["path"].get<std::string>();
+        version.sum = item["sum"].get<std::string>();
         version.date = item["date"].get<std::string>();
         version.banner = ""; 
         version.sum = ""; 

@@ -476,10 +476,9 @@ VORTEX_API void VortexMaker::OpenLauncherUpdater()
 
     if (pid == 0) // Child process
     {
-        std::string command;
+        std::string command = ctx.m_VortexLauncherPath + "/vortex_update";
         if (std::system(command.c_str()) != 0)
         {
-           
         }
         else
         {

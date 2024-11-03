@@ -246,6 +246,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
                               toast.setContent("A new update for the launcher is available ! (%s)", ctx.latest_launcher_version.version.c_str());
                               toast.setOnButtonPress([](){
                                 VortexMaker::OpenLauncherUpdater();
+                                Cherry::Application::Get().Close();
                               });
                               toast.setButtonLabel("Update now");
 
