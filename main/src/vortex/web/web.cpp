@@ -8,6 +8,7 @@
 VORTEX_API void VortexMaker::UpdateVortexLauncherWebData()
 {
     VxContext &ctx = *CVortexMaker;
+    // TODO : Dynamics url
     RestClient::Response r = RestClient::get("http://api.infinite.si:9000/api/vortexupdates/get_vl_versions?dist=stable_windows&arch=x86_64");
 
     if (r.code != 200)
@@ -58,6 +59,8 @@ VORTEX_API void VortexMaker::UpdateVortexWebData()
     VortexVersion latest_vortex_version;
     std::string highestVersion = "0.0.0";
 
+    VxContext &ctx = *CVortexMaker;
+
     for (const auto &item : jsonData)
     {
         VortexVersion version;
@@ -66,9 +69,12 @@ VORTEX_API void VortexMaker::UpdateVortexWebData()
         version.path = item["path"].get<std::string>();
         version.sum = item["sum"].get<std::string>();
         version.date = item["date"].get<std::string>();
-        version.banner = ""; 
-        version.sum = ""; 
+        version.banner = "";
 
+        for(auto vortex_versions : ctx.IO.sys_vortex_versions_pools)
+        {
+
+        }
         latest_vortex_versions.push_back(version);
 
         if (VortexMaker::IsVersionGreater(highestVersion, version.version))
@@ -78,9 +84,8 @@ VORTEX_API void VortexMaker::UpdateVortexWebData()
         }
     }
 
-    VxContext &ctx = *CVortexMaker;
-        ctx.latest_vortex_versions = latest_vortex_versions;
-        ctx.latest_vortex_version = latest_vortex_version;
+    ctx.latest_vortex_versions = latest_vortex_versions;
+    ctx.latest_vortex_version = latest_vortex_version;
 
     VortexVersion saved_latest_version = VortexMaker::CheckLatestVortexVersion();
 
@@ -92,7 +97,7 @@ VORTEX_API void VortexMaker::UpdateVortexWebData()
     {
         ctx.vortex_update_available = false;
     }
-        VortexMaker::PostLatestVortexVersion(latest_vortex_version);
+    VortexMaker::PostLatestVortexVersion(latest_vortex_version);
 
     std::cout << "________________ ALL ______________________" << std::endl;
     for (auto version : ctx.latest_vortex_versions)

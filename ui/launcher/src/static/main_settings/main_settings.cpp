@@ -51,8 +51,6 @@ namespace VortexLauncher
             }
         };
 
-        RegisterAvailableVersions();
-
         m_AppWindow->SetInternalPaddingX(10.0f);
         m_AppWindow->SetInternalPaddingY(10.0f);
 
@@ -442,20 +440,6 @@ namespace VortexLauncher
                 VortexMaker::RefreshEnvironmentProjects();
             } });
 
-        this->AddChild("Installed content", "Installed Vortex versions", [this]()
-                       {
-            Cherry::TitleFourColored("Install latest version ", "#75757575");
-            ImGui::SameLine();
-            Cherry::TitleFourColored("See all versions available ", "#75757575");
-
-            Cherry::TitleFourColored("All installed version ", "#75757575");
-            for (int row = 0; row < m_VortexRegisteredVersions.size(); row++)
-            {
-                if (areStringsSimilar(m_VortexRegisteredVersions[row]->m_VersionName, ProjectSearch, threshold) || isOnlySpacesOrEmpty(ProjectSearch))
-                {
-                    VersionButton(m_VortexRegisteredVersions[row]->m_VersionName, 300, 100, m_VortexRegisteredVersions[row]->m_Version);
-                }
-            } });
 
         this->AddChild("Installed content", "Installed templates", [this]()
                        {
@@ -579,17 +563,16 @@ namespace VortexLauncher
 
     void MainSettings::Render()
     {
-        static float leftPaneWidth = 300.0f;
         const float minPaneWidth = 50.0f;
         const float splitterWidth = 1.5f;
-        static int selected;
         std::map<std::string, std::vector<MainSettingsChild>> groupedByParent;
         for (const auto &child : m_Childs)
         {
             groupedByParent[child.m_Parent].push_back(child);
         }
 
-        ImGui::BeginChild("left_pane", ImVec2(leftPaneWidth, 0), true, ImGuiWindowFlags_NoBackground);
+    std::string label = "left_pane" + m_AppWindow->m_Name;
+        ImGui::BeginChild(label.c_str(), ImVec2(leftPaneWidth, 0), true, ImGuiWindowFlags_NoBackground);
 
         ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
         ImVec4 graySeparatorColor = ImVec4(0.4f, 0.4f, 0.4f, 0.5f);
@@ -640,7 +623,7 @@ namespace VortexLauncher
 
         ImGui::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#44444466"));
         ImGui::Button("splitter", ImVec2(splitterWidth, -1));
-        ImGui::PopStyleVar();
+        ImGui::PopStyleColor();
 
         if (ImGui::IsItemHovered())
         {

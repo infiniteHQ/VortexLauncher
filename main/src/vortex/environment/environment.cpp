@@ -160,6 +160,45 @@ VORTEX_API void VortexMaker::InitEnvironment()
         VortexMaker::createJsonFileIfNotExists(file, default_data);
     }
 }
+void VortexMaker::DetectPlatform()
+{
+    // Get reference to the Vortex context
+    VxContext &ctx = *CVortexMaker;
+
+#if defined(_WIN32) || defined(_WIN64)
+    ctx.platform = "windows";
+#elif defined(__APPLE__) && defined(__MACH__)
+    ctx.platform = "macos";
+#elif defined(__linux__)
+    ctx.platform = "linux";
+#elif defined(__FreeBSD__)
+    ctx.platform = "freebsd";
+#else
+    ctx.platform = "unknown";
+#endif
+}
+
+void VortexMaker::DetectArch()
+{
+    // Get reference to the Vortex context
+    VxContext &ctx = *CVortexMaker;
+
+#if defined(__x86_64__) || defined(_M_X64)
+    ctx.arch = "x86_64";
+#elif defined(__i386__) || defined(_M_IX86)
+    ctx.arch = "x86";
+#elif defined(__aarch64__) || defined(_M_ARM64)
+    ctx.arch = "arm64";
+#elif defined(__arm__) || defined(_M_ARM)
+    ctx.arch = "arm";
+#elif defined(__riscv)
+    ctx.arch = "riscv";
+#elif defined(__ppc64__)
+    ctx.arch = "ppc64";
+#else
+    ctx.arch = "unknown";
+#endif
+}
 
 std::chrono::system_clock::time_point addTimeoutToTime(const std::string &time_str, const std::string &timeout)
 {
@@ -196,6 +235,9 @@ VORTEX_API void VortexMaker::UpdateSessions()
         config_path = homeDir + "\\.vx\\configs\\sessions.json";
     }
     else
+        // Get reference to the Vortex context
+        VxContext &ctx = *CVortexMaker;
+
     {
         sessions_dir = homeDir + "/.vx/sessions";
         config_path = homeDir + "/.vx/configs/sessions.json";
@@ -438,6 +480,133 @@ VORTEX_API void VortexMaker::RefreshEnvironmentPluginsPools()
     {
         // Print error if an exception occurs
         VortexMaker::LogError("Error: ", e.what());
+    }
+}
+
+VORTEX_API bool VortexMaker::TestVortexExecutable(const std::string &path)
+{
+    std::array<char, 128> buffer;
+    std::string result;
+    std::string command = path + " -test";
+
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(command.c_str(), "r"), pclose);
+    if (!pipe)
+    {
+        std::cerr << "popen() failed!" << std::endl;
+        return false;
+    }
+
+    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
+    {
+        result += buffer.data();
+    }
+
+    int return_code = pclose(pipe.release());
+
+    return (result.find("ok") != std::string::npos) && (return_code == 0);
+}
+
+VORTEX_API bool VortexMaker::CheckIfVortexVersionUtilityExist(const std::string &version)
+{
+    VxContext &ctx = *CVortexMaker;
+
+    // Diviser la version en deux parties si possible (A.B)
+    size_t pos = version.find('.');
+    std::string majorMinor = version;
+    if (pos != std::string::npos)
+    {
+        pos = version.find('.', pos + 1);
+        if (pos != std::string::npos)
+        {
+            majorMinor = version.substr(0, pos);  // Garder seulement A.B
+        }
+    }
+
+    for (auto &ver : ctx.IO.sys_vortex_version)
+    {
+        // Diviser chaque version dans le contexte pour ne garder que A.B
+        std::string contextVersion = ver->version;
+        pos = contextVersion.find('.');
+        if (pos != std::string::npos)
+        {
+            pos = contextVersion.find('.', pos + 1);
+            if (pos != std::string::npos)
+            {
+                contextVersion = contextVersion.substr(0, pos);  // Garder seulement A.B pour la comparaison
+            }
+        }
+
+        if (contextVersion == majorMinor)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+VORTEX_API void VortexMaker::RefreshEnvironmentVortexVersion()
+{
+    // Get reference to the Vortex context
+    VxContext &ctx = *CVortexMaker;
+    ctx.IO.sys_available_versions.clear();
+    ctx.IO.sys_vortex_version.clear();
+
+    for (auto &base_path : VortexMaker::GetCurrentContext()->IO.sys_vortex_versions_pools)
+    {
+        if (!std::filesystem::exists(base_path))
+        {
+            continue;
+        }
+
+        for (const auto &entry : std::filesystem::directory_iterator(base_path))
+        {
+            if (entry.is_directory())
+            {
+                std::string version_dir = entry.path().filename().string();
+                std::string manifest_path = entry.path().string() + "/manifest.json";
+                std::string vortex_executable = entry.path().string() + "/bin/vortex";
+
+                if (std::filesystem::exists(manifest_path))
+                {
+                    try
+                    {
+                        std::ifstream manifest_file(manifest_path);
+                        nlohmann::json manifest_json;
+                        manifest_file >> manifest_json;
+
+                        std::string version = manifest_json["version"];
+                        std::string version_name = manifest_json["name"];
+
+                        std::string image_path = base_path + "/" + version_dir + "/" + manifest_json["image"].get<std::string>();
+                        if (!std::filesystem::exists(image_path))
+                        {
+                            continue;
+                        }
+
+                        bool is_working = VortexMaker::TestVortexExecutable(vortex_executable);
+
+                        auto vortex_version = std::make_shared<VortexVersion>();
+                        vortex_version->version = version;
+                        vortex_version->name = version_name;
+                        vortex_version->banner = image_path;
+                        vortex_version->path = entry.path().string();
+                        vortex_version->working = is_working;
+
+                        ctx.IO.sys_vortex_version.push_back(vortex_version);
+                        ctx.IO.sys_available_versions.push_back(version);
+                    }
+                    catch (const std::exception &e)
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                    continue;
+                }
+            }
+        }
     }
 }
 
@@ -795,8 +964,7 @@ VORTEX_API void VortexMaker::PostLatestVortexVersion(const VortexVersion &versio
     std::string json_file = path + (VortexMaker::IsWindows() ? "launcher_data.json" : "launcher_data.json");
 
     nlohmann::json default_data = {
-        {"latest_saved_version", nlohmann::json::array()}
-    };
+        {"latest_saved_version", nlohmann::json::array()}};
 
     VortexMaker::createJsonFileIfNotExists(json_file, default_data);
 
@@ -814,8 +982,7 @@ VORTEX_API void VortexMaker::PostLatestVortexVersion(const VortexVersion &versio
         {"path", ctx.latest_vortex_version.path},
         {"sum", ctx.latest_vortex_version.sum},
         {"date", ctx.latest_vortex_version.date},
-        {"banner", ctx.latest_vortex_version.banner}
-    };
+        {"banner", ctx.latest_vortex_version.banner}};
 
     data["latest_saved_version"] = version_data;
 

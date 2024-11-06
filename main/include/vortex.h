@@ -234,6 +234,7 @@ namespace VortexMaker
     VORTEX_API void RefreshEnvironmentPluginsPools();
     VORTEX_API void RefreshEnvironmentVortexVersionsPools();
     VORTEX_API void RefreshEnvironmentProjects();
+    VORTEX_API void RefreshEnvironmentVortexVersion();
     VORTEX_API void UpdateEnvironmentProject();
     VORTEX_API void UpdateEnvironmentProject(const std::string &name, const std::string &author, const std::string &version, const std::string &compatibleWith, const std::string &description, const std::string &path, const std::string &logo_path, const std::string &template_name);
     VORTEX_API void UpdateEnvironmentProject(const std::string &oldname);
@@ -262,6 +263,14 @@ namespace VortexMaker
     VORTEX_API VortexVersion CheckLatestVortexVersion();
 
     VORTEX_API void OpenLauncherUpdater();
+    VORTEX_API void OpenVortexInstaller(const std::string& version, const std::string& arch, const std::string& dist, const std::string& platform);
+    VORTEX_API bool TestVortexExecutable(const std::string &path); 
+
+
+VORTEX_API bool CheckIfVortexVersionUtilityExist(const std::string &version);
+
+    void DetectPlatform();
+void DetectArch();
 
     bool DebugCheckVersionAndDataLayout(const char *version);
 

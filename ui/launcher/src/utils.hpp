@@ -289,7 +289,7 @@ static void DrawHighlightedText(ImDrawList *drawList, ImVec2 textPos, const char
     }
 }
 
-static void VersionButton(const std::string &envproject, int xsize = 100, int ysize = 100, const std::string &version = "?")
+static void VersionButton(const std::string &envproject, int xsize = 100, int ysize = 100, const std::string &version = "?", const std::string &path = "resources/imgs/vortex_banner_unknow.png")
 {
     ImVec2 squareSize(xsize, ysize);
 
@@ -331,7 +331,7 @@ static void VersionButton(const std::string &envproject, int xsize = 100, int ys
     }
     else
     {
-        drawList->AddImage(Cherry::GetTexture(Cherry::GetPath("resources/imgs/vortex_banner_unknow.png")), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+        drawList->AddImage(Cherry::GetTexture(Cherry::GetPath(path)), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
     }
 
     ImVec2 smallRectSize(40, 20);
@@ -361,113 +361,265 @@ static void VersionButton(const std::string &envproject, int xsize = 100, int ys
         ImGui::SameLine();
 }
 
-struct VortexVersionUtility
+static void DownloadableVersionButton(const std::string &envproject, int xsize = 100, int ysize = 100, const std::string &version = "?", const std::string &path = "resources/imgs/vortex_banner_unknow.png")
 {
-    std::string m_Version;
-    std::string m_VersionName;
-    std::string m_VersionImagePath;
-    std::string m_VersionPath;
-    bool m_VersionWorking;
-};
+    ImVec2 squareSize(xsize, ysize);
+    const char *originalText = envproject.c_str();
+    char truncatedText[32];
+    const char *versionText = version.c_str();
+    bool exist = VortexMaker::CheckIfVortexVersionUtilityExist(version);
 
-static std::vector<std::shared_ptr<VortexVersionUtility>> m_VortexRegisteredVersions;
-
-static std::vector<std::string> available_versions;
-
-static bool TestVortexExecutable(const std::string &path)
-{
-    std::array<char, 128> buffer;
-    std::string result;
-    std::string command = path + " -test";
-
-    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(command.c_str(), "r"), pclose);
-    if (!pipe)
+    // Troncature du texte si trop long
+    if (strlen(originalText) > 24)
     {
-        std::cerr << "popen() failed!" << std::endl;
-        return false;
+        strncpy(truncatedText, originalText, 8);
+        strcpy(truncatedText + 8, "...");
+    }
+    else
+    {
+        strcpy(truncatedText, originalText);
     }
 
-    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
+    ImVec2 textSize = ImGui::CalcTextSize(truncatedText);
+    ImVec2 totalSize(squareSize.x, squareSize.y + textSize.y + 5);
+
+    float spacingX = 15.0f; // Espacement horizontal entre les boutons
+    float windowVisibleX2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
+
+    // Conteneur invisible pour alignement
+    ImGui::BeginGroup();
+    ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+    ImDrawList *drawList = ImGui::GetWindowDrawList();
+
+    // Vérification de la largeur de la fenêtre
+    if (cursorPos.x + totalSize.x > windowVisibleX2)
     {
-        result += buffer.data();
+        ImGui::NewLine();
+        cursorPos = ImGui::GetCursorScreenPos();
     }
 
-    int return_code = pclose(pipe.release());
-
-    return (result.find("ok") != std::string::npos) && (return_code == 0);
-}
-
-static bool CheckIfVortexVersionUtilityExist(const std::string &version)
-{
-    for (auto &ver : m_VortexRegisteredVersions)
+    // Affichage de l'image principale
+    if (!envproject.empty() && std::filesystem::exists(envproject))
     {
-        if (ver->m_Version == version)
-        {
-            return true;
-        }
+        drawList->AddImage(Cherry::GetTexture(envproject), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
     }
-    return false;
-}
-static void RegisterAvailableVersions()
-{
-    available_versions.clear();
-    m_VortexRegisteredVersions.clear();
-
-    for (auto &base_path : VortexMaker::GetCurrentContext()->IO.sys_vortex_versions_pools)
+    else
     {
-        if (!std::filesystem::exists(base_path))
-        {
-            continue;
-        }
+        drawList->AddImage(Cherry::GetTexture(Cherry::GetPath(path)), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+    }
 
-        for (const auto &entry : std::filesystem::directory_iterator(base_path))
+    // Rectangle noir pour la version
+    ImVec2 smallRectSize(40, 20);
+    ImVec2 smallRectPos;
+    if (exist)
+    {
+        smallRectPos = ImVec2(cursorPos.x + squareSize.x - smallRectSize.x - 160, cursorPos.y + squareSize.y - smallRectSize.y - 5);
+    }
+    else
+    {
+        smallRectPos = ImVec2(cursorPos.x + squareSize.x - smallRectSize.x - 40, cursorPos.y + squareSize.y - smallRectSize.y - 5);
+    }
+    drawList->AddRectFilled(smallRectPos, ImVec2(smallRectPos.x + smallRectSize.x, smallRectPos.y + smallRectSize.y), IM_COL32(0, 0, 0, 255));
+
+    // Texte de la version dans le rectangle noir
+    ImVec2 versionTextPos = ImVec2(smallRectPos.x + 6, smallRectPos.y + (smallRectSize.y - ImGui::CalcTextSize(versionText).y) / 2);
+    drawList->AddText(versionTextPos, IM_COL32(255, 255, 255, 255), versionText);
+
+    // Position du bouton d'ajout
+    ImVec2 dotButtonPos = ImVec2(smallRectPos.x + smallRectSize.x + 15, smallRectPos.y);
+    ImGui::SetCursorScreenPos(dotButtonPos);
+
+    if (exist)
+    {
         {
-            if (entry.is_directory())
+            ImGui::BeginDisabled();
+            auto btn = std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "Already installed");
+            btn->SetScale(0.85f);
+            btn->SetInternalMarginX(10.0f);
+            btn->SetInternalMarginY(4.0f);
+            btn->SetLogoSize(1, 1);
+            btn->SetBorderColorIdle("#00000000");
+            btn->SetBackgroundColorClicked("#00000000");
+            btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));
+
+            if (btn->Render(envproject))
             {
-                std::string version_dir = entry.path().filename().string();
-                std::string manifest_path = entry.path().string() + "/manifest.json";
-                std::string vortex_executable = entry.path().string() + "/bin/vortex";
+                // Action si déjà installé
+            }
+            ImGui::EndDisabled();
+        }
+        ImGui::SameLine();
 
-                if (std::filesystem::exists(manifest_path))
+        {
+            auto btn = std::make_shared<Cherry::ImageButtonSimple>("create_project_button", Cherry::GetPath("resources/imgs/icons/misc/icon_more.png"));
+            btn->SetScale(0.20f);
+            btn->SetInternalMarginX(1.0f);
+            btn->SetInternalMarginY(1.0f);
+            btn->SetLogoSize(5, 5);
+            btn->SetBorderColorIdle("#00000000");
+            btn->SetBackgroundColorClicked("#00000000");
+
+            if (btn->Render(envproject + "_menu"))
+            {
+                ImGui::OpenPopup(("OptionsMenu_" + envproject).c_str());
+            }
+
+            // Menu contextuel
+            if (ImGui::BeginPopup(("OptionsMenu_" + envproject).c_str()))
+            {
+                ImVec4 originalColor = ImGui::GetStyle().Colors[ImGuiCol_Text];
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+                if (ImGui::MenuItem("Reinstall"))
                 {
-                    try
-                    {
-                        std::ifstream manifest_file(manifest_path);
-                        nlohmann::json manifest_json;
-                        manifest_file >> manifest_json;
-
-                        std::string version = manifest_json["version"];
-                        std::string version_name = manifest_json["name"];
-
-                        std::string image_path = base_path + "/" + version_dir + "/" + manifest_json["image"].get<std::string>();
-                        if (!std::filesystem::exists(image_path))
-                        {
-                            continue;
-                        }
-
-                        bool is_working = TestVortexExecutable(vortex_executable);
-
-                        auto vortex_version = std::make_shared<VortexVersionUtility>();
-                        vortex_version->m_Version = version;
-                        vortex_version->m_VersionName = version_name;
-                        vortex_version->m_VersionImagePath = image_path;
-                        vortex_version->m_VersionPath = entry.path().string();
-                        vortex_version->m_VersionWorking = is_working;
-
-                        m_VortexRegisteredVersions.push_back(vortex_version);
-                        available_versions.push_back(version);
-                    }
-                    catch (const std::exception &e)
-                    {
-                        continue;
-                    }
                 }
-                else
+                ImGui::PopStyleColor();
+                if (ImGui::MenuItem("Open Folder"))
                 {
-                    continue;
                 }
+                ImGui::EndPopup();
             }
         }
+    }
+    else
+    {
+        auto btn = std::make_shared<Cherry::ImageButtonSimple>("create_project_button", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));
+        btn->SetScale(0.20f);
+        btn->SetInternalMarginX(1.0f);
+        btn->SetInternalMarginY(1.0f);
+        btn->SetLogoSize(5, 5);
+        btn->SetBorderColorIdle("#00000000");
+        btn->SetBackgroundColorClicked("#00000000");
+
+        if (btn->Render(envproject))
+        {
+            std::thread([version]()
+                        {
+                            VxContext* ctx = VortexMaker::GetCurrentContext();
+                            std::string dist = "stable";
+                            VortexMaker::OpenVortexInstaller(version, ctx->arch, dist, ctx->platform); })
+                .detach();
+        }
+    }
+
+    // Texte du bouton sous l'image
+    ImVec2 textPos = ImVec2(cursorPos.x + (squareSize.x - textSize.x) / 2, cursorPos.y + squareSize.y + 5);
+    drawList->AddText(textPos, IM_COL32(255, 255, 255, 255), truncatedText);
+
+    ImGui::EndGroup();
+
+    // Déplacer le curseur pour le prochain bouton
+    ImGui::SetCursorScreenPos(ImVec2(cursorPos.x + totalSize.x + spacingX, cursorPos.y));
+
+    // Passer à la ligne si le prochain bouton dépasse la largeur
+    if (cursorPos.x + totalSize.x + spacingX > windowVisibleX2)
+    {
+        ImGui::NewLine();
+    }
+}
+
+static void InstalledVersionButton(const std::string &envproject, int xsize = 100, int ysize = 100, const std::string &version = "?", const std::string &path = "resources/imgs/vortex_banner_unknow.png")
+{
+    ImVec2 squareSize(xsize, ysize);
+    const char *originalText = envproject.c_str();
+    char truncatedText[32];
+    const char *versionText = version.c_str();
+
+    if (strlen(originalText) > 24)
+    {
+        strncpy(truncatedText, originalText, 8);
+        strcpy(truncatedText + 8, "...");
+    }
+    else
+    {
+        strcpy(truncatedText, originalText);
+    }
+
+    ImVec2 textSize = ImGui::CalcTextSize(truncatedText);
+    ImVec2 totalSize(squareSize.x, squareSize.y + textSize.y + 5);
+
+    // Initialiser la position et les informations de la fenêtre
+    float spacingX = 15.0f; // Espacement horizontal entre les boutons
+    float windowVisibleX2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
+
+    // Conteneur invisible pour forcer un alignement sans décalage
+    ImGui::BeginGroup(); // Démarre un groupe pour bloquer l'alignement vertical
+    ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+    ImDrawList *drawList = ImGui::GetWindowDrawList();
+
+    // Vérifier si on dépasse la largeur de la fenêtre
+    if (cursorPos.x + totalSize.x > windowVisibleX2)
+    {
+        ImGui::NewLine();                        // Passer à la ligne suivante
+        cursorPos = ImGui::GetCursorScreenPos(); // Actualiser la position après retour à la ligne
+    }
+
+    // 1. Affichage de l'image
+    if (!envproject.empty() && std::filesystem::exists(envproject))
+    {
+        drawList->AddImage(Cherry::GetTexture(envproject), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+    }
+    else
+    {
+        drawList->AddImage(Cherry::GetTexture(Cherry::GetPath(path)), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+    }
+
+    // 2. Rectangle noir pour la version
+    ImVec2 smallRectSize(40, 20);
+    ImVec2 smallRectPos(cursorPos.x + squareSize.x - smallRectSize.x - 40, cursorPos.y + squareSize.y - smallRectSize.y - 5);
+    drawList->AddRectFilled(smallRectPos, ImVec2(smallRectPos.x + smallRectSize.x, smallRectPos.y + smallRectSize.y), IM_COL32(0, 0, 0, 255));
+
+    // 3. Texte de la version dans le rectangle noir
+    ImVec2 versionTextPos = ImVec2(smallRectPos.x + 6, smallRectPos.y + (smallRectSize.y - ImGui::CalcTextSize(versionText).y) / 2);
+    drawList->AddText(versionTextPos, IM_COL32(255, 255, 255, 255), versionText);
+
+    // 4. Bouton "..."
+    ImVec2 dotButtonPos = ImVec2(smallRectPos.x + smallRectSize.x + 15, smallRectPos.y);
+    ImGui::SetCursorScreenPos(dotButtonPos);
+
+    auto btn = std::make_shared<Cherry::ImageButtonSimple>("create_project_button", Cherry::GetPath("resources/imgs/icons/misc/icon_more.png"));
+    btn->SetScale(0.20f);
+    btn->SetInternalMarginX(1.0f);
+    btn->SetInternalMarginY(1.0f);
+    btn->SetLogoSize(5, 5);
+    btn->SetBorderColorIdle("#00000000");
+    btn->SetBackgroundColorClicked("#00000000");
+
+    if (btn->Render(envproject))
+    {
+        ImGui::OpenPopup(("OptionsMenu_" + envproject).c_str());
+    }
+
+    // Menu contextuel
+    if (ImGui::BeginPopup(("OptionsMenu_" + envproject).c_str()))
+    {
+        ImVec4 originalColor = ImGui::GetStyle().Colors[ImGuiCol_Text];
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+        if (ImGui::MenuItem("Delete Version"))
+        {
+        }
+        ImGui::PopStyleColor();
+        if (ImGui::MenuItem("Open Folder"))
+        {
+        }
+        if (ImGui::MenuItem("Open Project"))
+        {
+        }
+        ImGui::EndPopup();
+    }
+
+    // 5. Affichage du texte principal sous l'image
+    ImVec2 textPos = ImVec2(cursorPos.x + (squareSize.x - textSize.x) / 2, cursorPos.y + squareSize.y + 5);
+    drawList->AddText(textPos, IM_COL32(255, 255, 255, 255), truncatedText);
+
+    ImGui::EndGroup(); // Fin du groupe pour verrouiller l'alignement vertical
+
+    // Déplacer le curseur pour le prochain bouton, avec espacement
+    ImGui::SetCursorScreenPos(ImVec2(cursorPos.x + totalSize.x + spacingX, cursorPos.y));
+
+    // Forcer un passage à la ligne si le prochain bouton déborde de la largeur de la fenêtre
+    if (cursorPos.x + totalSize.x + spacingX > windowVisibleX2)
+    {
+        ImGui::NewLine(); // Retour à la ligne
     }
 }
 
@@ -522,7 +674,7 @@ static void MyButton(const std::shared_ptr<EnvProject> envproject, int xsize = 1
     drawList->AddRectFilled(smallRectPos, ImVec2(smallRectPos.x + smallRectSize.x, smallRectPos.y + smallRectSize.y), IM_COL32(0, 0, 0, 255));
     ImVec2 versionTextPos = ImVec2(smallRectPos.x + (smallRectSize.x - ImGui::CalcTextSize(versionText).x) / 2, smallRectPos.y + (smallRectSize.y - ImGui::CalcTextSize("version").y) / 2);
 
-    if (CheckIfVortexVersionUtilityExist(envproject->compatibleWith))
+    if (VortexMaker::CheckIfVortexVersionUtilityExist(envproject->compatibleWith))
     {
         drawList->AddText(versionTextPos, IM_COL32(255, 255, 255, 255), versionText);
     }
@@ -602,7 +754,7 @@ static void ProjectImportButton(const std::shared_ptr<EnvProject> envproject, in
     drawList->AddRectFilled(smallRectPos, ImVec2(smallRectPos.x + smallRectSize.x, smallRectPos.y + smallRectSize.y), IM_COL32(0, 0, 0, 255));
     ImVec2 versionTextPos = ImVec2(smallRectPos.x + (smallRectSize.x - ImGui::CalcTextSize(versionText).x) / 2, smallRectPos.y + (smallRectSize.y - ImGui::CalcTextSize("version").y) / 2);
 
-    if (CheckIfVortexVersionUtilityExist(envproject->compatibleWith))
+    if (VortexMaker::CheckIfVortexVersionUtilityExist(envproject->compatibleWith))
     {
         drawList->AddText(versionTextPos, IM_COL32(255, 255, 255, 255), versionText);
     }

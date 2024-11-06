@@ -16,7 +16,6 @@ std::string projetct_import_dest;
 
 ProjectManager::ProjectManager(const std::string &name)
 {
-    RegisterAvailableVersions(); // TODO in main
     m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
     m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/icons/misc/icon_collection.png"));
     m_AppWindow->SetDefaultBehavior(Cherry::DefaultAppWindowBehaviors::DefaultDocking, "full");

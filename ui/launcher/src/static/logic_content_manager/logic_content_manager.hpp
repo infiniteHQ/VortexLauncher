@@ -69,6 +69,9 @@ namespace VortexLauncher
         int m_ToImportDestinationIndex;
         std::vector<std::string> m_ModulesPool;
         std::string m_ToImportDestination;
+
+        float leftPaneWidth = 300.0f;
+        int selected;
     };
 
 }

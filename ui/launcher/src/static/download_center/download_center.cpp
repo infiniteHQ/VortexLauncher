@@ -39,24 +39,23 @@ DownloadCenter::DownloadCenter(const std::string &name)
         }
     };
 
-    RegisterAvailableVersions();
-
     m_AppWindow->SetInternalPaddingX(10.0f);
     m_AppWindow->SetInternalPaddingY(10.0f);
 
     // Make tabs !! Not childs
     this->AddChild("Vortex versions", [this]()
                    {
+    VxContext &ctx = *CVortexMaker;
                        Cherry::TitleFourColored("Install latest version ", "#75757575");
                        ImGui::SameLine();
                        Cherry::TitleFourColored("See all versions available ", "#75757575");
 
                        Cherry::TitleFourColored("All installed version ", "#75757575");
-                       for (int row = 0; row < m_VortexRegisteredVersions.size(); row++)
+                       for (int row = 0; row < ctx.IO.sys_vortex_version.size(); row++)
                        {
-                           if (areStringsSimilar(m_VortexRegisteredVersions[row]->m_VersionName, ProjectSearch, threshold) || isOnlySpacesOrEmpty(ProjectSearch))
+                           if (areStringsSimilar(ctx.IO.sys_vortex_version[row]->name, ProjectSearch, threshold) || isOnlySpacesOrEmpty(ProjectSearch))
                            {
-                               VersionButton(m_VortexRegisteredVersions[row]->m_VersionName, 300, 100, m_VortexRegisteredVersions[row]->m_Version);
+                               VersionButton(ctx.IO.sys_vortex_version[row]->name, 300, 100, ctx.IO.sys_vortex_version[row]->version);
                            }
                        } });
     this->AddChild("System modules", [this]()

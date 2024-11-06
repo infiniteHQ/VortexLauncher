@@ -21,7 +21,7 @@ class Layer : public Cherry::Layer
 public:
   Layer() {};
 };
-  
+
 class Launcher
 {
 public:
@@ -67,15 +67,16 @@ public:
     // Version manager
     version_manager = VersionManagerAppWindow::Create("?loc:loc.window_names.version_manager");
     version_manager->GetAppWindow()->SetVisibility(false);
-    Cherry::AddAppWindow(version_manager->GetAppWindow()); 
-                            
-    std::thread([](){
+    Cherry::AddAppWindow(version_manager->GetAppWindow());
+
+    std::thread([]()
+                {
          VxContext &ctx = *CVortexMaker;
         if (VortexMaker::IsVersionGreater(ctx.version, ctx.latest_launcher_version.version))
         {
           ctx.launcher_update_available = true;
-        }
-    }).detach();
+        } })
+        .detach();
   };
 
   void SetLogsVisibility(const bool &visibility)
@@ -222,6 +223,15 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
   app->SetDefaultLocale("en");
   app->SetLocale("en");
 
+    static std::shared_ptr<Cherry::ImageButtonSimple> btn_close = std::make_shared<Cherry::ImageButtonSimple>("create_project_button", Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"));
+    btn_close->SetScale(0.20f);
+    btn_close->SetInternalMarginX(1.0f);
+    btn_close->SetInternalMarginY(1.0f);
+    btn_close->SetLogoSize(5, 5);
+    btn_close->SetBorderColorIdle("#00000000");
+    btn_close->SetBackgroundColorClicked("#00000000");
+    btn_close->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"));           
+
   app->PushLayer(layer);
   app->SetMenubarCallback([app, layer]()
                           {
@@ -241,13 +251,36 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
                                VxContext &ctx = *CVortexMaker;
                             if(ctx.launcher_update_available)
                             {
-                              ImGuiToast toast(ImGuiToastType::None, 100000);
+                                static bool close_toast = false;
+
+                              ImGuiToast toast(ImGuiToastType::Info, 100000, 
+                         
+       [](){
+         static std::shared_ptr<Cherry::ImageTextButtonSimple> btn = std::make_shared<Cherry::ImageTextButtonSimple>("UpdateButton", "Update launcher");
+    btn->SetScale(0.85f);
+    btn->SetInternalMarginX(10.0f);
+    btn->SetLogoSize(15, 15);
+    btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));
+    if(btn->Render("_close"))
+    {
+      std::thread([](){VortexMaker::OpenLauncherUpdater();
+      }).detach();
+      
+      Cherry::Application::Get().Close();
+    }                              
+    },
+    []() { return btn_close->Render(); },  // Wrap Render in a lambda
+    Cherry::GetTexture(Cherry::GetPath("resources/imgs/icon_update.png"))
+    );
+
                               toast.setTitle("Update Vortex Launcher");
                               toast.setContent("A new update for the launcher is available ! (%s)", ctx.latest_launcher_version.version.c_str());
                               toast.setOnButtonPress([](){
                                 VortexMaker::OpenLauncherUpdater();
                                 Cherry::Application::Get().Close();
                               });
+
+                              
                               toast.setButtonLabel("Update now");
 
                               ImGui::InsertNotification(toast);
@@ -256,7 +289,15 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
 
                             if(ctx.vortex_update_available)
                             {
-                              ImGuiToast toast(ImGuiToastType::None, 100000);
+                              ImGuiToast toast(ImGuiToastType::None, 100000,  [](){
+    static std::shared_ptr<Cherry::ImageTextButtonSimple> create_project_button = std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "Create a project");
+    create_project_button->SetScale(0.85f);
+    create_project_button->SetInternalMarginX(10.0f);
+    create_project_button->SetLogoSize(15, 15);
+    create_project_button->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));
+                              },
+    []() { return btn_close->Render(); }
+    );
                               toast.setTitle("Vortex %s is live !", ctx.latest_vortex_version.version.c_str());
                               toast.setContent("A new update of Vortex is available ! Try it now");
                               toast.setOnButtonPress([](){
@@ -400,14 +441,6 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
                               {
   app->SetLocale("de");
                               }
-                              if (ImGui::MenuItem("Russe", "Ändern Sie die Sprache auf Deutsch", Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/po.png")), c_Launcher->GetMainSettingsVisibility()))
-                              {
-  app->SetLocale("ru");
-                              }
-                              if (ImGui::MenuItem("Arabe", "Ändern Sie die Sprache auf Deutsch", Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/po.png")), c_Launcher->GetMainSettingsVisibility()))
-                              {
-  app->SetLocale("ar");
-                              }
 
       ImGui::EndMenu();
     }
@@ -415,8 +448,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
                             }
 
                             ImGui::PopStyleVar();  
-                            ImGui::PopStyleColor(2); 
-    });
+                            ImGui::PopStyleColor(2); });
 
   c_Launcher = std::make_shared<Launcher>();
   return app;

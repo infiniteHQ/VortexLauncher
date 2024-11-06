@@ -44,8 +44,6 @@ namespace VortexLauncher
             }
         };
 
-        RegisterAvailableVersions();
-
         m_AppWindow->SetInternalPaddingX(10.0f);
         m_AppWindow->SetInternalPaddingY(10.0f);
 
@@ -407,17 +405,16 @@ to_suppr_templates.clear();
 
     void ContentManager::Render()
     {
-        static float leftPaneWidth = 300.0f;
         const float minPaneWidth = 50.0f;
         const float splitterWidth = 1.5f;
-        static int selected;
         std::map<std::string, std::vector<ContentManagerChild>> groupedByParent;
         for (const auto &child : m_Childs)
         {
             groupedByParent[child.m_Parent].push_back(child);
         }
 
-        ImGui::BeginChild("left_pane", ImVec2(leftPaneWidth, 0), true, ImGuiWindowFlags_NoBackground);
+    std::string label = "left_pane" + m_AppWindow->m_Name;
+        ImGui::BeginChild(label.c_str(), ImVec2(leftPaneWidth, 0), true, ImGuiWindowFlags_NoBackground);
 
         ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
         ImVec4 graySeparatorColor = ImVec4(0.4f, 0.4f, 0.4f, 0.5f);
@@ -469,7 +466,7 @@ to_suppr_templates.clear();
 
         ImGui::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#44444466"));
         ImGui::Button("splitter", ImVec2(splitterWidth, -1));
-        ImGui::PopStyleVar();
+        ImGui::PopStyleColor();
 
         if (ImGui::IsItemHovered())
         {

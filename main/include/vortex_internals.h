@@ -172,6 +172,8 @@ struct VxIO
   std::vector<std::string> sys_modules_pools;
   std::vector<std::string> sys_templates_pools;
   std::vector<std::string> sys_plugins_pools;
+  std::vector<std::shared_ptr<VortexVersion>> sys_vortex_version;
+  std::vector<std::string> sys_available_versions;
 
 
   // Templates
@@ -210,6 +212,8 @@ struct VortexVersion
   std::string sum;
   std::string date;
   std::string banner;
+  bool already_installed = false;
+  bool working = false;
 };
 
 //-----------------------------------------------------------------------------
@@ -241,6 +245,7 @@ struct VxContext
   VortexVersion latest_vortex_version;
   bool launcher_update_available = false;
   bool vortex_update_available = false;
+  bool disconnected = false;
 
   // Components
   VxIO IO;
@@ -264,6 +269,9 @@ struct VxContext
   std::string packagesPath;
   std::string scriptsPath;
   std::string hostsPath;
+
+  std::string platform;
+  std::string arch;
   bool include_system_templates;
 };
 //-----------------------------------------------------------------------------

@@ -50,6 +50,8 @@ namespace VortexLauncher
         std::string m_SelectedChildName;
 
         std::shared_ptr<Cherry::AppWindow> m_AppWindow;
+        float leftPaneWidth = 300.0f;
+        int selected;
     };
 }
 

@@ -39,33 +39,33 @@ namespace VortexLauncher
         m_AppWindow->SetInternalPaddingX(10.0f);
         m_AppWindow->SetInternalPaddingY(10.0f);
 
-        m_SelectedChildName = "?loc:loc.window_names.welcome.overview";
+        m_SelectedChildName = "?loc:loc.windows.welcome.overview";
 
-        this->AddChild("?loc:loc.window_names.welcome.sponsor", [this]()
+        this->AddChild("?loc:loc.windows.welcome.sponsor", [this]()
                        {
                            //
                        });
-        this->AddChild("?loc:loc.window_names.welcome.contribute", [this]()
+        this->AddChild("?loc:loc.windows.welcome.contribute", [this]()
                        {
                            //
                        });
-        this->AddChild("?loc:loc.window_names.welcome.fast_actions", [this]()
+        this->AddChild("?loc:loc.windows.welcome.fast_actions", [this]()
                        {
                            //
                        });
-        this->AddChild("?loc:loc.window_names.welcome.trends", [this]()
+        this->AddChild("?loc:loc.windows.welcome.trends", [this]()
                        {
                            //
                        });
-        this->AddChild("?loc:loc.window_names.welcome.actuality", [this]()
+        this->AddChild("?loc:loc.windows.welcome.actuality", [this]()
                        {
                            //
                        });
-        this->AddChild("?loc:loc.window_names.welcome.whats_news", [this]()
+        this->AddChild("?loc:loc.windows.welcome.whats_news", [this]()
                        {
                            //
                        });
-        this->AddChild("?loc:loc.window_names.welcome.overview", [this]()
+        this->AddChild("?loc:loc.windows.welcome.overview", [this]()
                        {
                            ImGui::Text("Overview");
                            //
@@ -122,14 +122,13 @@ namespace VortexLauncher
 
     void WelcomeWindow::Render()
     {
-        static float leftPaneWidth = 300.0f;
         const float minPaneWidth = 50.0f;
         const float splitterWidth = 1.5f;
-        static int selected;
 
-        ImGui::BeginChild("left_pane", ImVec2(leftPaneWidth, 0), true, ImGuiWindowFlags_NoBackground);
+    std::string label = "left_pane" + m_AppWindow->m_Name;
+        ImGui::BeginChild(label.c_str(), ImVec2(leftPaneWidth, 0), true, ImGuiWindowFlags_NoBackground);
 
-        Cherry::TitleThree(Cherry::GetLocale("loc.window_names.welcome.title"));
+        Cherry::TitleThree(Cherry::GetLocale("loc.windows.welcome.title"));
 
         for (const auto &child : m_Childs)
         {
@@ -166,7 +165,7 @@ namespace VortexLauncher
 
         ImGui::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#44444466"));
         ImGui::Button("splitter", ImVec2(splitterWidth, -1));
-        ImGui::PopStyleVar();
+        ImGui::PopStyleColor();
 
         if (ImGui::IsItemHovered())
         {

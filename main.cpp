@@ -108,6 +108,8 @@ VxContext *InitBlankRuntime(bool logger)
 
     // Initialize environment
     VortexMaker::InitEnvironment();
+    VortexMaker::DetectPlatform();
+    VortexMaker::DetectArch();
 
     ctx->m_VortexLauncherPath = Cherry::GetPath("");
 
@@ -122,6 +124,7 @@ VxContext *InitBlankRuntime(bool logger)
     VortexMaker::UpdateVortexLauncherWebData();
 
     VortexMaker::RefreshEnvironmentProjects();
+    VortexMaker::RefreshEnvironmentVortexVersion();
 
     VortexMaker::LoadSystemTemplates(ctx->IO.sys_templates);
 
@@ -186,7 +189,14 @@ int main(int argc, char *argv[])
     }
 
     PrintHeader();
-    InitBlankRuntime(true);
+    VxContext* ctx = InitBlankRuntime(true);
+
+    // Checking connexion
+    RestClient::Response r = RestClient::get("http://api.infinite.si:8000/");
+    if(r.code != 200)
+    {
+        ctx->disconnected = true;
+    }
 
     VortexMaker::LogInfo("Bootstrapp", "Opening the graphical interface...");
 
@@ -194,8 +204,6 @@ int main(int argc, char *argv[])
     std::thread Thread([&]()
                        { Cherry::Main(argc, argv); });
     mainthread.swap(Thread);
-
-    RestClient::Response r = RestClient::get("http://api.infinite.si:8000/");
 
     std::cout << r.body << std::endl;
 

@@ -461,11 +461,40 @@ VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::str
     }
 }
 
+    VORTEX_API void VortexMaker::OpenVortexInstaller(const std::string& version, const std::string& arch, const std::string& dist, const std::string& platform)
+    {
+        // Get reference to the Vortex context
+    VxContext &ctx = *CVortexMaker;
+     pid_t pid = fork();
+
+    if (pid == -1)
+    {
+        std::cerr << "Error while forking" << std::endl;
+        return;
+    }
+
+    if (pid == 0) // Child process
+    {
+        std::string command = ctx.m_VortexLauncherPath + "/vxinstaller --dist=" + dist + " --platform=" + platform + " --arch=" + arch + " --version=" + version;
+        if (std::system(command.c_str()) != 0)
+        {
+        }
+        else
+        {
+        }
+
+        _exit(0);
+    }
+    else // Parent process
+    {
+        std::cout << "New PID: " << pid << std::endl;
+    }
+    }
+
 VORTEX_API void VortexMaker::OpenLauncherUpdater()
 {
     // Get reference to the Vortex context
     VxContext &ctx = *CVortexMaker;
-    std::cout << "Path : " << ctx.m_VortexLauncherPath<< std::endl;
      pid_t pid = fork();
 
     if (pid == -1)

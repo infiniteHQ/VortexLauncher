@@ -33,6 +33,21 @@
         {"loc.menubar.menuitem.main_settings":"General settings"},
         {"loc.menubar.menuitem.main_settings_desc":"Set up Vortex"},
         {"loc.menubar.menuitem.switch_language":"Change language"},
-        {"loc.menubar.menuitem.switch_language_desc":"Select a different language"}
+        {"loc.menubar.menuitem.switch_language_desc":"Select a different language"},
+        {"loc.window_names.welcome":"Welcome to Vortex !"},
+        {"loc.window_names.project_manager":"Project Manager"},
+        {"loc.window_names.settings":"Main settings"},
+        {"loc.window_names.logs_utility":"Logs utility"},
+        {"loc.window_names.logic_content_manager":"Logic contents manager"},
+        {"loc.window_names.content_manager":"Contents manager"},
+        {"loc.window_names.version_manager":"Vortex versions manager"},
+        {"loc.windows.welcome.contribute":"Contribute to vortex"},
+        {"loc.windows.welcome.fast_actions":"Fast actions"},
+        {"loc.windows.welcome.trends":"Trends"},
+        {"loc.windows.welcome.actuality":"Actualities"},
+        {"loc.windows.welcome.whats_news":"What's news ?"},
+        {"loc.windows.welcome.sponsor":"Vortex' sponsors"},
+        {"loc.windows.welcome.overview":"Overview"},
+        {"loc.windows.welcome.title":"Welcome to Vortex !"}
     ]
 }
