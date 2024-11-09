@@ -510,7 +510,6 @@ VORTEX_API bool VortexMaker::CheckIfVortexVersionUtilityExist(const std::string 
 {
     VxContext &ctx = *CVortexMaker;
 
-    // Diviser la version en deux parties si possible (A.B)
     size_t pos = version.find('.');
     std::string majorMinor = version;
     if (pos != std::string::npos)
@@ -518,13 +517,12 @@ VORTEX_API bool VortexMaker::CheckIfVortexVersionUtilityExist(const std::string 
         pos = version.find('.', pos + 1);
         if (pos != std::string::npos)
         {
-            majorMinor = version.substr(0, pos);  // Garder seulement A.B
+            majorMinor = version.substr(0, pos); 
         }
     }
 
     for (auto &ver : ctx.IO.sys_vortex_version)
     {
-        // Diviser chaque version dans le contexte pour ne garder que A.B
         std::string contextVersion = ver->version;
         pos = contextVersion.find('.');
         if (pos != std::string::npos)
@@ -532,7 +530,7 @@ VORTEX_API bool VortexMaker::CheckIfVortexVersionUtilityExist(const std::string 
             pos = contextVersion.find('.', pos + 1);
             if (pos != std::string::npos)
             {
-                contextVersion = contextVersion.substr(0, pos);  // Garder seulement A.B pour la comparaison
+                contextVersion = contextVersion.substr(0, pos); 
             }
         }
 

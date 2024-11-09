@@ -517,7 +517,7 @@ static void DownloadableVersionButton(const std::string &envproject, int xsize =
     }
 }
 
-static void InstalledVersionButton(const std::string &envproject, int xsize = 100, int ysize = 100, const std::string &version = "?", const std::string &path = "resources/imgs/vortex_banner_unknow.png")
+static void InstalledVersionButton(const std::string &path, const std::string &envproject, int xsize = 100, int ysize = 100, const std::string &version = "?", const std::string &bannerpath = "resources/imgs/vortex_banner_unknow.png")
 {
     ImVec2 squareSize(xsize, ysize);
     const char *originalText = envproject.c_str();
@@ -537,42 +537,35 @@ static void InstalledVersionButton(const std::string &envproject, int xsize = 10
     ImVec2 textSize = ImGui::CalcTextSize(truncatedText);
     ImVec2 totalSize(squareSize.x, squareSize.y + textSize.y + 5);
 
-    // Initialiser la position et les informations de la fenêtre
-    float spacingX = 15.0f; // Espacement horizontal entre les boutons
+    float spacingX = 15.0f;
     float windowVisibleX2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
 
-    // Conteneur invisible pour forcer un alignement sans décalage
-    ImGui::BeginGroup(); // Démarre un groupe pour bloquer l'alignement vertical
+    ImGui::BeginGroup();
     ImVec2 cursorPos = ImGui::GetCursorScreenPos();
     ImDrawList *drawList = ImGui::GetWindowDrawList();
 
-    // Vérifier si on dépasse la largeur de la fenêtre
     if (cursorPos.x + totalSize.x > windowVisibleX2)
     {
-        ImGui::NewLine();                        // Passer à la ligne suivante
-        cursorPos = ImGui::GetCursorScreenPos(); // Actualiser la position après retour à la ligne
+        ImGui::NewLine();
+        cursorPos = ImGui::GetCursorScreenPos();
     }
 
-    // 1. Affichage de l'image
     if (!envproject.empty() && std::filesystem::exists(envproject))
     {
         drawList->AddImage(Cherry::GetTexture(envproject), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
     }
     else
     {
-        drawList->AddImage(Cherry::GetTexture(Cherry::GetPath(path)), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+        drawList->AddImage(Cherry::GetTexture(Cherry::GetPath(bannerpath)), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
     }
 
-    // 2. Rectangle noir pour la version
     ImVec2 smallRectSize(40, 20);
     ImVec2 smallRectPos(cursorPos.x + squareSize.x - smallRectSize.x - 40, cursorPos.y + squareSize.y - smallRectSize.y - 5);
     drawList->AddRectFilled(smallRectPos, ImVec2(smallRectPos.x + smallRectSize.x, smallRectPos.y + smallRectSize.y), IM_COL32(0, 0, 0, 255));
 
-    // 3. Texte de la version dans le rectangle noir
     ImVec2 versionTextPos = ImVec2(smallRectPos.x + 6, smallRectPos.y + (smallRectSize.y - ImGui::CalcTextSize(versionText).y) / 2);
     drawList->AddText(versionTextPos, IM_COL32(255, 255, 255, 255), versionText);
 
-    // 4. Bouton "..."
     ImVec2 dotButtonPos = ImVec2(smallRectPos.x + smallRectSize.x + 15, smallRectPos.y);
     ImGui::SetCursorScreenPos(dotButtonPos);
 
@@ -584,42 +577,39 @@ static void InstalledVersionButton(const std::string &envproject, int xsize = 10
     btn->SetBorderColorIdle("#00000000");
     btn->SetBackgroundColorClicked("#00000000");
 
-    if (btn->Render(envproject))
+    if (btn->Render(bannerpath))
     {
-        ImGui::OpenPopup(("OptionsMenu_" + envproject).c_str());
+        ImGui::OpenPopup(("OptionsMenu_" + bannerpath).c_str());
     }
 
-    // Menu contextuel
-    if (ImGui::BeginPopup(("OptionsMenu_" + envproject).c_str()))
+    if (ImGui::BeginPopup(("OptionsMenu_" + bannerpath).c_str()))
     {
         ImVec4 originalColor = ImGui::GetStyle().Colors[ImGuiCol_Text];
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
         if (ImGui::MenuItem("Delete Version"))
         {
+            VortexMaker::OpenVortexUninstaller(path);
         }
         ImGui::PopStyleColor();
         if (ImGui::MenuItem("Open Folder"))
         {
         }
         if (ImGui::MenuItem("Open Project"))
-        {
+        { 
         }
         ImGui::EndPopup();
     }
 
-    // 5. Affichage du texte principal sous l'image
     ImVec2 textPos = ImVec2(cursorPos.x + (squareSize.x - textSize.x) / 2, cursorPos.y + squareSize.y + 5);
     drawList->AddText(textPos, IM_COL32(255, 255, 255, 255), truncatedText);
 
-    ImGui::EndGroup(); // Fin du groupe pour verrouiller l'alignement vertical
+    ImGui::EndGroup();
 
-    // Déplacer le curseur pour le prochain bouton, avec espacement
     ImGui::SetCursorScreenPos(ImVec2(cursorPos.x + totalSize.x + spacingX, cursorPos.y));
 
-    // Forcer un passage à la ligne si le prochain bouton déborde de la largeur de la fenêtre
     if (cursorPos.x + totalSize.x + spacingX > windowVisibleX2)
     {
-        ImGui::NewLine(); // Retour à la ligne
+        ImGui::NewLine();
     }
 }
 

@@ -44,8 +44,8 @@ mkdir -p shipping/installer/linux
 mkdir -p shipping/launcher/linux
 
 # Archive the files using the version from version.conf
-TAR_FILE=./shipping/launcher/linux/vortex_launcher_${VERSION}.tar.gz
-tar -cvzf "$TAR_FILE" dist/
+#TAR_FILE=./shipping/launcher/linux/vortex_launcher_${VERSION}.tar.gz
+#tar -cvzf "$TAR_FILE" dist/
 
 # Generate checksum
 cd shipping/launcher/linux

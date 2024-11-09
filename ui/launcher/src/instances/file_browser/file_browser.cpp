@@ -1131,8 +1131,7 @@ void FileBrowserAppWindow::SetupRenderCallback()
 
 void FileBrowserAppWindow::Render()
 {
-std::cout << "BEGIN Render" << std::endl;
-    const float splitterWidth = 2.5f;
+    const float splitterWidth = 1.5f;
     const float margin = 10.0f;
 
     auto &children = m_Childs;
@@ -1249,5 +1248,4 @@ std::cout << "BEGIN Render" << std::endl;
             ImGui::SameLine();
         }
     }
-std::cout << "END Render" << std::endl;
 }

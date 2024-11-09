@@ -263,6 +263,8 @@ namespace VortexMaker
     VORTEX_API VortexVersion CheckLatestVortexVersion();
 
     VORTEX_API void OpenLauncherUpdater();
+
+    VORTEX_API void OpenVortexUninstaller(const std::string& path);
     VORTEX_API void OpenVortexInstaller(const std::string& version, const std::string& arch, const std::string& dist, const std::string& platform);
     VORTEX_API bool TestVortexExecutable(const std::string &path); 
 

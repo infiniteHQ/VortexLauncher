@@ -90,9 +90,8 @@ VersionManagerAppWindow::VersionManagerAppWindow(const std::string &name)
                        for (int row = 0; row < ctx.IO.sys_vortex_version.size(); row++)
                        {
                            if (areStringsSimilar(ctx.IO.sys_vortex_version[row]->name, ProjectSearch, threshold) || isOnlySpacesOrEmpty(ProjectSearch))
-                           {                               InstalledVersionButton(ctx.IO.sys_vortex_version[row]->name, 300, 100, ctx.IO.sys_vortex_version[row]->version, ctx.IO.sys_vortex_version[row]->banner);
-
-                               InstalledVersionButton(ctx.IO.sys_vortex_version[row]->name, 300, 100, ctx.IO.sys_vortex_version[row]->version, ctx.IO.sys_vortex_version[row]->banner);
+                           {                               
+                               InstalledVersionButton(ctx.IO.sys_vortex_version[row]->path, ctx.IO.sys_vortex_version[row]->name, 300, 100, ctx.IO.sys_vortex_version[row]->version, ctx.IO.sys_vortex_version[row]->banner);
                            }
                        }
                    });
