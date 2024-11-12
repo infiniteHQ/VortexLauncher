@@ -429,6 +429,8 @@ static void DownloadableVersionButton(const std::string &envproject, int xsize =
     ImVec2 dotButtonPos = ImVec2(smallRectPos.x + smallRectSize.x + 15, smallRectPos.y);
     ImGui::SetCursorScreenPos(dotButtonPos);
 
+        VxContext *ctx = VortexMaker::GetCurrentContext();
+        std::string dist = ctx->IO.sys_vortexlauncher_dist;
     if (exist)
     {
         {
@@ -492,11 +494,8 @@ static void DownloadableVersionButton(const std::string &envproject, int xsize =
 
         if (btn->Render(envproject))
         {
-            std::thread([version]()
-                        {
-                            VxContext* ctx = VortexMaker::GetCurrentContext();
-                            std::string dist = "stable";
-                            VortexMaker::OpenVortexInstaller(version, ctx->arch, dist, ctx->platform); })
+            std::thread([version, ctx, dist]()
+                        { VortexMaker::OpenVortexInstaller(version, ctx->arch, dist, ctx->platform); })
                 .detach();
         }
     }
@@ -504,6 +503,7 @@ static void DownloadableVersionButton(const std::string &envproject, int xsize =
     // Texte du bouton sous l'image
     ImVec2 textPos = ImVec2(cursorPos.x + (squareSize.x - textSize.x) / 2, cursorPos.y + squareSize.y + 5);
     drawList->AddText(textPos, IM_COL32(255, 255, 255, 255), truncatedText);
+    drawList->AddText(ImVec2(textPos.x, textPos.y - 20), IM_COL32(255, 255, 255, 255), dist.c_str());
 
     ImGui::EndGroup();
 
@@ -595,7 +595,7 @@ static void InstalledVersionButton(const std::string &path, const std::string &e
         {
         }
         if (ImGui::MenuItem("Open Project"))
-        { 
+        {
         }
         ImGui::EndPopup();
     }

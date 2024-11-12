@@ -90,7 +90,7 @@ VORTEX_API void VortexMaker::InitEnvironment()
         std::string file = path + "dists.json";
 
         nlohmann::json default_data = {
-            {"vortexlauncher_dists", nlohmann::json::array({"stable"})},
+            {"vortexlauncher_dist", "stable"},
             {"vortex_dists", nlohmann::json::array({"stable"})}};
 
         VortexMaker::createJsonFileIfNotExists(file, default_data);
@@ -311,7 +311,7 @@ VORTEX_API void VortexMaker::UpdateSessions()
 }
 
 VORTEX_API void VortexMaker::RefreshVortexDists()
-{    
+{
     // Get reference to the Vortex context
     VxContext &ctx = *CVortexMaker;
 
@@ -357,7 +357,7 @@ VORTEX_API void VortexMaker::RefreshVortexDists()
 }
 
 VORTEX_API void VortexMaker::RefreshVortexLauncherDists()
-{    
+{
     // Get reference to the Vortex context
     VxContext &ctx = *CVortexMaker;
 
@@ -382,18 +382,12 @@ VORTEX_API void VortexMaker::RefreshVortexLauncherDists()
         json_file = path + "/dists.json";
     }
 
-    // Clear project list
-    ctx.IO.sys_vortexlauncher_dists.clear();
-
     // Verify if the project is valid
     try
     {
         // Load JSON data from the project configuration file
         auto json_data = VortexMaker::DumpJSON(json_file);
-        for (auto dist : json_data["vortex_distslauncher"])
-        {
-            ctx.IO.sys_vortexlauncher_dists.push_back(dist);
-        }
+        ctx.IO.sys_vortexlauncher_dist = json_data["vortexlauncher_dist"].get<std::string>();
     }
     catch (const std::exception &e)
     {

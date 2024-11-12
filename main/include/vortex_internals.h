@@ -177,7 +177,7 @@ struct VxIO
 
   // Dists
   std::vector<std::string> sys_vortex_dists;
-  std::vector<std::string> sys_vortexlauncher_dists;
+  std::string sys_vortexlauncher_dist;
 
   // Templates
   std::vector<std::shared_ptr<TemplateInterface>> templates;
