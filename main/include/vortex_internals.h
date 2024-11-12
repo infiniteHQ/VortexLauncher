@@ -175,6 +175,9 @@ struct VxIO
   std::vector<std::shared_ptr<VortexVersion>> sys_vortex_version;
   std::vector<std::string> sys_available_versions;
 
+  // Dists
+  std::vector<std::string> sys_vortex_dists;
+  std::vector<std::string> sys_vortexlauncher_dists;
 
   // Templates
   std::vector<std::shared_ptr<TemplateInterface>> templates;

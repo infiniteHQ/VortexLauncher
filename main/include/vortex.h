@@ -228,6 +228,8 @@ namespace VortexMaker
     VORTEX_API void RemoveSystemProjectEntry(const std::string &project_name);
 
     VORTEX_API void UpdateSessions();
+    VORTEX_API void RefreshVortexDists();
+    VORTEX_API void RefreshVortexLauncherDists();
     VORTEX_API void RefreshEnvironmentProjectsPools();
     VORTEX_API void RefreshEnvironmentModulesPools();
     VORTEX_API void RefreshEnvironmentTemplatesPools();

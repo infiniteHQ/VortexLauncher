@@ -235,7 +235,7 @@ static std::vector<std::pair<std::shared_ptr<ContenBrowserItem>, std::string>> r
 FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::string &start_path)
 {
     m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
-    m_AppWindow->SetIcon(Cherry::Application::CookPath("resources/imgs/icons/misc/icon_arrow_l_disabled.png"));
+    m_AppWindow->SetIcon(Cherry::Application::CookPath("resources/imgs/icons/misc/icon_folder.png"));
     std::shared_ptr<Cherry::AppWindow> win = m_AppWindow;
 
     cp_SaveButton = Application::Get().CreateComponent<ImageTextButtonSimple>("save_button", Application::Get().GetLocale("loc.content_browser.save_all") + "####content_browser.save_all", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_save.png"));
@@ -320,19 +320,28 @@ FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::s
 			}
 		}
 		ImGui::PopStyleVar();
-		ImGui::PopStyleColor(); });
+		ImGui::PopStyleColor();
+        this->DrawPathBar(m_CurrentDirectory.string());});
 
-    m_AppWindow->SetLeftMenubarCallback([this]()
-                                        {
-            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.4f, 0.4f, 0.4f, 0.7f));
 
-            ImGui::Text(m_CurrentDirectory.c_str());
-            if(ImGui::Button("Done"))
-            {
+    m_AppWindow->SetRightMenubarCallback([this]()
+                                         {
+                                            ImGui::PushStyleColor(ImGuiCol_FrameBg, Cherry::HexToRGBA("#00000000"));
+                                            ImGui::BeginChildFrame(ImGui::GetID("btn_ch"), ImVec2(100,50));
+                               static std::shared_ptr<Cherry::ImageTextButtonSimple> del_btn = std::make_shared<Cherry::ImageTextButtonSimple>("search_button", "Done");
+                               del_btn->SetScale(0.85f);
+                               del_btn->SetInternalMarginX(10.0f);
+                               del_btn->SetLogoSize(15, 15);
+                               del_btn->SetBackgroundColorIdle("#00000000");
+                               del_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_magnifying_glass.png"));
+                               if (del_btn->Render("search_button"))
+                               {
                 m_GetFileBrowserPath = true;
-            }
-            
-		ImGui::PopStyleColor(); });
+                               }
+                               ImGui::EndChildFrame();
+                               ImGui::PopStyleColor();
+                               
+                                });
 
     m_BaseDirectory = start_path;
     m_CurrentDirectory = m_BaseDirectory;
@@ -347,6 +356,43 @@ FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::s
                                 { RenderContentBar(); });
     contentbar.Enable();
     AddChild(contentbar);
+}
+
+void FileBrowserAppWindow::DrawPathBar(const std::string &path)
+{
+    ImGui::BeginChild("PathBar", ImVec2(0, 30), false);  // Ajuste la hauteur selon tes besoins
+// Split the path by '/' or '\\' depending on the OS
+#ifdef _WIN32
+    const char separator = '\\';
+#else
+    const char separator = '/';
+#endif
+
+    std::vector<std::string> elements;
+    std::stringstream ss(path);
+    std::string segment;
+
+    // Divise le chemin en dossiers individuels
+    while (std::getline(ss, segment, separator))
+    {
+        elements.push_back(segment);
+    }
+
+for (size_t i = 0; i < elements.size(); ++i)
+{
+    ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "%s", elements[i].c_str());
+
+    if (i < elements.size() - 1)
+    {
+        ImGui::SameLine(0, 5.0f); // Ajuste la valeur ici pour le spacing entre les éléments
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.6f, 0.6f, 0.6f, 1.0f)); // Couleur grise
+        ImGui::TextUnformatted("/");  // Utiliser TextUnformatted évite les effets de décalage de Text
+        ImGui::PopStyleColor();
+        ImGui::SameLine(0, 5.0f);  // Ajuste le spacing après le slash
+    }
+}
+
+ImGui::EndChild();
 }
 
 void FileBrowserAppWindow::AddChild(const FileBrowserChild &child)
@@ -762,7 +808,7 @@ void FileBrowserAppWindow::MyFolderButton(const char *id, ImVec2 size, ImU32 col
     }
 }
 
-void FileBrowserAppWindow::DrawHierarchy(std::filesystem::path path, bool isDir, const std::string &label = "")
+void FileBrowserAppWindow::DrawHierarchy(std::filesystem::path path, bool isDir, const std::string &label)
 {
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 12.0f);
     std::string tree_label = "???";
@@ -1200,8 +1246,15 @@ void FileBrowserAppWindow::Render()
         ImGui::PushStyleColor(ImGuiCol_ChildBg, child.m_BackgroundColor);
         ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
 
-        std::string childname = child.m_Name + "##cbchildnh" + m_AppWindow->m_Name;
-        ImGui::BeginChild(childname.c_str(), ImVec2(child.m_Size, availableSize.y), true);
+        std::string childname = child.m_Name + "##left_part" + m_AppWindow->m_Name;
+        float val = 250.0f;
+
+        if(i > 0)
+        {
+            val = ImGui::GetWindowContentRegionMax().x - 250.0f;
+        }
+
+        ImGui::BeginChild(childname.c_str(), ImVec2(val, availableSize.y), true);
 
         child.m_Child();
 

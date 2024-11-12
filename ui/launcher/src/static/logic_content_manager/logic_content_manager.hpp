@@ -38,6 +38,7 @@ namespace VortexLauncher
         void RemoveChild(const std::string &child_name);
         std::function<void()> GetChild(const std::string &child_name);
 
+        void RefreshVersionsToRender();
         void RenderImportModules();
 
         std::shared_ptr<Cherry::AppWindow> &GetAppWindow();
@@ -69,7 +70,14 @@ namespace VortexLauncher
         int m_ToImportDestinationIndex;
         std::vector<std::string> m_ModulesPool;
         std::string m_ToImportDestination;
+        char ContentPath[512] = "";
 
+        
+        std::vector<std::string> m_FilterPlatforms = {"All platforms", "Linux", "Windows"};
+        std::vector<std::string> m_FilterVersions = {"All versions"};;
+        std::string m_SelectedVersion = "All versions";
+        std::string m_SelectedPlatform = "All platforms";
+        char ModulesSearch[256];
         float leftPaneWidth = 300.0f;
         int selected;
     };

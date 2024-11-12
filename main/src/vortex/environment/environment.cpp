@@ -87,6 +87,17 @@ VORTEX_API void VortexMaker::InitEnvironment()
 
     {
         std::string path = vxBasePath + "configs/";
+        std::string file = path + "dists.json";
+
+        nlohmann::json default_data = {
+            {"vortexlauncher_dists", nlohmann::json::array({"stable"})},
+            {"vortex_dists", nlohmann::json::array({"stable"})}};
+
+        VortexMaker::createJsonFileIfNotExists(file, default_data);
+    }
+
+    {
+        std::string path = vxBasePath + "configs/";
         std::string file = path + "projects_pools.json";
 
         nlohmann::json default_data = {
@@ -296,6 +307,98 @@ VORTEX_API void VortexMaker::UpdateSessions()
                 std::cerr << "Error : " << session_json_path << std::endl;
             }
         }
+    }
+}
+
+VORTEX_API void VortexMaker::RefreshVortexDists()
+{    
+    // Get reference to the Vortex context
+    VxContext &ctx = *CVortexMaker;
+
+    // Set path depending on platform
+    std::string path;
+    if (VortexMaker::IsWindows())
+    {
+        path = VortexMaker::getHomeDirectory() + "\\.vx\\configs\\";
+    }
+    else
+    {
+        path = VortexMaker::getHomeDirectory() + "/.vx/configs/";
+    }
+
+    std::string json_file;
+    if (VortexMaker::IsWindows())
+    {
+        json_file = path + "\\dists.json";
+    }
+    else
+    {
+        json_file = path + "/dists.json";
+    }
+
+    // Clear project list
+    ctx.IO.sys_vortex_dists.clear();
+
+    // Verify if the project is valid
+    try
+    {
+        // Load JSON data from the project configuration file
+        auto json_data = VortexMaker::DumpJSON(json_file);
+        for (auto dist : json_data["vortex_dists"])
+        {
+            ctx.IO.sys_vortex_dists.push_back(dist);
+        }
+    }
+    catch (const std::exception &e)
+    {
+        // Print error if an exception occurs
+        VortexMaker::LogError("Error: ", e.what());
+    }
+}
+
+VORTEX_API void VortexMaker::RefreshVortexLauncherDists()
+{    
+    // Get reference to the Vortex context
+    VxContext &ctx = *CVortexMaker;
+
+    // Set path depending on platform
+    std::string path;
+    if (VortexMaker::IsWindows())
+    {
+        path = VortexMaker::getHomeDirectory() + "\\.vx\\configs\\";
+    }
+    else
+    {
+        path = VortexMaker::getHomeDirectory() + "/.vx/configs/";
+    }
+
+    std::string json_file;
+    if (VortexMaker::IsWindows())
+    {
+        json_file = path + "\\dists.json";
+    }
+    else
+    {
+        json_file = path + "/dists.json";
+    }
+
+    // Clear project list
+    ctx.IO.sys_vortexlauncher_dists.clear();
+
+    // Verify if the project is valid
+    try
+    {
+        // Load JSON data from the project configuration file
+        auto json_data = VortexMaker::DumpJSON(json_file);
+        for (auto dist : json_data["vortex_distslauncher"])
+        {
+            ctx.IO.sys_vortexlauncher_dists.push_back(dist);
+        }
+    }
+    catch (const std::exception &e)
+    {
+        // Print error if an exception occurs
+        VortexMaker::LogError("Error: ", e.what());
     }
 }
 
@@ -517,7 +620,7 @@ VORTEX_API bool VortexMaker::CheckIfVortexVersionUtilityExist(const std::string 
         pos = version.find('.', pos + 1);
         if (pos != std::string::npos)
         {
-            majorMinor = version.substr(0, pos); 
+            majorMinor = version.substr(0, pos);
         }
     }
 
@@ -530,7 +633,7 @@ VORTEX_API bool VortexMaker::CheckIfVortexVersionUtilityExist(const std::string 
             pos = contextVersion.find('.', pos + 1);
             if (pos != std::string::npos)
             {
-                contextVersion = contextVersion.substr(0, pos); 
+                contextVersion = contextVersion.substr(0, pos);
             }
         }
 
@@ -541,7 +644,6 @@ VORTEX_API bool VortexMaker::CheckIfVortexVersionUtilityExist(const std::string 
     }
     return false;
 }
-
 
 VORTEX_API void VortexMaker::RefreshEnvironmentVortexVersion()
 {

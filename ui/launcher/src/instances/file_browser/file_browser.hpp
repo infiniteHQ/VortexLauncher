@@ -59,7 +59,6 @@ using namespace Cherry;
         FileBrowserAppWindow(const std::string &name, const std::string &start_path);
         // FileBrowserAppWindow(const std::string &name);
 
-
         std::shared_ptr<Cherry::AppWindow> &GetAppWindow();
         static std::shared_ptr<FileBrowserAppWindow> Create(const std::string &name, const std::string &base_path);
         void SetupRenderCallback();
@@ -70,7 +69,7 @@ using namespace Cherry;
         void ChangeDirectory(const std::filesystem::path &newDirectory);
         void GoBack();
         void GoForward();
-        void DrawPathBar();
+        void DrawPathBar(const std::string& path);
 
         void RenderSideBar();
         void RenderContentBar();
@@ -90,7 +89,7 @@ using namespace Cherry;
         // To move in components
         void DrawFolderIcon(ImVec2 pos, ImVec2 size, ImU32 color);
         void MyFolderButton(const char *id, ImVec2 size, ImU32 color, const std::string &path);
-        void DrawHierarchy(std::filesystem::path path, bool isDir, const std::string &label);
+        void DrawHierarchy(std::filesystem::path path, bool isDir, const std::string &label = "");
 
         void SetDefaultFolderColor(const std::string &hex);
 
