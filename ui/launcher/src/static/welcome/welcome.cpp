@@ -2,7 +2,6 @@
 
 namespace VortexLauncher
 {
-
     static void HomeBanner(const std::string &envproject, int xsize = 100, int ysize = 100, const std::string &version = "?", const std::string &path = "resources/imgs/vortex_banner_unknow.png")
     {
         ImVec2 squareSize(xsize, ysize);
@@ -75,79 +74,104 @@ namespace VortexLauncher
             ImGui::SameLine();
     }
 
-    static void NewsBanner(const std::string &envproject, int xsize = 100, int ysize = 100, const std::string &version = "?", const std::string &path = "resources/imgs/vortex_banner_unknow.png")
+static void NewsBanner(bool disable_stack, const std::string &envproject, int xsize = 100, int ysize = 100, const std::string &version = "?", const std::string &path = "resources/imgs/vortex_banner_unknow.png")
+{
+    ImVec2 squareSize(xsize, ysize);
+
+    const char *originalText = envproject.c_str();
+    char truncatedText[32];
+    const char *versionText = version.c_str();
+
+    if (strlen(originalText) > 24)
     {
-        ImVec2 squareSize(xsize, ysize);
+        strncpy(truncatedText, originalText, 8);
+        strcpy(truncatedText + 8, "...");
+    }
+    else
+    {
+        strcpy(truncatedText, originalText);
+    }
 
-        const char *originalText = envproject.c_str();
-        char truncatedText[32];
-        const char *versionText = version.c_str();
+    ImVec2 textSize = ImGui::CalcTextSize(truncatedText);
+    ImVec2 totalSize(squareSize.x, squareSize.y + textSize.y + 5);
 
-        if (strlen(originalText) > 24)
+    ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+
+    std::string button_id = envproject + "squareButtonWithText" + envproject;
+    if (ImGui::InvisibleButton(button_id.c_str(), totalSize))
+    {
+        // selected_envproject = envproject;
+    }
+
+    if (ImGui::IsItemHovered())
+    {
+        ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+    }
+
+    ImDrawList *drawList = ImGui::GetWindowDrawList();
+
+    if (!envproject.empty() && std::filesystem::exists(envproject))
+    {
+        drawList->AddImage(Cherry::GetTexture(envproject), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+    }
+    else
+    {
+        drawList->AddImage(Cherry::GetTexture(Cherry::GetPath(path)), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+    }
+
+    ImVec2 smallRectSize(40, 20);
+    ImVec2 smallRectPos(cursorPos.x + squareSize.x - smallRectSize.x - 5, cursorPos.y + squareSize.y - smallRectSize.y - 5);
+
+    drawList->AddRectFilled(smallRectPos, ImVec2(smallRectPos.x + smallRectSize.x, smallRectPos.y + smallRectSize.y), IM_COL32(0, 0, 0, 255));
+    ImVec2 versionTextPos = ImVec2(smallRectPos.x + (smallRectSize.x - ImGui::CalcTextSize(versionText).x) / 2, smallRectPos.y + (smallRectSize.y - ImGui::CalcTextSize("version").y) / 2);
+    drawList->AddText(versionTextPos, IM_COL32(255, 255, 255, 255), versionText);
+
+    // Calculate the wrapping position
+    ImVec2 textPos = ImVec2(cursorPos.x, cursorPos.y + squareSize.y + 5); // Adjust position to start below square
+    std::string fullText = "TEst newxsTEst newxsTEst newxsTEst newxsTEst newxsTEst newxsTEst newxsTEst newxsTEst newxsTEst newxsTEst newxsTEst newxsTEst newxsTEst newxsTEst newxsTEst newxTEst newxsTEst newxsTEst newxsTEst newxsTEst newxsTEst newxsTEst newxsTEst newxTEst newxsTEst newxsTEst newxsTEst newxsTEst newxsTEst newxsTEst newxsTEst newx";
+    float maxWidth = squareSize.x; // Define max width for wrapping
+
+    // Wrap text if it exceeds square width
+    std::string line;
+    float lineWidth = 0.0f;
+    for (char ch : fullText)
+    {
+        ImVec2 charSize = ImGui::CalcTextSize(std::string(1, ch).c_str());
+        if (lineWidth + charSize.x > maxWidth && !line.empty())
         {
-            strncpy(truncatedText, originalText, 8);
-            strcpy(truncatedText + 8, "...");
+            // Draw current line, reset for next
+            drawList->AddText(textPos, IM_COL32(255, 255, 255, 255), line.c_str());
+            textPos.y += charSize.y; // Move down for next line
+            line.clear();
+            lineWidth = 0.0f;
         }
-        else
-        {
-            strcpy(truncatedText, originalText);
-        }
+        line += ch;
+        lineWidth += charSize.x;
+    }
+    // Draw any remaining text
+    if (!line.empty())
+    {
+        drawList->AddText(textPos, IM_COL32(255, 255, 255, 255), line.c_str());
+    }
 
-        ImVec2 textSize = ImGui::CalcTextSize(truncatedText);
-        ImVec2 totalSize(squareSize.x, squareSize.y + textSize.y + 5);
+    ImU32 textColor = IM_COL32(255, 255, 255, 255);
+    ImU32 highlightColor = IM_COL32(255, 255, 0, 255);
+    ImU32 highlightTextColor = IM_COL32(0, 0, 0, 255);
 
-        ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+    if (ImGui::IsItemHovered())
+    {
+        ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+        drawList->AddRect(cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y), IM_COL32(135, 135, 135, 255), 0.0f, 0, 2.0f);
+    }
 
-        std::string button_id = envproject + "squareButtonWithText" + envproject;
-        if (ImGui::InvisibleButton(button_id.c_str(), totalSize))
-        {
-            // selected_envproject = envproject;
-        }
-
-        if (ImGui::IsItemHovered())
-        {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-        }
-
-        ImDrawList *drawList = ImGui::GetWindowDrawList();
-
-        if (!envproject.empty() && std::filesystem::exists(envproject))
-        {
-            drawList->AddImage(Cherry::GetTexture(envproject), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
-        }
-        else
-        {
-            drawList->AddImage(Cherry::GetTexture(Cherry::GetPath(path)), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
-        }
-
-        ImVec2 smallRectSize(40, 20);
-        ImVec2 smallRectPos(cursorPos.x + squareSize.x - smallRectSize.x - 5, cursorPos.y + squareSize.y - smallRectSize.y - 5);
-
-        drawList->AddRectFilled(smallRectPos, ImVec2(smallRectPos.x + smallRectSize.x, smallRectPos.y + smallRectSize.y), IM_COL32(0, 0, 0, 255));
-        ImVec2 versionTextPos = ImVec2(smallRectPos.x + (smallRectSize.x - ImGui::CalcTextSize(versionText).x) / 2, smallRectPos.y + (smallRectSize.y - ImGui::CalcTextSize("version").y) / 2);
-        drawList->AddText(versionTextPos, IM_COL32(255, 255, 255, 255), versionText);
-
-        drawList->AddText(ImVec2(versionTextPos.x, versionTextPos.y + 20), IM_COL32(255, 255, 255, 255),"TEst newxsTEst newxsTEst newxsTEst newxsTEst newxsTEst newxsTEst newxsTEst newxs");
-
-        ImVec2 textPos = ImVec2(cursorPos.x + (squareSize.x - textSize.x) / 2, cursorPos.y + squareSize.y + 5);
-
-        ImU32 textColor = IM_COL32(255, 255, 255, 255);
-        ImU32 highlightColor = IM_COL32(255, 255, 0, 255);
-        ImU32 highlightTextColor = IM_COL32(0, 0, 0, 255);
-
-        if (ImGui::IsItemHovered())
-        {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-
-            drawList->AddRect(cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y), IM_COL32(135, 135, 135, 255), 0.0f, 0, 2.0f);
-        }
-
-        // DrawHighlightedText(drawList, textPos, truncatedText, ProjectSearch, highlightColor, textColor, highlightTextColor);
-
+    if (!disable_stack)
+    {
         float windowVisibleX2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
         if (cursorPos.x + totalSize.x < windowVisibleX2)
             ImGui::SameLine();
     }
+}
+
     
     WelcomeWindow::WelcomeWindow(const std::string &name)
     {
@@ -219,14 +243,11 @@ namespace VortexLauncher
                            float buttonWidth = 100.0f;
                            float groupWidth = inputTextWidth + ImGui::GetStyle().ItemSpacing.x + buttonWidth;
 
-                           float titleWidth = ImGui::CalcTextSize("Vortex Dashboard").x;
-                           ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (childWidth - titleWidth - 30.0f) * 0.5f); // Centrer horizontalement
-                           Cherry::TitleFour("Vortex Dashboard");
 
                            // News
                            Cherry::TitleFive("Latest news");
-                           NewsBanner("Latest", 380, 150, "?", "resources/imgs/vortex_banner_disconnected.png");
-                           NewsBanner("All Versions", 380, 150, "", "resources/imgs/vortex_banner_disconnected.png");
+                           NewsBanner(false, "Latest", 380, 150, "?", "resources/imgs/vortex_banner_disconnected.png");
+                           NewsBanner(true, "All Versions", 380, 150, "", "resources/imgs/vortex_banner_disconnected.png");
 
                            Cherry::TitleFive("Latest openned project");
                            Cherry::TitleFive("Latest openned project");

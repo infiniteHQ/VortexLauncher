@@ -199,7 +199,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
   std::string name = "Vortex Launcher";
   spec.Name = name;
   spec.MinHeight = 500;
-  spec.MinWidth = 500;
+  spec.MinWidth = 750;
   spec.Height = 600;
   spec.Width = 1200;
   spec.CustomTitlebar = true;

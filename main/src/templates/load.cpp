@@ -54,6 +54,11 @@ namespace VortexMaker
                         new_template->m_tarball = json_data["tarball"].get<std::string>();
                         new_template->m_contributors = json_data["contributors"].get<std::vector<std::string>>();
 
+                        for (auto ver : json_data["compatible_versions"])
+                        {
+                            new_template->m_compatible_versions.push_back(ver);
+                        }
+
                         for (auto dep : json_data["deps"])
                         {
                             std::shared_ptr<TemplateDep> dependence = std::make_shared<TemplateDep>();

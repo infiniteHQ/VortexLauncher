@@ -1,8 +1,8 @@
 #include "../../include/templates/install.h"
 
-VORTEX_API void VortexMaker::InstallTemplateOnSystem(const std::string &directory)
+VORTEX_API void VortexMaker::InstallTemplateOnSystem(const std::string &directory, const std::string &destpath)
 {
-    std::string templates_path = "~/.vx/templates";
+    std::string templates_path = destpath;
     std::string json_file = directory + "/template.json";
 
     // Verify if the module is valid
@@ -34,7 +34,7 @@ VORTEX_API void VortexMaker::InstallTemplateOnSystem(const std::string &director
             system(cmd.c_str());
         }
 
-        VortexMaker::LogInfo("Core", "The template " + name +  "is now installed on system !");
+        VortexMaker::LogInfo("Core", "The template " + name + "is now installed on system !");
         return;
     }
     catch (const std::exception &e)
@@ -43,7 +43,7 @@ VORTEX_API void VortexMaker::InstallTemplateOnSystem(const std::string &director
         VortexMaker::LogError("Core", e.what());
     }
 
-    VortexMaker::LogError("Core", "Cannot find template registered at" + directory +  " !");
+    VortexMaker::LogError("Core", "Cannot find template registered at" + directory + " !");
 }
 
 VORTEX_API void VortexMaker::InstallTemplate(const std::string &name, const std::string &path)
@@ -54,8 +54,8 @@ VORTEX_API void VortexMaker::InstallTemplate(const std::string &name, const std:
     // Finded state
     bool finded = false;
 
-    // TODO : Search modules registered in project first (if the project have include_system_templates == false)
-    // Search modules registered in project first
+    // TODO : Search templates registered in project first (if the project have include_system_templates == false)
+    // Search templates registered in project first
     /*...*/
 
     for (auto tem : ctx.IO.sys_templates)
@@ -63,12 +63,9 @@ VORTEX_API void VortexMaker::InstallTemplate(const std::string &name, const std:
         if (tem->m_name == name)
         {
             VortexMaker::LogInfo("Core", "Installing the template \"" + name + "\" ...");
-
-            std::string cmd = "tar -xvf " + tem->m_path + tem->m_tarball + " --strip-components=1 " + " -C " + path;
+            std::string cmd = "mkdir \"" + path + "\" && tar -xvf \"" + tem->m_path + tem->m_tarball + "\" --strip-components=1 -C \"" + path + "\"";
             std::cout << cmd << std::endl;
             system(cmd.c_str());
-
-            // Puis reprendre le ficheir vortex.condfig et l'overrider
         }
     }
 
@@ -81,7 +78,7 @@ VORTEX_API void VortexMaker::InstallTemplate(const std::string &name, const std:
         // Module path on the system
         std::string path = homeDir + "/.vx/templates";
 
-        // Search modules registered in system
+        // Search templates registered in system
         auto module_files = VortexMaker::SearchFiles(path, "template.json");
 
         // Iterate through each found module file
@@ -92,7 +89,7 @@ VORTEX_API void VortexMaker::InstallTemplate(const std::string &name, const std:
                 // Load JSON data from the module configuration file
                 auto json_data = VortexMaker::DumpJSON(file);
 
-                std::string module_path = file.substr(0, file.find_last_of("/"));
+                std::string template_path = file.substr(0, file.find_last_of("/"));
 
                 std::string name = json_data["name"].get<std::string>();
 
@@ -104,7 +101,7 @@ VORTEX_API void VortexMaker::InstallTemplate(const std::string &name, const std:
 
                     // TODO : Call Deploy function of the template
 
-                    std::string cmd = "tar -xvf " + module_path +
+                    std::string cmd = "tar -xvf " + template_path +
 
                     // Get the target directory of installation (path)
                     // Take the tarball, and uncompress it into destination
@@ -127,7 +124,7 @@ VORTEX_API void VortexMaker::InstallTemplate(const std::string &name, const std:
 
 VORTEX_API std::vector<std::shared_ptr<TemplateInterface>> VortexMaker::FindTemplatesInDirectory(const std::string &directory)
 {
-    // Search modules registered
+    // Search templates registered
     auto template_files = VortexMaker::SearchFiles(directory, "template.json", 3);
 
     std::vector<std::shared_ptr<TemplateInterface>> interfaces;
@@ -140,7 +137,7 @@ VORTEX_API std::vector<std::shared_ptr<TemplateInterface>> VortexMaker::FindTemp
             // Load JSON data from the module configuration file
             auto json_data = VortexMaker::DumpJSON(file);
 
-            std::string module_path = file.substr(0, file.find_last_of("/"));
+            std::string template_path = file.substr(0, file.find_last_of("/"));
 
             std::shared_ptr<TemplateInterface> new_template = std::make_shared<TemplateInterface>();
 
@@ -149,8 +146,8 @@ VORTEX_API std::vector<std::shared_ptr<TemplateInterface>> VortexMaker::FindTemp
             new_template->m_type = json_data["type"].get<std::string>();
             new_template->m_description = json_data["description"].get<std::string>();
             new_template->m_picture = json_data["picture"].get<std::string>();
-            new_template->m_logo_path = module_path + "/" + new_template->m_picture;
-            new_template->m_path = module_path + "/";
+            new_template->m_logo_path = template_path + "/" + new_template->m_picture;
+            new_template->m_path = template_path + "/";
             new_template->m_author = json_data["author"].get<std::string>();
             new_template->m_group = json_data["group"].get<std::string>();
             new_template->m_tarball = json_data["tarball"].get<std::string>();
@@ -177,4 +174,96 @@ VORTEX_API std::vector<std::shared_ptr<TemplateInterface>> VortexMaker::FindTemp
     }
 
     return interfaces;
+}
+
+VORTEX_API void VortexMaker::FindTemplatesInDirectoryRecursively(const std::string &directory, std::vector<std::shared_ptr<TemplateInterface>> &templates, std::atomic<bool> &stillSearching, std::string &elapsedTime)
+{
+    std::thread searchThread([directory, &templates, &stillSearching]()
+                             {
+        if (!std::filesystem::exists(directory) || !std::filesystem::is_directory(directory))
+        {
+            VortexMaker::LogError("Core", "Directory does not exist or is not a directory: " + directory);
+            stillSearching = false;
+            return;
+        }
+
+        try
+        {
+            for (const auto &entry : std::filesystem::recursive_directory_iterator(directory))
+            {
+                if (!stillSearching) return;
+
+                if (entry.is_regular_file() && entry.path().filename() == "template.json")
+                {
+                    try
+                    {
+                       // Load JSON data from the template configuration file                       
+                        auto json_data = VortexMaker::DumpJSON(entry.path().string());
+
+                        std::string template_path = entry.path().parent_path().string();
+
+            std::shared_ptr<TemplateInterface> new_template = std::make_shared<TemplateInterface>();
+
+            new_template->m_name = json_data["name"].get<std::string>();
+            new_template->m_proper_name = json_data["proper_name"].get<std::string>();
+            new_template->m_type = json_data["type"].get<std::string>();
+            new_template->m_description = json_data["description"].get<std::string>();
+            new_template->m_picture = json_data["picture"].get<std::string>();
+            new_template->m_logo_path = template_path + "/" + new_template->m_picture;
+            new_template->m_path = template_path + "/";
+            new_template->m_author = json_data["author"].get<std::string>();
+            new_template->m_group = json_data["group"].get<std::string>();
+            new_template->m_tarball = json_data["tarball"].get<std::string>();
+            new_template->m_contributors = json_data["contributors"].get<std::vector<std::string>>();
+
+            for (auto dep : json_data["deps"])
+            {
+                std::shared_ptr<TemplateDep> dependence = std::make_shared<TemplateDep>();
+                dependence->name = dep["name"].get<std::string>();
+                dependence->type = dep["type"].get<std::string>();
+                for (auto version : dep["versions"])
+                {
+                    dependence->supported_versions.push_back(version);
+                }
+                new_template->m_dependencies.push_back(dependence);
+            }
+
+            templates.push_back(new_template);
+                        VortexMaker::LogInfo("Core", "Module added: " + new_template->m_name);
+                    }
+                    catch (const std::exception &e)
+                    {
+                        VortexMaker::LogError("Core", "Error processing file " + entry.path().string() + ": " + e.what());
+                    }
+                }
+            }
+        }
+        catch (const std::filesystem::filesystem_error &e)
+        {
+            VortexMaker::LogError("Core", "Filesystem error during recursive search: " + std::string(e.what()));
+        }
+        catch (const std::exception &e)
+        {
+            VortexMaker::LogError("Core", "General error during recursive search: " + std::string(e.what()));
+        }
+
+        stillSearching = false; });
+
+    std::thread timerThread([&]()
+                            {
+        auto start = std::chrono::steady_clock::now();
+        while (stillSearching)
+        {
+            auto now = std::chrono::steady_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - start);
+
+            std::ostringstream oss;
+            oss << duration.count() / 60 << ":" << duration.count() % 60;
+            elapsedTime = oss.str();
+
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        } });
+
+    searchThread.detach();
+    timerThread.detach();
 }

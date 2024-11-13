@@ -24,10 +24,12 @@ class TemplateInterface
     std::string m_picture;
     std::string m_path;
     std::string m_author;
+    std::vector<std::string > m_compatible_versions;
     std::string m_version;
     std::string m_path_to_deploy;
     std::vector<std::string> m_contributors;
     std::vector<std::shared_ptr<TemplateDep>> m_dependencies; 
+    bool m_selected = false;
 };
 
 #endif // TEMPLATE_H

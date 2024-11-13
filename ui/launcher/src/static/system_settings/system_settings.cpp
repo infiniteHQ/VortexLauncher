@@ -790,11 +790,13 @@ void SystemSettings::menubar()
                                     std::string label = "Install###" + row;
                                     if (ImGui::Button(label.c_str()))
                                     {
+                                      /*
                                         VxContext *ctx = VortexMaker::GetCurrentContext();
                                         VortexMaker::InstallTemplateOnSystem(all_templates_to_add[row].second->m_path);
                                         VortexMaker::LoadSystemTemplates(ctx->IO.sys_templates);
                                         CheckAllTemplatesStates(VortexMaker::FindTemplatesInDirectory(path_input_template_all));
-                                    }
+                                   
+                                   */ }
                                 }
                             }
                             else if (column == 1)

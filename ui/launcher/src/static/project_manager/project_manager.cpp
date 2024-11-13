@@ -37,8 +37,8 @@ ProjectManager::ProjectManager(const std::string &name)
     v_ProjectDescription = std::make_shared<std::string>("This is a amazing description of the project.");
     cp_ProjectDescription = Cherry::Application::Get().CreateComponent<Cherry::DoubleKeyValString>("keyvaldouble_2", v_ProjectDescription, "Description");
 
-    v_ProjectVersion = std::make_shared<std::string>("1.0.0");
-    cp_ProjectVersion = Cherry::Application::Get().CreateComponent<Cherry::DoubleKeyValString>("keyvaldouble_3", v_ProjectVersion, "Version");
+    //v_ProjectVersion = std::make_shared<std::string>("1.0.0");
+    cp_ProjectVersion = Cherry::Application::Get().CreateComponent<Cherry::DoubleKeyValSimpleCombo>("keyvaldouble_3", std::vector<std::string>(), 0, "Version");
 
     v_ProjectAuthor = std::make_shared<std::string>("Your team");
     cp_ProjectAuthor = Cherry::Application::Get().CreateComponent<Cherry::DoubleKeyValString>("keyvaldouble_4", v_ProjectAuthor, "Authors");
@@ -579,7 +579,7 @@ void ProjectManager::Render()
                         ImGui::GetFont()->Scale *= 1.3;
                         ImGui::PushFont(ImGui::GetFont());
 
-                        ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.8f), name);
+                        ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.8f), cp_ProjectName->GetData("value").c_str());
                         ImGui::SameLine();
 
                         ImGui::GetFont()->Scale = oldsize;
@@ -617,6 +617,8 @@ void ProjectManager::Render()
                                                                            [&]()
                                                                            { cp_ProjectAuthor->Render(1); }}));
 
+                                                                           cp_ProjectVersion->SetList(selected_template_object->m_compatible_versions);
+
                     keyvals.push_back(Cherry::SimpleTable::SimpleTableRow({[&]()
                                                                            { cp_ProjectVersion->Render(0); },
                                                                            [&]()
@@ -639,7 +641,7 @@ void ProjectManager::Render()
                     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
                     ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 0.0f);
 
-                    std::string path = cp_ProjectPath->GetData("selected") + "/" + name;
+                    std::string path = cp_ProjectPath->GetData("selected_string") + "/" + cp_ProjectName->GetData("value");
                     std::cout << path << std::endl;
 
                     float firstButtonPosX = windowSize.x - buttonSize.x - bitButtonSize.y - 75 * 2 - ImGui::GetStyle().ItemSpacing.x * 3;
@@ -659,7 +661,7 @@ void ProjectManager::Render()
                     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.2f, 0.2f, 0.0f, 1.8f));
                     if (ImGui::Button("Create new project", bitButtonSize))
                     {
-                        VortexMaker::CreateProject(name, auth, version, desc, path, path + "/icon.png", selected_template_object->m_name);
+                        VortexMaker::CreateProject(cp_ProjectName->GetData("value"), auth, cp_ProjectVersion->GetData("selected_string"), desc, path, path + "/icon.png", selected_template_object->m_name);
                         VortexMaker::RefreshEnvironmentProjects();
 
                         if (open)

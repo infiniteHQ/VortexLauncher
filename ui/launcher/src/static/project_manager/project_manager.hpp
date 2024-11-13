@@ -54,10 +54,10 @@ private:
 	// Create project components 
     std::shared_ptr<Cherry::SimpleTable> cp_SimpleTable;    
     std::shared_ptr<Cherry::DoubleKeyValString> cp_ProjectName;   
-    std::shared_ptr<Cherry::DoubleKeyValString> cp_ProjectVersion;   
     std::shared_ptr<Cherry::DoubleKeyValString> cp_ProjectAuthor;   
     std::shared_ptr<Cherry::DoubleKeyValString> cp_ProjectDescription;   
     std::shared_ptr<Cherry::DoubleKeyValSimpleCombo> cp_ProjectPath;   
+    std::shared_ptr<Cherry::DoubleKeyValSimpleCombo> cp_ProjectVersion;   
     std::shared_ptr<Cherry::DoubleKeyValBoolean> cp_ProjectOpen;   
 	// Create project values
 	std::shared_ptr<std::string> v_ProjectName;

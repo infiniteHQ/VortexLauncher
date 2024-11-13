@@ -8,8 +8,8 @@
 
 #include "../../utils.hpp"
 
-#ifndef MODULES_PLUGINS_HANDLER_H
-#define MODULES_PLUGINS_HANDLER_H
+#ifndef LOGICCONTENTMANAGER_H
+#define LOGICCONTENTMANAGER_H
 
 #define CHERRY_V1
 #include "../../../../../lib/cherry/cherry.hpp"
@@ -77,11 +77,12 @@ namespace VortexLauncher
         std::vector<std::string> m_FilterVersions = {"All versions"};;
         std::string m_SelectedVersion = "All versions";
         std::string m_SelectedPlatform = "All platforms";
-        char ModulesSearch[256];
+        char ModulesSearch[512];
+        std::vector<std::string> m_TemplatesPool;
         float leftPaneWidth = 300.0f;
         int selected;
     };
 
 }
 
-#endif // MODULES_PLUGINS_HANDLER_H
+#endif // LOGICCONTENTMANAGER_H

@@ -12,8 +12,7 @@ namespace VortexLauncher
         m_AppWindow->SetCloseCallback([this]()
                                       { m_AppWindow->SetVisibility(false); });
 
-        m_AppWindow->m_TabMenuCallback = []()
-        {
+        m_AppWindow->m_TabMenuCallback = []() {
         };
 
         m_AppWindow->SetInternalPaddingX(10.0f);
@@ -291,6 +290,9 @@ namespace VortexLauncher
         float versionBoxHeight = 20.0f;
         float thumbnailIconOffsetY = 30.0f;
 
+        float oldfontsize = ImGui::GetFont()->Scale;
+        ImFont *oldFont = ImGui::GetFont();
+
         if (selected)
         {
             bgColor = IM_COL32(80, 80, 240, 255);
@@ -336,7 +338,6 @@ namespace VortexLauncher
         ImVec4 lightBorderColor = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
 
         ImGui::PushStyleColor(ImGuiCol_PopupBg, darkBackgroundColor);
-
         ImGui::PushStyleColor(ImGuiCol_Border, lightBorderColor);
 
         ImGui::PushStyleVar(ImGuiStyleVar_PopupRounding, 3.0f);
@@ -363,22 +364,24 @@ namespace VortexLauncher
         ImTextureID logotexture = Application::GetCurrentRenderedWindow()->get_texture(logo);
         drawList->AddImage(logotexture, logoPos, ImVec2(logoPos.x + squareSize.x, logoPos.y + squareSize.y));
 
-        ImGui::GetFont()->Scale *= 0.7;
+        ImGui::GetFont()->Scale = 0.7f;
         ImGui::PushFont(ImGui::GetFont());
+
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
         ImGui::PushItemWidth(maxTextWidth);
         ImGui::TextWrapped(size.c_str());
         ImGui::PopItemWidth();
         ImGui::PopStyleColor();
 
-        ImGui::GetFont()->Scale = 1.0f;
+        ImGui::GetFont()->Scale = oldfontsize;
         ImGui::PopFont();
+
 
         ImVec2 lineStart = ImVec2(cursorPos.x, cursorPos.y + squareSize.y + thumbnailIconOffsetY + separatorHeight);
         ImVec2 lineEnd = ImVec2(cursorPos.x + fixedSize.x, cursorPos.y + squareSize.y + thumbnailIconOffsetY + separatorHeight);
         drawList->AddLine(lineStart, lineEnd, lineColor, separatorHeight);
 
-        ImGui::GetFont()->Scale *= 0.9;
+        ImGui::GetFont()->Scale = 0.9f;
         ImGui::PushFont(ImGui::GetFont());
 
         ImVec2 textPos = ImVec2(cursorPos.x + padding, cursorPos.y + squareSize.y + thumbnailIconOffsetY + textOffsetY);
@@ -391,21 +394,23 @@ namespace VortexLauncher
 
         ImGui::PopItemWidth();
 
-        ImGui::GetFont()->Scale = 1.0f;
+        ImGui::GetFont()->Scale = oldfontsize;
         ImGui::PopFont();
+
 
         ImVec2 descriptionPos = ImVec2(cursorPos.x + padding, cursorPos.y + squareSize.y + thumbnailIconOffsetY + 35 + textOffsetY);
         ImGui::SetCursorScreenPos(descriptionPos);
 
-        ImGui::GetFont()->Scale *= 0.7;
+        ImGui::GetFont()->Scale = 0.7f;
         ImGui::PushFont(ImGui::GetFont());
+
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
         ImGui::PushItemWidth(maxTextWidth);
         ImGui::TextWrapped(description.c_str());
         ImGui::PopItemWidth();
         ImGui::PopStyleColor();
 
-        ImGui::GetFont()->Scale = 1.0f;
+        ImGui::GetFont()->Scale = oldfontsize;
         ImGui::PopFont();
 
         ImVec2 smallRectPos = ImVec2(cursorPos.x + fixedSize.x - versionBoxWidth - padding, cursorPos.y + fixedSize.y - versionBoxHeight - padding);
@@ -416,6 +421,8 @@ namespace VortexLauncher
             ImGui::SameLine();
 
         ImGui::SetCursorScreenPos(ImVec2(cursorPos.x, cursorPos.y + fixedSize.y + padding));
+
+        ImGui::GetFont()->Scale = oldfontsize;
 
         return pressed;
     }
@@ -571,7 +578,7 @@ namespace VortexLauncher
 
         ImGui::Separator();
 
-        const float padding = 15.0f;
+        const float padding = 19.0f;
         const float thumbnailSize = 94.0f;
 
         float cellSize = thumbnailSize + padding;
@@ -631,6 +638,38 @@ namespace VortexLauncher
 
         ImGui::Separator();
 
+        std::string label = "Import selected module(s)";
+
+        static std::shared_ptr<Cherry::ImageTextButtonSimple> del_btn = std::make_shared<Cherry::ImageTextButtonSimple>("delete_project_pool_button", "");
+        del_btn->SetScale(0.85f);
+        del_btn->SetInternalMarginX(10.0f);
+        del_btn->SetLogoSize(15, 15);
+        del_btn->SetBackgroundColorIdle("#00000000");
+        del_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_import.png"));
+        del_btn->SetLabel(label);
+
+        if (del_btn->Render("del_btn"))
+        {
+            m_ModulesToImport.clear();
+            for (auto &mod : modules)
+            {
+                if (mod->m_selected)
+                    m_ModulesToImport.push_back(mod);
+            }
+
+            m_ShowModulesImportModal = true;
+        }
+
+        ImGui::SameLine();
+        m_ModulesPool = VortexMaker::GetCurrentContext()->IO.sys_modules_pools;
+
+        ImGui::SameLine();
+
+        ImGui::SetNextItemWidth(200.0f);
+        ImGui::InputText("###Search", ModulesSearch, sizeof(ModulesSearch));
+
+        ImGui::SameLine();
+
         if (m_StillSearching)
         {
             std::string label = "Searching..." + std::to_string(m_FindedModules.size()) + " module(s) founded yet. Elapsed time : " + m_SearchElapsedTime;
@@ -653,46 +692,6 @@ namespace VortexLauncher
                 ImGui::TextWrapped("Please select a folder to search for module(s)...");
             }
         }
-
-        std::string label = "Import " + std::to_string(m_SelectedModules.size()) + " module(s)";
-
-        static std::shared_ptr<Cherry::ImageTextButtonSimple> del_btn = std::make_shared<Cherry::ImageTextButtonSimple>("delete_project_pool_button", "");
-        del_btn->SetScale(0.85f);
-        del_btn->SetInternalMarginX(10.0f);
-        del_btn->SetLogoSize(15, 15);
-        del_btn->SetBackgroundColorIdle("#00000000");
-        del_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_import.png"));
-        del_btn->SetLabel(label);
-
-        if (m_SelectedModules.size() < 0)
-        {
-            ImGui::BeginDisabled();
-        }
-
-        if (del_btn->Render("del_btn"))
-        {
-            m_ModulesToImport.clear();
-            for (auto &mod : modules)
-            {
-                if (mod->m_selected)
-                    m_ModulesToImport.push_back(mod);
-            }
-
-            m_ShowModulesImportModal = true;
-        }
-
-        if (m_SelectedModules.size() < 0)
-        {
-            ImGui::EndDisabled();
-        }
-
-        ImGui::SameLine();
-        m_ModulesPool = VortexMaker::GetCurrentContext()->IO.sys_modules_pools;
-
-        ImGui::SameLine();
-
-        ImGui::SetNextItemWidth(200.0f);
-        ImGui::InputText("###Search", ModulesSearch, sizeof(ModulesSearch));
 
         ImGui::PopStyleColor();
     }
