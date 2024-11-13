@@ -424,7 +424,7 @@ VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::str
         }
         else
         {
-            crash_script_command = "cd " + path + " && bash /opt/Vortex/" + version + "/bin/handle_crash.sh " + target_path + " " + command;
+            crash_script_command = "cd \"" + path + "\" && bash /opt/Vortex/" + version + "/bin/handle_crash.sh " + target_path + " " + command;
         }
 
         std::cout << "Bootstrap: Starting with command: " << crash_script_command << std::endl;
