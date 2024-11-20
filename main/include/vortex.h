@@ -56,7 +56,9 @@
 #include <condition_variable>
 #include <future>
 #include <random>
+#if !defined(_WIN32) || !defined(_WIN64)
 #include <dlfcn.h>
+#endif
 #include <dirent.h>
 #include <deque>
 

@@ -108,7 +108,7 @@ VORTEX_API void VortexMaker::FindpProjectsInDirectoryRecursively(const std::stri
         newproject->version = json_data["project"]["version"].get<std::string>();
         newproject->description = json_data["project"]["description"].get<std::string>();
         newproject->compatibleWith = json_data["project"]["compatibleWith"].get<std::string>();
-        std::string path = entry.path();
+        std::string path = entry.path().string();
         std::string project_path = path.substr(0, path.find_last_of("/"));
 
         newproject->path = project_path;

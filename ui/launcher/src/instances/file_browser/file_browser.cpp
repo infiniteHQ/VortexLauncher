@@ -828,11 +828,11 @@ void FileBrowserAppWindow::DrawHierarchy(std::filesystem::path path, bool isDir,
     ImVec2 pos = ImGui::GetCursorScreenPos();
     ImU32 col;
 
-    DrawFolderIcon(pos, ImVec2(12, 12), HexToImU32(GetFileBrowserFolderColor(path)));
+    DrawFolderIcon(pos, ImVec2(12, 12), HexToImU32(GetFileBrowserFolderColor(path.string())));
 
     if (ImGui::TreeNode(tree_label.c_str()))
     {
-        for (auto &dirEntry : std::filesystem::directory_iterator(path))
+        for (auto &dirEntry : std::filesystem::directory_iterator(path.string()))
         {
             const std::filesystem::path &otherPath = dirEntry.path();
 
@@ -969,7 +969,7 @@ void FileBrowserAppWindow::RenderContentBar()
         {
             if (m_PastePathsCallback)
             {
-                m_PastePathsCallback({m_CurrentDirectory});
+                m_PastePathsCallback({m_CurrentDirectory.string()});
             }
         }
         ImGui::GetFont()->Scale = 1.0f;
@@ -1014,11 +1014,11 @@ void FileBrowserAppWindow::RenderContentBar()
 
             if (current_editing_folder.first == path.string())
             {
-                MyFolderButton("folder_icon", folderSize, current_editing_folder.second, path);
+                MyFolderButton("folder_icon", folderSize, current_editing_folder.second, path.string());
             }
             else
             {
-                MyFolderButton("folder_icon", folderSize, HexToImU32(GetFileBrowserFolderColor(path)), path);
+                MyFolderButton("folder_icon", folderSize, HexToImU32(GetFileBrowserFolderColor(path.string())), path.string());
             }
 
             float oldsize = ImGui::GetFont()->Scale;

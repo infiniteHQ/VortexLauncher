@@ -385,175 +385,146 @@ void writeSessionEndState(const std::string &session_id, const std::string &stat
     }
 }
 
-// TODO Remove opt & c: program files, add Vortex Version pools.
-VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::string &version)
+
+// Inclure les bibliothèques nécessaires pour chaque système d'exploitation
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
+bool executeInChildProcess(const std::string &command)
 {
+#ifdef _WIN32
+#else
     pid_t pid = fork();
 
     if (pid == -1)
     {
         std::cerr << "Error while forking" << std::endl;
-        return;
+        return false;
     }
 
-    if (pid == 0) // Child process
+    if (pid == 0) 
     {
-        initialize_random();
-        std::string session_id = generateSessionID();
-
-        addSessionToJson(session_id, version, "diego", path);
-
-        // Determine the command based on the platform
-        std::string command;
-        if (VortexMaker::IsWindows())
+        int ret = execlp(command.c_str(), command.c_str(), (char *)NULL);
+        if (ret == -1)
         {
-            command = "cmd.exe /C \"\"C:\\Program Files\\Vortex\\" + version + "\\bin\\vortex.exe\" --editor --session_id=" + session_id + "\"";
+            std::cerr << "Error while executing command: " << command << std::endl;
+            _exit(1);
         }
-        else
-        {
-            command = "/opt/Vortex/" + version + "/bin/vortex --editor --session_id=" + session_id;
-        }
-
-        // Set the target path for crash handling
-        std::string target_path = VortexMaker::getHomeDirectory() + "/.vx/sessions/" + session_id + "/crash/core_dumped.txt";
-        std::string crash_script_command;
-
-        if (VortexMaker::IsWindows())
-        {
-            crash_script_command = "cd \"" + path + "\" && call \"C:\\Program Files\\Vortex\\" + version + "\\bin\\handle_crash.bat\" " + target_path + " " + command;
-        }
-        else
-        {
-            crash_script_command = "cd \"" + path + "\" && bash /opt/Vortex/" + version + "/bin/handle_crash.sh " + target_path + " " + command;
-        }
-
-        std::cout << "Bootstrap: Starting with command: " << crash_script_command << std::endl;
-
-        // Execute the crash script
-        if (std::system(crash_script_command.c_str()) != 0)
-        {
-            // If the crash script fails, handle the crash
-            std::string crash_handle_command;
-            if (VortexMaker::IsWindows())
-            {
-                crash_handle_command = "\"C:\\Program Files\\Vortex\\" + version + "\\bin\\vortex.exe\" -crash --session_id=" + session_id;
-            }
-            else
-            {
-                crash_handle_command = "/opt/Vortex/" + version + "/bin/vortex -crash --session_id=" + session_id;
-            }
-
-            std::system(crash_handle_command.c_str());
-            writeSessionEndState(session_id, "fail");
-        }
-        else
-        {
-            writeSessionEndState(session_id, "success");
-        }
-
-        removeSessionFromJson(session_id);
-
-        _exit(0);
     }
-    else // Parent process
-    {
-        std::cout << "New PID: " << pid << std::endl;
-    }
+
+    return true;
+#endif
 }
+
+
+
+VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::string &version)
+{
+    std::string session_id = generateSessionID();
+    addSessionToJson(session_id, version, "user", path);
+
+    std::string command;
+    if (VortexMaker::IsWindows())
+    {
+        command = "cmd.exe /C \"\"C:\\Program Files\\Vortex\\" + version + "\\bin\\vortex.exe\" --editor --session_id=" + session_id + "\"";
+    }
+    else
+    {
+        command = "/opt/Vortex/" + version + "/bin/vortex --editor --session_id=" + session_id;
+    }
+
+    std::string target_path = VortexMaker::getHomeDirectory() + "/.vx/sessions/" + session_id + "/crash/core_dumped.txt";
+    std::string crash_script_command;
+
+    if (VortexMaker::IsWindows())
+    {
+        crash_script_command = "cd \"" + path + "\" && call \"C:\\Program Files\\Vortex\\" + version + "\\bin\\handle_crash.bat\" " + target_path + " " + command;
+    }
+    else
+    {
+        crash_script_command = "cd \"" + path + "\" && bash /opt/Vortex/" + version + "/bin/handle_crash.sh " + target_path + " " + command;
+    }
+
+    std::cout << "Bootstrap: Starting with command: " << crash_script_command << std::endl;
+
+    if (executeInChildProcess(crash_script_command))
+    {
+        writeSessionEndState(session_id, "success");
+    }
+    else
+    {
+        std::string crash_handle_command;
+        if (VortexMaker::IsWindows())
+        {
+            crash_handle_command = "\"C:\\Program Files\\Vortex\\" + version + "\\bin\\vortex.exe\" -crash --session_id=" + session_id;
+        }
+        else
+        {
+            crash_handle_command = "/opt/Vortex/" + version + "/bin/vortex -crash --session_id=" + session_id;
+        }
+
+        executeInChildProcess(crash_handle_command);
+        writeSessionEndState(session_id, "fail");
+    }
+
+    removeSessionFromJson(session_id);
+}
+
 
 VORTEX_API void VortexMaker::OpenVortexUninstaller(const std::string &path)
 {
-    // Get reference to the Vortex context
     VxContext &ctx = *CVortexMaker;
-    pid_t pid = fork();
 
-    if (pid == -1)
+    std::string command = ctx.m_VortexLauncherPath + "/VersionUninstaller --path=" + path;
+
+    bool success = executeInChildProcess(command);
+
+    if (success)
     {
-        std::cerr << "Error while forking" << std::endl;
-        return;
+        std::cout << "Uninstallation succeeded." << std::endl;
     }
-
-    if (pid == 0) // Child process
+    else
     {
-        std::string command = ctx.m_VortexLauncherPath + "/VersionUninstaller --path=" + path;
-        if (std::system(command.c_str()) != 0)
-        {
-            //
-        }
-        else
-        {
-            //
-        }
-
-        _exit(0);
-    }
-    else // Parent process
-    {
-        std::cout << "New PID: " << pid << std::endl;
+        std::cerr << "Uninstallation failed." << std::endl;
     }
 }
-
 VORTEX_API void VortexMaker::OpenVortexInstaller(const std::string &version, const std::string &arch, const std::string &dist, const std::string &platform)
 {
-    // Get reference to the Vortex context
     VxContext &ctx = *CVortexMaker;
-    pid_t pid = fork();
 
-    if (pid == -1)
+    std::string command = ctx.m_VortexLauncherPath + "/VersionInstaller --home=" + VortexMaker::getHomeDirectory() + " --dist=" + dist + " --platform=" + platform + " --arch=" + arch + " --version=" + version;
+
+    bool success = executeInChildProcess(command);
+
+    if (success)
     {
-        std::cerr << "Error while forking" << std::endl;
-        return;
+        std::cout << "Installation succeeded." << std::endl;
     }
-
-    if (pid == 0) // Child process
+    else
     {
-        std::string command = ctx.m_VortexLauncherPath + "/VersionInstaller --home=" + VortexMaker::getHomeDirectory() + " --dist=" + dist + " --platform=" + platform + " --arch=" + arch + " --version=" + version;
-        if (std::system(command.c_str()) != 0)
-        {
-            //
-        }
-        else
-        {
-            //
-        }
-
-        _exit(0);
-    }
-    else // Parent process
-    {
-        std::cout << "New PID: " << pid << std::endl;
+        std::cerr << "Installation failed." << std::endl;
     }
 }
-
 VORTEX_API void VortexMaker::OpenLauncherUpdater()
 {
-    // Get reference to the Vortex context
     VxContext &ctx = *CVortexMaker;
-    pid_t pid = fork();
 
-    if (pid == -1)
+    std::string command = ctx.m_VortexLauncherPath + "/VortexUpdater";
+
+    bool success = executeInChildProcess(command);
+
+    if (success)
     {
-        std::cerr << "Error while forking" << std::endl;
-        return;
+        std::cout << "Launcher update succeeded." << std::endl;
     }
-
-    if (pid == 0) // Child process
+    else
     {
-        std::string command = ctx.m_VortexLauncherPath + "/VortexUpdater";
-        if (std::system(command.c_str()) != 0)
-        {
-        }
-        else
-        {
-        }
-
-        _exit(0);
-    }
-    else // Parent process
-    {
-        std::cout << "New PID: " << pid << std::endl;
+        std::cerr << "Launcher update failed." << std::endl;
     }
 }
+
 
 /**
  * @brief Set custom allocator functions and user data for VortexMaker.

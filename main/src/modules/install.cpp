@@ -38,7 +38,7 @@ VORTEX_API void InstallModule(const std::string &module_name, const std::string 
 
                 // Move the module into the project
                 {
-                    std::string cmd = VortexMaker::IsWindows() ? "xcopy /E /I \"" + module_path + "\" \"" + std::string(ctx.projectPath) + "\\.vx\\contents\\modules\\\"" : "cp -r " + module_path + " " + std::string(ctx.projectPath) + "/.vx/contents/modules/";
+                    std::string cmd = VortexMaker::IsWindows() ? "xcopy /E /I \"" + module_path + "\" \"" + std::string(ctx.projectPath.string()) + "\\.vx\\contents\\modules\\\"" : "cp -r " + module_path + " " + std::string(ctx.projectPath.string()) + "/.vx/contents/modules/";
 
                     std::system(cmd.c_str());
                 }
@@ -56,7 +56,7 @@ VORTEX_API void InstallModule(const std::string &module_name, const std::string 
                     ctx.IO.em.clear();
 
                     // Load modules installed in the current project
-                    VortexMaker::LoadEditorModules(ctx.projectPath, ctx.IO.em_handles, ctx.IO.em);
+                    VortexMaker::LoadEditorModules(ctx.projectPath.string(), ctx.IO.em_handles, ctx.IO.em);
 
                     // Finally, start all loaded modules
                     VortexMaker::StartAllModules();

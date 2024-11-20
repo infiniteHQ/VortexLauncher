@@ -617,7 +617,7 @@ void ProjectManager::Render()
                                                                            [&]()
                                                                            { cp_ProjectAuthor->Render(1); }}));
 
-                                                                           cp_ProjectVersion->SetList(selected_template_object->m_compatible_versions);
+                                                                           // TODO : UPDATE CHERRY cp_ProjectVersion->SetList(selected_template_object->m_compatible_versions);
 
                     keyvals.push_back(Cherry::SimpleTable::SimpleTableRow({[&]()
                                                                            { cp_ProjectVersion->Render(0); },

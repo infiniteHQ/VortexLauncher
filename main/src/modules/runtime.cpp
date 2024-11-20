@@ -72,7 +72,7 @@ VORTEX_API void VortexMaker::StartAllModules()
     {
         {
             // Set the module data path
-            std::string datapath = ctx.projectPath;
+            std::string datapath = ctx.projectPath.string();
             datapath += "/.vx/data/" + em->m_name;
             em->m_datapath = datapath;
 
@@ -97,7 +97,7 @@ VORTEX_API void VortexMaker::BootstrappAllModules()
     {
         {
             // Set the module data path
-            std::string datapath = ctx.projectPath;
+            std::string datapath = ctx.projectPath.string();
             datapath += "/.vx/data/" + em->m_name;
             em->m_datapath = datapath;
 

@@ -436,7 +436,7 @@ namespace VortexLauncher
         {
             if (m_FileBrowser->m_GetFileBrowserPath)
             {
-                strncpy(ContentPath, m_FileBrowser->m_CurrentDirectory.c_str(), sizeof(ContentPath) - 1);
+                strncpy(ContentPath, m_FileBrowser->m_CurrentDirectory.string().c_str(), sizeof(ContentPath) - 1);
                 ContentPath[sizeof(ContentPath) - 1] = '\0';
                 m_FileBrowser->m_GetFileBrowserPath = false;
                 m_FindedModules.clear();
