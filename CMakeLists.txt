@@ -17,6 +17,9 @@ target_include_directories(vortex_launcher_shared PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/main/src
 )
 
+find_package(Vulkan REQUIRED)
+include_directories(${Vulkan_INCLUDE_DIRS})
+
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ui/launcher ui_launcher_build)
 target_link_libraries(vortex_launcher_shared PUBLIC launcher)
 
@@ -39,7 +42,7 @@ if(UNIX AND NOT APPLE)
     set(INSTALL_INCLUDE_DIR ${INSTALL_BASE_DIR}/include)
 elseif(WIN32)
     set(USER_PROFILE $ENV{USERPROFILE})
-    set(INSTALL_BASE_DIR "${USER_PROFILE}/AppData/Local/VortexLauncher/")
+    set(INSTALL_BASE_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/build/dist/)
     set(INSTALL_BIN_DIR ${INSTALL_BASE_DIR}/bin)
     set(INSTALL_LIB_DIR ${INSTALL_BASE_DIR}/lib)
     set(INSTALL_MAIN_DIR ${INSTALL_BASE_DIR}/)

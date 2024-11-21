@@ -1,3 +1,4 @@
+#define SDL_MAIN_HANDLED
 #include <iostream>
 #include <string>
 #include <thread>
@@ -100,6 +101,7 @@ VxContext *InitBlankRuntime(bool logger)
     ctx->state.session_id = session_id;
     ctx->version = VORTEX_VERSION;
 
+    VortexMaker::InitializePlatformVendor();
     VortexMaker::CreateGlobalLogger();
     VortexMaker::CreateConsoleLogger();
     VortexMaker::LogInfo("Bootstrapp", "Initializing runtime...");

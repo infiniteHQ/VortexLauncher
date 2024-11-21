@@ -197,7 +197,7 @@ VORTEX_API std::string VortexMaker::getHomeDirectory()
             const char *homePathEnv = std::getenv("HOMEPATH");
             if (homeDrive == nullptr || homePathEnv == nullptr)
             {
-                throw std::runtime_error("HOME environment variables not set");
+                throw std::runtime_error("HOMEPATH environment variables not set");
             }
             return std::string(homeDrive) + std::string(homePathEnv);
         }

@@ -15,7 +15,7 @@ enum class HappeningState
 {
     INFO, 
     WARNING, 
-    ERROR,
+    ERR,
     FATAL,
 };
 struct ModuleInputEventHappening
