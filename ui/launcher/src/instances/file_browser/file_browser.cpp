@@ -321,7 +321,8 @@ FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::s
 		}
 		ImGui::PopStyleVar();
 		ImGui::PopStyleColor();
-        this->DrawPathBar(m_CurrentDirectory.string());});
+        this->DrawPathBar(m_CurrentDirectory.string());
+        });
 
 
     m_AppWindow->SetRightMenubarCallback([this]()

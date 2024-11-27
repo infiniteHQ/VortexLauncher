@@ -486,7 +486,7 @@ to_suppr_templates.clear();
                         VortexMaker::InstallTemplateOnSystem(module->m_path, m_ToImportDestination);
                     }
 
-                    //VortexMaker::LoadSystemModules(VortexMaker::GetCurrentContext()->IO.sys_em);
+                    // VortexMaker::LoadSystemModules(VortexMaker::GetCurrentContext()->IO.sys_em);
 
                     m_TemplatesToImport.clear();
                     ImGui::CloseCurrentPopup();

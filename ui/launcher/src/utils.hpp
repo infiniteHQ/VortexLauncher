@@ -369,7 +369,6 @@ static void DownloadableVersionButton(const std::string &envproject, int xsize =
     const char *versionText = version.c_str();
     bool exist = VortexMaker::CheckIfVortexVersionUtilityExist(version);
 
-    // Troncature du texte si trop long
     if (strlen(originalText) > 24)
     {
         strncpy(truncatedText, originalText, 8);
@@ -383,22 +382,19 @@ static void DownloadableVersionButton(const std::string &envproject, int xsize =
     ImVec2 textSize = ImGui::CalcTextSize(truncatedText);
     ImVec2 totalSize(squareSize.x, squareSize.y + textSize.y + 5);
 
-    float spacingX = 15.0f; // Espacement horizontal entre les boutons
+    float spacingX = 15.0f; 
     float windowVisibleX2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
 
-    // Conteneur invisible pour alignement
     ImGui::BeginGroup();
     ImVec2 cursorPos = ImGui::GetCursorScreenPos();
     ImDrawList *drawList = ImGui::GetWindowDrawList();
 
-    // Vérification de la largeur de la fenêtre
     if (cursorPos.x + totalSize.x > windowVisibleX2)
     {
         ImGui::NewLine();
         cursorPos = ImGui::GetCursorScreenPos();
     }
-
-    // Affichage de l'image principale
+    
     if (!envproject.empty() && std::filesystem::exists(envproject))
     {
         drawList->AddImage(Cherry::GetTexture(envproject), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
@@ -408,7 +404,6 @@ static void DownloadableVersionButton(const std::string &envproject, int xsize =
         drawList->AddImage(Cherry::GetTexture(Cherry::GetPath(path)), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
     }
 
-    // Rectangle noir pour la version
     ImVec2 smallRectSize(40, 20);
     ImVec2 smallRectPos;
     if (exist)
@@ -421,11 +416,9 @@ static void DownloadableVersionButton(const std::string &envproject, int xsize =
     }
     drawList->AddRectFilled(smallRectPos, ImVec2(smallRectPos.x + smallRectSize.x, smallRectPos.y + smallRectSize.y), IM_COL32(0, 0, 0, 255));
 
-    // Texte de la version dans le rectangle noir
     ImVec2 versionTextPos = ImVec2(smallRectPos.x + 6, smallRectPos.y + (smallRectSize.y - ImGui::CalcTextSize(versionText).y) / 2);
     drawList->AddText(versionTextPos, IM_COL32(255, 255, 255, 255), versionText);
 
-    // Position du bouton d'ajout
     ImVec2 dotButtonPos = ImVec2(smallRectPos.x + smallRectSize.x + 15, smallRectPos.y);
     ImGui::SetCursorScreenPos(dotButtonPos);
 
@@ -446,7 +439,7 @@ static void DownloadableVersionButton(const std::string &envproject, int xsize =
 
             if (btn->Render(envproject))
             {
-                // Action si déjà installé
+                //
             }
             ImGui::EndDisabled();
         }
@@ -500,17 +493,14 @@ static void DownloadableVersionButton(const std::string &envproject, int xsize =
         }
     }
 
-    // Texte du bouton sous l'image
     ImVec2 textPos = ImVec2(cursorPos.x + (squareSize.x - textSize.x) / 2, cursorPos.y + squareSize.y + 5);
     drawList->AddText(textPos, IM_COL32(255, 255, 255, 255), truncatedText);
     drawList->AddText(ImVec2(textPos.x, textPos.y - 20), IM_COL32(255, 255, 255, 255), dist.c_str());
 
     ImGui::EndGroup();
 
-    // Déplacer le curseur pour le prochain bouton
     ImGui::SetCursorScreenPos(ImVec2(cursorPos.x + totalSize.x + spacingX, cursorPos.y));
 
-    // Passer à la ligne si le prochain bouton dépasse la largeur
     if (cursorPos.x + totalSize.x + spacingX > windowVisibleX2)
     {
         ImGui::NewLine();
