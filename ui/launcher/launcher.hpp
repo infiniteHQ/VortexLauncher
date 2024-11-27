@@ -223,14 +223,14 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
   app->SetDefaultLocale("en");
   app->SetLocale("en");
 
-    static std::shared_ptr<Cherry::ImageButtonSimple> btn_close = std::make_shared<Cherry::ImageButtonSimple>("create_project_button", Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"));
-    btn_close->SetScale(0.20f);
-    btn_close->SetInternalMarginX(1.0f);
-    btn_close->SetInternalMarginY(1.0f);
-    btn_close->SetLogoSize(5, 5);
-    btn_close->SetBorderColorIdle("#00000000");
-    btn_close->SetBackgroundColorClicked("#00000000");
-    btn_close->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"));           
+  static std::shared_ptr<Cherry::ImageButtonSimple> btn_close = std::make_shared<Cherry::ImageButtonSimple>("create_project_button", Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"));
+  btn_close->SetScale(0.20f);
+  btn_close->SetInternalMarginX(1.0f);
+  btn_close->SetInternalMarginY(1.0f);
+  btn_close->SetLogoSize(5, 5);
+  btn_close->SetBorderColorIdle("#00000000");
+  btn_close->SetBackgroundColorClicked("#00000000");
+  btn_close->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"));
 
   app->PushLayer(layer);
   app->SetMenubarCallback([app, layer]()
@@ -260,7 +260,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
     btn->SetScale(0.85f);
     btn->SetInternalMarginX(10.0f);
     btn->SetLogoSize(15, 15);
-    btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));
+    btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_upgrade.png"));
     if(btn->Render("_close"))
     {
       std::thread([](){VortexMaker::OpenLauncherUpdater();
@@ -294,7 +294,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
     create_project_button->SetScale(0.85f);
     create_project_button->SetInternalMarginX(10.0f);
     create_project_button->SetLogoSize(15, 15);
-    create_project_button->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));
+    create_project_button->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_upgrade.png"));
                               },
     []() { return btn_close->Render(); }
     );

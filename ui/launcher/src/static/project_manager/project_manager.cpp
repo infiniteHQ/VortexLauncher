@@ -37,7 +37,7 @@ ProjectManager::ProjectManager(const std::string &name)
     v_ProjectDescription = std::make_shared<std::string>("This is a amazing description of the project.");
     cp_ProjectDescription = Cherry::Application::Get().CreateComponent<Cherry::DoubleKeyValString>("keyvaldouble_2", v_ProjectDescription, "Description");
 
-    //v_ProjectVersion = std::make_shared<std::string>("1.0.0");
+    // v_ProjectVersion = std::make_shared<std::string>("1.0.0");
     cp_ProjectVersion = Cherry::Application::Get().CreateComponent<Cherry::DoubleKeyValSimpleCombo>("keyvaldouble_3", std::vector<std::string>(), 0, "Version");
 
     v_ProjectAuthor = std::make_shared<std::string>("Your team");
@@ -383,7 +383,18 @@ void ProjectManager::Render()
         ImGui::BeginChild("###rightpan");
         if (!selected_envproject)
         {
-            ImGui::Text("Select a project");
+            auto texture = Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/frame_selectproject.png"));
+            auto texture_size = Cherry::GetTextureSize(Cherry::GetPath("resources/imgs/icons/misc/frame_selectproject.png"));
+
+            ImVec2 child_size = ImGui::GetContentRegionAvail();
+
+            ImVec2 image_pos = ImVec2(
+                (child_size.x - texture_size.x) / 2.0f,
+                (child_size.y - texture_size.y) / 2.0f);
+
+            ImGui::SetCursorPos(image_pos);
+
+            ImGui::Image(texture, texture_size);
         }
         else
         {
@@ -490,7 +501,7 @@ void ProjectManager::Render()
     }
     else
     {
-        float columnWidths[3] = {100.0f, 250.0f, 150.0f};
+        float columnWidths[3] = {120.0f, 250.0f, 150.0f};
 
         ImVec2 windowSize = ImGui::GetWindowSize();
 
@@ -543,7 +554,18 @@ void ProjectManager::Render()
             {
                 if (!selected_template_object)
                 {
-                    ImGui::Text("Select a template");
+            auto texture = Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/frame_selectproject.png"));
+            auto texture_size = Cherry::GetTextureSize(Cherry::GetPath("resources/imgs/icons/misc/frame_selectproject.png"));
+
+            ImVec2 child_size = ImGui::GetContentRegionAvail();
+
+            ImVec2 image_pos = ImVec2(
+                (child_size.x - texture_size.x) / 2.0f,
+                (child_size.y - texture_size.y) / 2.0f);
+
+            ImGui::SetCursorPos(image_pos);
+
+            ImGui::Image(texture, texture_size);
                 }
                 else
                 {
@@ -617,7 +639,7 @@ void ProjectManager::Render()
                                                                            [&]()
                                                                            { cp_ProjectAuthor->Render(1); }}));
 
-                                                                           // TODO : UPDATE CHERRY cp_ProjectVersion->SetList(selected_template_object->m_compatible_versions);
+                    cp_ProjectVersion->SetList(selected_template_object->m_compatible_versions);
 
                     keyvals.push_back(Cherry::SimpleTable::SimpleTableRow({[&]()
                                                                            { cp_ProjectVersion->Render(0); },
@@ -633,8 +655,9 @@ void ProjectManager::Render()
                                                                            { cp_ProjectOpen->Render(0); },
                                                                            [&]()
                                                                            { cp_ProjectOpen->Render(1); }}));
-
-                    cp_SimpleTable->Render(keyvals);
+                    cp_SimpleTable->Render(keyvals, "AllParams", ImGuiTableFlags_NoSavedSettings | 
+        ImGuiTableFlags_NoBordersInBody |
+        ImGuiTableFlags_NoBordersInBodyUntilResize);
 
                     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
                     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
@@ -870,16 +893,16 @@ void ProjectManager::mainButtonsMenuItem()
     open_project_button->SetScale(0.85f);
     open_project_button->SetInternalMarginX(10.0f);
     open_project_button->SetLogoSize(15, 15);
-    open_project_button->SetImagePath(Cherry::GetPath("resources/imgs/icon.png"));
+    open_project_button->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"));
 
     static std::shared_ptr<Cherry::ImageTextButtonSimple> add_pools_btn = std::make_shared<Cherry::ImageTextButtonSimple>("add_pools_btn", "Search folders");
     add_pools_btn->SetScale(0.85f);
     add_pools_btn->SetInternalMarginX(10.0f);
     add_pools_btn->SetLogoSize(15, 15);
-    add_pools_btn->SetImagePath(Cherry::GetPath("resources/imgs/icon.png"));
+    add_pools_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"));
 
     static std::shared_ptr<std::string> v_SearchString = std::make_shared<std::string>("");
-    static std::shared_ptr<Cherry::ImageStringInput> input_search = std::make_shared<Cherry::ImageStringInput>("open_btn", v_SearchString, Cherry::GetPath("resources/imgs/icon.png"), "Open a project");
+    static std::shared_ptr<Cherry::ImageStringInput> input_search = std::make_shared<Cherry::ImageStringInput>("open_btn", v_SearchString, Cherry::GetPath("resources/imgs/icons/misc/icon_search.png"), "####Open a project");
 
     if (!project_creation)
     {
@@ -907,7 +930,12 @@ void ProjectManager::mainButtonsMenuItem()
         ImGui::PopStyleColor();
 
         ImGui::PushItemWidth(200);
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.0f, 6.0f)); // Largeur x Hauteur padding
+        ImGui::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#353535FF"));
+
         input_search->Render("_");
+        ImGui::PopStyleVar();
+        ImGui::PopStyleColor();
         ImGui::PopItemWidth();
 
         // TODO ProjectSearch = v_SearchString->c_str();
