@@ -603,7 +603,7 @@ VORTEX_API bool VortexMaker::TestVortexExecutable(const std::string &path)
     return (result.find("ok") != std::string::npos) && (return_code == 0);
 }
 
-VORTEX_API bool VortexMaker::CheckIfVortexVersionUtilityExist(const std::string &version)
+VORTEX_API bool VortexMaker::CheckIfVortexVersionUtilityExist(const std::string &version, std::string &path)
 {
     VxContext &ctx = *CVortexMaker;
 
@@ -620,6 +620,7 @@ VORTEX_API bool VortexMaker::CheckIfVortexVersionUtilityExist(const std::string 
 
     for (auto &ver : ctx.IO.sys_vortex_version)
     {
+        path = ver->path;
         std::string contextVersion = ver->version;
         pos = contextVersion.find('.');
         if (pos != std::string::npos)

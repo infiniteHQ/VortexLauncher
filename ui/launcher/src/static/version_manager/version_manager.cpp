@@ -111,7 +111,7 @@ VersionManagerAppWindow::VersionManagerAppWindow(const std::string &name)
                            if (areStringsSimilar(version.name, ProjectSearch, threshold) || isOnlySpacesOrEmpty(ProjectSearch))
                            {
                            DownloadableVersionButton(version.name, 300, 100, version.version);
-                                                   }
+                            }
 
                        }
                        }

@@ -29,6 +29,35 @@ static std::vector<std::shared_ptr<EnvProject>> finded_projects_to_import;
 static char ProjectSearch[256];
 static float threshold = 0.4;
 
+static void OpenFolderInFileManager(std::string path)
+{
+#if defined(_WIN32) || defined(_WIN64)
+    std::string command = "explorer \"" + path + "\"";
+    std::system(command.c_str());
+#elif defined(__APPLE__)
+    std::string command = "open \"" + path + "\"";
+    std::system(command.c_str());
+#elif defined(__linux__)
+    std::string command =
+        "dbus-send --session "
+        "--dest=org.freedesktop.FileManager1 "
+        "--type=method_call "
+        "/org/freedesktop/FileManager1 "
+        "org.freedesktop.FileManager1.ShowFolders "
+        "array:string:\"" +
+        path + "\" string:\"\"";
+
+    int retCode = std::system(command.c_str());
+    if (retCode != 0)
+    {
+        std::cerr << "D-Bus method failed, trying xdg-open...\n";
+        command = "xdg-open \"" + path + "\"";
+        std::system(command.c_str());
+    }
+#else
+#error "OS not supported!"
+#endif
+}
 static void saveVortexVersions(const std::vector<std::string> &paths, const std::string &jsonFilePath)
 {
     nlohmann::json jsonData;
@@ -361,13 +390,13 @@ static void VersionButton(const std::string &envproject, int xsize = 100, int ys
         ImGui::SameLine();
 }
 
-static void DownloadableVersionButton(const std::string &envproject, int xsize = 100, int ysize = 100, const std::string &version = "?", const std::string &path = "resources/imgs/vortex_banner_unknow.png")
+static void DownloadableVersionButton(const std::string &envproject, int xsize = 100, int ysize = 100, const std::string &version = "?", const std::string &path = "resources/imgs/vortex_banner_unknow.png", std::string installedpath = "none")
 {
     ImVec2 squareSize(xsize, ysize);
     const char *originalText = envproject.c_str();
     char truncatedText[32];
     const char *versionText = version.c_str();
-    bool exist = VortexMaker::CheckIfVortexVersionUtilityExist(version);
+    bool exist = VortexMaker::CheckIfVortexVersionUtilityExist(version, installedpath);
 
     if (strlen(originalText) > 24)
     {
@@ -382,7 +411,7 @@ static void DownloadableVersionButton(const std::string &envproject, int xsize =
     ImVec2 textSize = ImGui::CalcTextSize(truncatedText);
     ImVec2 totalSize(squareSize.x, squareSize.y + textSize.y + 5);
 
-    float spacingX = 15.0f; 
+    float spacingX = 15.0f;
     float windowVisibleX2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
 
     ImGui::BeginGroup();
@@ -394,7 +423,7 @@ static void DownloadableVersionButton(const std::string &envproject, int xsize =
         ImGui::NewLine();
         cursorPos = ImGui::GetCursorScreenPos();
     }
-    
+
     if (!envproject.empty() && std::filesystem::exists(envproject))
     {
         drawList->AddImage(Cherry::GetTexture(envproject), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
@@ -422,8 +451,8 @@ static void DownloadableVersionButton(const std::string &envproject, int xsize =
     ImVec2 dotButtonPos = ImVec2(smallRectPos.x + smallRectSize.x + 15, smallRectPos.y);
     ImGui::SetCursorScreenPos(dotButtonPos);
 
-        VxContext *ctx = VortexMaker::GetCurrentContext();
-        std::string dist = ctx->IO.sys_vortexlauncher_dist;
+    VxContext *ctx = VortexMaker::GetCurrentContext();
+    std::string dist = ctx->IO.sys_vortexlauncher_dist;
     if (exist)
     {
         {
@@ -466,18 +495,26 @@ static void DownloadableVersionButton(const std::string &envproject, int xsize =
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
                 if (ImGui::MenuItem("Reinstall"))
                 {
+                    std::thread([version, ctx, dist, installedpath]()
+                                { 
+            VortexMaker::OpenVortexUninstaller(installedpath);
+            VortexMaker::OpenVortexInstaller(version, ctx->arch, dist, ctx->platform); })
+                        .detach();
                 }
                 ImGui::PopStyleColor();
-                if (ImGui::MenuItem("Open Folder"))
+                if (ImGui::MenuItem("Open Folder###Open1"))
                 {
+                    OpenFolderInFileManager(installedpath);
                 }
+
                 ImGui::EndPopup();
             }
         }
     }
     else
     {
-        auto btn = std::make_shared<Cherry::ImageButtonSimple>("create_project_button", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));
+        std::string label = "install_vortex_version" + envproject;
+        auto btn = std::make_shared<Cherry::ImageButtonSimple>(label, Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));
         btn->SetScale(0.20f);
         btn->SetInternalMarginX(1.0f);
         btn->SetInternalMarginY(1.0f);
@@ -581,11 +618,9 @@ static void InstalledVersionButton(const std::string &path, const std::string &e
             VortexMaker::OpenVortexUninstaller(path);
         }
         ImGui::PopStyleColor();
-        if (ImGui::MenuItem("Open Folder"))
+        if (ImGui::MenuItem("Open Folder###Open1"))
         {
-        }
-        if (ImGui::MenuItem("Open Project"))
-        {
+            OpenFolderInFileManager(path);
         }
         ImGui::EndPopup();
     }
@@ -654,7 +689,9 @@ static void MyButton(const std::shared_ptr<EnvProject> envproject, int xsize = 1
     drawList->AddRectFilled(smallRectPos, ImVec2(smallRectPos.x + smallRectSize.x, smallRectPos.y + smallRectSize.y), IM_COL32(0, 0, 0, 255));
     ImVec2 versionTextPos = ImVec2(smallRectPos.x + (smallRectSize.x - ImGui::CalcTextSize(versionText).x) / 2, smallRectPos.y + (smallRectSize.y - ImGui::CalcTextSize("version").y) / 2);
 
-    if (VortexMaker::CheckIfVortexVersionUtilityExist(envproject->compatibleWith))
+    std::string versionpath;
+
+    if (VortexMaker::CheckIfVortexVersionUtilityExist(envproject->compatibleWith, versionpath))
     {
         drawList->AddText(versionTextPos, IM_COL32(255, 255, 255, 255), versionText);
     }
@@ -734,7 +771,9 @@ static void ProjectImportButton(const std::shared_ptr<EnvProject> envproject, in
     drawList->AddRectFilled(smallRectPos, ImVec2(smallRectPos.x + smallRectSize.x, smallRectPos.y + smallRectSize.y), IM_COL32(0, 0, 0, 255));
     ImVec2 versionTextPos = ImVec2(smallRectPos.x + (smallRectSize.x - ImGui::CalcTextSize(versionText).x) / 2, smallRectPos.y + (smallRectSize.y - ImGui::CalcTextSize("version").y) / 2);
 
-    if (VortexMaker::CheckIfVortexVersionUtilityExist(envproject->compatibleWith))
+    std::string versionpath;
+
+    if (VortexMaker::CheckIfVortexVersionUtilityExist(envproject->compatibleWith, versionpath))
     {
         drawList->AddText(versionTextPos, IM_COL32(255, 255, 255, 255), versionText);
     }

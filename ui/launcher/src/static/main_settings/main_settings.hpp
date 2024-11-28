@@ -39,11 +39,18 @@ namespace VortexLauncher
         void SetupRenderCallback();
         void Render();
 
+        void RefreshConfig();
+        void SaveCurrentConfig();
+
         std::vector<MainSettingsChild> m_Childs;
         std::string m_SelectedChildName;
         std::shared_ptr<Cherry::AppWindow> m_AppWindow;
         float leftPaneWidth = 300.0f;
         int selected;
+
+        std::vector<std::string> vortexDists;
+        std::string vortexLauncherDist;
+        char newDist[512];
     };
 }
 

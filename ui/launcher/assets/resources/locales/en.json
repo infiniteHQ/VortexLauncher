@@ -23,6 +23,7 @@
         {"loc.menubar.menuitem.about_contributors":"About contributors"},
         {"loc.menubar.menuitem.about_contributors_desc":"Information about the contributors"},
         {"loc.menubar.menuitem.documentation":"Documentation and tutorials"},
+        {"loc.menubar.menuitem.settings":"Open settings window"},
         {"loc.menubar.menuitem.documentation_desc":"Learn how to use Vortex"},
         {"loc.menubar.menuitem.logs":"Log journal"},
         {"loc.menubar.menuitem.logs_desc":"View Vortex Launcher logs"},

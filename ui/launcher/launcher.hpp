@@ -202,6 +202,8 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
   spec.MinWidth = 750;
   spec.Height = 600;
   spec.Width = 1200;
+  spec.IconPath = Cherry::GetPath("resources/imgs/icon.png");
+  spec.FavIconPath = Cherry::GetPath("resources/imgs/icon.png");
   spec.CustomTitlebar = true;
   spec.DisableWindowManagerTitleBar = true;
   spec.WindowOnlyClosable = true;
@@ -212,7 +214,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
   spec.IconPath = Cherry::GetPath("resources/imgs/icon.png");
 
   Cherry::Application *app = new Cherry::Application(spec);
-  app->SetFavIconPath(Cherry::GetPath("resources/imgs/favicon.png"));
+  app->SetFavIconPath(Cherry::GetPath("resources/imgs/icon.png"));
   app->AddFont("Consola", Cherry::GetPath("resources/fonts/consola.ttf"), 17.0f);
 
   app->AddLocale("fr", Cherry::GetPath("resources/locales/fr.json"));
@@ -316,15 +318,20 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
 
                               if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.update_vortex").c_str(),  Cherry::GetLocale("loc.menubar.menuitem.update_vortex_desc").c_str(), Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_update.png")), c_Launcher->GetDownloadCenterVisibility()))
                               {
+      std::thread([](){VortexMaker::OpenLauncherUpdater();
+      }).detach();
+      
+      Cherry::Application::Get().Close();
                               }
                               
                               Cherry::MenuItemTextSeparator(Cherry::GetLocale("loc.menubar.summary.vortex_labs").c_str());
 
-
+                              ImGui::BeginDisabled();
                               if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.vortex_labs").c_str(), Cherry::GetLocale("loc.menubar.menuitem.vortex_labs_desc").c_str(), Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_net.png")), c_Launcher->GetDownloadCenterVisibility()))
                               {
-                                c_Launcher->SetDownloadCenterVisibility(!c_Launcher->GetDownloadCenterVisibility());
+                                //c_Launcher->SetDownloadCenterVisibility(!c_Launcher->GetDownloadCenterVisibility());
                               }
+                              ImGui::EndDisabled();
 
                               Cherry::MenuItemTextSeparator(Cherry::GetLocale("loc.menubar.summary.manage").c_str());
 
@@ -413,7 +420,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
                               ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);
 
 
-                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.show_main_settings").c_str(), Cherry::GetLocale("loc.menubar.show_main_settings_brief").c_str(), c_Launcher->GetMainSettingsVisibility()))
+                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.summary.settings").c_str(), Cherry::GetLocale("loc.menubar.menuitem.setting").c_str(), Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_settings.png")), c_Launcher->GetMainSettingsVisibility()))
                               {
                                 c_Launcher->SetMainSettingsVisibility(!c_Launcher->GetMainSettingsVisibility());
                               }

@@ -263,20 +263,19 @@ namespace VortexMaker
     VORTEX_API bool IsVersionGreater(const std::string &manifestVersion, const std::string &requestVersion);
     VORTEX_API std::string NormalizeVersion(const std::string &version);
 
-    VORTEX_API void PostLatestVortexVersion(const VortexVersion& version);
+    VORTEX_API void PostLatestVortexVersion(const VortexVersion &version);
     VORTEX_API VortexVersion CheckLatestVortexVersion();
 
     VORTEX_API void OpenLauncherUpdater();
 
-    VORTEX_API void OpenVortexUninstaller(const std::string& path);
-    VORTEX_API void OpenVortexInstaller(const std::string& version, const std::string& arch, const std::string& dist, const std::string& platform);
-    VORTEX_API bool TestVortexExecutable(const std::string &path); 
+    VORTEX_API void OpenVortexUninstaller(const std::string &path);
+    VORTEX_API void OpenVortexInstaller(const std::string &version, const std::string &arch, const std::string &dist, const std::string &platform);
+    VORTEX_API bool TestVortexExecutable(const std::string &path);
 
-
-VORTEX_API bool CheckIfVortexVersionUtilityExist(const std::string &version);
+    VORTEX_API bool CheckIfVortexVersionUtilityExist(const std::string &version, std::string& path);
 
     void DetectPlatform();
-void DetectArch();
+    void DetectArch();
 
     bool DebugCheckVersionAndDataLayout(const char *version);
 

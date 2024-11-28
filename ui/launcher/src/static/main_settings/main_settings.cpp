@@ -1,5 +1,48 @@
 #include "./main_settings.hpp"
 
+#include <string>
+#include <vector>
+#include <fstream>
+
+std::string GetConfigFilePath()
+{
+    std::string homeDir = VortexMaker::getHomeDirectory();
+    std::string configPath;
+    if (VortexMaker::IsWindows())
+    {
+        configPath = homeDir + "\\.vx\\configs\\dists.json";
+    }
+    else
+    {
+        configPath = homeDir + "/.vx/configs/dists.json";
+    }
+    return configPath;
+}
+
+nlohmann::json LoadConfig(const std::string &filePath)
+{
+    std::ifstream file(filePath);
+    nlohmann::json config;
+    if (file.is_open())
+    {
+        file >> config;
+    }
+    else
+    {
+        config = {{"vortex_dists", {"def"}}, {"vortexlauncher_dist", "def"}};
+    }
+    return config;
+}
+
+void SaveConfig(const std::string &filePath, const nlohmann::json &config)
+{
+    std::ofstream file(filePath);
+    if (file.is_open())
+    {
+        file << config.dump(4);
+    }
+}
+
 static std::vector<std::string> projectPoolsPaths;
 static std::vector<std::string> modulesPoolsPaths;
 static std::vector<std::string> templatesPoolsPaths;
@@ -7,11 +50,27 @@ static std::vector<std::string> vortexVersionPoolsPaths;
 
 namespace VortexLauncher
 {
+    void MainSettings::RefreshConfig()
+    {
+        auto config = LoadConfig(GetConfigFilePath());
+        vortexDists = config["vortex_dists"].get<std::vector<std::string>>();
+        vortexLauncherDist = config["vortexlauncher_dist"].get<std::string>();
+    }
+
+    void MainSettings::SaveCurrentConfig()
+    {
+        nlohmann::json config;
+        config["vortex_dists"] = vortexDists;
+        config["vortexlauncher_dist"] = vortexLauncherDist;
+        SaveConfig(GetConfigFilePath(), config);
+    }
+
     MainSettings::MainSettings(const std::string &name)
     {
         m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
         m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/icons/misc/icon_home.png"));
 
+        RefreshConfig();
         std::string path = VortexMaker::getHomeDirectory() + "/.vx/configs/";
 
         loadProjects(projectPoolsPaths, path + "/projects_pools.json");
@@ -54,7 +113,7 @@ namespace VortexLauncher
         m_AppWindow->SetInternalPaddingX(10.0f);
         m_AppWindow->SetInternalPaddingY(10.0f);
 
-        this->AddChild("Contents", "Templates pools paths", [this]()
+        this->AddChild("Paths, Links", "Templates pools paths", [this]()
                        {
             static char newPath[256] = "";
 
@@ -150,7 +209,7 @@ namespace VortexLauncher
                 VortexMaker::RefreshEnvironmentProjects();
             } });
 
-        this->AddChild("Contents", "Modules pools paths", [this]()
+        this->AddChild("Paths, Links", "Modules pools paths", [this]()
                        {
             static char newPath[256] = "";
 
@@ -246,7 +305,7 @@ namespace VortexLauncher
                 VortexMaker::RefreshEnvironmentProjects();
             } });
 
-        this->AddChild("Contents", "Projects pools paths", [this]()
+        this->AddChild("Paths, Links", "Projects pools paths", [this]()
                        {
             static char newPath[256] = "";
 
@@ -342,9 +401,8 @@ namespace VortexLauncher
                 VortexMaker::RefreshEnvironmentProjects();
             } });
 
-        this->AddChild("Contents", "Vortex versions paths", [this]()
+        this->AddChild("Paths, Links", "Vortex versions paths", [this]()
                        {
-
             static char newPath[256] = "";
             Cherry::TitleSixColored("Important: It's not recommanded to add other pools for Vortex versions than the unique system pool.", "#F63535FF");
 
@@ -438,79 +496,81 @@ namespace VortexLauncher
 
                 VortexMaker::RefreshEnvironmentProjectsPools();
                 VortexMaker::RefreshEnvironmentProjects();
-            } });
+            } 
+            
+        
+            ImGui::PopStyleColor(); });
 
-
-        this->AddChild("Installed content", "Installed templates", [this]()
+        this->AddChild("Distribution", "Vortex distribution", [this]()
                        {
-            static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
+ ImGui::Text("Vortex Distributions:");
+    if (ImGui::BeginTable("##vortex_dists", 2)) {
+        ImGui::TableSetupColumn("Path");
+        ImGui::TableSetupColumn("Action");
+        ImGui::TableHeadersRow();
+std::cout << vortexDists.size() << std::endl;
+        for (size_t i = 0; i < vortexDists.size(); ++i) {
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0);
+            ImGui::Text("%s", vortexDists[i].c_str());
 
-            if (ImGui::BeginTable("templates_table", 6, flags))
-            {
-                ImGui::TableSetupColumn("Select", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("Proper Name", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("Version", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("Path", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableHeadersRow();
+            ImGui::TableSetColumnIndex(1);
+            if (ImGui::Button(("Delete##" + std::to_string(i)).c_str())) {
+                vortexDists.erase(vortexDists.begin() + i);
+                --i;
+            }
+        }
+        ImGui::EndTable();
+    }
 
-                ImGui::PopStyleVar(4);
+    ImGui::InputText("New Distribution", newDist, 256);
+    if (ImGui::Button("Add####ADDTODISTRIB")) {
+            vortexDists.push_back(newDist);
+        }
 
-                for (int row = 0; row < VortexMaker::GetCurrentContext()->IO.sys_templates.size(); row++)
-                {
-                    static std::pair<char[128], char[128]> newItem;
-                    static char label[128];
+    ImGui::Separator();
 
-                    ImGui::TableNextRow();
-                    for (int column = 0; column < 6; column++)
-                    {
-                        ImGui::TableSetColumnIndex(column);
-                        if (column == 0)
-                        {
-                            /*std::string deleteButtonID = "Select###" + std::to_string(row) + "-" + std::to_string(column);
-                            if (ImGui::ImageButtonWithText(projectIcon, deleteButtonID.c_str(), ImVec2(this->m_ProjectIcon->GetWidth(), this->m_ProjectIcon->GetHeight())))
-                            {
-                                selected_module = VortexMaker::GetCurrentContext()->IO.sys_em[row];
-                            }*/
-                        }
-                        else if (column == 1)
-                        {
-                            ImGui::Text(VortexMaker::GetCurrentContext()->IO.sys_templates[row]->m_proper_name.c_str());
-                        }
-                        else if (column == 2)
-                        {
-                            ImGui::Text(VortexMaker::GetCurrentContext()->IO.sys_templates[row]->m_name.c_str());
-                        }
-                        else if (column == 3)
-                        {
-                            ImGui::Text(VortexMaker::GetCurrentContext()->IO.sys_templates[row]->m_version.c_str());
-                        }
-                        else if (column == 4)
-                        {
-                            ImGui::Text(VortexMaker::GetCurrentContext()->IO.sys_templates[row]->m_path.c_str());
-                        }
-                        else if (column == 5)
-                        {
-                            ImGui::Text(VortexMaker::GetCurrentContext()->IO.sys_templates[row]->m_type.c_str());
-                        }
-                    }
-                }
-                ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
-                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-                ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
-                ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 0.0f);
+    if (ImGui::Button("Save")) {
+        SaveCurrentConfig();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Refresh")) {
+        RefreshConfig();
+    } });
 
-                ImGui::EndTable();
-            } });
-
-        this->AddChild("Settings", "Updates", [this]()
+        this->AddChild("Distribution", "Vortex Launcher distribution", [this]()
                        {
-                           //
-                       });
-        this->AddChild("Settings", "Account", [this]()
-                       {
-                           //
+                           ImGui::PushStyleColor(ImGuiCol_Separator, Cherry::HexToRGBA("#353535FF"));
+                           ImGui::Text("Launcher Distribution:");
+                           if (ImGui::BeginCombo("##vortexlauncher_dist", vortexLauncherDist.c_str()))
+                           {
+                               const char *options[] = {"stable", "beta", "testing"};
+                               for (const char *option : options)
+                               {
+                                   bool isSelected = (vortexLauncherDist == option);
+                                   if (ImGui::Selectable(option, isSelected))
+                                   {
+                                       vortexLauncherDist = option;
+                                   }
+                                   if (isSelected)
+                                   {
+                                       ImGui::SetItemDefaultFocus();
+                                   }
+                               }
+                               ImGui::EndCombo();
+                           }
+
+                           ImGui::Separator();
+
+                           if (ImGui::Button("Save"))
+                           {
+                               SaveCurrentConfig();
+                           }
+                           ImGui::SameLine();
+                           if (ImGui::Button("Refresh"))
+                           {
+                               RefreshConfig();
+                           }
                        });
 
         std::shared_ptr<Cherry::AppWindow> win = m_AppWindow;
@@ -571,7 +631,7 @@ namespace VortexLauncher
             groupedByParent[child.m_Parent].push_back(child);
         }
 
-    std::string label = "left_pane" + m_AppWindow->m_Name;
+        std::string label = "left_pane" + m_AppWindow->m_Name;
         ImGui::BeginChild(label.c_str(), ImVec2(leftPaneWidth, 0), true, ImGuiWindowFlags_NoBackground);
 
         ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);

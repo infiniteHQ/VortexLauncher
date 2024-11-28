@@ -63,9 +63,16 @@ VORTEX_API void VortexMaker::InstallTemplate(const std::string &name, const std:
         if (tem->m_name == name)
         {
             VortexMaker::LogInfo("Core", "Installing the template \"" + name + "\" ...");
-            std::string cmd = "mkdir \"" + path + "\" && tar -xvf \"" + tem->m_path + tem->m_tarball + "\" --strip-components=1 -C \"" + path + "\"";
-            std::cout << cmd << std::endl;
+
+            {
+            std::string cmd = "mkdir \"" + path + "\"";
             system(cmd.c_str());
+            }
+
+            {
+            std::string cmd = "tar -xvf \"" + tem->m_path + tem->m_tarball + "\" --strip-components=1 -C \"" + path + "\"";
+            system(cmd.c_str());
+            }
         }
     }
 
