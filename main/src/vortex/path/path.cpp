@@ -24,22 +24,37 @@ void VortexMaker::createFolderIfNotExists(const std::string &path)
 
 void VortexMaker::createJsonFileIfNotExists(const std::string &filename, const nlohmann::json &defaultData)
 {
-    if (!fs::exists(filename))
+    try
     {
-        try
+        fs::path filePath(filename);
+
+        if (filePath.has_parent_path() && !fs::exists(filePath.parent_path()))
         {
-            std::ofstream file(filename);
+            fs::create_directories(filePath.parent_path());
+        }
+
+        if (!fs::exists(filePath))
+        {
+            std::ofstream file(filePath);
+            if (!file.is_open())
+            {
+                throw std::ios_base::failure("Unable to open file for writing.");
+            }
+
             file << std::setw(4) << defaultData << std::endl;
             VortexMaker::LogInfo("Core", "JSON file '" + filename + "' created with default data.");
         }
-        catch (const std::exception &ex)
+        else
         {
-            VortexMaker::LogError("Core", "Error while creating JSON file '" + filename + "'");
-            VortexMaker::LogError("Core", ex.what());
+            VortexMaker::LogInfo("Core", "JSON file '" + filename + "' already exists.");
         }
     }
-    else
+    catch (const fs::filesystem_error &fserr)
     {
-        VortexMaker::LogInfo("Core", "JSON file '" + filename + "' already exists.");
+        VortexMaker::LogError("Core", "Filesystem error while handling JSON file '" + filename + "': " + fserr.what());
+    }
+    catch (const std::exception &ex)
+    {
+        VortexMaker::LogError("Core", "Error while creating JSON file '" + filename + "': " + ex.what());
     }
 }

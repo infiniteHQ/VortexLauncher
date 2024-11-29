@@ -385,16 +385,45 @@ void writeSessionEndState(const std::string &session_id, const std::string &stat
     }
 }
 
-
-// Inclure les bibliothèques nécessaires pour chaque système d'exploitation
 #ifdef _WIN32
 #include <windows.h>
 #else
 #include <unistd.h>
 #endif
-bool executeInChildProcess(const std::string &command)
+
+bool VortexMaker::executeInChildProcess(const std::string &command)
 {
 #ifdef _WIN32
+    STARTUPINFOA si = {0};
+    PROCESS_INFORMATION pi = {0};
+    si.cb = sizeof(STARTUPINFOA);
+
+    char commandLine[1024];
+    strncpy(commandLine, command.c_str(), sizeof(commandLine) - 1);
+    commandLine[sizeof(commandLine) - 1] = '\0';
+
+    if (!CreateProcessA(
+            NULL,        // Application name
+            commandLine, // Command line
+            NULL,        // Process attributes
+            NULL,        // Thread attributes
+            FALSE,       // Inherit handles
+            0,           // Creation flags
+            NULL,        // Environment
+            NULL,        // Current directory
+            &si,         // Startup information
+            &pi))        // Process information
+    {
+        std::cerr << "Error while creating process for command: " << command
+                  << " Error: " << GetLastError() << std::endl;
+        return false;
+    }
+
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+
+    return true;
+
 #else
     pid_t pid = fork();
 
@@ -404,7 +433,7 @@ bool executeInChildProcess(const std::string &command)
         return false;
     }
 
-    if (pid == 0) 
+    if (pid == 0)
     {
         int ret = execlp(command.c_str(), command.c_str(), (char *)NULL);
         if (ret == -1)
@@ -417,8 +446,6 @@ bool executeInChildProcess(const std::string &command)
     return true;
 #endif
 }
-
-
 
 VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::string &version)
 {
@@ -449,7 +476,7 @@ VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::str
 
     std::cout << "Bootstrap: Starting with command: " << crash_script_command << std::endl;
 
-    if (executeInChildProcess(crash_script_command))
+    if (VortexMaker::executeInChildProcess(crash_script_command))
     {
         writeSessionEndState(session_id, "success");
     }
@@ -465,21 +492,29 @@ VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::str
             crash_handle_command = "/opt/Vortex/" + version + "/bin/vortex -crash --session_id=" + session_id;
         }
 
-        executeInChildProcess(crash_handle_command);
+        VortexMaker::executeInChildProcess(crash_handle_command);
         writeSessionEndState(session_id, "fail");
     }
 
     removeSessionFromJson(session_id);
 }
 
-
 VORTEX_API void VortexMaker::OpenVortexUninstaller(const std::string &path)
 {
     VxContext &ctx = *CVortexMaker;
 
-    std::string command = ctx.m_VortexLauncherPath + "/VersionUninstaller --path=" + path;
+    std::string command;
 
-    bool success = executeInChildProcess(command);
+    if (VortexMaker::IsWindows())
+    {
+        command = ctx.m_VortexLauncherPath + "/VersionUninstaller --path=" + path;
+    }
+    else
+    {
+        command = ctx.m_VortexLauncherPath + "\\VersionUninstaller.exe --path=" + path;
+    }
+
+    bool success = VortexMaker::executeInChildProcess(command);
 
     if (success)
     {
@@ -490,13 +525,25 @@ VORTEX_API void VortexMaker::OpenVortexUninstaller(const std::string &path)
         std::cerr << "Uninstallation failed." << std::endl;
     }
 }
+
 VORTEX_API void VortexMaker::OpenVortexInstaller(const std::string &version, const std::string &arch, const std::string &dist, const std::string &platform)
 {
     VxContext &ctx = *CVortexMaker;
 
-    std::string command = ctx.m_VortexLauncherPath + "/VersionInstaller --home=" + VortexMaker::getHomeDirectory() + " --dist=" + dist + " --platform=" + platform + " --arch=" + arch + " --version=" + version;
+    std::string command;
 
-    bool success = executeInChildProcess(command);
+    if (VortexMaker::IsWindows())
+    {
+        command = ctx.m_VortexLauncherPath + "/VersionInstaller --home=" + VortexMaker::getHomeDirectory() + " --dist=" + dist + " --platform=" + platform + " --arch=" + arch + " --version=" + version;
+    }
+    else
+    {
+        command = ctx.m_VortexLauncherPath + "\\VersionInstaller.exe --home=" + VortexMaker::getHomeDirectory() + " --dist=" + dist + " --platform=" + platform + " --arch=" + arch + " --version=" + version;
+    }
+
+    VXWARN("F", command)
+
+    bool success = VortexMaker::executeInChildProcess(command);
 
     if (success)
     {
@@ -507,11 +554,18 @@ VORTEX_API void VortexMaker::OpenVortexInstaller(const std::string &version, con
         std::cerr << "Installation failed." << std::endl;
     }
 }
+
 VORTEX_API void VortexMaker::OpenLauncherUpdater()
 {
     VxContext &ctx = *CVortexMaker;
 
-    std::string command = ctx.m_VortexLauncherPath + "/VortexUpdater";
+    std::string command;
+
+#ifdef _WIN32
+    command = ctx.m_VortexLauncherPath + "\\VortexUpdater.exe --path=C:\\Program Files\\Vortex";
+#elif
+    command = ctx.m_VortexLauncherPath + "/VortexUpdater --path=C:\\Program Files\\Vortex";
+#endif
 
     bool success = executeInChildProcess(command);
 
@@ -524,7 +578,6 @@ VORTEX_API void VortexMaker::OpenLauncherUpdater()
         std::cerr << "Launcher update failed." << std::endl;
     }
 }
-
 
 /**
  * @brief Set custom allocator functions and user data for VortexMaker.

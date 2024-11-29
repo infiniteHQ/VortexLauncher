@@ -8,8 +8,15 @@
 VORTEX_API void VortexMaker::UpdateVortexLauncherWebData()
 {
     VxContext &ctx = *CVortexMaker;
-    // TODO : Dynamics url
-    RestClient::Response r = RestClient::get("http://api.infinite.si:9000/api/vortexupdates/get_vl_versions?dist=stable_windows&arch=x86_64");
+    
+    std::string plat = ctx.platform;
+    std::string arch = ctx.arch;
+    std::string dist = ctx.IO.sys_vortexlauncher_dist + "_" + plat;
+
+    std::string url = "http://api.infinite.si:9000/api/vortexupdates/get_vl_versions?dist="+dist+"&arch="+arch;
+        VortexMaker::LogWarn("URL", url);
+
+    RestClient::Response r = RestClient::get(url);
 
     if (r.code != 200)
     {
@@ -45,23 +52,39 @@ VORTEX_API void VortexMaker::UpdateVortexLauncherWebData()
     std::cout << ctx.latest_launcher_version.version << " /// " << ctx.latest_launcher_version.path << " /// " << ctx.latest_launcher_version.created_at << std::endl;
     std::cout << "______________________________________" << std::endl;
 }
+
 VORTEX_API void VortexMaker::UpdateVortexWebData()
 {
-    RestClient::Response r = RestClient::get("http://api.infinite.si:9000/api/vortexupdates/get_filtered_v_versions?platform=linux&dist=stable");
+    VxContext &ctx = *CVortexMaker;
 
-    if (r.code != 200)
+    std::string plat = ctx.platform;
+    std::string arch = ctx.arch;
+
+    nlohmann::json aggregatedJsonData = nlohmann::json::array();
+
+    for (auto &dist : ctx.IO.sys_vortex_dists)
     {
-        return;
+        std::string url = "http://api.infinite.si:9000/api/vortexupdates/get_filtered_v_versions?platform=" + plat + "&dist=" + dist + "&arch=" + arch;
+        VortexMaker::LogWarn("URL", url);
+
+        RestClient::Response r = RestClient::get(url);
+
+        if (r.code != 200)
+        {
+            VortexMaker::LogWarn("Failed to fetch data for dist", dist);
+            continue;
+        }
+
+        nlohmann::json jsonData = nlohmann::json::parse(r.body);
+
+        aggregatedJsonData.insert(aggregatedJsonData.end(), jsonData.begin(), jsonData.end());
     }
 
-    nlohmann::json jsonData = nlohmann::json::parse(r.body);
     std::vector<VortexVersion> latest_vortex_versions;
     VortexVersion latest_vortex_version;
     std::string highestVersion = "0.0.0";
 
-    VxContext &ctx = *CVortexMaker;
-
-    for (const auto &item : jsonData)
+    for (const auto &item : aggregatedJsonData)
     {
         VortexVersion version;
         version.version = item["version"].get<std::string>();
@@ -71,10 +94,11 @@ VORTEX_API void VortexMaker::UpdateVortexWebData()
         version.date = item["date"].get<std::string>();
         version.banner = "";
 
-        for(auto vortex_versions : ctx.IO.sys_vortex_versions_pools)
+        for (auto vortex_versions : ctx.IO.sys_vortex_versions_pools)
         {
-
+            //
         }
+
         latest_vortex_versions.push_back(version);
 
         if (VortexMaker::IsVersionGreater(highestVersion, version.version))
@@ -97,6 +121,7 @@ VORTEX_API void VortexMaker::UpdateVortexWebData()
     {
         ctx.vortex_update_available = false;
     }
+
     VortexMaker::PostLatestVortexVersion(latest_vortex_version);
 
     std::cout << "________________ ALL ______________________" << std::endl;

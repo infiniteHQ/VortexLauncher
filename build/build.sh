@@ -31,6 +31,7 @@ cd ../../../build
 
 # Embed the installer and tools into Launcher
 cp -rn ../lib/installer/build/build/bin/* dist/bin/
+cp -rn ./build/bin/* dist/bin/
 
 sudo chown root:root ./dist/bin/vortex_uninstall
 sudo chown root:root ./dist/bin/vortex_update

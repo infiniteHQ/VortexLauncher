@@ -24,6 +24,7 @@ call build.bat
 cd ..\..\..\build
 
 xcopy /E /Y ..\lib\installer\build\build\bin\ dist\bin\
+xcopy /E /Y .\build\bin\ dist\bin\
 
 rmdir /S /Q shipping
 mkdir shipping\installer\windows
