@@ -265,7 +265,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
     btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_upgrade.png"));
     if(btn->Render("_close"))
     {
-      std::thread([](){VortexMaker::OpenLauncherUpdater();
+      std::thread([](){VortexMaker::OpenLauncherUpdater(VortexMaker::GetCurrentContext()->m_VortexLauncherPath, VortexMaker::GetCurrentContext()->IO.sys_vortexlauncher_dist);
       }).detach();
       
       Cherry::Application::Get().Close();
@@ -278,7 +278,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
                               toast.setTitle("Update Vortex Launcher");
                               toast.setContent("A new update for the launcher is available ! (%s)", ctx.latest_launcher_version.version.c_str());
                               toast.setOnButtonPress([](){
-                                VortexMaker::OpenLauncherUpdater();
+                                VortexMaker::OpenLauncherUpdater(VortexMaker::GetCurrentContext()->m_VortexLauncherPath, VortexMaker::GetCurrentContext()->IO.sys_vortexlauncher_dist);
                                 Cherry::Application::Get().Close();
                               });
 
@@ -318,10 +318,10 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
 
                               if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.update_vortex").c_str(),  Cherry::GetLocale("loc.menubar.menuitem.update_vortex_desc").c_str(), Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_update.png")), c_Launcher->GetDownloadCenterVisibility()))
                               {
-      std::thread([](){VortexMaker::OpenLauncherUpdater();
+      std::thread([](){VortexMaker::OpenLauncherUpdater(VortexMaker::GetCurrentContext()->m_VortexLauncherPath, VortexMaker::GetCurrentContext()->IO.sys_vortexlauncher_dist);
       }).detach();
       
-      Cherry::Application::Get().Close();
+      //Cherry::Application::Get().Close();
                               }
                               
                               Cherry::MenuItemTextSeparator(Cherry::GetLocale("loc.menubar.summary.vortex_labs").c_str());

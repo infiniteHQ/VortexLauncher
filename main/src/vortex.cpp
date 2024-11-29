@@ -555,16 +555,16 @@ VORTEX_API void VortexMaker::OpenVortexInstaller(const std::string &version, con
     }
 }
 
-VORTEX_API void VortexMaker::OpenLauncherUpdater()
+VORTEX_API void VortexMaker::OpenLauncherUpdater(const std::string &path, const std::string &dist)
 {
     VxContext &ctx = *CVortexMaker;
 
     std::string command;
 
 #ifdef _WIN32
-    command = ctx.m_VortexLauncherPath + "\\VortexUpdater.exe --path=C:\\Program Files\\Vortex";
+    command = ctx.m_VortexLauncherPath + "\\VortexUpdater.exe --path=" + path + " --workdir=" + path + " --dist=" + dist;
 #elif
-    command = ctx.m_VortexLauncherPath + "/VortexUpdater --path=C:\\Program Files\\Vortex";
+    command = ctx.m_VortexLauncherPath + "/VortexUpdater --path=" + path + " --workdir=" + path + " --dist=" + dist;
 #endif
 
     bool success = executeInChildProcess(command);

@@ -31,7 +31,17 @@ mkdir shipping\installer\windows
 mkdir shipping\launcher\windows
 
 cd dist
-tar -cvzf ..\..\shipping\launcher\windows\vortex_launcher_%VERSION%.tar.gz *
+tar -cvzf ..\shipping\launcher\windows\vortex_launcher_%VERSION%.tar.gz *
 cd ..
 
 certutil -hashfile shipping\launcher\windows\vortex_launcher_%VERSION%.tar.gz SHA256 > shipping\launcher\windows\vortex_launcher_%VERSION%.tar.gz.sha256
+
+rmdir /S /Q ..\lib\installer\ui\installer\assets\ressources\builtin
+mkdir ..\lib\installer\ui\installer\assets\ressources\builtin
+
+copy shipping\launcher\windows\vortex_launcher_%VERSION%.tar.gz ..\lib\installer\ui\installer\assets\ressources\builtin\
+copy shipping\launcher\windows\vortex_launcher_%VERSION%.tar.gz.sha256 ..\lib\installer\ui\installer\assets\ressources\builtin\
+
+cd ..\lib\installer\build
+call build.bat
+cd ..\..\..\build
