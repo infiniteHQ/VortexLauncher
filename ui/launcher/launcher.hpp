@@ -10,6 +10,7 @@
 #include "src/static/logic_content_manager/logic_content_manager.hpp"
 #include "src/static/content_manager/content_manager.hpp"
 #include "src/static/version_manager/version_manager.hpp"
+#include "src/static/about/about.hpp"
 
 #include <thread>
 #include <memory>
@@ -30,6 +31,10 @@ public:
     //
     // Static app windows
     //
+
+    // About
+    about_window = AboutAppWindow::Create("?loc:loc.window_names.about");
+    Cherry::AddAppWindow(about_window->GetAppWindow());
 
     // Welcome
     welcome_window = WelcomeWindow::Create("?loc:loc.window_names.welcome");
@@ -133,9 +138,15 @@ public:
   {
     content_manager->GetAppWindow()->SetVisibility(visibility);
   }
+
   void SetVersionManager(const bool &visibility)
   {
     version_manager->GetAppWindow()->SetVisibility(visibility);
+  }
+
+  void SetAboutWindow(const bool &visibility)
+  {
+    about_window->GetAppWindow()->SetVisibility(visibility);
   }
 
   bool GetVersionManager()
@@ -178,6 +189,12 @@ public:
     return welcome_window->GetAppWindow()->m_Visible;
   }
 
+  bool GetAboutAppWindowVisibility()
+  {
+    return about_window->GetAppWindow()->m_Visible;
+  }
+
+
 private:
   std::shared_ptr<LauncherLogUtility> logs_window;
   std::shared_ptr<MainSettings> system_settings;
@@ -187,6 +204,7 @@ private:
   std::shared_ptr<LogicContentManager> logic_content_manager;
   std::shared_ptr<VersionManagerAppWindow> version_manager;
   std::shared_ptr<ContentManager> content_manager;
+  std::shared_ptr<AboutAppWindow> about_window;
 };
 
 static std::shared_ptr<Launcher> c_Launcher;
