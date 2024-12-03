@@ -194,7 +194,6 @@ public:
     return about_window->GetAppWindow()->m_Visible;
   }
 
-
 private:
   std::shared_ptr<LauncherLogUtility> logs_window;
   std::shared_ptr<MainSettings> system_settings;

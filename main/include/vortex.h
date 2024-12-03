@@ -196,6 +196,7 @@ namespace VortexMaker
     VORTEX_API nlohmann::json GetLastSession(const std::string &post_topic);
 
     VORTEX_API void InitEnvironment();
+    
     VORTEX_API std::shared_ptr<spdlog::logger> CreateLogPool(const std::string &pool_name);
     VORTEX_API std::shared_ptr<spdlog::logger> CreateGlobalLogger();
     VORTEX_API std::shared_ptr<spdlog::logger> CreateConsoleLogger();

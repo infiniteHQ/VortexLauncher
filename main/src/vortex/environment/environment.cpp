@@ -5,6 +5,7 @@ namespace fs = std::filesystem;
 
 VORTEX_API void VortexMaker::InitEnvironment()
 {
+    CheckBlankProject();
     std::string homeDir = VortexMaker::getHomeDirectory();
 
     std::string vxBasePath;
@@ -141,7 +142,7 @@ VORTEX_API void VortexMaker::InitEnvironment()
         std::string file = path + "vortex_versions_pools.json";
 
         std::string def_vx_path;
-        
+
 #if defined(_WIN32) || defined(_WIN64)
         def_vx_path = "C:/Program Files/Vortex";
 #else
