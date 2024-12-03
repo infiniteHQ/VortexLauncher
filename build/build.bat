@@ -41,7 +41,6 @@ mkdir ..\lib\installer\ui\installer\assets\builtin
 
 copy shipping\launcher\windows\vortex_launcher_%VERSION%.tar.gz ..\lib\installer\ui\installer\assets\builtin\ 
 copy shipping\launcher\windows\vortex_launcher_%VERSION%.tar.gz.sha256 ..\lib\installer\ui\installer\assets\builtin\
-copy ..\manifest.json ..\lib\installer\ui\installer\assets\
 
 set MANIFEST_PATH=..\lib\installer\ui\installer\assets\builtin\manifest.json
 set VERSION_FILE=..\version.conf

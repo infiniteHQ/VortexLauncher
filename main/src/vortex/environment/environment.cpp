@@ -140,8 +140,15 @@ VORTEX_API void VortexMaker::InitEnvironment()
         std::string path = vxBasePath + "configs/";
         std::string file = path + "vortex_versions_pools.json";
 
+        std::string def_vx_path;
+        
+#if defined(_WIN32) || defined(_WIN64)
+        def_vx_path = "C:/Program Files/Vortex";
+#else
+        def_vx_path = "/opt/Vortex/";
+#endif
         nlohmann::json default_data = {
-            {"vortex_versions_pools", nlohmann::json::array({"/opt/Vortex/"})}};
+            {"vortex_versions_pools", nlohmann::json::array({def_vx_path})}};
 
         VortexMaker::createJsonFileIfNotExists(file, default_data);
     }
