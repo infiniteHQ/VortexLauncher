@@ -13,3 +13,6 @@
 [submodule "lib/installer"]
 	path = lib/installer
 	url = https://github.com/infiniteHQ/VortexInstaller
+[submodule "ui/launcher/assets/resources/templates/blank_project"]
+	path = ui/launcher/assets/resources/templates/blank_project
+	url = https://github.com/infiniteHQ/VortexBlankProject.git
