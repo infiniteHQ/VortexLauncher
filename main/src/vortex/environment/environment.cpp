@@ -3,6 +3,28 @@
 
 namespace fs = std::filesystem;
 
+VORTEX_API void VortexMaker::CheckBlankProject()
+{
+    // Get reference to the Vortex context
+    VxContext &ctx = *CVortexMaker;
+
+    for (auto template_pool : ctx.IO.sys_templates_pools)
+    {
+        std::string blank_project_path;
+
+#ifdef _WIN32
+        blank_project_path = "\\blank_project";
+#elif
+        blank_project_path = "/blank_project";
+#endif
+
+        if (!std::filesystem::exists(template_pool + blank_project_path))
+        {
+            ctx.blankproject_exist = true;
+        }
+    }
+}
+
 VORTEX_API void VortexMaker::InitEnvironment()
 {
     CheckBlankProject();
@@ -53,32 +75,76 @@ VORTEX_API void VortexMaker::InitEnvironment()
     }
 
     {
-        std::string path = vxBasePath + "contents/";
+        std::string endpath;
+        #ifdef _WIN32
+        endpath = "contents\\";
+        #elif
+        endpath = "contents/";
+        #endif
+
+        std::string path = vxBasePath + endpath;
+        
         VortexMaker::createFolderIfNotExists(path);
     }
 
     {
-        std::string path = vxBasePath + "contents/modules/";
+        std::string endpath;
+        #ifdef _WIN32
+        endpath = "contents\\modules\\";
+        #elif
+        endpath = "contents/modules/";
+        #endif
+
+        std::string path = vxBasePath + endpath;
+        
         VortexMaker::createFolderIfNotExists(path);
     }
 
     {
-        std::string path = vxBasePath + "contents/templates/";
+        std::string endpath;
+        #ifdef _WIN32
+        endpath = "contents\\templates\\";
+        #elif
+        endpath = "contents/templates/";
+        #endif
+
+        std::string path = vxBasePath + endpath;
         VortexMaker::createFolderIfNotExists(path);
     }
 
     {
-        std::string path = vxBasePath + "contents/plugins/";
+        std::string endpath;
+        #ifdef _WIN32
+        endpath = "contents\\plugins\\";
+        #elif
+        endpath = "contents/plugins/";
+        #endif
+
+        std::string path = vxBasePath + endpath;
         VortexMaker::createFolderIfNotExists(path);
     }
 
     {
-        std::string path = vxBasePath + "contents/assets/";
+        std::string endpath;
+        #ifdef _WIN32
+        endpath = "contents\\assets\\";
+        #elif
+        endpath = "contents/assets/";
+        #endif
+        
+        std::string path = vxBasePath + endpath;
         VortexMaker::createFolderIfNotExists(path);
     }
 
     {
-        std::string path = vxBasePath + "sessions/";
+        std::string endpath;
+        #ifdef _WIN32
+        endpath = "sessions\\";
+        #elif
+        endpath = "sessions/";
+        #endif
+
+        std::string path = vxBasePath + endpath;
         VortexMaker::createFolderIfNotExists(path);
     }
 
@@ -111,8 +177,15 @@ VORTEX_API void VortexMaker::InitEnvironment()
         std::string path = vxBasePath + "configs/";
         std::string file = path + "modules_pools.json";
 
+        std::string content_path;
+        #ifdef _WIN32
+        content_path = "contents\\modules/";
+        #elif
+        content_path = "contents/modules/";
+        #endif
+
         nlohmann::json default_data = {
-            {"modules_pools", nlohmann::json::array({vxBasePath + "contents/modules/"})}};
+            {"modules_pools", nlohmann::json::array({vxBasePath + content_path})}};
 
         VortexMaker::createJsonFileIfNotExists(file, default_data);
     }
@@ -121,8 +194,15 @@ VORTEX_API void VortexMaker::InitEnvironment()
         std::string path = vxBasePath + "configs/";
         std::string file = path + "plugins_pools.json";
 
+        std::string content_path;
+        #ifdef _WIN32
+        content_path = "contents\\plugins/";
+        #elif
+        content_path = "contents/plugins/";
+        #endif
+
         nlohmann::json default_data = {
-            {"plugins_pools", nlohmann::json::array({vxBasePath + "contents/plugins/"})}};
+            {"plugins_pools", nlohmann::json::array({vxBasePath + content_path})}};
 
         VortexMaker::createJsonFileIfNotExists(file, default_data);
     }
@@ -131,8 +211,15 @@ VORTEX_API void VortexMaker::InitEnvironment()
         std::string path = vxBasePath + "configs/";
         std::string file = path + "templates_pools.json";
 
+        std::string content_path;
+        #ifdef _WIN32
+        content_path = "contents\\templates/";
+        #elif
+        content_path = "contents/templates/";
+        #endif
+
         nlohmann::json default_data = {
-            {"templates_pools", nlohmann::json::array({vxBasePath + "contents/templates/"})}};
+            {"templates_pools", nlohmann::json::array({vxBasePath + content_path})}};
 
         VortexMaker::createJsonFileIfNotExists(file, default_data);
     }

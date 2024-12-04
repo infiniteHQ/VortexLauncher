@@ -248,6 +248,7 @@ struct VxContext
   VortexVersion latest_vortex_version;
   bool launcher_update_available = false;
   bool vortex_update_available = false;
+  bool blankproject_exist = false;
   bool disconnected = false;
 
   // Components

@@ -28,6 +28,33 @@ class Launcher
 public:
   Launcher()
   {
+    if (!VortexMaker::GetCurrentContext()->blankproject_exist)
+    {
+      std::string cmd;
+
+#ifdef _WIN32
+      std::string path;
+      for (auto template_path : VortexMaker::GetCurrentContext()->IO.sys_templates_pools)
+      {
+        path = template_path;
+        break;
+      }
+      std::string source = Cherry::GetPath("resources/templates/blank_project");
+      cmd = "xcopy \"" + source + "\" \"" + path + "\" /E /I /Y";
+#else
+      std::string path;
+      for (auto template_path : VortexMaker::GetCurrentContext()->IO.sys_templates_pools)
+      {
+        path = template_path;
+        break;
+      }
+      cmd = "cp -r " + Cherry::GetPath("resources/templates/blank_project") + " " + path;
+#endif
+
+    std::cout << "CPUY <" << cmd << std::endl;
+      system(cmd.c_str());
+    }
+
     //
     // Static app windows
     //
