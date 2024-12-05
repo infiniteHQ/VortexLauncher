@@ -26,7 +26,10 @@ cd ../lib/installer/build
 sudo bash build.sh
 cd ../../../build
 
-rsync -av --exclude='ressources' ../lib/installer/build/build/bin/ dist/bin/
+cp -r ../lib/installer/build/build/bin/* dist/bin/
+sudo rm -rf dist/bin/builtin
+sudo rm -rf dist/bin/ressources
+
 cp -rn ./build/bin/* dist/bin/
 
 rm -rf shipping
