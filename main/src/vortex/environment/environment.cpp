@@ -14,7 +14,7 @@ VORTEX_API void VortexMaker::CheckBlankProject()
 
 #ifdef _WIN32
         blank_project_path = "\\blank_project";
-#elif
+#else
         blank_project_path = "/blank_project";
 #endif
 
@@ -78,7 +78,7 @@ VORTEX_API void VortexMaker::InitEnvironment()
         std::string endpath;
         #ifdef _WIN32
         endpath = "contents\\";
-        #elif
+        #else
         endpath = "contents/";
         #endif
 
@@ -91,7 +91,7 @@ VORTEX_API void VortexMaker::InitEnvironment()
         std::string endpath;
         #ifdef _WIN32
         endpath = "contents\\modules\\";
-        #elif
+        #else
         endpath = "contents/modules/";
         #endif
 
@@ -104,7 +104,7 @@ VORTEX_API void VortexMaker::InitEnvironment()
         std::string endpath;
         #ifdef _WIN32
         endpath = "contents\\templates\\";
-        #elif
+        #else
         endpath = "contents/templates/";
         #endif
 
@@ -116,7 +116,7 @@ VORTEX_API void VortexMaker::InitEnvironment()
         std::string endpath;
         #ifdef _WIN32
         endpath = "contents\\plugins\\";
-        #elif
+        #else
         endpath = "contents/plugins/";
         #endif
 
@@ -128,7 +128,7 @@ VORTEX_API void VortexMaker::InitEnvironment()
         std::string endpath;
         #ifdef _WIN32
         endpath = "contents\\assets\\";
-        #elif
+        #else
         endpath = "contents/assets/";
         #endif
         
@@ -140,7 +140,7 @@ VORTEX_API void VortexMaker::InitEnvironment()
         std::string endpath;
         #ifdef _WIN32
         endpath = "sessions\\";
-        #elif
+        #else
         endpath = "sessions/";
         #endif
 
@@ -180,7 +180,7 @@ VORTEX_API void VortexMaker::InitEnvironment()
         std::string content_path;
         #ifdef _WIN32
         content_path = "contents\\modules/";
-        #elif
+        #else
         content_path = "contents/modules/";
         #endif
 
@@ -197,7 +197,7 @@ VORTEX_API void VortexMaker::InitEnvironment()
         std::string content_path;
         #ifdef _WIN32
         content_path = "contents\\plugins/";
-        #elif
+        #else
         content_path = "contents/plugins/";
         #endif
 
@@ -214,7 +214,7 @@ VORTEX_API void VortexMaker::InitEnvironment()
         std::string content_path;
         #ifdef _WIN32
         content_path = "contents\\templates/";
-        #elif
+        #else
         content_path = "contents/templates/";
         #endif
 

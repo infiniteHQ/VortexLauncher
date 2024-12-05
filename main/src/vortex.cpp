@@ -563,7 +563,7 @@ VORTEX_API void VortexMaker::OpenLauncherUpdater(const std::string &path, const 
 
 #ifdef _WIN32
     command = ctx.m_VortexLauncherPath + "\\VortexUpdater.exe --path=" + path + " --workdir=" + path + " --dist=" + dist;
-#elif
+#else
     command = ctx.m_VortexLauncherPath + "/VortexUpdater --path=" + path + " --workdir=" + path + " --dist=" + dist;
 #endif
 
