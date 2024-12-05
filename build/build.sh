@@ -4,6 +4,9 @@ VERSION=$(cat ../version.conf)
 
 mkdir -p build_spdlog
 mkdir -p build
+rm -rf dist
+rm -rf ..\lib\installer\build\build\bin
+rm -rf ..\lib\installer\ui\installer\assets\builtin
 mkdir -p dist
 
 cd build_spdlog
@@ -23,14 +26,14 @@ cd ../lib/installer/build
 sudo bash build.sh
 cd ../../../build
 
-cp -rn ../lib/installer/build/build/bin/* dist/bin/
+rsync -av --exclude='ressources' ../lib/installer/build/build/bin/ dist/bin/
 cp -rn ./build/bin/* dist/bin/
 
 rm -rf shipping
 mkdir -p shipping/launcher/linux
 
 TAR_FILE=./shipping/launcher/linux/vortex_launcher_${VERSION}.tar.gz
-tar -cvzf "$TAR_FILE" dist/
+tar -cvzf "$TAR_FILE" dist
 
 cd shipping/launcher/linux
 sha256sum "vortex_launcher_${VERSION}.tar.gz" > "vortex_launcher_${VERSION}.tar.gz.sha256"
@@ -39,12 +42,11 @@ cd ../../../
 rm -rf  ../lib/installer/ui/installer/assets/builtin
 mkdir -p  ../lib/installer/ui/installer/assets/builtin
 
-cp "shipping/launcher/linux/vortex_launcher_${VERSION}.tar.gz" "../lib/installer/ui/installer/assets/builtin/"
-cp "shipping/launcher/linux/vortex_launcher_${VERSION}.tar.gz.sha256" "../lib/installer/ui/installer/assets/builtin/"
+cp shipping/launcher/linux/vortex_launcher_${VERSION}.tar.gz ../lib/installer/ui/installer/assets/builtin/
+cp shipping/launcher/linux/vortex_launcher_${VERSION}.tar.gz.sha256 ../lib/installer/ui/installer/assets/builtin/
 
 cp -r ../lib/blank_project ../lib/installer/ui/installer/assets/builtin/
 
-# Variables
 MANIFEST_PATH="../lib/installer/ui/installer/assets/builtin/manifest.json"
 VERSION_FILE="../version.conf"
 ARCHITECTURE="x86_64"
