@@ -4,6 +4,7 @@ dist
 shipping
 .cmake
 bin
+cert
 CMakeFiles
 dist
 restcpp_build
