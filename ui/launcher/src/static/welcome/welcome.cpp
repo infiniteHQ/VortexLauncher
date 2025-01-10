@@ -168,13 +168,13 @@ namespace VortexLauncher
         }
 
         {
-            ImVec2 textPadding(10.0f, 5.0f); 
-            float blurHeight = 30.0f;   
+            ImVec2 textPadding(10.0f, 5.0f);
+            float blurHeight = 30.0f;
 
             ImVec2 blurPos = ImVec2(cursorPos.x, cursorPos.y + squareSize.y - blurHeight);
             ImVec2 blurSize = ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y);
 
-            drawList->AddRectFilled(blurPos, blurSize, IM_COL32(0, 0, 0, 128)); 
+            drawList->AddRectFilled(blurPos, blurSize, IM_COL32(0, 0, 0, 128));
 
             ImVec2 textPos = ImVec2(cursorPos.x + textPadding.x, cursorPos.y + squareSize.y - blurHeight + textPadding.y);
 
@@ -185,7 +185,7 @@ namespace VortexLauncher
             ImGui::PopFont();
         }
 
-        ImVec2 textPos = ImVec2(cursorPos.x, cursorPos.y + squareSize.y + 5); 
+        ImVec2 textPos = ImVec2(cursorPos.x, cursorPos.y + squareSize.y + 5);
         std::string fullText = desc;
         float maxWidth = squareSize.x;
 
@@ -204,7 +204,7 @@ namespace VortexLauncher
             line += ch;
             lineWidth += charSize.x;
         }
-        
+
         if (!line.empty())
         {
             drawList->AddText(textPos, Cherry::HexToImU32("#a1a1a1ff"), line.c_str());
@@ -310,8 +310,8 @@ namespace VortexLauncher
             ImVec4 lightBorderColor = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
         };
 
-        m_AppWindow->SetInternalPaddingX(10.0f);
-        m_AppWindow->SetInternalPaddingY(10.0f);
+        m_AppWindow->SetInternalPaddingX(0.0f);
+        m_AppWindow->SetInternalPaddingY(0.0f);
 
         m_SelectedChildName = "?loc:loc.windows.welcome.overview";
 
@@ -338,13 +338,12 @@ namespace VortexLauncher
                                        (article.image_link.find("http://") == 0 || article.image_link.find("https://") == 0))
                                    {
                                        NewsBanner(
-                                           false,                           
-                                           article.title,                     
-                                           400, 150,                           
-                                           Cherry::GetHttpPath(article.image_link), 
-                                           article.news_link,                   
-                                           article.description                 
-                                       );
+                                           false,
+                                           article.title,
+                                           400, 150,
+                                           Cherry::GetHttpPath(article.image_link),
+                                           article.news_link,
+                                           article.description);
                                    }
                                }
                            }
@@ -494,11 +493,20 @@ namespace VortexLauncher
 
         if (!m_SelectedChildName.empty())
         {
-            std::function<void()> pannel_render = GetChild(m_SelectedChildName);
-            if (pannel_render)
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20.0f, 20.0f));
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(20.0f, 20.0f));
+
+            if (ImGui::BeginChild("ChildPanel", ImVec2(0, 0), false, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_AlwaysVerticalScrollbar))
             {
-                pannel_render();
+                std::function<void()> pannel_render = GetChild(m_SelectedChildName);
+                if (pannel_render)
+                {
+                    pannel_render();
+                }
             }
+            ImGui::EndChild();
+
+            ImGui::PopStyleVar(2);
         }
 
         ImGui::EndGroup();
