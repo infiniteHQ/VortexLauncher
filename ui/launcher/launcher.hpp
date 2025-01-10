@@ -1,5 +1,4 @@
 #pragma once
-#define CHERRY_V1
 #include "../../lib/cherry/cherry.hpp"
 
 #include "src/static/project_manager/project_manager.hpp"
@@ -51,7 +50,7 @@ public:
       cmd = "cp -r " + Cherry::GetPath("resources/templates/blank_project") + " " + path;
 #endif
 
-    std::cout << "CPUY <" << cmd << std::endl;
+      std::cout << "CPUY <" << cmd << std::endl;
       system(cmd.c_str());
     }
 
@@ -61,10 +60,23 @@ public:
 
     // About
     about_window = AboutAppWindow::Create("?loc:loc.window_names.about");
+    about_window->GetAppWindow()->SetVisibility(false);
     Cherry::AddAppWindow(about_window->GetAppWindow());
 
     // Welcome
     welcome_window = WelcomeWindow::Create("?loc:loc.window_names.welcome");
+    welcome_window->m_CreateProjectCallback = [this](){
+      project_manager->m_ProjectCreation = true;
+      ImGui::SetWindowFocus(project_manager->GetAppWindow()->m_IdName.c_str());
+    };
+    welcome_window->m_OpenProjectCallback = [this](){
+      project_manager->m_ProjectCreation = false;
+      ImGui::SetWindowFocus(project_manager->GetAppWindow()->m_IdName.c_str());
+    };
+    welcome_window->m_SettingsCallback = [this](){
+      SetMainSettingsVisibility(true);
+      ImGui::SetWindowFocus(system_settings->GetAppWindow()->m_IdName.c_str());
+    };
     Cherry::AddAppWindow(welcome_window->GetAppWindow());
 
     // Project manager
@@ -157,6 +169,44 @@ public:
     }
   }
 
+  void SetAboutWindowVisibility(const bool &visibility)
+  {
+    about_window->GetAppWindow()->SetVisibility(visibility);
+    if (visibility)
+    {
+      Cherry::ApplicationSpecification spec;
+
+      std::string name = "About Vortex";
+      spec.Name = name;
+      spec.MinHeight = 100;
+      spec.MinWidth = 200;
+      spec.Height = 450;
+      spec.Width = 600;
+      spec.CustomTitlebar = true;
+      spec.DisableWindowManagerTitleBar = true;
+      spec.WindowOnlyClosable = true;
+      spec.RenderMode = Cherry::WindowRenderingMethod::SimpleWindow;
+      spec.UniqueAppWindowName = about_window->GetAppWindow()->m_Name;
+
+      spec.UsingCloseCallback = true;
+      spec.CloseCallback = [this]()
+      {
+        Cherry::DeleteAppWindow(about_window->GetAppWindow());
+
+        // Recreate a new sleepy instance
+        about_window = AboutAppWindow::Create("?loc:loc.window_names.about");
+        about_window->GetAppWindow()->SetVisibility(false);
+        Cherry::AddAppWindow(about_window->GetAppWindow());
+      };
+
+      spec.DisableTitle = true;
+      spec.WindowSaves = false;
+      spec.MenubarCallback = []() {};
+      spec.IconPath = Cherry::GetPath("resources/imgs/icon.png");
+      about_window->GetAppWindow()->AttachOnNewWindow(spec);
+    }
+  }
+
   void SetLogicContentManager(const bool &visibility)
   {
     logic_content_manager->GetAppWindow()->SetVisibility(visibility);
@@ -231,6 +281,9 @@ private:
   std::shared_ptr<VersionManagerAppWindow> version_manager;
   std::shared_ptr<ContentManager> content_manager;
   std::shared_ptr<AboutAppWindow> about_window;
+
+  bool offline = false;
+  std::vector<std::string> topics = {"vortex1", "vortex2"};
 };
 
 static std::shared_ptr<Launcher> c_Launcher;
@@ -398,6 +451,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
 
                               if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.about_vortex").c_str(), Cherry::GetLocale("loc.menubar.menuitem.about_vortex_desc").c_str(), Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_info.png")), c_Launcher->GetLogsVisibility()))
                               {
+                                c_Launcher->SetAboutWindowVisibility(!c_Launcher->GetAboutAppWindowVisibility());
                               }
 
                               if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.about_contributors").c_str(),  Cherry::GetLocale("loc.menubar.menuitem.about_contributors_desc").c_str(), Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_people.png")), c_Launcher->GetDownloadCenterVisibility()))

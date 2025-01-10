@@ -1,11 +1,11 @@
 #pragma once
+
 #include "../../../../../main/include/vortex.h"
 #include "../../../../../main/include/vortex_internals.h"
 
 #ifndef WELCOME_WINDOW_H
 #define WELCOME_WINDOW_H
 
-#define CHERRY_V1
 #include "../../../../../lib/cherry/cherry.hpp"
 
 namespace VortexLauncher
@@ -26,6 +26,10 @@ namespace VortexLauncher
         void Render();
 
         std::unordered_map<std::string, std::function<void()>> m_Childs;
+
+        std::function<void()> m_CreateProjectCallback;
+        std::function<void()> m_OpenProjectCallback;
+        std::function<void()> m_SettingsCallback;
 
         std::string m_SelectedChildName;
 

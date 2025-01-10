@@ -8,13 +8,13 @@
 VORTEX_API void VortexMaker::UpdateVortexLauncherWebData()
 {
     VxContext &ctx = *CVortexMaker;
-    
+
     std::string plat = ctx.platform;
     std::string arch = ctx.arch;
     std::string dist = ctx.IO.sys_vortexlauncher_dist + "_" + plat;
 
-    std::string url = "http://api.infinite.si:9000/api/vortexupdates/get_vl_versions?dist="+dist+"&arch="+arch;
-        VortexMaker::LogWarn("URL", url);
+    std::string url = "http://api.infinite.si:9000/api/vortexupdates/get_vl_versions?dist=" + dist + "&arch=" + arch;
+    VortexMaker::LogWarn("URL", url);
 
     RestClient::Response r = RestClient::get(url);
 
@@ -52,6 +52,58 @@ VORTEX_API void VortexMaker::UpdateVortexLauncherWebData()
     std::cout << ctx.latest_launcher_version.version << " /// " << ctx.latest_launcher_version.path << " /// " << ctx.latest_launcher_version.created_at << std::endl;
     std::cout << "______________________________________" << std::endl;
 }
+
+VORTEX_API void VortexMaker::UpdateVortexNews(const std::vector<std::string> &topics)
+{
+    for (const auto &topic : topics)
+    {
+        std::string url = "http://api.infinite.si:9000/api/vortexupdates/get_news?topic=" + topic;
+
+        std::cout << "Fetching URL: " << url << std::endl;
+
+        RestClient::Response r = RestClient::get(url);
+
+        if (r.code != 200)
+        {
+            std::cerr << "Failed to fetch news for topic: " << topic << std::endl;
+            continue;
+        }
+
+        try
+        {
+            std::string responseBody = r.body;
+            std::cout << "Response body: " << responseBody << std::endl;
+
+            // Déséchapper la chaîne JSON pour pouvoir la parser
+            responseBody = responseBody.substr(1, responseBody.length() - 2);  // Enlever les guillemets supplémentaires
+
+            // Déséchapper les guillemets et autres caractères échappés
+            std::string unescapedResponse = nlohmann::json::parse("\"" + responseBody + "\"").get<std::string>();
+
+            // Maintenant, parser la chaîne déséchappée
+            nlohmann::json jsonData = nlohmann::json::parse(unescapedResponse);
+
+            // Créer et remplir un article
+            VortexNews article;
+            article.topic = topic;
+            article.title = jsonData.value("title", "");              // Utilise une valeur par défaut si manquant
+            article.description = jsonData.value("description", "");  // Utilise une valeur par défaut si manquant
+            article.image_link = jsonData.value("image_link", "");    // Utilise une valeur par défaut si manquant
+            article.news_link = jsonData.value("news_link", "");      // Utilise une valeur par défaut si manquant
+
+            // Ajouter l'article au contexte
+            VortexMaker::GetCurrentContext()->IO.news.push_back(article);
+        }
+        catch (const nlohmann::json::exception &e)
+        {
+            std::cerr << "JSON parsing error for topic " << topic << ": " << e.what() << std::endl;
+            continue;
+        }
+    }
+}
+
+
+
 
 VORTEX_API void VortexMaker::UpdateVortexWebData()
 {

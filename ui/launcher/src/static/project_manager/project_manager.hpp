@@ -35,6 +35,9 @@ public:
 	VxContext *ctx;
 	std::string parent;
 
+ 	bool m_ProjectCreation = false;
+ 	bool m_ProjectOpening = false;
+ 	bool m_Settings = false;
 private:
 	bool opened;
 

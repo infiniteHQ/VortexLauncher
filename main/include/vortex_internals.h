@@ -123,6 +123,16 @@ struct EnvProject
   std::string lastOpened;
 };
 
+
+struct VortexNews
+{
+  std::string topic;
+  std::string title;
+  std::string description;
+  std::string image_link;
+  std::string news_link; // to redirect
+};
+
 struct VxSystemLog
 {
   spdlog::level::level_enum m_level;
@@ -182,6 +192,10 @@ struct VxIO
   // Templates
   std::vector<std::shared_ptr<TemplateInterface>> templates;
   std::vector<std::shared_ptr<TemplateInterface>> sys_templates;
+
+  // Misc
+  std::vector<VortexNews> news;
+  bool offline = false;
 };
 
 struct VxPaths

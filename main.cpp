@@ -127,6 +127,7 @@ VxContext *InitBlankRuntime(bool logger)
 
     VortexMaker::UpdateVortexWebData();
     VortexMaker::UpdateVortexLauncherWebData();
+    VortexMaker::UpdateVortexNews({"vortex1", "vortex2"});
 
     VortexMaker::RefreshEnvironmentProjects();
     VortexMaker::RefreshEnvironmentVortexVersion();

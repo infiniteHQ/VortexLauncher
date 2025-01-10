@@ -265,7 +265,8 @@ void LoadEditorModules(const std::string &directory, std::vector<void *> &module
                 catch (const std::exception &e)
                 {
                     // Print error if an exception occurs
-                    VortexMaker::LogError("Core", 'Error: ' + e.what());
+                    std::string error = e.what();
+                    VortexMaker::LogError("Core", "Error: " + error);
                 }
             }
         }

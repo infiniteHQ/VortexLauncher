@@ -343,7 +343,7 @@ void ProjectManager::Render()
         }
     }
 
-    if (!project_creation)
+    if (!m_ProjectCreation)
     {
         ImGui::BeginChild("left_pane", ImVec2(leftPaneWidth, 0), true, ImGuiWindowFlags_NoBackground);
 
@@ -919,11 +919,11 @@ void ProjectManager::mainButtonsMenuItem()
 
     strncpy(ProjectSearch, v_SearchString->c_str(), sizeof(ProjectSearch) - 1);
 
-    if (!project_creation)
+    if (!m_ProjectCreation)
     {
         if (create_project_button->Render())
         {
-            project_creation = true;
+            m_ProjectCreation = true;
         }
 
         if (import_project_button->Render("import"))
@@ -959,7 +959,7 @@ void ProjectManager::mainButtonsMenuItem()
     {
         if (open_project_button->Render())
         {
-            project_creation = false;
+            m_ProjectCreation = false;
         }
     }
 }

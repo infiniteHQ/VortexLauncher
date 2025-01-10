@@ -13,7 +13,6 @@ static int selected = 0;
 static int selected_template = 0;
 static bool template_is_selected = false;
 static bool open_import_projects = false;
-static bool project_creation = false;
 static bool showProjectPools = false;
 static std::shared_ptr<TemplateInterface> selected_template_object;
 static std::shared_ptr<EnvProject> selected_envproject;

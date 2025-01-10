@@ -260,6 +260,7 @@ namespace VortexMaker
 
     VORTEX_API void UpdateVortexLauncherWebData(); // Fetch latests versions of the Vortex Launcher
     VORTEX_API void UpdateVortexWebData();         // Fetch all available versions of Vortex.
+    VORTEX_API void UpdateVortexNews(const std::vector<std::string>& topics);             // Fetch all news
 
     VORTEX_API std::vector<int> SplitVersion(const std::string &version);
     VORTEX_API bool IsVersionGreater(const std::string &manifestVersion, const std::string &requestVersion);
