@@ -15,8 +15,6 @@ static bool template_is_selected = false;
 static bool open_import_projects = false;
 static bool showProjectPools = false;
 static std::shared_ptr<TemplateInterface> selected_template_object;
-static std::shared_ptr<EnvProject> selected_envproject;
-static std::shared_ptr<EnvProject> selected_envproject_to_remove;
 static std::string title = "none";
 static std::string default_project_avatar = "/usr/local/include/Vortex/imgs/base_vortex.png";
 static std::string operating_system_banner = "/usr/local/include/Vortex/1.1/imgs/operating_system_banner.png";
@@ -637,7 +635,7 @@ static void InstalledVersionButton(const std::string &path, const std::string &e
     }
 }
 
-static void MyButton(const std::shared_ptr<EnvProject> envproject, int xsize = 100, int ysize = 100)
+static void MyButton(const std::shared_ptr<EnvProject> envproject, std::shared_ptr<EnvProject>& selectedproject, int xsize = 100, int ysize = 100)
 {
     ImVec2 squareSize(xsize, ysize);
 
@@ -663,7 +661,7 @@ static void MyButton(const std::shared_ptr<EnvProject> envproject, int xsize = 1
     std::string button_id = envproject->name + "squareButtonWithText" + envproject->lastOpened;
     if (ImGui::InvisibleButton(button_id.c_str(), totalSize))
     {
-        selected_envproject = envproject;
+        selectedproject = envproject;
     }
 
     if (ImGui::IsItemHovered())

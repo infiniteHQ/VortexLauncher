@@ -199,7 +199,7 @@ void ProjectManager::Render()
             ImGui::SetItemDefaultFocus();
             ImGui::SameLine();
 
-            if (strcmp(string_validation, selected_envproject_to_remove->name.c_str()) != 0)
+            if (strcmp(string_validation,m_SelectedEnvprojectToRemove->name.c_str()) != 0)
             {
                 ImGui::BeginDisabled();
             }
@@ -210,7 +210,7 @@ void ProjectManager::Render()
             if (ImGui::Button("Delete", ImVec2(120, 0)))
             {
                 // Delete
-                VortexMaker::DeleteProject(selected_envproject_to_remove->path, selected_envproject_to_remove->name);
+                VortexMaker::DeleteProject(m_SelectedEnvprojectToRemove->path,m_SelectedEnvprojectToRemove->name);
 
                 VortexMaker::RefreshEnvironmentProjects();
 
@@ -218,7 +218,7 @@ void ProjectManager::Render()
                 ImGui::CloseCurrentPopup();
             }
             ImGui::PopStyleColor(3);
-            if (strcmp(string_validation, selected_envproject_to_remove->name.c_str()) != 0)
+            if (strcmp(string_validation,m_SelectedEnvprojectToRemove->name.c_str()) != 0)
             {
                 ImGui::EndDisabled();
             }
@@ -352,7 +352,7 @@ void ProjectManager::Render()
         {
             if (areStringsSimilar(ctx->IO.sys_projects[row]->name, ProjectSearch, threshold) || isOnlySpacesOrEmpty(ProjectSearch))
             {
-                MyButton(ctx->IO.sys_projects[row]);
+                MyButton(ctx->IO.sys_projects[row], m_SelectedEnvproject);
             }
         }
 
@@ -381,7 +381,7 @@ void ProjectManager::Render()
 
         ImGui::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
         ImGui::BeginChild("###rightpan");
-        if (!selected_envproject)
+        if (!m_SelectedEnvproject)
         {
             auto texture = Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/frame_selectproject.png"));
             auto texture_size = Cherry::GetTextureSize(Cherry::GetPath("resources/imgs/icons/misc/frame_selectproject.png"));
@@ -402,7 +402,7 @@ void ProjectManager::Render()
                 // LOGO Section
                 ImGui::BeginChild("LOGO_", ImVec2(80, 80), false, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoScrollbar);
                 ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x - 60) * 0.5f); // Center the logo horizontally
-                MyButton(selected_envproject->logoPath, 60, 60);
+                MyButton(m_SelectedEnvproject->logoPath, 60, 60);
                 ImGui::EndChild();
                 ImGui::SameLine();
             }
@@ -418,7 +418,7 @@ void ProjectManager::Render()
                 ImGui::GetFont()->Scale = fontScale;
                 ImGui::PushFont(ImGui::GetFont());
 
-                ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.9f), selected_envproject->name.c_str());
+                ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.9f),m_SelectedEnvproject->name.c_str());
 
                 ImGui::GetFont()->Scale = oldFontSize;
                 ImGui::PopFont();
@@ -426,7 +426,7 @@ void ProjectManager::Render()
                 ImGui::Spacing();
                 ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.5f), "Last opened: ");
                 ImGui::SameLine();
-                ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.8f, 0.8f), selected_envproject->lastOpened.c_str());
+                ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.8f, 0.8f),m_SelectedEnvproject->lastOpened.c_str());
 
                 ImGui::EndChild();
             }
@@ -446,10 +446,10 @@ void ProjectManager::Render()
                     ImGui::TextColored(valueColor, value.c_str());
                 };
 
-                AddInfoRow("Author(s):", selected_envproject->author);
-                AddInfoRow("Description:", selected_envproject->description);
-                AddInfoRow("Version:", selected_envproject->version);
-                AddInfoRow("Compatible with:", selected_envproject->compatibleWith);
+                AddInfoRow("Author(s):",m_SelectedEnvproject->author);
+                AddInfoRow("Description:",m_SelectedEnvproject->description);
+                AddInfoRow("Version:",m_SelectedEnvproject->version);
+                AddInfoRow("Compatible with:",m_SelectedEnvproject->compatibleWith);
 
                 ImGui::EndChild();
             }
@@ -468,7 +468,7 @@ void ProjectManager::Render()
 
             if (ImGui::Button("Delete", buttonSize))
             {
-                selected_envproject_to_remove = selected_envproject;
+               m_SelectedEnvprojectToRemove =m_SelectedEnvproject;
                 open_deletion_modal = true;
             }
 
@@ -479,13 +479,13 @@ void ProjectManager::Render()
 
             if (ImGui::Button("Open Project", buttonSize))
             {
-                if (VortexMaker::CheckIfProjectRunning(selected_envproject->path))
+                if (VortexMaker::CheckIfProjectRunning(m_SelectedEnvproject->path))
                 {
                     ImGui::OpenPopup("Project Already Running");
                 }
                 else
                 {
-                    VortexMaker::OpenProject(selected_envproject->path, selected_envproject->compatibleWith);
+                    VortexMaker::OpenProject(m_SelectedEnvproject->path,m_SelectedEnvproject->compatibleWith);
                 }
             }
 
@@ -501,7 +501,7 @@ void ProjectManager::Render()
                 ImGui::SameLine();
                 if (ImGui::Button("Oui", ImVec2(120, 0)))
                 {
-                    VortexMaker::OpenProject(selected_envproject->path, selected_envproject->compatibleWith);
+                    VortexMaker::OpenProject(m_SelectedEnvproject->path,m_SelectedEnvproject->compatibleWith);
                     ImGui::CloseCurrentPopup();
                 }
 

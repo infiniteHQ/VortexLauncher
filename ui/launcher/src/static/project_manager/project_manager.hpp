@@ -38,6 +38,9 @@ public:
  	bool m_ProjectCreation = false;
  	bool m_ProjectOpening = false;
  	bool m_Settings = false;
+
+ std::shared_ptr<EnvProject> m_SelectedEnvproject;
+ std::shared_ptr<EnvProject> m_SelectedEnvprojectToRemove;
 private:
 	bool opened;
 

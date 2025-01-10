@@ -77,6 +77,13 @@ public:
       SetMainSettingsVisibility(true);
       ImGui::SetWindowFocus(system_settings->GetAppWindow()->m_IdName.c_str());
     };
+
+    welcome_window->m_ProjectCallback = [this](const std::shared_ptr<EnvProject>& project){
+      project_manager->m_ProjectCreation = false;
+      project_manager->m_SelectedEnvproject = project;
+      ImGui::SetWindowFocus(project_manager->GetAppWindow()->m_IdName.c_str());
+    
+    };
     Cherry::AddAppWindow(welcome_window->GetAppWindow());
 
     // Project manager

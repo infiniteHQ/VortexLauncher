@@ -30,7 +30,11 @@ namespace VortexLauncher
         std::function<void()> m_CreateProjectCallback;
         std::function<void()> m_OpenProjectCallback;
         std::function<void()> m_SettingsCallback;
+        std::function<void(const std::shared_ptr<EnvProject>)> m_ProjectCallback;
 
+
+std::vector<std::shared_ptr<EnvProject>> GetMostRecentProjects(const std::vector<std::shared_ptr<EnvProject>>& projects, size_t maxCount);
+std::vector<std::shared_ptr<EnvProject>> m_RecentProjects;
         std::string m_SelectedChildName;
 
         std::shared_ptr<Cherry::AppWindow> m_AppWindow;
