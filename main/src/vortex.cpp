@@ -534,16 +534,19 @@ VORTEX_API void VortexMaker::OpenVortexInstaller(const std::string &version, con
 
     if (VortexMaker::IsWindows())
     {
-        command = ctx.m_VortexLauncherPath + "/VersionInstaller --home=" + VortexMaker::getHomeDirectory() + " --dist=" + dist + " --platform=" + platform + " --arch=" + arch + " --version=" + version;
+        command = ctx.m_VortexLauncherPath + "\\VersionInstaller.exe --home=" + VortexMaker::getHomeDirectory() + " --dist=" + dist + " --platform=" + platform + " --arch=" + arch + " --version=" + version;
     }
     else
     {
-        command = ctx.m_VortexLauncherPath + "\\VersionInstaller.exe --home=" + VortexMaker::getHomeDirectory() + " --dist=" + dist + " --platform=" + platform + " --arch=" + arch + " --version=" + version;
+        command = ctx.m_VortexLauncherPath + "/VersionInstaller --home=" + VortexMaker::getHomeDirectory() + " --dist=" + dist + " --platform=" + platform + " --arch=" + arch + " --version=" + version;
     }
 
     VXWARN("F", command)
 
-    bool success = VortexMaker::executeInChildProcess(command);
+    std::thread([command](){
+    bool success = false;
+
+        success = ::system(command.c_str());
 
     if (success)
     {
@@ -553,6 +556,7 @@ VORTEX_API void VortexMaker::OpenVortexInstaller(const std::string &version, con
     {
         std::cerr << "Installation failed." << std::endl;
     }
+    }).detach();
 }
 
 VORTEX_API void VortexMaker::OpenLauncherUpdater(const std::string &path, const std::string &dist)

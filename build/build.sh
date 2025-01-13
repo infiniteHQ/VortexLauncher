@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# Lire les arguments
 NO_INSTALLER=false
 while [[ "$#" -gt 0 ]]; do
   case $1 in

@@ -229,6 +229,9 @@ struct VortexVersion
   std::string sum;
   std::string date;
   std::string banner;
+  std::string arch;
+  std::string plat;
+  std::string dist;
   bool already_installed = false;
   bool working = false;
 };

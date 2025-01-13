@@ -33,6 +33,19 @@ file(GLOB_RECURSE VORTEX_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/main/src/*.cpp")
 add_executable(vortex_launcher ${VORTEX_SOURCES} main.cpp)
 target_link_libraries(vortex_launcher PRIVATE vortex_launcher_shared)
 
+#TODO : Do only in cherry
+####target_link_libraries(vortex_launcher PRIVATE cherry SDL2)
+####set(CEF_RELEASE_DIR "${CMAKE_BINARY_DIR}/Release")
+####set(CEF_EXTRA_LIBRARIES
+####    "${CEF_RELEASE_DIR}/libEGL.so"
+####    "${CEF_RELEASE_DIR}/libGLESv2.so"
+####    "${CEF_RELEASE_DIR}/libvk_swiftshader.so"
+####    "${CEF_RELEASE_DIR}/libvulkan.so.1"
+   #### "${CEF_RELEASE_DIR}/libcef.so"
+####)
+####target_link_libraries(vortex_launcher PRIVATE ${CEF_EXTRA_LIBRARIES})
+#################
+
 # Set the installation directories
 if(UNIX AND NOT APPLE)
     set(INSTALL_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build/dist/)
@@ -49,13 +62,19 @@ elseif(WIN32)
     set(INSTALL_INCLUDE_DIR ${INSTALL_BASE_DIR}/include)
 endif()
 
-# Set RPATH for the executable
 set_target_properties(vortex_launcher PROPERTIES
-    INSTALL_RPATH "${INSTALL_LIB_DIR}"
+    INSTALL_RPATH "${INSTALL_LIB_DIR};${CEF_RELEASE_DIR}"
     BUILD_WITH_INSTALL_RPATH TRUE
     INSTALL_RPATH_USE_LINK_PATH TRUE
 )
 
+#TODO : Do only in cherry
+####install(FILES
+####    ${CEF_RELEASE_DIR}/libcef.so
+   #### ${CEF_RELEASE_DIR}/libvk_swiftshader.so
+####    DESTINATION ${INSTALL_LIB_DIR}
+####)
+####
 # Install targets
 install(TARGETS vortex_launcher DESTINATION ${INSTALL_BIN_DIR})
 install(TARGETS vortex_launcher_shared LIBRARY DESTINATION ${INSTALL_LIB_DIR})
@@ -104,9 +123,3 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ui/launcher/assets/
         DESTINATION ${INSTALL_BIN_DIR}/
         FILES_MATCHING PATTERN "*"
 )
-
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/assets/desktop/vortex_launcher_desktop.desktop
-        DESTINATION ${INSTALL_MAIN_DIR}/)
-
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/assets/desktop/vortex_launcher_desktop.desktop
-DESTINATION /usr/share/applications/)

@@ -75,7 +75,7 @@ VORTEX_API void VortexMaker::UpdateVortexNews(const std::vector<std::string> &to
             std::cout << "Response body: " << responseBody << std::endl;
 
             // Déséchapper la chaîne JSON pour pouvoir la parser
-            responseBody = responseBody.substr(1, responseBody.length() - 2);  // Enlever les guillemets supplémentaires
+            responseBody = responseBody.substr(1, responseBody.length() - 2); // Enlever les guillemets supplémentaires
 
             // Déséchapper les guillemets et autres caractères échappés
             std::string unescapedResponse = nlohmann::json::parse("\"" + responseBody + "\"").get<std::string>();
@@ -86,10 +86,10 @@ VORTEX_API void VortexMaker::UpdateVortexNews(const std::vector<std::string> &to
             // Créer et remplir un article
             VortexNews article;
             article.topic = topic;
-            article.title = jsonData.value("title", "");              // Utilise une valeur par défaut si manquant
-            article.description = jsonData.value("description", "");  // Utilise une valeur par défaut si manquant
-            article.image_link = jsonData.value("image_link", "");    // Utilise une valeur par défaut si manquant
-            article.news_link = jsonData.value("news_link", "");      // Utilise une valeur par défaut si manquant
+            article.title = jsonData.value("title", "");             // Utilise une valeur par défaut si manquant
+            article.description = jsonData.value("description", ""); // Utilise une valeur par défaut si manquant
+            article.image_link = jsonData.value("image_link", "");   // Utilise une valeur par défaut si manquant
+            article.news_link = jsonData.value("news_link", "");     // Utilise une valeur par défaut si manquant
 
             // Ajouter l'article au contexte
             VortexMaker::GetCurrentContext()->IO.news.push_back(article);
@@ -101,9 +101,6 @@ VORTEX_API void VortexMaker::UpdateVortexNews(const std::vector<std::string> &to
         }
     }
 }
-
-
-
 
 VORTEX_API void VortexMaker::UpdateVortexWebData()
 {
@@ -129,6 +126,11 @@ VORTEX_API void VortexMaker::UpdateVortexWebData()
 
         nlohmann::json jsonData = nlohmann::json::parse(r.body);
 
+        for (auto &item : jsonData)
+        {
+            item["dist"] = dist;
+        }
+
         aggregatedJsonData.insert(aggregatedJsonData.end(), jsonData.begin(), jsonData.end());
     }
 
@@ -144,11 +146,17 @@ VORTEX_API void VortexMaker::UpdateVortexWebData()
         version.path = item["path"].get<std::string>();
         version.sum = item["sum"].get<std::string>();
         version.date = item["date"].get<std::string>();
-        version.banner = "";
+        version.dist = item["dist"].get<std::string>();
+        version.plat = plat;
+        version.arch = arch;
 
-        for (auto vortex_versions : ctx.IO.sys_vortex_versions_pools)
+        if (item.contains("values"))
         {
-            //
+            auto values = nlohmann::json::parse(item["values"].get<std::string>());
+            if (values.contains("image"))
+            {
+                version.banner = values["image"].get<std::string>();
+            }
         }
 
         latest_vortex_versions.push_back(version);

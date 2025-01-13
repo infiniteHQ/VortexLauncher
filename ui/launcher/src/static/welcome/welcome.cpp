@@ -401,6 +401,12 @@ namespace VortexLauncher
         m_SelectedChildName = "?loc:loc.windows.welcome.overview";
         m_RecentProjects = GetMostRecentProjects(VortexMaker::GetCurrentContext()->IO.sys_projects, 4);
 
+        this->AddChild("About", [this]()
+                       { ImGui::Text("Latest 2 news + Changelog here + articles"); });
+
+        this->AddChild("What's news ?", [this]()
+                       { ImGui::Text("Latest 2 news + Changelog here + articles"); });
+
         this->AddChild("Learn", [this]() {
 
         });
@@ -449,7 +455,6 @@ namespace VortexLauncher
 
                            for (auto project : VortexMaker::GetCurrentContext()->IO.sys_projects)
                            {
-                               std::cout << project->lastOpened << std::endl;
                            }
 
                            Cherry::TitleSixColored("Latest openned project", "#797979FF");
@@ -555,8 +560,46 @@ namespace VortexLauncher
 
         ImGui::Image(Cherry::GetTexture(Cherry::GetPath("resources/imgs/welcome.png")), ImVec2(270, 55));
 
+        auto specialChild = std::find_if(m_Childs.begin(), m_Childs.end(), [](const auto &child)
+                                         { return child.first == "?loc:loc.windows.welcome.overview"; });
+
+        if (specialChild != m_Childs.end())
+        {
+            Cherry::MenuItemTextSeparator("Main");
+            Cherry::TextButtonUnderlineOptions opt;
+
+            if (specialChild->first == m_SelectedChildName)
+            {
+                opt.hex_text_idle = "#FFFFFFFF";
+            }
+            else
+            {
+                opt.hex_text_idle = "#A9A9A9FF";
+            }
+            std::string child_name;
+
+            if (specialChild->first.rfind("?loc:", 0) == 0)
+            {
+                std::string localeName = specialChild->first.substr(5);
+                child_name = Cherry::GetLocale(localeName) + "####" + localeName;
+            }
+            else
+            {
+                child_name = specialChild->first;
+            }
+
+            if (Cherry::TextButtonUnderline(child_name.c_str(), true, opt))
+            {
+                m_SelectedChildName = specialChild->first;
+            }
+        }
+
+        Cherry::MenuItemTextSeparator("All menus");
         for (const auto &child : m_Childs)
         {
+            if (child.first == "?loc:loc.windows.welcome.overview")
+                continue;
+
             Cherry::TextButtonUnderlineOptions opt;
 
             if (child.first == m_SelectedChildName)
@@ -583,8 +626,8 @@ namespace VortexLauncher
             {
                 m_SelectedChildName = child.first;
             }
-
         }
+
         ImGui::EndChild();
         ImGui::PopStyleColor(2);
         ImGui::PopStyleVar();
@@ -612,6 +655,8 @@ namespace VortexLauncher
 
         ImGui::SameLine();
         ImGui::BeginGroup();
+
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.0f);
 
         if (!m_SelectedChildName.empty())
         {

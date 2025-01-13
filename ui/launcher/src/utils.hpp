@@ -315,7 +315,7 @@ static void DrawHighlightedText(ImDrawList *drawList, ImVec2 textPos, const char
     }
 }
 
-static void VersionButton(const std::string &envproject, int xsize = 100, int ysize = 100, const std::string &version = "?", const std::string &path = "resources/imgs/vortex_banner_unknow.png")
+static void VersionButton(const std::string &envproject, int xsize = 100, int ysize = 100, const std::string &version = "?", const std::string &path = "resources/imgs/vortex_banner_unknow.png", bool beta = false)
 {
     ImVec2 squareSize(xsize, ysize);
 
@@ -354,10 +354,14 @@ static void VersionButton(const std::string &envproject, int xsize = 100, int ys
     if (!envproject.empty() && std::filesystem::exists(envproject))
     {
         drawList->AddImage(Cherry::GetTexture(envproject), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+        if (beta)
+            drawList->AddImage(Cherry::GetTexture(Cherry::GetPath("resources/imgs/beta_mask.png")), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
     }
     else
     {
         drawList->AddImage(Cherry::GetTexture(Cherry::GetPath(path)), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+        if (beta)
+            drawList->AddImage(Cherry::GetTexture(Cherry::GetPath("resources/imgs/beta_mask.png")), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
     }
 
     ImVec2 smallRectSize(40, 20);
@@ -387,7 +391,7 @@ static void VersionButton(const std::string &envproject, int xsize = 100, int ys
         ImGui::SameLine();
 }
 
-static void DownloadableVersionButton(const std::string &envproject, int xsize = 100, int ysize = 100, const std::string &version = "?", const std::string &path = "resources/imgs/vortex_banner_unknow.png", std::string installedpath = "none")
+static void DownloadableVersionButton(const std::string &envproject, int xsize = 100, int ysize = 100, const std::string &version = "?", const std::string &path = "resources/imgs/vortex_banner_unknow.png", std::string installedpath = "none", const std::string &dist = "none")
 {
     ImVec2 squareSize(xsize, ysize);
     const char *originalText = envproject.c_str();
@@ -424,10 +428,35 @@ static void DownloadableVersionButton(const std::string &envproject, int xsize =
     if (!envproject.empty() && std::filesystem::exists(envproject))
     {
         drawList->AddImage(Cherry::GetTexture(envproject), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+        if (dist == "beta")
+        {
+            drawList->AddImage(Cherry::GetTexture(Cherry::GetPath("resources/imgs/beta_mask.png")), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+        }
+        else if (dist == "stable")
+        {
+            drawList->AddImage(Cherry::GetTexture(Cherry::GetPath("resources/imgs/stable_mask.png")), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+        }
+        else if (dist == "demo")
+        {
+            drawList->AddImage(Cherry::GetTexture(Cherry::GetPath("resources/imgs/demo_mask.png")), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+        }
     }
     else
     {
         drawList->AddImage(Cherry::GetTexture(Cherry::GetPath(path)), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+
+        if (dist == "beta")
+        {
+            drawList->AddImage(Cherry::GetTexture(Cherry::GetPath("resources/imgs/beta_mask.png")), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+        }
+        else if (dist == "stable")
+        {
+            drawList->AddImage(Cherry::GetTexture(Cherry::GetPath("resources/imgs/stable_mask.png")), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+        }
+        else if (dist == "demo")
+        {
+            drawList->AddImage(Cherry::GetTexture(Cherry::GetPath("resources/imgs/demo_mask.png")), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+        }
     }
 
     ImVec2 smallRectSize(40, 20);
@@ -449,7 +478,6 @@ static void DownloadableVersionButton(const std::string &envproject, int xsize =
     ImGui::SetCursorScreenPos(dotButtonPos);
 
     VxContext *ctx = VortexMaker::GetCurrentContext();
-    std::string dist = ctx->IO.sys_vortexlauncher_dist;
     if (exist)
     {
         {
@@ -529,7 +557,6 @@ static void DownloadableVersionButton(const std::string &envproject, int xsize =
 
     ImVec2 textPos = ImVec2(cursorPos.x + (squareSize.x - textSize.x) / 2, cursorPos.y + squareSize.y + 5);
     drawList->AddText(textPos, IM_COL32(255, 255, 255, 255), truncatedText);
-    drawList->AddText(ImVec2(textPos.x, textPos.y - 20), IM_COL32(255, 255, 255, 255), dist.c_str());
 
     ImGui::EndGroup();
 
@@ -635,7 +662,7 @@ static void InstalledVersionButton(const std::string &path, const std::string &e
     }
 }
 
-static void MyButton(const std::shared_ptr<EnvProject> envproject, std::shared_ptr<EnvProject>& selectedproject, int xsize = 100, int ysize = 100)
+static void MyButton(const std::shared_ptr<EnvProject> envproject, std::shared_ptr<EnvProject> &selectedproject, int xsize = 100, int ysize = 100)
 {
     ImVec2 squareSize(xsize, ysize);
 

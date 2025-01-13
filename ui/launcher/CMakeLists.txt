@@ -5,6 +5,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+# Activate the CEF mode of Cherry (for embedded browser)
+set(CHERRY_CEF OFF)
+
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../lib/cherry cherry_build)
 
 file(
@@ -31,4 +34,3 @@ add_custom_command(TARGET launcher POST_BUILD
     ${CMAKE_CURRENT_SOURCE_DIR}/assets
     ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/
 )
-

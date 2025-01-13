@@ -93,8 +93,7 @@ VersionManagerAppWindow::VersionManagerAppWindow(const std::string &name)
                            {                               
                                InstalledVersionButton(ctx.IO.sys_vortex_version[row]->path, ctx.IO.sys_vortex_version[row]->name, 300, 100, ctx.IO.sys_vortex_version[row]->version, ctx.IO.sys_vortex_version[row]->banner);
                            }
-                       }
-                   });
+                       } });
 
     this->AddChild("Vortex", "Download new Vortex versions", [this]()
                    {
@@ -110,12 +109,11 @@ VersionManagerAppWindow::VersionManagerAppWindow(const std::string &name)
                        {
                            if (areStringsSimilar(version.name, ProjectSearch, threshold) || isOnlySpacesOrEmpty(ProjectSearch))
                            {
-                           DownloadableVersionButton(version.name, 300, 100, version.version);
+                           DownloadableVersionButton(version.name, 300, 100, version.version, Cherry::GetHttpPath(version.banner), "none", version.dist);
                             }
 
                        }
-                       }
-                   });
+                       } });
 
     this->AddChild("Vortex", "Import Vortex versions", [this]()
                    {
@@ -127,14 +125,18 @@ VersionButton("All Versions", 300, 100, "1.2", "resources/imgs/vortex_versions.p
 Cherry::TitleFourColored("All installed versions", "#75757575");
 
     VxContext &ctx = *CVortexMaker;
+if(ctx.IO.sys_vortex_version.size() <= 0)
+{
+    VersionButton("No version installed", 300, 100, "Click to download", Cherry::GetPath("resources/imgs/no_versions.png"));
+}
+
                        for (int row = 0; row < ctx.IO.sys_vortex_version.size(); row++)
                        {
                            if (areStringsSimilar(ctx.IO.sys_vortex_version[row]->name, ProjectSearch, threshold) || isOnlySpacesOrEmpty(ProjectSearch))
                            {
-                               VersionButton(ctx.IO.sys_vortex_version[row]->name, 300, 100, ctx.IO.sys_vortex_version[row]->version);
+                               VersionButton(ctx.IO.sys_vortex_version[row]->name, 300, 100, ctx.IO.sys_vortex_version[row]->version, ctx.IO.sys_vortex_version[row]->banner);
                            }
-                       }
-                        });
+                       } });
 
     std::shared_ptr<Cherry::AppWindow> win = m_AppWindow;
     m_AppWindow->SetLeftMenubarCallback([]() {});
