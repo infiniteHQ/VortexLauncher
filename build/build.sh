@@ -8,7 +8,7 @@ while [[ "$#" -gt 0 ]]; do
       shift
       ;;
     *)
-      echo "Option inconnue : $1"
+      echo "Unknown option : $1"
       exit 1
       ;;
   esac
@@ -17,11 +17,15 @@ done
 VERSION=$(cat ../version.conf)
 
 mkdir -p build_spdlog
-mkdir -p build
-rm -rf dist
-rm -rf ..\lib\installer\build\build\bin
-rm -rf ..\lib\installer\ui\installer\assets\builtin
+rm -rf ./dist
+rm -rf ./build/dist
+rm -rf ./build/bin
+rm -rf ./shipping
+rm -rf ../lib/installer/build/build/bin
+rm -rf ../lib/installer/build/build/dist
+rm -rf ../lib/installer/ui/installer/assets/builtin
 mkdir -p dist
+mkdir -p build
 
 cd build_spdlog
 cmake ../../lib/spdlog
@@ -37,6 +41,7 @@ cp ../manifest.json dist/
 cp ../LICENSE dist/
 
 if [ "$NO_INSTALLER" = false ]; then
+  rm -rf ../lib/installer/ui/installer/assets/builtin
   cd ../lib/installer/build
   sudo bash build.sh
   cd ../../../build
