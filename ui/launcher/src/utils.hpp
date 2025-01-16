@@ -756,7 +756,7 @@ static void ProjectImportButton(const std::shared_ptr<EnvProject> envproject, in
         ImGui::SameLine();
 }
 
-static void MyButton(const std::shared_ptr<TemplateInterface> templateinterface)
+static void TemplateButton(const std::shared_ptr<TemplateInterface> templateinterface)
 {
     ImVec2 squareSize(100, 100);
 
@@ -778,7 +778,7 @@ static void MyButton(const std::shared_ptr<TemplateInterface> templateinterface)
 
     ImVec2 cursorPos = ImGui::GetCursorScreenPos();
 
-    std::string button_id = templateinterface->m_name + "squareButtonWithText";
+    std::string button_id = templateinterface->m_name + "squareButtonWithText" + templateinterface->m_name + templateinterface->m_path;
     if (ImGui::InvisibleButton(button_id.c_str(), totalSize))
     {
         selected_template_object = templateinterface;

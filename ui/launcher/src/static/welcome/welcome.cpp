@@ -228,6 +228,101 @@ namespace VortexLauncher
         }
     }
 
+
+    static void VersionWelcomeMenu(bool disable_stack, const VortexVersion &envproject, int xsize = 100, int ysize = 100, const std::string &path = "resources/imgs/vortex_banner_unknow.png", bool clickable = true, std::function<void()> action = []() {})
+    {
+        ImVec2 squareSize(xsize, ysize);
+
+        std::string vpath;
+        bool version_installed = VortexMaker::CheckIfVortexVersionUtilityExist(envproject.version, vpath);
+
+        const char *originalText = envproject.name.c_str();
+        char truncatedText[32];
+
+        if (strlen(originalText) > 24)
+        {
+            strncpy(truncatedText, originalText, 8);
+            strcpy(truncatedText + 8, "...");
+        }
+        else
+        {
+            strcpy(truncatedText, originalText);
+        }
+
+        ImVec2 textSize = ImGui::CalcTextSize(truncatedText);
+        ImVec2 totalSize(squareSize.x, squareSize.y + textSize.y + 5);
+
+        ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+
+        std::string button_id = envproject.name + "squareButtonWithText" + envproject.name;
+        if (!clickable)
+        {
+            ImGui::BeginDisabled();
+        }
+        if (ImGui::InvisibleButton(button_id.c_str(), totalSize))
+        {
+            if (action)
+            {
+                action();
+            }
+        }
+        if (!clickable)
+        {
+            ImGui::EndDisabled();
+        }
+
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+        }
+
+        ImDrawList *drawList = ImGui::GetWindowDrawList();
+
+        if (!envproject.banner.empty() && std::filesystem::exists(envproject.banner))
+        {
+            drawList->AddImage(Cherry::GetTexture(envproject.banner), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y - 25.0f));
+        }
+        else
+        {
+            drawList->AddImage(Cherry::GetTexture(Cherry::GetPath(path)), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y - 25.0f));
+        }
+
+        if(version_installed)
+        {
+            drawList->AddImage(Cherry::GetTexture(Cherry::GetPath("resources/imgs/installed_mask.png")), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y - 25.0f));
+        }
+        else
+        {
+            drawList->AddImage(Cherry::GetTexture(Cherry::GetPath("resources/imgs/install_mask.png")), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y - 25.0f));
+        }
+
+        ImVec2 smallRectSize(40, 20);
+        ImVec2 smallRectPos(cursorPos.x + squareSize.x - smallRectSize.x - 5, cursorPos.y + squareSize.y - smallRectSize.y - 5);
+
+        ImU32 highlightColor = IM_COL32(255, 255, 0, 255);
+        ImU32 highlightTextColor = IM_COL32(0, 0, 0, 255);
+
+        ImVec2 textPos(
+            cursorPos.x + (squareSize.x - textSize.x) / 2.0f,
+            cursorPos.y + squareSize.y + (squareSize.y - squareSize.y - textSize.y) / 2.0f - 5.0f);
+
+        ImU32 textColor = Cherry::HexToImU32("#AEAEAEFF");
+        drawList->AddText(ImVec2(textPos.x, textPos.y - 5.0f), textColor, truncatedText);
+
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+            drawList->AddRect(cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y), IM_COL32(135, 135, 135, 255), 0.0f, 0, 2.0f);
+        }
+
+        if (!disable_stack)
+        {
+            float windowVisibleX2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
+            if (cursorPos.x + totalSize.x < windowVisibleX2)
+                ImGui::SameLine();
+        }
+    }
+
     static void QuickAction(bool disable_stack, const std::string &envproject, int xsize = 100, int ysize = 100, const std::string &path = "resources/imgs/vortex_banner_unknow.png", bool clickable = true, std::function<void()> action = []() {})
     {
         ImVec2 squareSize(xsize, ysize);
@@ -498,7 +593,7 @@ for (const auto& project : m_RecentProjects) {
                            {
                                if (version_index < 3)
                                {
-                                   QuickAction(false, "", 264, 100, Cherry::GetHttpPath(version.banner), true, [version]()
+                                   VersionWelcomeMenu(false, version, 264, 120, Cherry::GetHttpPath(version.banner), true, [version]()
                                                { std::thread([version]()
                                                              { VortexMaker::OpenVortexInstaller(version.version, version.arch, version.dist, version.plat); })
                                                      .detach(); });

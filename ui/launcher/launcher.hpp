@@ -418,7 +418,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
 
  if (ImGui::BeginMenu(Cherry::GetLocale("loc.menubar.menu.vortex").c_str()))
                             {
-                              Cherry::MenuItemTextSeparator(Cherry::GetLocale("loc.menubar.menu.general").c_str());
+                              Cherry::MenuItemTextSeparator(Cherry::GetLocale("loc.menubar.summary.general").c_str());
 
                               if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.update_vortex").c_str(),  Cherry::GetLocale("loc.menubar.menuitem.update_vortex_desc").c_str(), Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_update.png")), c_Launcher->GetDownloadCenterVisibility()))
                               {
@@ -439,7 +439,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
 
                               Cherry::MenuItemTextSeparator(Cherry::GetLocale("loc.menubar.summary.manage").c_str());
 
-                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.logical_contents").c_str(), Cherry::GetLocale("loc.menubar.menuitem.logical_content_desc").c_str(),  Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_bricksearch.png")), c_Launcher->GetLogicContentManager()))
+                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.logical_contents").c_str(), Cherry::GetLocale("loc.menubar.menuitem.logical_contents_desc").c_str(),  Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_bricksearch.png")), c_Launcher->GetLogicContentManager()))
                               {
                                 c_Launcher->SetLogicContentManager(!c_Launcher->GetLogicContentManager());
                               }
@@ -493,19 +493,21 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
                               ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);
 
 
-                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.logs").c_str(), Cherry::GetLocale("loc.menubar.menuitem.logs_desc").c_str(), c_Launcher->GetLogsVisibility()))
+                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.logs").c_str(), Cherry::GetLocale("loc.menubar.menuitem.logs_desc").c_str(),Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_journal.png")), c_Launcher->GetLogsVisibility()))
                               {
                                 c_Launcher->SetLogsVisibility(!c_Launcher->GetLogsVisibility());
                               }
 
-                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.session_utility").c_str(), Cherry::GetLocale("loc.menubar.menuitem.session_utility_desc").c_str(), c_Launcher->GetLogsVisibility()))
+                              ImGui::BeginDisabled();
+                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.session_utility").c_str(), Cherry::GetLocale("loc.menubar.menuitem.session_utility_desc").c_str(), Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_list.png")),c_Launcher->GetLogsVisibility()))
                               {
                               }
 
-                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.latest_crash").c_str(), Cherry::GetLocale("loc.menubar.menuitem.latest_crash_desc").c_str(), c_Launcher->GetLogsVisibility()))
+                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.latest_crash").c_str(), Cherry::GetLocale("loc.menubar.menuitem.latest_crash_desc").c_str(), Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_info.png")), c_Launcher->GetLogsVisibility()))
                               {
                               }
                               
+                              ImGui::EndDisabled();
 
                               ImGui::GetFont()->Scale *= 0.8;
                               ImGui::PushFont(ImGui::GetFont());
@@ -525,7 +527,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
                               ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);
 
 
-                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.summary.settings").c_str(), Cherry::GetLocale("loc.menubar.menuitem.setting").c_str(), Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_settings.png")), c_Launcher->GetMainSettingsVisibility()))
+                              if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.settings").c_str(), Cherry::GetLocale("loc.menubar.menuitem.settings_desc").c_str(), Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_settings.png")), c_Launcher->GetMainSettingsVisibility()))
                               {
                                 c_Launcher->SetMainSettingsVisibility(!c_Launcher->GetMainSettingsVisibility());
                               }

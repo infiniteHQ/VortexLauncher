@@ -53,7 +53,6 @@ namespace VortexLauncher
 
     void LauncherLogUtility::Render()
     {
-        Cherry::Application::GetCurrentRenderedWindow()->SetFavIcon(Cherry::GetPath("resources/imgs/icon_crash.png"));
         float oldsize = ImGui::GetFont()->Scale;
         ImGui::GetFont()->Scale *= 1.3;
         ImGui::PushFont(ImGui::GetFont());

@@ -617,11 +617,13 @@ void ProjectManager::Render()
         }
         else
         {
+            ImGui::PushStyleColor(ImGuiCol_Separator, Cherry::HexToRGBA("#44444466"));
+
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.0f);
             {
                 // LOGO Section
-                ImGui::BeginChild("LOGO_", ImVec2(80, 80), false, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoScrollbar);
-                ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x - 60) * 0.5f); // Center the logo horizontally
-                MyButton(m_SelectedEnvproject->logoPath, 60, 60);
+                ImGui::BeginChild("LOGO_", ImVec2(50, 50), false, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoScrollbar);
+                MyButton(m_SelectedEnvproject->logoPath, 50, 50);
                 ImGui::EndChild();
                 ImGui::SameLine();
             }
@@ -629,60 +631,77 @@ void ProjectManager::Render()
             {
                 // Project Info Section
                 ImGuiID _id = ImGui::GetID("INFO_PANEL");
-                ImGui::BeginChild(_id, ImVec2(0, 100), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBackground);
+                ImGui::BeginChild(_id, ImVec2(0, 60), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBackground);
                 ImGui::SetCursorPosY(ImGui::GetStyle().ItemSpacing.y);
 
-                float fontScale = 1.3f;
+                float fontScale = 1.2f;
                 float oldFontSize = ImGui::GetFont()->Scale;
                 ImGui::GetFont()->Scale = fontScale;
                 ImGui::PushFont(ImGui::GetFont());
-
                 ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.9f), m_SelectedEnvproject->name.c_str());
-
                 ImGui::GetFont()->Scale = oldFontSize;
                 ImGui::PopFont();
 
-                ImGui::Spacing();
+                fontScale = 0.8f;
+                oldFontSize = ImGui::GetFont()->Scale;
+                ImGui::GetFont()->Scale = fontScale;
+                ImGui::PushFont(ImGui::GetFont());
+
                 ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.5f), "Last opened: ");
                 ImGui::SameLine();
                 ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.8f, 0.8f), m_SelectedEnvproject->lastOpened.c_str());
+                ImGui::GetFont()->Scale = oldFontSize;
+                ImGui::PopFont();
 
                 ImGui::EndChild();
             }
 
             // Divider
             ImGui::Separator();
-            ImGui::Spacing();
-
             // Details Section
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.0f);
+            if (ImGui::BeginTable("DETAILS_TABLE", 2, ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_NoBordersInBody))
             {
-                ImGui::BeginChild("DETAILS_PANEL", ImVec2(0, 150), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBackground);
-
                 auto AddInfoRow = [](const char *label, const std::string &value, const ImVec4 &valueColor = ImVec4(1.0f, 1.0f, 1.0f, 0.9f))
                 {
+                    ImGui::TableNextRow();
+                    ImGui::TableNextColumn();
                     ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.5f), label);
-                    ImGui::SameLine();
+                    ImGui::TableNextColumn();
                     ImGui::TextColored(valueColor, value.c_str());
                 };
 
                 AddInfoRow("Author(s):", m_SelectedEnvproject->author);
-                AddInfoRow("Description:", m_SelectedEnvproject->description);
-                AddInfoRow("Version:", m_SelectedEnvproject->version);
+                AddInfoRow("Project version:", m_SelectedEnvproject->version);
                 AddInfoRow("Compatible with:", m_SelectedEnvproject->compatibleWith);
 
-                ImGui::EndChild();
+                ImGui::EndTable();
             }
 
-            // Footer Buttons
-            ImGui::Spacing();
-            ImGui::Separator();
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.0f);
+            ImGui::PushStyleColor(ImGuiCol_Text, Cherry::HexToRGBA("#555555FF"));
+            ImGui::TextWrapped(m_SelectedEnvproject->path.c_str());
+            ImGui::PopStyleColor();
+
+            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.0f);
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.0f);
+            Cherry::TitleSixColored("Description", "#A9A9A9FF");
+            ImGui::PushStyleColor(ImGuiCol_Text, Cherry::HexToRGBA("#797979FF"));
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.0f);
+            ImGui::TextWrapped(m_SelectedEnvproject->description.c_str());
+            ImGui::PopStyleColor();
 
             ImVec2 windowSize = ImGui::GetWindowSize();
+            ImVec2 windowPos = ImGui::GetWindowPos();
             ImVec2 buttonSize = ImVec2(120, 35);
-            float footerSpacing = 10;
-            float buttonPosX = windowSize.x - buttonSize.x * 2 - ImGui::GetStyle().ItemSpacing.x * 3;
+            float footerHeight = buttonSize.y + ImGui::GetStyle().ItemSpacing.y * 2;
 
-            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + footerSpacing);
+            ImGui::SetCursorPosY(windowSize.y - footerHeight - 10.0f);
+
+            ImGui::Separator();
+            ImGui::Spacing();
+
+            float buttonPosX = windowSize.x - buttonSize.x * 2 - ImGui::GetStyle().ItemSpacing.x * 3;
             ImGui::SetCursorPosX(buttonPosX);
 
             if (ImGui::Button("Delete", buttonSize))
@@ -692,9 +711,10 @@ void ProjectManager::Render()
             }
 
             ImGui::SameLine();
-            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.6f, 1.0f, 0.8f));
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.7f, 1.0f, 1.0f));
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.2f, 0.5f, 1.0f, 0.9f));
+
+            ImGui::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#006FFFFF"));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#689DFFFF"));
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, Cherry::HexToRGBA("#9DBFFFFF"));
 
             if (ImGui::Button("Open Project", buttonSize))
             {
@@ -743,6 +763,7 @@ void ProjectManager::Render()
             }
 
             ImGui::PopStyleColor(3);
+            ImGui::PopStyleColor();
         }
 
         ImGui::EndChild();
@@ -750,7 +771,7 @@ void ProjectManager::Render()
     }
     else
     {
-        float columnWidths[3] = {120.0f, 250.0f, 150.0f};
+        float columnWidths[3] = {140.0f, 250.0f, 150.0f};
 
         ImVec2 windowSize = ImGui::GetWindowSize();
 
@@ -795,7 +816,7 @@ void ProjectManager::Render()
                 {
                     if (project_templates[project] != NULL)
                     {
-                        MyButton(project_templates[project]);
+                        TemplateButton(project_templates[project]);
                     }
                 }
             }
