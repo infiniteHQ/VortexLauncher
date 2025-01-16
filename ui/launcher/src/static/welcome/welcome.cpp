@@ -326,7 +326,7 @@ namespace VortexLauncher
 
         ImVec2 cursorPos = ImGui::GetCursorScreenPos();
 
-        std::string button_id = envproject->name + "squareButtonWithText####" + envproject->name;
+        std::string button_id = envproject->path + "squareTdfgext####" + envproject->path;
         if (!clickable)
         {
             ImGui::BeginDisabled();
@@ -334,6 +334,7 @@ namespace VortexLauncher
 
         if (ImGui::InvisibleButton(button_id.c_str(), totalSize))
         {
+            std::cout << "Clicked" << std::endl;
             if (action)
             {
                 action(envproject);
@@ -345,33 +346,37 @@ namespace VortexLauncher
             ImGui::EndDisabled();
         }
 
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+        }
+
         ImDrawList *drawList = ImGui::GetWindowDrawList();
 
-        // Couleur de fond (gris)
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+            drawList->AddRect(cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y), IM_COL32(135, 135, 135, 255), 0.0f, 0, 2.0f);
+        }
+
         ImU32 bgColor = Cherry::HexToImU32("#32323232");
 
-        // Dessiner le fond gris
         drawList->AddRectFilled(cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y), bgColor, 0.0f);
 
-        ImVec2 windowSize = ImGui::GetContentRegionAvail(); // Dimensions disponibles dans la fenêtre
-        ImVec2 windowPos = ImGui::GetCursorScreenPos();     // Position actuelle du curseur
-        ImVec2 centerPos = ImVec2(
-            windowPos.x + (windowSize.x - squareSize.x) / 2.0f,
-            windowPos.y + (windowSize.y - squareSize.y) / 2.0f);
+        ImVec2 imageSize = ImVec2(75.0f, 75.0f);
 
-        // Ajouter l'image (au-dessus du texte)
-        ImVec2 imagePos = centerPos;
-        ImVec2 imageSize = ImVec2(50.0f, 50.0f * 0.6f); // 60% de la hauteur du carré
-        drawList->AddImage(Cherry::GetTexture(Cherry::GetPath(path)), imagePos, ImVec2(imagePos.x + imageSize.x, imagePos.y + imageSize.y));
-
-        // Calcul de la position abaissée pour le texte
         ImVec2 textPos(
             cursorPos.x + (squareSize.x - textSize.x) / 2.0f,
-            cursorPos.y + imageSize.y + (squareSize.y - imageSize.y - textSize.y) / 2.0f);
+            cursorPos.y + imageSize.y + (squareSize.y - imageSize.y - textSize.y) / 2.0f + 10.0f);
 
-        // Dessiner le texte
-        ImU32 textColor = Cherry::HexToImU32("#AEAEAEFF"); // Noir pour contraste avec le fond gris
-        drawList->AddText(textPos, textColor, truncatedText);
+        ImVec2 imagePos(
+            cursorPos.x + 60,
+            cursorPos.y + imageSize.y + (squareSize.y - imageSize.y - textSize.y) / 2.0f + 10.0f - 90.0f);
+
+        drawList->AddImage(Cherry::GetTexture(path), imagePos, ImVec2(imagePos.x + imageSize.x, imagePos.y + imageSize.y));
+
+        ImU32 textColor = Cherry::HexToImU32("#AEAEAEFF");
+        drawList->AddText(ImVec2(textPos.x, textPos.y - 5.0f), textColor, truncatedText);
 
         if (!disable_stack)
         {
@@ -449,9 +454,9 @@ namespace VortexLauncher
                            Space(200.0f);
 
                            Cherry::TitleSixColored("Fast actions", "#797979FF");
-                           QuickAction(false, "create", 264, 120, "resources/imgs/create_banner.png", true, m_CreateProjectCallback);
-                           QuickAction(false, "open", 263, 120, "resources/imgs/open_banner.png", true, m_OpenProjectCallback);
-                           QuickAction(true, "settings", 264, 120, "resources/imgs/settings_banner.png", true, m_SettingsCallback);
+                           QuickAction(false, "create", 264, 120, Cherry::GetPath("resources/imgs/create_banner.png"), true, m_CreateProjectCallback);
+                           QuickAction(false, "open", 263, 120, Cherry::GetPath("resources/imgs/open_banner.png"), true, m_OpenProjectCallback);
+                           QuickAction(true, "settings", 264, 120, Cherry::GetPath("resources/imgs/settings_banner.png"), true, m_SettingsCallback);
 
                            for (auto project : VortexMaker::GetCurrentContext()->IO.sys_projects)
                            {
@@ -460,29 +465,52 @@ namespace VortexLauncher
                            Cherry::TitleSixColored("Latest openned project", "#797979FF");
                            const size_t maxSlots = 4;
 
-                           // Fill missing slots with placeholders if there are fewer than 4 projects
                            size_t filledSlots = 0;
-                           for (const auto &project : m_RecentProjects)
-                           {
-                               bool isMostRecent = (filledSlots == 0); // Highlight the most recent
-                               RecentProject((filledSlots >= 3 ? true : false), project, 196, 120, (project->logoPath.empty() ? "resources/imgs/empty_recent_project.png" : project->logoPath), true);
+for (const auto& project : m_RecentProjects) {
+    bool isMostRecent = (filledSlots == 0);
+    
+    RecentProject(
+        (filledSlots >= 3), 
+        project,           
+        196,         
+        120,           
+        project->logoPath,
+            true, 
+            [this](const std::shared_ptr<EnvProject>& p) { 
+                m_ProjectCallback(p);
+            }
+    );
 
-                               ++filledSlots;
-                           }
+    ++filledSlots;
+}
+
 
                            // Fill remaining slots with empty project placeholders
                            for (; filledSlots < maxSlots; ++filledSlots)
                            {
-                               QuickAction((filledSlots >= 3 ? true : false), "", 196, 120, "resources/imgs/empty_recent_project.png", false);
+                               QuickAction((filledSlots >= 3 ? true : false), "", 196, 120, Cherry::GetPath("resources/imgs/empty_recent_project.png"), false);
                            }
 
                            Cherry::TitleSixColored("Latest available versions", "#797979FF");
-                           QuickAction(false, "", 264, 120, "resources/imgs/offline_vxv.png", false);
-                           QuickAction(false, "", 263, 120, "resources/imgs/offline_vxv.png", false);
-                           QuickAction(true, "", 264, 120, "resources/imgs/offline_vxv.png", false);
 
-                           //
-                       });
+                           int version_index = 0;
+                           for (auto version : VortexMaker::GetCurrentContext()->latest_vortex_versions)
+                           {
+                               if (version_index < 3)
+                               {
+                                   QuickAction(false, "", 264, 100, Cherry::GetHttpPath(version.banner), true, [version]()
+                                               { std::thread([version]()
+                                                             { VortexMaker::OpenVortexInstaller(version.version, version.arch, version.dist, version.plat); })
+                                                     .detach(); });
+                                   version_index++;
+                               }
+                           }
+
+                           while (version_index < 3)
+                           {
+                               QuickAction(false, "", 264, 120, Cherry::GetPath("resources/imgs/offline_vxv.png"), false);
+                               version_index++;
+                           } });
 
         std::shared_ptr<Cherry::AppWindow> win = m_AppWindow;
     }

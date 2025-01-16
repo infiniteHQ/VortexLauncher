@@ -49,6 +49,7 @@
 #include <unordered_map>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <chrono>
 #include <thread>
 #include <algorithm>
@@ -231,6 +232,8 @@ namespace VortexMaker
     VORTEX_API void DeleteProject(const std::string &path, const std::string &project_name);
     VORTEX_API void RemoveSystemProjectEntry(const std::string &project_name);
 
+    VORTEX_API VortexVersion CheckVersionAvailibility(const std::string &version);
+
     VORTEX_API void UpdateSessions();
     VORTEX_API void RefreshVortexDists();
     VORTEX_API void RefreshVortexLauncherDists();
@@ -258,9 +261,9 @@ namespace VortexMaker
 
     VORTEX_API std::string getCurrentTimeStamp();
 
-    VORTEX_API void UpdateVortexLauncherWebData(); // Fetch latests versions of the Vortex Launcher
-    VORTEX_API void UpdateVortexWebData();         // Fetch all available versions of Vortex.
-    VORTEX_API void UpdateVortexNews(const std::vector<std::string>& topics);             // Fetch all news
+    VORTEX_API void UpdateVortexLauncherWebData();                            // Fetch latests versions of the Vortex Launcher
+    VORTEX_API void UpdateVortexWebData();                                    // Fetch all available versions of Vortex.
+    VORTEX_API void UpdateVortexNews(const std::vector<std::string> &topics); // Fetch all news
 
     VORTEX_API std::vector<int> SplitVersion(const std::string &version);
     VORTEX_API bool IsVersionGreater(const std::string &manifestVersion, const std::string &requestVersion);
@@ -269,13 +272,13 @@ namespace VortexMaker
     VORTEX_API void PostLatestVortexVersion(const VortexVersion &version);
     VORTEX_API VortexVersion CheckLatestVortexVersion();
 
-    VORTEX_API void OpenLauncherUpdater(const std::string& path, const std::string& dist);
+    VORTEX_API void OpenLauncherUpdater(const std::string &path, const std::string &dist);
 
     VORTEX_API void OpenVortexUninstaller(const std::string &path);
     VORTEX_API void OpenVortexInstaller(const std::string &version, const std::string &arch, const std::string &dist, const std::string &platform);
     VORTEX_API bool TestVortexExecutable(const std::string &path);
 
-    VORTEX_API bool CheckIfVortexVersionUtilityExist(const std::string &version, std::string& path);
+    VORTEX_API bool CheckIfVortexVersionUtilityExist(const std::string &version, std::string &path);
 
     void DetectPlatform();
     void DetectArch();

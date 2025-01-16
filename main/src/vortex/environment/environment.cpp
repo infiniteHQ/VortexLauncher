@@ -76,37 +76,37 @@ VORTEX_API void VortexMaker::InitEnvironment()
 
     {
         std::string endpath;
-        #ifdef _WIN32
+#ifdef _WIN32
         endpath = "contents\\";
-        #else
+#else
         endpath = "contents/";
-        #endif
+#endif
 
         std::string path = vxBasePath + endpath;
-        
+
         VortexMaker::createFolderIfNotExists(path);
     }
 
     {
         std::string endpath;
-        #ifdef _WIN32
+#ifdef _WIN32
         endpath = "contents\\modules\\";
-        #else
+#else
         endpath = "contents/modules/";
-        #endif
+#endif
 
         std::string path = vxBasePath + endpath;
-        
+
         VortexMaker::createFolderIfNotExists(path);
     }
 
     {
         std::string endpath;
-        #ifdef _WIN32
+#ifdef _WIN32
         endpath = "contents\\templates\\";
-        #else
+#else
         endpath = "contents/templates/";
-        #endif
+#endif
 
         std::string path = vxBasePath + endpath;
         VortexMaker::createFolderIfNotExists(path);
@@ -114,11 +114,11 @@ VORTEX_API void VortexMaker::InitEnvironment()
 
     {
         std::string endpath;
-        #ifdef _WIN32
+#ifdef _WIN32
         endpath = "contents\\plugins\\";
-        #else
+#else
         endpath = "contents/plugins/";
-        #endif
+#endif
 
         std::string path = vxBasePath + endpath;
         VortexMaker::createFolderIfNotExists(path);
@@ -126,23 +126,23 @@ VORTEX_API void VortexMaker::InitEnvironment()
 
     {
         std::string endpath;
-        #ifdef _WIN32
+#ifdef _WIN32
         endpath = "contents\\assets\\";
-        #else
+#else
         endpath = "contents/assets/";
-        #endif
-        
+#endif
+
         std::string path = vxBasePath + endpath;
         VortexMaker::createFolderIfNotExists(path);
     }
 
     {
         std::string endpath;
-        #ifdef _WIN32
+#ifdef _WIN32
         endpath = "sessions\\";
-        #else
+#else
         endpath = "sessions/";
-        #endif
+#endif
 
         std::string path = vxBasePath + endpath;
         VortexMaker::createFolderIfNotExists(path);
@@ -178,11 +178,11 @@ VORTEX_API void VortexMaker::InitEnvironment()
         std::string file = path + "modules_pools.json";
 
         std::string content_path;
-        #ifdef _WIN32
+#ifdef _WIN32
         content_path = "contents\\modules/";
-        #else
+#else
         content_path = "contents/modules/";
-        #endif
+#endif
 
         nlohmann::json default_data = {
             {"modules_pools", nlohmann::json::array({vxBasePath + content_path})}};
@@ -195,11 +195,11 @@ VORTEX_API void VortexMaker::InitEnvironment()
         std::string file = path + "plugins_pools.json";
 
         std::string content_path;
-        #ifdef _WIN32
+#ifdef _WIN32
         content_path = "contents\\plugins/";
-        #else
+#else
         content_path = "contents/plugins/";
-        #endif
+#endif
 
         nlohmann::json default_data = {
             {"plugins_pools", nlohmann::json::array({vxBasePath + content_path})}};
@@ -212,11 +212,11 @@ VORTEX_API void VortexMaker::InitEnvironment()
         std::string file = path + "templates_pools.json";
 
         std::string content_path;
-        #ifdef _WIN32
+#ifdef _WIN32
         content_path = "contents\\templates/";
-        #else
+#else
         content_path = "contents/templates/";
-        #endif
+#endif
 
         nlohmann::json default_data = {
             {"templates_pools", nlohmann::json::array({vxBasePath + content_path})}};
@@ -891,10 +891,26 @@ void VortexMaker::RefreshEnvironmentProjects()
                                 project->compatibleWith = project_data.value("compatibleWith", "");
                                 project->description = project_data.value("description", "");
 
-                                std::filesystem::path logo_path = entry.path().parent_path() / project_data.value("logoPath", "");
+                                std::string logo_path = project->path;
+
+                                // TODO : Proper function to replace / to \\ if win
+                                if (!logo_path.empty() && logo_path.back() != '/' && logo_path.back() != '\\')
+                                {
+#ifdef _WIN32
+                                    logo_path += "\\";
+#else
+                                    logo_path += "/";
+#endif
+                                }
+                                logo_path += project_data.value("logoPath", "");
+
+#ifdef _WIN32
+                                std::replace(logo_path.begin(), logo_path.end(), '/', '\\');
+#endif
+
                                 if (std::filesystem::exists(logo_path))
                                 {
-                                    project->logoPath = logo_path.string();
+                                    project->logoPath = logo_path;
                                 }
 
                                 project->author = project_data.value("author", "");

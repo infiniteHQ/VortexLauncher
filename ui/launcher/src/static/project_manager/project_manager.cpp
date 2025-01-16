@@ -14,6 +14,113 @@ int projetct_import_dest_index;
 std::vector<std::string> project_pools;
 std::string projetct_import_dest;
 
+static bool no_installed_modal_opened;
+static std::string no_installed_version;
+static std::string no_installed_project_name;
+static std::string no_installed_project_picture;
+static VortexVersion no_installed_version_available;
+
+static void MyButton(const std::shared_ptr<EnvProject> envproject, std::shared_ptr<EnvProject> &selectedproject, int xsize = 100, int ysize = 100)
+{
+    ImVec2 squareSize(xsize, ysize);
+
+    std::string versionpath;
+    bool version_exist = VortexMaker::CheckIfVortexVersionUtilityExist(envproject->compatibleWith, versionpath);
+
+    const char *originalText = envproject->name.c_str();
+    char truncatedText[12];
+    const char *versionText = envproject->compatibleWith.c_str();
+
+    if (strlen(originalText) > 8)
+    {
+        strncpy(truncatedText, originalText, 8);
+        strcpy(truncatedText + 8, "...");
+    }
+    else
+    {
+        strcpy(truncatedText, originalText);
+    }
+
+    ImVec2 textSize = ImGui::CalcTextSize(truncatedText);
+    ImVec2 totalSize(squareSize.x, squareSize.y + textSize.y + 5);
+
+    ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+
+    std::string button_id = envproject->name + "squareButtonWithText" + envproject->lastOpened;
+    if (ImGui::InvisibleButton(button_id.c_str(), totalSize))
+    {
+        selectedproject = envproject;
+
+        if (!version_exist)
+        {
+            no_installed_version = envproject->compatibleWith;
+            no_installed_project_name = envproject->name;
+            no_installed_project_picture = envproject->logoPath;
+
+            no_installed_version_available = VortexMaker::CheckVersionAvailibility(envproject->compatibleWith); // TODO : In the future, make unique request to api for selected version, and reserve the pagination for all versions page.
+
+            no_installed_modal_opened = true;
+        }
+    }
+
+    if (ImGui::IsItemHovered())
+    {
+        ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+    }
+
+    ImDrawList *drawList = ImGui::GetWindowDrawList();
+
+    if (!envproject->logoPath.empty())
+    {
+        drawList->AddImage(Cherry::GetTexture(envproject->logoPath), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+    }
+    else
+    {
+        drawList->AddImage(Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_vortex_default.png")), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+    }
+
+    ImVec2 smallRectSize(40, 20);
+    ImVec2 smallRectPos(cursorPos.x + squareSize.x - smallRectSize.x - 5, cursorPos.y + squareSize.y - smallRectSize.y - 5);
+
+    drawList->AddRectFilled(smallRectPos, ImVec2(smallRectPos.x + smallRectSize.x, smallRectPos.y + smallRectSize.y), IM_COL32(0, 0, 0, 255));
+    ImVec2 versionTextPos = ImVec2(smallRectPos.x + (smallRectSize.x - ImGui::CalcTextSize(versionText).x) / 2, smallRectPos.y + (smallRectSize.y - ImGui::CalcTextSize("version").y) / 2);
+
+    if (version_exist)
+    {
+        drawList->AddText(versionTextPos, IM_COL32(255, 255, 255, 255), versionText);
+    }
+    else
+    {
+        if (VortexMaker::CheckVersionAvailibility(envproject->compatibleWith).version != "")
+        {
+            drawList->AddText(versionTextPos, IM_COL32(255, 100, 20, 255), versionText);
+        }
+        else
+        {
+            drawList->AddText(versionTextPos, IM_COL32(255, 20, 20, 255), versionText);
+        }
+    }
+
+    ImVec2 textPos = ImVec2(cursorPos.x + (squareSize.x - textSize.x) / 2, cursorPos.y + squareSize.y + 5);
+
+    ImU32 textColor = IM_COL32(255, 255, 255, 255);
+    ImU32 highlightColor = IM_COL32(255, 255, 0, 255);
+    ImU32 highlightTextColor = IM_COL32(0, 0, 0, 255);
+
+    if (ImGui::IsItemHovered())
+    {
+        ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+
+        drawList->AddRect(cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y), IM_COL32(135, 135, 135, 255), 0.0f, 0, 2.0f);
+    }
+
+    DrawHighlightedText(drawList, textPos, truncatedText, ProjectSearch, highlightColor, textColor, highlightTextColor);
+
+    float windowVisibleX2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
+    if (cursorPos.x + totalSize.x < windowVisibleX2)
+        ImGui::SameLine();
+}
+
 ProjectManager::ProjectManager(const std::string &name)
 {
     m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
@@ -199,7 +306,7 @@ void ProjectManager::Render()
             ImGui::SetItemDefaultFocus();
             ImGui::SameLine();
 
-            if (strcmp(string_validation,m_SelectedEnvprojectToRemove->name.c_str()) != 0)
+            if (strcmp(string_validation, m_SelectedEnvprojectToRemove->name.c_str()) != 0)
             {
                 ImGui::BeginDisabled();
             }
@@ -210,7 +317,7 @@ void ProjectManager::Render()
             if (ImGui::Button("Delete", ImVec2(120, 0)))
             {
                 // Delete
-                VortexMaker::DeleteProject(m_SelectedEnvprojectToRemove->path,m_SelectedEnvprojectToRemove->name);
+                VortexMaker::DeleteProject(m_SelectedEnvprojectToRemove->path, m_SelectedEnvprojectToRemove->name);
 
                 VortexMaker::RefreshEnvironmentProjects();
 
@@ -218,7 +325,7 @@ void ProjectManager::Render()
                 ImGui::CloseCurrentPopup();
             }
             ImGui::PopStyleColor(3);
-            if (strcmp(string_validation,m_SelectedEnvprojectToRemove->name.c_str()) != 0)
+            if (strcmp(string_validation, m_SelectedEnvprojectToRemove->name.c_str()) != 0)
             {
                 ImGui::EndDisabled();
             }
@@ -228,6 +335,118 @@ void ProjectManager::Render()
 
     if (open_deletion_modal)
         ImGui::OpenPopup("Delete a project");
+
+    if (no_installed_modal_opened)
+    {
+        ImGui::OpenPopup("Not installed version");
+
+        ImVec2 main_window_size = ImGui::GetWindowSize();
+        ImVec2 window_pos = ImGui::GetWindowPos();
+
+        ImGui::SetNextWindowPos(ImVec2(window_pos.x + (main_window_size.x * 0.5f) - 200, window_pos.y + 150));
+
+        ImGui::SetNextWindowSize(ImVec2(400, 0), ImGuiCond_Always);
+
+        if (ImGui::BeginPopupModal("Not installed version", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove))
+        {
+            Cherry::TitleFourColored("Not installed version", "#B1FF31FF");
+            {
+                std::string text_label = "You wanna open the project \"" + no_installed_project_name + "\" but this project was created on the Vortex version \"" + no_installed_version + "\" wich not installed in your system";
+                ImGui::TextWrapped(text_label.c_str());
+            }
+            ImGui::Separator();
+
+            if (no_installed_version_available.version != "")
+            {
+                Cherry::TitleFiveColored("Available version :", "#797979FF");
+                {
+                    // LOGO Section
+                    ImGui::BeginChild("LOGO_", ImVec2(160, 40), false, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoScrollbar);
+                    MyButton(Cherry::GetHttpPath(no_installed_version_available.banner), 120, 40);
+                    ImGui::EndChild();
+                    ImGui::SameLine();
+                }
+                {
+                    // Project Info Section
+                    ImGuiID _id = ImGui::GetID("INFO_PANEL");
+                    ImGui::BeginChild(_id, ImVec2(0, 50), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBackground);
+                    ImGui::SetCursorPosY(ImGui::GetStyle().ItemSpacing.y);
+                    {
+
+                        float fontScale = 0.9f;
+                        float oldFontSize = ImGui::GetFont()->Scale;
+                        ImGui::GetFont()->Scale = fontScale;
+                        ImGui::PushFont(ImGui::GetFont());
+
+                        ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.9f), no_installed_version_available.name.c_str());
+
+                        ImGui::GetFont()->Scale = oldFontSize;
+                        ImGui::PopFont();
+                    }
+
+                    // Space(2.0f);
+                    {
+                        float fontScale = 0.8f;
+                        float oldFontSize = ImGui::GetFont()->Scale;
+                        ImGui::GetFont()->Scale = fontScale;
+                        ImGui::PushFont(ImGui::GetFont());
+
+                        ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.5f), "Version: ");
+                        ImGui::SameLine();
+                        ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.8f, 0.8f), no_installed_version_available.version.c_str());
+
+                        ImGui::GetFont()->Scale = oldFontSize;
+                        ImGui::PopFont();
+                    }
+
+                    ImGui::EndChild();
+                }
+
+                ImGui::Separator();
+
+                std::string text_label = "But good news ! We can install the version to open this project.";
+                ImGui::TextWrapped(text_label.c_str());
+            }
+            else
+            {
+                if (true) // Connected to the Vortex version svc
+                {
+                    std::string text_label = "Inforunetly, we cannot find this version. Please contact the project creator, or find manually this version by import it, or find a good.";
+                    ImGui::TextWrapped(text_label.c_str());
+                }
+                else
+                {
+                    std::string text_label = "Inforunetly, the web Vortex service not respondding (your connected to internet ?) so we cannot find this versions  Please contact the project creator, or find manually this version by import it.";
+                    ImGui::TextWrapped(text_label.c_str());
+                }
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::Button("Close"))
+            {
+                ImGui::CloseCurrentPopup();
+                no_installed_modal_opened = false;
+            }
+            if (no_installed_version_available.version != "")
+            {
+                ImGui::SameLine();
+                ImGui::PushStyleColor(ImGuiCol_Text, Cherry::HexToRGBA("#232323FF"));
+                ImGui::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#B1FF31FF"));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#FFFFFFFF"));
+                ImGui::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#FFFFFFFF"));
+                if (ImGui::Button("Install and Open"))
+                {
+                    std::thread([this]()
+                                { VortexMaker::OpenVortexInstaller(no_installed_version_available.version, no_installed_version_available.arch, no_installed_version_available.dist, no_installed_version_available.plat); })
+                        .detach();
+                }
+                ImGui::PopStyleColor(4);
+            }
+
+            ImGui::EndPopup();
+        }
+    }
 
     if (open_import_projects)
     {
@@ -418,7 +637,7 @@ void ProjectManager::Render()
                 ImGui::GetFont()->Scale = fontScale;
                 ImGui::PushFont(ImGui::GetFont());
 
-                ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.9f),m_SelectedEnvproject->name.c_str());
+                ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.9f), m_SelectedEnvproject->name.c_str());
 
                 ImGui::GetFont()->Scale = oldFontSize;
                 ImGui::PopFont();
@@ -426,7 +645,7 @@ void ProjectManager::Render()
                 ImGui::Spacing();
                 ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.5f), "Last opened: ");
                 ImGui::SameLine();
-                ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.8f, 0.8f),m_SelectedEnvproject->lastOpened.c_str());
+                ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.8f, 0.8f), m_SelectedEnvproject->lastOpened.c_str());
 
                 ImGui::EndChild();
             }
@@ -446,10 +665,10 @@ void ProjectManager::Render()
                     ImGui::TextColored(valueColor, value.c_str());
                 };
 
-                AddInfoRow("Author(s):",m_SelectedEnvproject->author);
-                AddInfoRow("Description:",m_SelectedEnvproject->description);
-                AddInfoRow("Version:",m_SelectedEnvproject->version);
-                AddInfoRow("Compatible with:",m_SelectedEnvproject->compatibleWith);
+                AddInfoRow("Author(s):", m_SelectedEnvproject->author);
+                AddInfoRow("Description:", m_SelectedEnvproject->description);
+                AddInfoRow("Version:", m_SelectedEnvproject->version);
+                AddInfoRow("Compatible with:", m_SelectedEnvproject->compatibleWith);
 
                 ImGui::EndChild();
             }
@@ -468,7 +687,7 @@ void ProjectManager::Render()
 
             if (ImGui::Button("Delete", buttonSize))
             {
-               m_SelectedEnvprojectToRemove =m_SelectedEnvproject;
+                m_SelectedEnvprojectToRemove = m_SelectedEnvproject;
                 open_deletion_modal = true;
             }
 
@@ -479,13 +698,28 @@ void ProjectManager::Render()
 
             if (ImGui::Button("Open Project", buttonSize))
             {
-                if (VortexMaker::CheckIfProjectRunning(m_SelectedEnvproject->path))
+                std::string versionpath;
+                bool version_exist = VortexMaker::CheckIfVortexVersionUtilityExist(m_SelectedEnvproject->compatibleWith, versionpath);
+                if (!version_exist)
                 {
-                    ImGui::OpenPopup("Project Already Running");
+                    no_installed_version = m_SelectedEnvproject->compatibleWith;
+                    no_installed_project_name = m_SelectedEnvproject->name;
+                    no_installed_project_picture = m_SelectedEnvproject->logoPath;
+
+                    no_installed_version_available = VortexMaker::CheckVersionAvailibility(m_SelectedEnvproject->compatibleWith); // TODO : In the future, make unique request to api for selected version, and reserve the pagination for all versions page.
+
+                    no_installed_modal_opened = true;
                 }
                 else
                 {
-                    VortexMaker::OpenProject(m_SelectedEnvproject->path,m_SelectedEnvproject->compatibleWith);
+                    if (VortexMaker::CheckIfProjectRunning(m_SelectedEnvproject->path))
+                    {
+                        ImGui::OpenPopup("Project Already Running");
+                    }
+                    else
+                    {
+                        VortexMaker::OpenProject(m_SelectedEnvproject->path, m_SelectedEnvproject->compatibleWith);
+                    }
                 }
             }
 
@@ -501,7 +735,7 @@ void ProjectManager::Render()
                 ImGui::SameLine();
                 if (ImGui::Button("Oui", ImVec2(120, 0)))
                 {
-                    VortexMaker::OpenProject(m_SelectedEnvproject->path,m_SelectedEnvproject->compatibleWith);
+                    VortexMaker::OpenProject(m_SelectedEnvproject->path, m_SelectedEnvproject->compatibleWith);
                     ImGui::CloseCurrentPopup();
                 }
 
@@ -588,11 +822,6 @@ void ProjectManager::Render()
                     ImVec2 contentSize = ImGui::GetContentRegionAvail();
                     ImVec2 buttonSize = ImVec2(100, 30);
                     ImVec2 bitButtonSize = ImVec2(150, 30);
-
-                    static char buf[255]{};
-                    std::string s{VortexMaker::getHomeDirectory() + "/VortexProjects/"};
-
-                    strncpy(buf, s.c_str(), sizeof(buf) - 1);
 
                     static char name[128] = "UnknowName";
                     static char desc[128] = "My project description !";

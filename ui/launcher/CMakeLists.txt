@@ -29,8 +29,22 @@ endif()
 
 target_link_libraries(launcher PRIVATE cherry)
 
-add_custom_command(TARGET launcher POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_CURRENT_SOURCE_DIR}/assets
-    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/
+# Step 1: Gather all files from assets directory
+file(GLOB_RECURSE ASSET_FILES
+    CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/assets/*"
 )
+
+# Step 2: Add a custom target to synchronize assets
+add_custom_target(sync_assets ALL
+    COMMAND ${CMAKE_COMMAND} -E echo "Synchronizing assets..."
+    COMMAND ${CMAKE_COMMAND} -E rm -r -f ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/assets
+        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/
+    COMMAND ${CMAKE_COMMAND} -E echo "Assets synchronized."
+    DEPENDS ${ASSET_FILES}
+)
+
+# Step 3: Ensure the launcher target depends on asset synchronization
+add_dependencies(launcher sync_assets)

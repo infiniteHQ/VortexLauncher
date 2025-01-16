@@ -433,17 +433,54 @@ bool VortexMaker::executeInChildProcess(const std::string &command)
         return false;
     }
 
-    if (pid == 0)
+    if (pid == 0) // Code exécuté dans le processus enfant
     {
-        int ret = execlp(command.c_str(), command.c_str(), (char *)NULL);
-        if (ret == -1)
+        // Parse la commande et ses arguments
+        std::istringstream iss(command);
+        std::vector<std::string> tokens;
+        std::string token;
+
+        while (iss >> token)
         {
-            std::cerr << "Error while executing command: " << command << std::endl;
+            tokens.push_back(token);
+        }
+
+        if (tokens.empty())
+        {
+            std::cerr << "Error: empty command" << std::endl;
             _exit(1);
         }
+
+        // Convertir les arguments en un tableau de char* pour execvp
+        std::vector<char *> args;
+        for (auto &arg : tokens)
+        {
+            args.push_back(&arg[0]);
+        }
+        args.push_back(nullptr); // Nécessaire pour execvp
+
+        // Exécuter la commande
+        execvp(args[0], args.data());
+
+        // Si execvp échoue
+        std::cerr << "Error while executing command: " << tokens[0] << std::endl;
+        _exit(1);
     }
 
-    return true;
+    // Attendre la fin du processus enfant
+    int status;
+    waitpid(pid, &status, 0);
+
+    // Vérifier si le processus enfant a réussi
+    if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
+    {
+        return true;
+    }
+    else
+    {
+        std::cerr << "Child process failed with status: " << WEXITSTATUS(status) << std::endl;
+        return false;
+    }
 #endif
 }
 
@@ -507,11 +544,11 @@ VORTEX_API void VortexMaker::OpenVortexUninstaller(const std::string &path)
 
     if (VortexMaker::IsWindows())
     {
-        command = ctx.m_VortexLauncherPath + "/VersionUninstaller --path=" + path;
+        command = ctx.m_VortexLauncherPath + "\\VersionUninstaller.exe --path=" + path;
     }
     else
     {
-        command = ctx.m_VortexLauncherPath + "\\VersionUninstaller.exe --path=" + path;
+        command = ctx.m_VortexLauncherPath + "/VersionUninstaller --path=" + path;
     }
 
     bool success = VortexMaker::executeInChildProcess(command);
@@ -543,10 +580,7 @@ VORTEX_API void VortexMaker::OpenVortexInstaller(const std::string &version, con
 
     VXWARN("F", command)
 
-    std::thread([command](){
-    bool success = false;
-
-        success = ::system(command.c_str());
+    bool success = VortexMaker::executeInChildProcess(command);
 
     if (success)
     {
@@ -556,7 +590,6 @@ VORTEX_API void VortexMaker::OpenVortexInstaller(const std::string &version, con
     {
         std::cerr << "Installation failed." << std::endl;
     }
-    }).detach();
 }
 
 VORTEX_API void VortexMaker::OpenLauncherUpdater(const std::string &path, const std::string &dist)
@@ -664,6 +697,21 @@ VORTEX_API void VortexMaker::InstallModuleToSystem(const std::string &path, cons
         // Print error if an exception occurs
         std::cerr << "Error: " << e.what() << std::endl;
     }
+}
+
+
+VortexVersion VortexMaker::CheckVersionAvailibility(const std::string &version)
+{
+    VxContext &ctx = *CVortexMaker;
+
+    for(auto& available_version : ctx.latest_vortex_versions)
+    {
+        if(available_version.version == version)
+        {
+            return available_version;
+        }
+    }
+    return VortexVersion();
 }
 
 /**
@@ -824,4 +872,5 @@ bool VortexMaker::DebugCheckVersionAndDataLayout(const char *version)
 
     return !error; // Return true if no error occurred
 }
+
 #endif // VORTEX_DISABLE

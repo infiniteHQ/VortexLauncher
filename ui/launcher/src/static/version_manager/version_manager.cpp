@@ -74,10 +74,9 @@ VersionManagerAppWindow::VersionManagerAppWindow(const std::string &name)
                        }
                        else
                        {
-                        VersionButton("Latest", 300, 100, "1.3", "resources/imgs/vortex_latest.png");
-                        VersionButton("All Versions", 300, 100, "", "resources/imgs/vortex_versions.png");
+                        DownloadableVersionButton("Latest", 300, 100, ctx.latest_vortex_version.version, "resources/imgs/vortex_latest.png");
+                        VersionButton("All Versions", 300, 100, "", "resources/imgs/vortex_versions.png", false, [this](){m_SelectedChildName = "Download new Vortex versions";});
                        }
-
 
                        ImGui::Text("");
                        ImGui::Spacing();
@@ -87,6 +86,10 @@ VersionManagerAppWindow::VersionManagerAppWindow(const std::string &name)
 
                        Cherry::TitleFourColored("All installed versions", "#75757575");
 
+if(ctx.IO.sys_vortex_version.size() <= 0)
+{
+    VersionButton("", 300, 100, "", Cherry::GetPath("resources/imgs/no_versions.png"));
+}
                        for (int row = 0; row < ctx.IO.sys_vortex_version.size(); row++)
                        {
                            if (areStringsSimilar(ctx.IO.sys_vortex_version[row]->name, ProjectSearch, threshold) || isOnlySpacesOrEmpty(ProjectSearch))
@@ -109,7 +112,7 @@ VersionManagerAppWindow::VersionManagerAppWindow(const std::string &name)
                        {
                            if (areStringsSimilar(version.name, ProjectSearch, threshold) || isOnlySpacesOrEmpty(ProjectSearch))
                            {
-                           DownloadableVersionButton(version.name, 300, 100, version.version, Cherry::GetHttpPath(version.banner), "none", version.dist);
+                           DownloadableVersionButton(version.name, 300, 100, version.version, Cherry::GetHttpPath(version.banner), "none", version.dist, version.arch, version.plat);
                             }
 
                        }
@@ -117,18 +120,11 @@ VersionManagerAppWindow::VersionManagerAppWindow(const std::string &name)
 
     this->AddChild("Vortex", "Import Vortex versions", [this]()
                    {
-                    
-VersionButton("Latest", 300, 100, "1.2", "resources/imgs/vortex_latest.png");
-VersionButton("All Versions", 300, 100, "1.2", "resources/imgs/vortex_versions.png");
 
 
 Cherry::TitleFourColored("All installed versions", "#75757575");
 
     VxContext &ctx = *CVortexMaker;
-if(ctx.IO.sys_vortex_version.size() <= 0)
-{
-    VersionButton("No version installed", 300, 100, "Click to download", Cherry::GetPath("resources/imgs/no_versions.png"));
-}
 
                        for (int row = 0; row < ctx.IO.sys_vortex_version.size(); row++)
                        {
