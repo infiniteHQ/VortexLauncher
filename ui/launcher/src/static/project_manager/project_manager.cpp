@@ -738,7 +738,9 @@ void ProjectManager::Render()
                     }
                     else
                     {
+                    std::thread([this](){
                         VortexMaker::OpenProject(m_SelectedEnvproject->path, m_SelectedEnvproject->compatibleWith);
+                    }).detach();
                     }
                 }
             }
@@ -755,7 +757,10 @@ void ProjectManager::Render()
                 ImGui::SameLine();
                 if (ImGui::Button("Oui", ImVec2(120, 0)))
                 {
-                    VortexMaker::OpenProject(m_SelectedEnvproject->path, m_SelectedEnvproject->compatibleWith);
+                    std::thread([this](){
+                        VortexMaker::OpenProject(m_SelectedEnvproject->path, m_SelectedEnvproject->compatibleWith);
+                    }).detach();
+
                     ImGui::CloseCurrentPopup();
                 }
 

@@ -315,7 +315,7 @@ static void DrawHighlightedText(ImDrawList *drawList, ImVec2 textPos, const char
     }
 }
 
-static void VersionButton(const std::string &envproject, int xsize = 100, int ysize = 100, const std::string &version = "", const std::string &path = "resources/imgs/vortex_banner_unknow.png", bool beta = false, const std::function<void()>& callback = [](){})
+static void VersionButton(const std::string &envproject, int xsize = 100, int ysize = 100, const std::string &version = "", const std::string &path = "resources/imgs/vortex_banner_unknow.png", bool beta = false, const std::function<void()> &callback = []() {})
 {
     ImVec2 squareSize(xsize, ysize);
 
@@ -341,7 +341,7 @@ static void VersionButton(const std::string &envproject, int xsize = 100, int ys
     std::string button_id = envproject + "squareButtonWithText" + envproject;
     if (ImGui::InvisibleButton(button_id.c_str(), totalSize))
     {
-        if(callback)
+        if (callback)
         {
             callback();
         }
@@ -535,7 +535,9 @@ static void DownloadableVersionButton(const std::string &envproject, int xsize =
                     std::thread([version, ctx, dist, installedpath, arch, plat]()
                                 { 
             VortexMaker::OpenVortexUninstaller(installedpath);
-            VortexMaker::OpenVortexInstaller(version, arch, dist, plat); })
+            VortexMaker::OpenVortexInstaller(version, arch, dist, plat); 
+            
+                VortexMaker::RefreshEnvironmentVortexVersion(); })
                         .detach();
                 }
                 ImGui::PopStyleColor();
@@ -562,7 +564,9 @@ static void DownloadableVersionButton(const std::string &envproject, int xsize =
         if (btn->Render(envproject))
         {
             std::thread([version, ctx, dist, arch, plat]()
-                        { VortexMaker::OpenVortexInstaller(version, arch, dist, plat); })
+                        { VortexMaker::OpenVortexInstaller(version, arch, dist, plat);
+                        
+                VortexMaker::RefreshEnvironmentVortexVersion(); })
                 .detach();
         }
     }
@@ -651,7 +655,11 @@ static void InstalledVersionButton(const std::string &path, const std::string &e
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
         if (ImGui::MenuItem("Delete Version"))
         {
-            VortexMaker::OpenVortexUninstaller(path);
+            std::thread([path]()
+                        {
+                VortexMaker::OpenVortexUninstaller(path);
+                VortexMaker::RefreshEnvironmentVortexVersion(); })
+                .detach();
         }
         ImGui::PopStyleColor();
         if (ImGui::MenuItem("Open Folder###Open1"))
