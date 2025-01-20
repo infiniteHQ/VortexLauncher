@@ -890,11 +890,11 @@ bool VortexMaker::DebugCheckVersionAndDataLayout(const char *version)
     bool error = false;
 
     // Check if the provided version string matches the defined VORTEX_VERSION
-    if (strcmp(version, VORTEX_VERSION) != 0)
+    if (strcmp(version, VORTEXLAUNCHER_VERSION) != 0)
     {
         error = true;
         // Assertion for debugging purposes, will only trigger in debug builds
-        VX_ASSERT(strcmp(version, VORTEX_VERSION) == 0 && "Mismatched version string!");
+        VX_ASSERT(strcmp(version, VORTEXLAUNCHER_VERSION) == 0 && "Mismatched version string!");
     }
 
     return !error; // Return true if no error occurred

@@ -51,7 +51,7 @@ void PrintHeader()
     std::cout << "\033[0m";
 
     std::cout << "\033[38;2;177;255;49m"
-              << " Vortex Launcher " << VORTEX_VERSION
+              << " Vortex Launcher " << VORTEXLAUNCHER_VERSION
               << "\033[0m" << std::endl;
 
     std::cout << "┌────────────────────────────────────────────────────────────────────────────────────────────────┐" << std::endl;
@@ -99,7 +99,7 @@ VxContext *InitBlankRuntime(bool logger)
     VxContext *ctx = VortexMaker::CreateContext();
 
     ctx->state.session_id = session_id;
-    ctx->version = VORTEX_VERSION;
+    ctx->version = VORTEXLAUNCHER_VERSION;
 
     VortexMaker::InitializePlatformVendor();
     VortexMaker::CreateGlobalLogger();

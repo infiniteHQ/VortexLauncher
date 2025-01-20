@@ -7,9 +7,9 @@
 //_____________________________________________________________________________
 // Versions & Build identification
 //_____________________________________________________________________________
-// (Integer encoded as XYYZZ for use in #if preprocessor conditionals, e.g. '#if VORTEX_VERSION_NUM >= 12345')
-#define VORTEX_VERSION "1.3.0"
-#define VORTEX_VERSION_NUM 10000
+// (Integer encoded as XYYZZ for use in #if preprocessor conditionals, e.g. '#if VORTEXLAUNCHER_VERSION_NUM >= 12345')
+#define VORTEXLAUNCHER_VERSION "1.3.1"
+#define VORTEXLAUNCHER_VERSION_NUM 1.3.1
 
 //_____________________________________________________________________________
 
@@ -80,7 +80,7 @@ namespace fs = std::filesystem;
 #define VX_ARRAYSIZE(_ARR) ((int)(sizeof(_ARR) / sizeof(*(_ARR))))                    // Size of a static C-style array. Don't use on pointers!
 #define VX_UNUSED(_VAR) ((void)(_VAR))                                                // Used to silence "unused variable warnings". Often useful as asserts may be stripped out from final builds.
 #define VX_OFFSETOF(_TYPE, _MEMBER) offsetof(_TYPE, _MEMBER)                          // Offset of _MEMBER within _TYPE. Standardized as offsetof() in C++11
-#define VX_CHECKVERSION() VortexMaker::DebugCheckVersionAndDataLayout(VORTEX_VERSION) // Version
+#define VX_CHECKVERSION() VortexMaker::DebugCheckVersionAndDataLayout(VORTEXLAUNCHER_VERSION) // Version
 
 // Disable some of MSVC most aggressive Debug runtime checks in function header/footer (used in some simple/low-level functions)
 #if defined(_MSC_VER) && !defined(__clang__) && !defined(__INTEL_COMPILER) && !defined(IMGUI_DEBUG_PARANOID)

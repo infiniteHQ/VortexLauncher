@@ -435,7 +435,7 @@ void ModuleInterface::Start()
     this->CheckDependencies();
 
     // Get current vortex version
-    std::string version = VORTEX_VERSION;
+    std::string version = VORTEXLAUNCHER_VERSION;
 
     // Get major, a medium idendifiers of version
     std::size_t last_point = version.find('.', version.find('.') + 1);

@@ -35,6 +35,7 @@ std::vector<int> VortexMaker::SplitVersion(const std::string &version)
 
 bool VortexMaker::IsVersionGreater(const std::string &version, const std::string &comparate_version)
 {
+    std::cout << version << " with " << comparate_version << std::endl;
     std::vector<int> v1 = VortexMaker::SplitVersion(version);
     std::vector<int> v2 = VortexMaker::SplitVersion(comparate_version);
 
@@ -42,14 +43,17 @@ bool VortexMaker::IsVersionGreater(const std::string &version, const std::string
     {
         if (v2[i] > v1[i])
         {
+            std::cout << v2[i] <<">"<< v1[i] << std::endl;
             return true;
         }
         else if (v2[i] < v1[i])
         {
+            std::cout << "False" << std::endl;
             return false;
         }
     }
 
+            std::cout << "False" << std::endl;
     return false;
 }
 

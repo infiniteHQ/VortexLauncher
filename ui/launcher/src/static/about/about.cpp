@@ -37,21 +37,16 @@ namespace VortexLauncher
 
     void AboutAppWindow::Render()
     {
-
-        // Obtenir la largeur de la fenêtre
         float windowWidth = ImGui::GetWindowSize().x;
 
-        // Centrer le titre
         ImGui::SetCursorPosX((windowWidth - ImGui::CalcTextSize("Vortex").x) * 0.5f - 21.0f);
         Cherry::TitleOne("Vortex");
 
-        // Centrer le sous-titre
         ImGui::SetCursorPosX((windowWidth - ImGui::CalcTextSize("Creation Platform").x) * 0.5f);
         ImGui::Text("Creation Platform");
 
-        // Centrer la version
         {
-            std::string version = VORTEX_VERSION;
+            std::string version = VORTEXLAUNCHER_VERSION;
             std::string label = "Launcher v. " + version;
 
             ImGui::SetCursorPosX((windowWidth - ImGui::CalcTextSize(label.c_str()).x) * 0.5f);
@@ -65,7 +60,7 @@ namespace VortexLauncher
         ImGui::PopStyleColor(2);
         ImGui::EndDisabled();
 
-    ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(16.0f, 0.0f)); // Ajustez la valeur de X pour contrôler le padding horizontal
+        ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(16.0f, 0.0f));
 
         ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
         if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags))
@@ -96,12 +91,12 @@ namespace VortexLauncher
 
             if (ImGui::BeginTabItem("Credits"))
             {
-        ImGui::Text("Original author : Diego Moreno");
+                ImGui::Text("Original author : Diego Moreno");
                 ImGui::EndTabItem();
             }
             ImGui::EndTabBar();
         }
-    ImGui::PopStyleVar(); // Restaurer le style
+        ImGui::PopStyleVar(); // Restaurer le style
     }
 
 }

@@ -108,6 +108,12 @@ if(ctx.IO.sys_vortex_version.size() <= 0)
                        else
                        {
                        Cherry::TitleFourColored("All available Vortex versions", "#75757575");
+
+if(ctx.latest_vortex_versions.size() <= 0)
+{
+    VersionButton("", 250, 120, "", Cherry::GetPath("resources/imgs/no_available_versions.png"));
+}
+
                        for (auto version : VortexMaker::GetCurrentContext()->latest_vortex_versions)
                        {
                            if (areStringsSimilar(version.name, ProjectSearch, threshold) || isOnlySpacesOrEmpty(ProjectSearch))

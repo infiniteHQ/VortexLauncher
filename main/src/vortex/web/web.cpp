@@ -24,7 +24,6 @@ VORTEX_API void VortexMaker::UpdateVortexLauncherWebData()
     }
 
     nlohmann::json jsonData = nlohmann::json::parse(r.body);
-    std::string highestVersion = "0.0.0";
 
     for (const auto &item : jsonData)
     {
@@ -41,11 +40,6 @@ VORTEX_API void VortexMaker::UpdateVortexLauncherWebData()
         version.version = jsonValues["version"].get<std::string>();
 
         ctx.latest_launcher_version = version;
-
-        if (VortexMaker::IsVersionGreater(highestVersion, ctx.version))
-        {
-            ctx.launcher_update_available = true;
-        }
     }
 
     std::cout << "________________ LATEST LAUNCHER ______________________" << std::endl;

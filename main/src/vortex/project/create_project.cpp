@@ -40,7 +40,7 @@ void VortexMaker::CreateProject(const std::string &name, const std::string &path
         j["project"]["version"] = "1.2.3";
         j["project"]["logoPath"] = "??";
         j["project"]["lastOpened"] = "Never";
-        j["project"]["compatibleWith"] = VORTEX_VERSION;
+        j["project"]["compatibleWith"] = VORTEXLAUNCHER_VERSION;
         j["project"]["include_system_templates"] = true;
 
         j["data"]["toolchains"] = "./.vx/data/toolchains/";

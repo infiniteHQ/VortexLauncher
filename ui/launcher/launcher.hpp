@@ -65,24 +65,27 @@ public:
 
     // Welcome
     welcome_window = WelcomeWindow::Create("?loc:loc.window_names.welcome");
-    welcome_window->m_CreateProjectCallback = [this](){
+    welcome_window->m_CreateProjectCallback = [this]()
+    {
       project_manager->m_ProjectCreation = true;
       ImGui::SetWindowFocus(project_manager->GetAppWindow()->m_IdName.c_str());
     };
-    welcome_window->m_OpenProjectCallback = [this](){
+    welcome_window->m_OpenProjectCallback = [this]()
+    {
       project_manager->m_ProjectCreation = false;
       ImGui::SetWindowFocus(project_manager->GetAppWindow()->m_IdName.c_str());
     };
-    welcome_window->m_SettingsCallback = [this](){
+    welcome_window->m_SettingsCallback = [this]()
+    {
       SetMainSettingsVisibility(true);
       ImGui::SetWindowFocus(system_settings->GetAppWindow()->m_IdName.c_str());
     };
 
-    welcome_window->m_ProjectCallback = [this](const std::shared_ptr<EnvProject>& project){
+    welcome_window->m_ProjectCallback = [this](const std::shared_ptr<EnvProject> &project)
+    {
       project_manager->m_ProjectCreation = false;
       project_manager->m_SelectedEnvproject = project;
       ImGui::SetWindowFocus(project_manager->GetAppWindow()->m_IdName.c_str());
-    
     };
     Cherry::AddAppWindow(welcome_window->GetAppWindow());
 
@@ -120,12 +123,14 @@ public:
     version_manager->GetAppWindow()->SetVisibility(false);
     Cherry::AddAppWindow(version_manager->GetAppWindow());
 
-    std::thread([]()
+    std::string version = VORTEXLAUNCHER_VERSION;
+    std::thread([this, version]()
                 {
-         VxContext &ctx = *CVortexMaker;
-        if (VortexMaker::IsVersionGreater(ctx.version, ctx.latest_launcher_version.version))
+         VxContext* ctx = VortexMaker::GetCurrentContext();
+         std::cout << "V vs Vlatest" << version << " -> " << ctx->latest_launcher_version.version << std::endl;
+        if (VortexMaker::IsVersionGreater(version, ctx->latest_launcher_version.version))
         {
-          ctx.launcher_update_available = true;
+          ctx->launcher_update_available = true;
         } })
         .detach();
   };
