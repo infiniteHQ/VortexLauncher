@@ -7,6 +7,7 @@
 
 #if defined(_WIN32)
 #include <windows.h>
+#include <shellapi.h>
 #elif defined(__APPLE__)
 #include <TargetConditionals.h>
 #include <stdlib.h>

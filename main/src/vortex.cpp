@@ -391,12 +391,17 @@ void writeSessionEndState(const std::string &session_id, const std::string &stat
 #include <unistd.h>
 #endif
 
-std::string escapeQuotes(const std::string &command) {
+std::string escapeQuotes(const std::string &command)
+{
     std::string escapedCommand;
-    for (char c : command) {
-        if (c == '"') {
+    for (char c : command)
+    {
+        if (c == '"')
+        {
             escapedCommand += "\\\""; // Échappe les guillemets doubles
-        } else {
+        }
+        else
+        {
             escapedCommand += c;
         }
     }
@@ -439,21 +444,23 @@ bool VortexMaker::executeInChildProcess(const std::string &command)
 #else
     pid_t pid = fork();
 
-    if (pid == -1) {
+    if (pid == -1)
+    {
         std::cerr << "Error while forking" << std::endl;
         return false;
     }
 
-    if (pid == 0) {
+    if (pid == 0)
+    {
         // In child process
         std::vector<std::string> args = {
             "bash",
             "-c",
-            command
-        };
+            command};
 
         std::vector<char *> cArgs;
-        for (auto &arg : args) {
+        for (auto &arg : args)
+        {
             cArgs.push_back(&arg[0]);
         }
         cArgs.push_back(nullptr);
@@ -468,22 +475,24 @@ bool VortexMaker::executeInChildProcess(const std::string &command)
     int status;
     waitpid(pid, &status, 0);
 
-    if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+    if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
+    {
         return true;
-    } else {
+    }
+    else
+    {
         std::cerr << "Child process failed with status: " << WEXITSTATUS(status) << std::endl;
         return false;
     }
 #endif
 }
 
-
 VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::string &version)
 {
     std::string session_id = generateSessionID();
     addSessionToJson(session_id, version, "user", path);
 
-    std::string project_path =path;
+    std::string project_path = path;
     std::string vortex_path;
     for (auto vortex : VortexMaker::GetCurrentContext()->IO.sys_vortex_version)
     {
@@ -498,7 +507,7 @@ VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::str
     std::string command;
     if (VortexMaker::IsWindows())
     {
-        command = "cmd.exe /C \"" + vortex_path +  "\\bin\\vortex.exe\" --editor --session_id=" + session_id + "\"";
+        command = "cmd.exe /C \"" + vortex_path + "\\bin\\vortex.exe\" --editor --session_id=" + session_id + "\"";
     }
     else
     {
@@ -510,7 +519,7 @@ VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::str
 
     if (VortexMaker::IsWindows())
     {
-        crash_script_command = "cd \"" + path + "\" && call \"" + vortex_path + "\\bin\\handle_crash.bat\" " + target_path + " " + command;
+        crash_script_command = "cd \"" + path + "\"; & \"" + vortex_path + "\\bin\\handle_crash.bat\" \"" + target_path + "\"; & \"" + vortex_path + "\\bin\\vortex.exe\" --editor --session_id=" + session_id;
     }
     else
     {
@@ -541,7 +550,6 @@ VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::str
 
     removeSessionFromJson(session_id);
 }
-
 
 // Fonction pour échapper les espaces dans une chaîne
 std::string escapeSpaces(const std::string &input)

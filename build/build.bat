@@ -11,11 +11,11 @@ mkdir dist
 
 cd build_spdlog
 cmake ..\..\lib\spdlog -G "MinGW Makefiles"
-mingw32-make.exe
+mingw32-make.exe -j%NUMBER_OF_PROCESSORS%
 
 cd ..\build
 cmake ..\.. -G "MinGW Makefiles"
-mingw32-make.exe install
+mingw32-make.exe install -j%NUMBER_OF_PROCESSORS%
 
 cd ..
 

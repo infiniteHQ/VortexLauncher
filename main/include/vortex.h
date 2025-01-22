@@ -49,7 +49,6 @@
 #include <unordered_map>
 #include <unistd.h>
 #include <sys/stat.h>
-#include <sys/wait.h>
 #include <chrono>
 #include <thread>
 #include <algorithm>
@@ -59,6 +58,7 @@
 #include <random>
 #if !defined(_WIN32) || !defined(_WIN64)
 #include <dlfcn.h>
+#include <sys/wait.h>
 #endif
 #include <dirent.h>
 #include <deque>
