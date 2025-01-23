@@ -1,5 +1,10 @@
 @echo off
 
+set RUN_ALL=true
+if "%1"=="--ni" (
+    set RUN_ALL=false
+)
+
 for /f "tokens=*" %%i in (..\version.conf) do set VERSION=%%i
 
 mkdir build_spdlog
@@ -21,6 +26,11 @@ cd ..
 
 copy ..\manifest.json dist\
 copy ..\LICENSE dist\
+
+if "%RUN_ALL%"=="false" (
+    echo "Skipping remaining steps as --ni was provided."
+    exit /b 0
+)
 
 cd ..\lib\installer\build
 call build.bat
@@ -61,7 +71,6 @@ if exist %MANIFEST_PATH% copy %MANIFEST_PATH% %MANIFEST_PATH%.bak
     echo    "sum": "vortex_launcher_%VERSION%.tar.gz.sha256"
     echo }
 ) > %MANIFEST_PATH%
-
 
 cd ..\lib\installer\build
 call build.bat

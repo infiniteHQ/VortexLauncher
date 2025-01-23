@@ -147,9 +147,6 @@ vortex_launcher -i --module <path>
 vortex_launcher -i --template <path>
 vortex_launcher -i --plugin <path>
 vortex_launcher -i --vortex <path>
-
-
-
 */
 
 /**

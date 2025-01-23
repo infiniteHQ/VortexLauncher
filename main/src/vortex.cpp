@@ -414,33 +414,34 @@ bool VortexMaker::executeInChildProcess(const std::string &command)
     STARTUPINFOA si = {0};
     PROCESS_INFORMATION pi = {0};
     si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
 
-    char commandLine[1024];
+    char commandLine[4096];
     strncpy(commandLine, command.c_str(), sizeof(commandLine) - 1);
     commandLine[sizeof(commandLine) - 1] = '\0';
 
     if (!CreateProcessA(
-            NULL,        // Application name
-            commandLine, // Command line
-            NULL,        // Process attributes
-            NULL,        // Thread attributes
-            FALSE,       // Inherit handles
-            0,           // Creation flags
-            NULL,        // Environment
-            NULL,        // Current directory
-            &si,         // Startup information
-            &pi))        // Process information
+            "C:\\Windows\\System32\\cmd.exe",
+            commandLine,                                  
+            NULL,                                          
+            NULL,                                 
+            FALSE,                               
+            CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP,
+            NULL,                                 
+            NULL,                                
+            &si,                             
+            &pi))                           
     {
         std::cerr << "Error while creating process for command: " << command
                   << " Error: " << GetLastError() << std::endl;
         return false;
     }
-
+    
     CloseHandle(pi.hProcess);
     CloseHandle(pi.hThread);
 
     return true;
-
 #else
     pid_t pid = fork();
 
@@ -487,6 +488,15 @@ bool VortexMaker::executeInChildProcess(const std::string &command)
 #endif
 }
 
+#ifdef _WIN32
+std::string convertPathToWindowsStyle(const std::string &path)
+{
+    std::string windowsPath = path;
+    std::replace(windowsPath.begin(), windowsPath.end(), '/', '\\');
+    return windowsPath;
+}
+#endif
+
 VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::string &version)
 {
     std::string session_id = generateSessionID();
@@ -502,8 +512,13 @@ VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::str
         }
     }
 
-    std::cout << "ppath" << path << std::endl;
-    std::cout << "vortex_path" << vortex_path << std::endl;
+
+    if (VortexMaker::IsWindows())
+    {
+        project_path = convertPathToWindowsStyle(project_path);
+        vortex_path = convertPathToWindowsStyle(vortex_path);
+    }
+
     std::string command;
     if (VortexMaker::IsWindows())
     {
@@ -519,11 +534,11 @@ VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::str
 
     if (VortexMaker::IsWindows())
     {
-        crash_script_command = "cd \"" + path + "\"; & \"" + vortex_path + "\\bin\\handle_crash.bat\" \"" + target_path + "\"; & \"" + vortex_path + "\\bin\\vortex.exe\" --editor --session_id=" + session_id;
+        crash_script_command = "cmd.exe /C \"cd \"" + project_path + "\" && \"" + vortex_path + "\\bin\\handle_crash.bat\" \"" + target_path + "\"; & \"" + vortex_path + "\\bin\\vortex.exe\" --editor --session_id=" + session_id + "; & \"" + vortex_path + "\\bin\\vortex.exe\" -crash --session_id=" + session_id + "\"";
     }
     else
     {
-        crash_script_command = "cd \"" + path + "\" && bash \"" + vortex_path + "/bin/handle_crash.sh\" " + target_path + " " + command;
+        crash_script_command = "cd \"" + project_path + "\" && bash \"" + vortex_path + "/bin/handle_crash.sh\" " + target_path + " " + command;
     }
 
     std::cout << "Bootstrap: Starting with command: " << crash_script_command << std::endl;
@@ -535,23 +550,17 @@ VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::str
     else
     {
         std::string crash_handle_command;
-        if (VortexMaker::IsWindows())
-        {
-            crash_handle_command = "\"" + vortex_path + "\\bin\\vortex.exe\" -crash --session_id=" + session_id;
-        }
-        else
+        if (!VortexMaker::IsWindows())
         {
             crash_handle_command = "\"" + vortex_path + "/bin/vortex\" -crash --session_id=" + session_id;
+            VortexMaker::executeInChildProcess(crash_handle_command);
+            writeSessionEndState(session_id, "fail");
         }
-
-        VortexMaker::executeInChildProcess(crash_handle_command);
-        writeSessionEndState(session_id, "fail");
     }
 
     removeSessionFromJson(session_id);
 }
 
-// Fonction pour échapper les espaces dans une chaîne
 std::string escapeSpaces(const std::string &input)
 {
     std::string escaped;
@@ -575,7 +584,6 @@ VORTEX_API void VortexMaker::OpenVortexUninstaller(const std::string &path)
 
     std::string command;
 
-    // Échappe les espaces dans path
     std::string escapedPath = escapeSpaces(path);
 
     if (VortexMaker::IsWindows())

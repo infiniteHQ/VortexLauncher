@@ -13,7 +13,6 @@ cd ../build && cmake ../.. && make -j$(nproc) install
 
 cd ..
 
-
 # Copy necessary files to dist/
 cp ../manifest.json dist/
 cp ../LICENSE dist/
