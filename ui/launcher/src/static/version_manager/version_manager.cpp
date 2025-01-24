@@ -65,17 +65,17 @@ VersionManagerAppWindow::VersionManagerAppWindow(const std::string &name)
     this->AddChild("Summary", "Manage Vortex versions", [this]()
                    {
     VxContext &ctx = *CVortexMaker;
-                       Cherry::TitleFourColored("All installed versions", "#75757575");
+                       Cherry::TitleFourColored("Quick actions", "#75757575");
 
                        if(ctx.disconnected)
                        {
-                        VersionButton("Latest", 300, 100, "?", "resources/imgs/vortex_banner_disconnected.png");
-                        VersionButton("All Versions", 300, 100, "", "resources/imgs/vortex_banner_disconnected.png");
+                        VersionButton("Latest", 300, 100, "?", Cherry::GetPath("resources/imgs/vortex_banner_disconnected.png"));
+                        VersionButton("All Versions", 300, 100, "", Cherry::GetPath("resources/imgs/vortex_banner_disconnected.png"));
                        }
                        else
                        {
-                        DownloadableVersionButton("Latest", 300, 100, ctx.latest_vortex_version.version, "resources/imgs/vortex_latest.png");
-                        VersionButton("All Versions", 300, 100, "", "resources/imgs/vortex_versions.png", false, [this](){m_SelectedChildName = "Download new Vortex versions";});
+                        DownloadableVersionButton("Latest", 300, 100, ctx.latest_vortex_version.version, Cherry::GetPath("resources/imgs/vortex_latest.png"));
+                        VersionButton("All Versions", 300, 100, "", Cherry::GetPath("resources/imgs/vortex_versions.png"), false, [this](){m_SelectedChildName = "Download new Vortex versions";});
                        }
 
                        ImGui::Text("");
@@ -103,7 +103,7 @@ if(ctx.IO.sys_vortex_version.size() <= 0)
     VxContext &ctx = *CVortexMaker;
                        if(ctx.disconnected)
                        {
-                        VersionButton("???", 300, 100, "?", "resources/imgs/vortex_banner_disconnected.png");
+                        VersionButton("???", 300, 100, "?", Cherry::GetPath("resources/imgs/vortex_banner_disconnected.png"));
                        }
                        else
                        {
@@ -136,7 +136,7 @@ Cherry::TitleFourColored("All installed versions", "#75757575");
                        {
                            if (areStringsSimilar(ctx.IO.sys_vortex_version[row]->name, ProjectSearch, threshold) || isOnlySpacesOrEmpty(ProjectSearch))
                            {
-                               VersionButton(ctx.IO.sys_vortex_version[row]->name, 300, 100, ctx.IO.sys_vortex_version[row]->version, ctx.IO.sys_vortex_version[row]->banner);
+                               VersionButton(ctx.IO.sys_vortex_version[row]->name, 300, 100, ctx.IO.sys_vortex_version[row]->version, Cherry::GetPath(ctx.IO.sys_vortex_version[row]->banner));
                            }
                        } });
 

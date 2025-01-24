@@ -91,7 +91,7 @@ namespace VortexLauncher
         }
         else
         {
-            drawList->AddImage(Cherry::GetTexture(Cherry::GetPath(path)), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+            drawList->AddImage(Cherry::GetTexture(path), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
         }
 
         ImVec2 smallRectSize(40, 20);
@@ -165,7 +165,7 @@ namespace VortexLauncher
         }
         else
         {
-            drawList->AddImage(Cherry::GetTexture(Cherry::GetPath(path)), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+            drawList->AddImage(Cherry::GetTexture(path), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
         }
 
         {
@@ -285,7 +285,7 @@ namespace VortexLauncher
         }
         else
         {
-            drawList->AddImage(Cherry::GetTexture(Cherry::GetPath(path)), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y - 25.0f));
+            drawList->AddImage(Cherry::GetTexture(path), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y - 25.0f));
         }
 
         if(version_installed)
@@ -376,7 +376,7 @@ namespace VortexLauncher
         }
         else
         {
-            drawList->AddImage(Cherry::GetTexture(Cherry::GetPath(path)), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+            drawList->AddImage(Cherry::GetTexture(path), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
         }
 
         ImVec2 smallRectSize(40, 20);
@@ -525,8 +525,8 @@ namespace VortexLauncher
                            Cherry::TitleSixColored("Latest news", "#797979FF");
                            if (VortexMaker::GetCurrentContext()->IO.offline)
                            {
-                               NewsBanner(false, "Latest", 400, 150, "?", "resources/imgs/vortex_banner_disconnected.png");
-                               NewsBanner(true, "All Versions", 400, 150, "", "resources/imgs/vortex_banner_disconnected.png");
+                               NewsBanner(false, "Latest", 400, 150, "?", Cherry::GetPath("resources/imgs/vortex_banner_disconnected.png"));
+                               NewsBanner(true, "All Versions", 400, 150, "", Cherry::GetPath("resources/imgs/vortex_banner_disconnected.png"));
                            }
                            else
                            {
@@ -548,7 +548,6 @@ namespace VortexLauncher
                            }
 
                            Space(200.0f);
-
                            Cherry::TitleSixColored("Fast actions", "#797979FF");
                            QuickAction(false, "create", 264, 120, Cherry::GetPath("resources/imgs/create_banner.png"), true, m_CreateProjectCallback);
                            QuickAction(false, "open", 263, 120, Cherry::GetPath("resources/imgs/open_banner.png"), true, m_OpenProjectCallback);

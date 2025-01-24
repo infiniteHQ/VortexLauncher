@@ -360,6 +360,10 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
                             static bool t;
 
                                VxContext &ctx = *CVortexMaker;
+                               if(ctx.launcher_update_available)
+                               {
+                                std::cout << "YYes" << std::endl;
+                               }
                             if(ctx.launcher_update_available)
                             {
                                 static bool close_toast = false;
@@ -394,7 +398,8 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
                               
                               toast.setButtonLabel("Update now");
 
-                              ImGui::InsertNotification(toast);
+                                std::cout << "Insert notif" << std::endl;
+                              Cherry::AddNotification(toast);
                               ctx.launcher_update_available = false;
                             }
 

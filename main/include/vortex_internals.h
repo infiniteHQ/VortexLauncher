@@ -2,7 +2,7 @@
 // [internal structures]
 
 // See licence in LICSENCE.md
-// (c) 2022-2024, Diego E. Moreno
+// (c) 2022-2025, Diego E. Moreno
 
 //_____________________________________________________________________________
 // Informations about this file

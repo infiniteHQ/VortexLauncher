@@ -315,7 +315,7 @@ static void DrawHighlightedText(ImDrawList *drawList, ImVec2 textPos, const char
     }
 }
 
-static void VersionButton(const std::string &envproject, int xsize = 100, int ysize = 100, const std::string &version = "", const std::string &path = "resources/imgs/vortex_banner_unknow.png", bool beta = false, const std::function<void()> &callback = []() {})
+static void VersionButton(const std::string &envproject, int xsize = 100, int ysize = 100, const std::string &version = "", const std::string &path = Cherry::GetPath("resources/imgs/vortex_banner_unknow.png"), bool beta = false, const std::function<void()> &callback = []() {})
 {
     ImVec2 squareSize(xsize, ysize);
 
@@ -363,7 +363,7 @@ static void VersionButton(const std::string &envproject, int xsize = 100, int ys
     }
     else
     {
-        drawList->AddImage(Cherry::GetTexture(Cherry::GetPath(path)), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+        drawList->AddImage(Cherry::GetTexture(path), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
         if (beta)
             drawList->AddImage(Cherry::GetTexture(Cherry::GetPath("resources/imgs/beta_mask.png")), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
     }
@@ -455,7 +455,7 @@ static void DownloadableVersionButton(const std::string &envproject, int xsize =
     }
     else
     {
-        drawList->AddImage(Cherry::GetTexture(Cherry::GetPath(path)), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+        drawList->AddImage(Cherry::GetTexture(path), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
 
         if (dist == "beta")
         {
@@ -623,7 +623,7 @@ static void InstalledVersionButton(const std::string &path, const std::string &e
     }
     else
     {
-        drawList->AddImage(Cherry::GetTexture(Cherry::GetPath(bannerpath)), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
+        drawList->AddImage(Cherry::GetTexture(bannerpath), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
     }
 
     ImVec2 smallRectSize(40, 20);
