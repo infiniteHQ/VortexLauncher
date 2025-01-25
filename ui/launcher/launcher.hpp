@@ -398,7 +398,6 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
                               
                               toast.setButtonLabel("Update now");
 
-                                std::cout << "Insert notif" << std::endl;
                               Cherry::AddNotification(toast);
                               ctx.launcher_update_available = false;
                             }
@@ -421,7 +420,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
                               });
                               toast.setButtonLabel("Update now");
 
-                              ImGui::InsertNotification(toast);
+                              Cherry::AddNotification(toast);
                               ctx.vortex_update_available = false;
                             }
                             

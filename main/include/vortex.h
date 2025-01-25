@@ -8,8 +8,8 @@
 // Versions & Build identification
 //_____________________________________________________________________________
 // (Integer encoded as XYYZZ for use in #if preprocessor conditionals, e.g. '#if VORTEXLAUNCHER_VERSION_NUM >= 12345')
-#define VORTEXLAUNCHER_VERSION "1.3.1"
-#define VORTEXLAUNCHER_VERSION_NUM 10301
+#define VORTEXLAUNCHER_VERSION "1.3.3"
+#define VORTEXLAUNCHER_VERSION_NUM 10303
 
 //_____________________________________________________________________________
 

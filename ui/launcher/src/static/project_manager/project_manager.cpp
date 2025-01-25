@@ -750,12 +750,12 @@ void ProjectManager::Render()
                 ImGui::Text("The project seems to have already been launched. Would you like to relaunch a new instance?");
 
                 ImGui::Spacing();
-                if (ImGui::Button("Retour", ImVec2(120, 0)))
+                if (ImGui::Button("Cancel", ImVec2(120, 0)))
                 {
                     ImGui::CloseCurrentPopup();
                 }
                 ImGui::SameLine();
-                if (ImGui::Button("Oui", ImVec2(120, 0)))
+                if (ImGui::Button("Continue", ImVec2(120, 0)))
                 {
                     std::thread([this](){
                         VortexMaker::OpenProject(m_SelectedEnvproject->path, m_SelectedEnvproject->compatibleWith);

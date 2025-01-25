@@ -398,7 +398,7 @@ std::string escapeQuotes(const std::string &command)
     {
         if (c == '"')
         {
-            escapedCommand += "\\\""; // Échappe les guillemets doubles
+            escapedCommand += "\\\""; 
         }
         else
         {
@@ -422,7 +422,7 @@ bool VortexMaker::executeInChildProcess(const std::string &command)
     commandLine[sizeof(commandLine) - 1] = '\0';
 
     if (!CreateProcessA(
-            "C:\\Windows\\System32\\cmd.exe",
+            NULL,
             commandLine,                                  
             NULL,                                          
             NULL,                                 
@@ -522,11 +522,11 @@ VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::str
     std::string command;
     if (VortexMaker::IsWindows())
     {
-        command = "cmd.exe /C \"" + vortex_path + "\\bin\\vortex.exe\" --editor --session_id=" + session_id + "\"";
+        command = "cmd.exe /C \"" + vortex_path + "\\bin\\vortex.exe\" --editor --session_id=" + "\""+session_id+"\""+  "\"";
     }
     else
     {
-        command = "\"" + vortex_path + "/bin/vortex\" --editor --session_id=" + session_id;
+        command = "\"" + vortex_path + "/bin/vortex\" --editor --session_id=" + "\""+session_id+"\"";
     }
 
     std::string target_path = VortexMaker::getHomeDirectory() + "/.vx/sessions/" + session_id + "/crash/core_dumped.txt";
@@ -534,7 +534,7 @@ VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::str
 
     if (VortexMaker::IsWindows())
     {
-        crash_script_command = "cmd.exe /C \"cd \"" + project_path + "\" && \"" + vortex_path + "\\bin\\handle_crash.bat\" \"" + target_path + "\"; & \"" + vortex_path + "\\bin\\vortex.exe\" --editor --session_id=" + session_id + "; & \"" + vortex_path + "\\bin\\vortex.exe\" -crash --session_id=" + session_id + "\"";
+        crash_script_command = "cmd.exe /C \"cd \"" + project_path + "\" && \"" + vortex_path + "\\bin\\handle_crash.bat\" \"" + target_path + "\"; & \"" + vortex_path + "\\bin\\vortex.exe\" --editor --session_id="  +"\""+session_id+"\""+  "; & \"" + vortex_path + "\\bin\\vortex.exe\" -crash --session_id=" + "\""+session_id+"\"" + " ; & \"" + vortex_path + "\\bin\\vortex_utils.exe\" -rms --session_id=" + "\""+session_id+"\"" + "\"";
     }
     else
     {
@@ -558,7 +558,8 @@ VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::str
         }
     }
 
-    removeSessionFromJson(session_id);
+    // TODO in crash handler or finish
+    //removeSessionFromJson(session_id);
 }
 
 std::string escapeSpaces(const std::string &input)
