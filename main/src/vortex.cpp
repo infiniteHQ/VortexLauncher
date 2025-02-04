@@ -488,14 +488,12 @@ bool VortexMaker::executeInChildProcess(const std::string &command)
 #endif
 }
 
-#ifdef _WIN32
 std::string convertPathToWindowsStyle(const std::string &path)
 {
     std::string windowsPath = path;
     std::replace(windowsPath.begin(), windowsPath.end(), '/', '\\');
     return windowsPath;
 }
-#endif
 
 VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::string &version)
 {

@@ -48,7 +48,7 @@ if [ "$NO_INSTALLER" = false ]; then
 
   cp -r ../lib/installer/build/build/bin/* dist/bin/
   sudo rm -rf dist/bin/builtin
-  sudo rm -rf dist/bin/ressources
+  sudo rm -rf dist/bin/resources
 
   cp -rn ./build/bin/* dist/bin/
 fi

@@ -36,7 +36,7 @@ add_executable(vortex_launcher ${VORTEX_SOURCES} main.cpp)
 target_link_libraries(vortex_launcher PRIVATE vortex_launcher_shared)
 
 #TODO : Do only in cherry
-####target_link_libraries(vortex_launcher PRIVATE cherry SDL2)
+target_link_libraries(vortex_launcher PRIVATE cherry SDL2 spdlog)
 ####set(CEF_RELEASE_DIR "${CMAKE_BINARY_DIR}/Release")
 ####set(CEF_EXTRA_LIBRARIES
 ####    "${CEF_RELEASE_DIR}/libEGL.so"
@@ -53,22 +53,27 @@ if(UNIX AND NOT APPLE)
     set(INSTALL_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build/dist/)
     set(INSTALL_MAIN_DIR ${INSTALL_BASE_DIR}/)
     set(INSTALL_BIN_DIR ${INSTALL_BASE_DIR}/bin)
-    set(INSTALL_LIB_DIR ${INSTALL_BASE_DIR}/lib)
+    set(INSTALL_LIB_DIR ${INSTALL_BASE_DIR}/bin)
     set(INSTALL_INCLUDE_DIR ${INSTALL_BASE_DIR}/include)
 elseif(WIN32)
     set(USER_PROFILE $ENV{USERPROFILE})
     set(INSTALL_BASE_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/build/dist/)
     set(INSTALL_BIN_DIR ${INSTALL_BASE_DIR}/bin)
-    set(INSTALL_LIB_DIR ${INSTALL_BASE_DIR}/lib)
+    set(INSTALL_LIB_DIR ${INSTALL_BASE_DIR}/bin)
     set(INSTALL_MAIN_DIR ${INSTALL_BASE_DIR}/)
     set(INSTALL_INCLUDE_DIR ${INSTALL_BASE_DIR}/include)
 endif()
 
 set_target_properties(vortex_launcher PROPERTIES
-    INSTALL_RPATH "${INSTALL_LIB_DIR};${CEF_RELEASE_DIR}"
+    INSTALL_RPATH "$ORIGIN"
     BUILD_WITH_INSTALL_RPATH TRUE
     INSTALL_RPATH_USE_LINK_PATH TRUE
 )
+
+set_target_properties(vortex_launcher PROPERTIES
+    CMAKE_INSTALL_RPATH "\$ORIGIN"
+)
+
 
 #TODO : Do only in cherry
 ####install(FILES
@@ -115,6 +120,11 @@ install(TARGETS spdlog
         RUNTIME DESTINATION ${INSTALL_BIN_DIR})
 
 install(TARGETS cherry
+        LIBRARY DESTINATION ${INSTALL_LIB_DIR}
+        ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
+        RUNTIME DESTINATION ${INSTALL_BIN_DIR})
+
+install(TARGETS SDL2
         LIBRARY DESTINATION ${INSTALL_LIB_DIR}
         ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
         RUNTIME DESTINATION ${INSTALL_BIN_DIR})

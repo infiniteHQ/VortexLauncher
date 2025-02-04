@@ -36,7 +36,7 @@ cd ..\lib\installer\build
 call build.bat
 cd ..\..\..\build
 
-robocopy ..\lib\installer\build\build\bin dist\bin /E /XD ressources
+robocopy ..\lib\installer\build\build\bin dist\bin /E /XD resources
 xcopy /E /Y .\build\bin\ dist\bin\
 
 rmdir /S /Q shipping
