@@ -15,6 +15,23 @@ file(GLOB_RECURSE vortex_launcher_SHARED_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/ma
 
 add_library(vortex_launcher_shared SHARED ${vortex_launcher_SHARED_SOURCES})
 
+if(UNIX AND NOT APPLE)
+    set(INSTALL_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build/dist/)
+    set(INSTALL_MAIN_DIR ${INSTALL_BASE_DIR}/)
+    set(INSTALL_BIN_DIR ${INSTALL_BASE_DIR}/bin)
+    set(INSTALL_LIB_DIR ${INSTALL_BASE_DIR}/bin)
+    set(INSTALL_INCLUDE_DIR ${INSTALL_BASE_DIR}/include)
+elseif(WIN32)
+    set(USER_PROFILE $ENV{USERPROFILE})
+    set(INSTALL_BASE_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/build/dist/)
+    set(INSTALL_BIN_DIR ${INSTALL_BASE_DIR}/bin)
+    set(INSTALL_LIB_DIR ${INSTALL_BASE_DIR}/bin)
+    set(INSTALL_MAIN_DIR ${INSTALL_BASE_DIR}/)
+    set(INSTALL_INCLUDE_DIR ${INSTALL_BASE_DIR}/include)
+endif()
+
+set(CMAKE_INSTALL_PREFIX ${INSTALL_BASE_DIR})
+
 target_include_directories(vortex_launcher_shared PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/main/include
     ${CMAKE_CURRENT_SOURCE_DIR}/main/src
@@ -36,7 +53,7 @@ add_executable(vortex_launcher ${VORTEX_SOURCES} main.cpp)
 target_link_libraries(vortex_launcher PRIVATE vortex_launcher_shared)
 
 #TODO : Do only in cherry
-target_link_libraries(vortex_launcher PRIVATE cherry SDL2 spdlog)
+target_link_libraries(vortex_launcher PRIVATE cherry SDL2)
 ####set(CEF_RELEASE_DIR "${CMAKE_BINARY_DIR}/Release")
 ####set(CEF_EXTRA_LIBRARIES
 ####    "${CEF_RELEASE_DIR}/libEGL.so"
@@ -49,21 +66,6 @@ target_link_libraries(vortex_launcher PRIVATE cherry SDL2 spdlog)
 #################
 
 # Set the installation directories
-if(UNIX AND NOT APPLE)
-    set(INSTALL_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build/dist/)
-    set(INSTALL_MAIN_DIR ${INSTALL_BASE_DIR}/)
-    set(INSTALL_BIN_DIR ${INSTALL_BASE_DIR}/bin)
-    set(INSTALL_LIB_DIR ${INSTALL_BASE_DIR}/bin)
-    set(INSTALL_INCLUDE_DIR ${INSTALL_BASE_DIR}/include)
-elseif(WIN32)
-    set(USER_PROFILE $ENV{USERPROFILE})
-    set(INSTALL_BASE_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/build/dist/)
-    set(INSTALL_BIN_DIR ${INSTALL_BASE_DIR}/bin)
-    set(INSTALL_LIB_DIR ${INSTALL_BASE_DIR}/bin)
-    set(INSTALL_MAIN_DIR ${INSTALL_BASE_DIR}/)
-    set(INSTALL_INCLUDE_DIR ${INSTALL_BASE_DIR}/include)
-endif()
-
 set_target_properties(vortex_launcher PROPERTIES
     INSTALL_RPATH "$ORIGIN"
     BUILD_WITH_INSTALL_RPATH TRUE
@@ -100,19 +102,13 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ui/launcher/src/
         PATTERN "*.inl"
 )
 
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib/
-        DESTINATION ${INSTALL_INCLUDE_DIR}/
-        FILES_MATCHING 
-        PATTERN "*.h"
-        PATTERN "*.hpp"
-        PATTERN "*.inl"
-)
-
-# Add installation commands for other libraries if needed
-install(TARGETS restclient-cpp
-        LIBRARY DESTINATION ${INSTALL_LIB_DIR}
-        ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
-        RUNTIME DESTINATION ${INSTALL_BIN_DIR})
+#install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib/
+#        DESTINATION ${INSTALL_INCLUDE_DIR}/
+#        FILES_MATCHING 
+ #       PATTERN "*.h"
+ #       PATTERN "*.hpp"
+#        PATTERN "*.inl"
+#)
 
 install(TARGETS spdlog
         LIBRARY DESTINATION ${INSTALL_LIB_DIR}
@@ -129,6 +125,50 @@ install(TARGETS SDL2
         ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
         RUNTIME DESTINATION ${INSTALL_BIN_DIR})
 
+      cmake_policy(SET CMP0177 NEW)
+
+      if(WIN32)
+      set(MINGW_DLLS 
+          libbrotlicommon.dll
+          libbrotlidec.dll
+          libcrypto-3-x64.dll
+          libcurl-4.dll
+          libffi-8.dll
+          libgcc_s_seh-1.dll
+          libiconv-2.dll
+          libidn2-0.dll
+          libintl-8.dll
+          libnghttp2-14.dll
+          libnghttp3-9.dll
+          libpsl-5.dll
+          libssh2-1.dll
+          libssl-3-x64.dll
+          libstdc++-6.dll
+          libunistring-5.dll
+          libwinpthread-1.dll
+          libzstd.dll
+          zlib1.dll
+      )
+  
+      if(NOT INSTALL_BIN_DIR)
+          message(FATAL_ERROR "INSTALL_BIN_DIR n'est pas défini ! Vérifiez votre configuration.")
+      endif()
+  
+      file(TO_CMAKE_PATH "C:/msys64/mingw64/bin" MINGW_PATH)
+  
+      foreach(DLL ${MINGW_DLLS})
+          set(DLL_PATH "${MINGW_PATH}/${DLL}")
+          message(STATUS "Checking DLL: ${DLL_PATH}")
+  
+          if(EXISTS ${DLL_PATH})
+              message(STATUS "✅ Installing: ${DLL} → ${INSTALL_BIN_DIR}")
+              install(FILES ${DLL_PATH} DESTINATION ${INSTALL_BIN_DIR})
+          else()
+              message(WARNING "⚠️  DLL not found: ${DLL_PATH}")
+          endif()
+      endforeach()
+  endif()
+  
 target_include_directories(vortex_launcher_shared PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/restclient-cpp/include)
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ui/launcher/assets/
