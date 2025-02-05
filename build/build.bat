@@ -20,7 +20,8 @@ mingw32-make.exe -j%NUMBER_OF_PROCESSORS%
 
 cd ..\build
 cmake ..\.. -G "MinGW Makefiles"
-mingw32-make.exe install -j%NUMBER_OF_PROCESSORS%
+mingw32-make.exe -j%NUMBER_OF_PROCESSORS%
+mingw32-make.exe install
 
 cd ..
 
