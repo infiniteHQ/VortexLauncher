@@ -44,7 +44,9 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/lib/spdlog/include")
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ui/launcher ui_launcher_build)
 target_link_libraries(vortex_launcher_shared PUBLIC launcher)
 
+if (NOT TARGET restclient-cpp)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/lib/restcpp restcpp_build)
+endif()
 target_link_libraries(vortex_launcher_shared PUBLIC restclient-cpp)
 
 file(GLOB_RECURSE VORTEX_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/main/src/*.cpp")
