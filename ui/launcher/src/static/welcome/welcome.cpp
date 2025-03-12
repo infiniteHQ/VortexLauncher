@@ -39,16 +39,6 @@ bool ends_with(const std::string &value, const std::string &suffix)
 
 namespace VortexLauncher
 {
-    void Space(const float &space)
-    {
-        ImGui::BeginDisabled();
-        ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
-        ImGui::Button("", ImVec2(0, space));
-        ImGui::PopStyleColor(2);
-        ImGui::EndDisabled();
-    }
-
     static void HomeBanner(const std::string &envproject, int xsize = 100, int ysize = 100, const std::string &version = "?", const std::string &path = "resources/imgs/vortex_banner_unknow.png")
     {
         ImVec2 squareSize(xsize, ysize);
@@ -520,9 +510,9 @@ namespace VortexLauncher
                            float groupWidth = inputTextWidth + ImGui::GetStyle().ItemSpacing.x + buttonWidth;
 
                            // News
-                           Cherry::TitleTwoColored("Overview", "#B1FF31FF");
+                           CherryKit::TitleTwo("Overview"); // B1FF31FF
+                           CherryKit::TitleSix("Latest news"); // 797979FF
 
-                           Cherry::TitleSixColored("Latest news", "#797979FF");
                            if (VortexMaker::GetCurrentContext()->IO.offline)
                            {
                                NewsBanner(false, "Latest", 400, 150, "?", Cherry::GetPath("resources/imgs/vortex_banner_disconnected.png"));
@@ -547,8 +537,8 @@ namespace VortexLauncher
                                }
                            }
 
-                           Space(200.0f);
-                           Cherry::TitleSixColored("Fast actions", "#797979FF");
+                           CherryKit::Space(200.0f);
+                           CherryKit::TitleSix("Fast actions"); // 797979FF
                            QuickAction(false, "create", 264, 120, Cherry::GetPath("resources/imgs/create_banner.png"), true, m_CreateProjectCallback);
                            QuickAction(false, "open", 263, 120, Cherry::GetPath("resources/imgs/open_banner.png"), true, m_OpenProjectCallback);
                            QuickAction(true, "settings", 264, 120, Cherry::GetPath("resources/imgs/settings_banner.png"), true, m_SettingsCallback);
@@ -557,7 +547,8 @@ namespace VortexLauncher
                            {
                            }
 
-                           Cherry::TitleSixColored("Latest openned project", "#797979FF");
+                           CherryKit::TitleSix("Latest openned project"); // 797979FF
+                           
                            const size_t maxSlots = 4;
 
                            size_t filledSlots = 0;
@@ -586,7 +577,7 @@ for (const auto& project : m_RecentProjects) {
                                QuickAction((filledSlots >= 3 ? true : false), "", 196, 120, Cherry::GetPath("resources/imgs/empty_recent_project.png"), false);
                            }
 
-                           Cherry::TitleSixColored("Latest available versions", "#797979FF");
+                           CherryKit::TitleSix("Latest available versions"); // 797979FF
 
                            int version_index = 0;
                            for (auto version : VortexMaker::GetCurrentContext()->latest_vortex_versions)
@@ -688,16 +679,17 @@ for (const auto& project : m_RecentProjects) {
 
         if (specialChild != m_Childs.end())
         {
-            Cherry::MenuItemTextSeparator("Main");
-            Cherry::TextButtonUnderlineOptions opt;
+            CherryKit::SeparatorText("Main");
+
+            //Cherry::TextButtonUnderlineOptions opt;
 
             if (specialChild->first == m_SelectedChildName)
             {
-                opt.hex_text_idle = "#FFFFFFFF";
+                //opt.hex_text_idle = "#FFFFFFFF";
             }
             else
             {
-                opt.hex_text_idle = "#A9A9A9FF";
+                //opt.hex_text_idle = "#A9A9A9FF";
             }
             std::string child_name;
 
@@ -711,27 +703,28 @@ for (const auto& project : m_RecentProjects) {
                 child_name = specialChild->first;
             }
 
-            if (Cherry::TextButtonUnderline(child_name.c_str(), true, opt))
+            CherryKit::ButtonText(CherryID("all_menus"), child_name.c_str());
+            if (false)
             {
                 m_SelectedChildName = specialChild->first;
             }
         }
 
-        Cherry::MenuItemTextSeparator("All menus");
+            CherryKit::SeparatorText("All menus");
         for (const auto &child : m_Childs)
         {
             if (child.first == "?loc:loc.windows.welcome.overview")
                 continue;
 
-            Cherry::TextButtonUnderlineOptions opt;
+            //Cherry::TextButtonUnderlineOptions opt;
 
             if (child.first == m_SelectedChildName)
             {
-                opt.hex_text_idle = "#FFFFFFFF";
+                //opt.hex_text_idle = "#FFFFFFFF";
             }
             else
             {
-                opt.hex_text_idle = "#A9A9A9FF";
+                //opt.hex_text_idle = "#A9A9A9FF";
             }
             std::string child_name;
 
@@ -745,10 +738,14 @@ for (const auto& project : m_RecentProjects) {
                 child_name = child.first;
             }
 
-            if (Cherry::TextButtonUnderline(child_name.c_str(), true, opt))
+            CherryKit::ButtonText(CherryID("all_menus"), child_name.c_str());
+            // Cherry::GetLastItemData("isClicked")
+            if(false)
             {
                 m_SelectedChildName = child.first;
             }
+
+            //if (Cherry::TextButtonUnderline(child_name.c_str(), true, opt))
         }
 
         ImGui::EndChild();

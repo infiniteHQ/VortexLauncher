@@ -152,6 +152,45 @@ static std::uintmax_t getDirectorySize(const std::filesystem::path &directoryPat
     return size;
 }
 
+enum class FileTypes
+    {
+        // Very low level
+        File_ASM,
+        File_BIN,
+
+        // Programming languages
+        File_C,
+        File_H,
+        File_CPP,
+        File_HPP,
+        File_INL,
+        File_RUST,
+        File_ZIG,
+        File_GO,
+        File_JAVA,
+        File_JAVASCRIPT,
+        File_COBOL,
+        File_PASCAL,
+        File_CARBON,
+
+        // Misc
+        File_CFG,
+        File_JSON,
+        File_PICTURE,
+        File_TXT,
+        File_MD,
+        File_YAML,
+        File_INI,
+        File_GIT,
+
+        // Vortex
+        File_VORTEX_CONFIG,
+
+        // Other
+        File_UNKNOW,
+
+    };
+
 static std::string formatFileSize(size_t size)
 {
     const char *units[] = {"o", "ko", "Mo", "Go", "To"};
@@ -230,7 +269,7 @@ FileTypes detect_file(const std::string &path)
     }
 }
 
-static std::vector<std::pair<std::shared_ptr<ContenBrowserItem>, std::string>> recognized_modules_items;
+//static std::vector<std::pair<std::shared_ptr<ContenBrowserItem>, std::string>> recognized_modules_items;
 
 FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::string &start_path)
 {
@@ -238,29 +277,29 @@ FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::s
     m_AppWindow->SetIcon(Cherry::Application::CookPath("resources/imgs/icons/misc/icon_folder.png"));
     std::shared_ptr<Cherry::AppWindow> win = m_AppWindow;
 
-    cp_SaveButton = Application::Get().CreateComponent<ImageTextButtonSimple>("save_button", Application::Get().GetLocale("loc.content_browser.save_all") + "####content_browser.save_all", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_save.png"));
+    /*cp_SaveButton = Application::Get().CreateComponent<ImageTextButtonSimple>("save_button", Application::Get().GetLocale("loc.content_browser.save_all") + "####content_browser.save_all", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_save.png"));
     cp_SaveButton->SetScale(0.85f);
     cp_SaveButton->SetLogoSize(15, 15);
     cp_SaveButton->SetBackgroundColorIdle("#00000000");
-    cp_SaveButton->SetBorderColorIdle("#00000000");
+    cp_SaveButton->SetBorderColorIdle("#00000000");*/
 
-    cp_ImportButton = Application::Get().CreateComponent<ImageTextButtonSimple>("import_button", Application::Get().GetLocale("loc.content_browser.import") + "####content_browser.import", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_import.png"));
+    /*cp_ImportButton = Application::Get().CreateComponent<ImageTextButtonSimple>("import_button", Application::Get().GetLocale("loc.content_browser.import") + "####content_browser.import", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_import.png"));
     cp_ImportButton->SetScale(0.85f);
     cp_ImportButton->SetLogoSize(15, 15);
     cp_ImportButton->SetBackgroundColorIdle("#00000000");
-    cp_ImportButton->SetBorderColorIdle("#00000000");
+    cp_ImportButton->SetBorderColorIdle("#00000000");*/
 
-    cp_AddButton = Application::Get().CreateComponent<ImageTextButtonSimple>("add_button", Application::Get().GetLocale("loc.content_browser.add") + "####content_browser.add", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_add.png"));
+    /*cp_AddButton = Application::Get().CreateComponent<ImageTextButtonSimple>("add_button", Application::Get().GetLocale("loc.content_browser.add") + "####content_browser.add", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_add.png"));
     cp_AddButton->SetScale(0.85f);
     cp_AddButton->SetInternalMarginX(10.0f);
-    cp_AddButton->SetLogoSize(15, 15);
+    cp_AddButton->SetLogoSize(15, 15);*/
 
-    cp_SettingsButton = Application::Get().CreateComponent<CustomDrowpdownImageButtonSimple>("setgings_button", Application::Get().GetLocale("loc.content_browser.add") + "####content_browser.settings", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_add.png"));
+    /*cp_SettingsButton = Application::Get().CreateComponent<CustomDrowpdownImageButtonSimple>("setgings_button", Application::Get().GetLocale("loc.content_browser.add") + "####content_browser.settings", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_add.png"));
     cp_SettingsButton->SetScale(0.85f);
     cp_SettingsButton->SetInternalMarginX(10.0f);
-    cp_SettingsButton->SetLogoSize(15, 15);
+    cp_SettingsButton->SetLogoSize(15, 15);*/
 
-    cp_DirectoryUndo = Application::Get().CreateComponent<ImageButtonSimple>("directory_undo", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_arrow_l_disabled.png"));
+    /*cp_DirectoryUndo = Application::Get().CreateComponent<ImageButtonSimple>("directory_undo", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_arrow_l_disabled.png"));
     cp_DirectoryUndo->SetBackgroundColorIdle("#00000000");
     cp_DirectoryUndo->SetBorderColorIdle("#00000000");
     cp_DirectoryUndo->SetScale(0.85f);
@@ -268,7 +307,7 @@ FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::s
     cp_DirectoryRedo = Application::Get().CreateComponent<ImageButtonSimple>("directory_redo", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_arrow_r_disabled.png"));
     cp_DirectoryRedo->SetBackgroundColorIdle("#00000000");
     cp_DirectoryRedo->SetBorderColorIdle("#00000000");
-    cp_DirectoryRedo->SetScale(0.85f);
+    cp_DirectoryRedo->SetScale(0.85f);*/
 
     m_AppWindow->SetLeftMenubarCallback([this]()
                                         {
@@ -278,16 +317,14 @@ FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::s
 
 		if (m_BackHistory.empty())
 		{
-            cp_DirectoryUndo->SetImagePath(Application::Get().CookPath("resources/imgs/icons/misc/icon_arrow_l_disabled.png"));
-			if (cp_DirectoryUndo->Render("normal"))
+                    if(CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_arrow_l_disabled.png"))->GetData("isClicked") == "true")
 			{
 				//
 			}
 		}
 		else
-		{
-            cp_DirectoryUndo->SetImagePath(Application::Get().CookPath("resources/imgs/icons/misc/icon_arrow_l_enabled.png"));
-			if (cp_DirectoryUndo->Render("normal"))
+		{                    if(CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_arrow_l_disabled.png"))->GetData("isClicked") == "true")
+
 			{
 				GoBack();
 			}
@@ -299,17 +336,15 @@ FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::s
 		}
 
 		if (m_ForwardHistory.empty())
-		{
-            cp_DirectoryUndo->SetImagePath(Application::Get().CookPath("resources/imgs/icons/misc/icon_arrow_r_disabled.png"));
-			if (cp_DirectoryRedo->Render("normal"))
+		{                    
+            if(CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_arrow_r_disabled.png"))->GetData("isClicked") == "true")
 			{
 				//
 			}
 		}
 		else
 		{
-            cp_DirectoryUndo->SetImagePath(Application::Get().CookPath("resources/imgs/icons/misc/icon_arrow_r_enabled.png"));
-			if (cp_DirectoryRedo->Render("normal"))
+            if(CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_arrow_r_disabled.png"))->GetData("isClicked") == "true")
 			{
 				GoForward();
 			}
@@ -321,28 +356,26 @@ FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::s
 		}
 		ImGui::PopStyleVar();
 		ImGui::PopStyleColor();
-        this->DrawPathBar(m_CurrentDirectory.string());
-        });
-
+        this->DrawPathBar(m_CurrentDirectory.string()); });
 
     m_AppWindow->SetRightMenubarCallback([this]()
                                          {
-                                            ImGui::PushStyleColor(ImGuiCol_FrameBg, Cherry::HexToRGBA("#00000000"));
-                                            ImGui::BeginChildFrame(ImGui::GetID("btn_ch"), ImVec2(100,50));
-                               static std::shared_ptr<Cherry::ImageTextButtonSimple> del_btn = std::make_shared<Cherry::ImageTextButtonSimple>("search_button", "Done");
-                               del_btn->SetScale(0.85f);
-                               del_btn->SetInternalMarginX(10.0f);
-                               del_btn->SetLogoSize(15, 15);
-                               del_btn->SetBackgroundColorIdle("#00000000");
-                               del_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_magnifying_glass.png"));
-                               if (del_btn->Render("search_button"))
-                               {
-                m_GetFileBrowserPath = true;
-                               }
-                               ImGui::EndChildFrame();
-                               ImGui::PopStyleColor();
-                               
-                                });
+                                             ImGui::PushStyleColor(ImGuiCol_FrameBg, Cherry::HexToRGBA("#00000000"));
+                                             ImGui::BeginChildFrame(ImGui::GetID("btn_ch"), ImVec2(100, 50));
+/*static std::shared_ptr<Cherry::ImageTextButtonSimple> del_btn = std::make_shared<Cherry::ImageTextButtonSimple>("search_button", "Done");
+                                             del_btn->SetScale(0.85f);
+                                             del_btn->SetInternalMarginX(10.0f);
+                                             del_btn->SetLogoSize(15, 15);
+                                             del_btn->SetBackgroundColorIdle("#00000000");
+                                             del_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_magnifying_glass.png"));*/
+
+                                                     if(CherryKit::ButtonImageText("Done", Cherry::GetPath("resources/imgs/icons/misc/icon_magnifying_glass.png"))->GetData("isClicked") == "true")
+                                             {
+                                                 m_GetFileBrowserPath = true;
+                                             }
+                                             ImGui::EndChildFrame();
+                                             ImGui::PopStyleColor();
+                                         });
 
     m_BaseDirectory = start_path;
     m_CurrentDirectory = m_BaseDirectory;
@@ -361,7 +394,7 @@ FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::s
 
 void FileBrowserAppWindow::DrawPathBar(const std::string &path)
 {
-    ImGui::BeginChild("PathBar", ImVec2(0, 30), false);  // Ajuste la hauteur selon tes besoins
+    ImGui::BeginChild("PathBar", ImVec2(0, 30), false); // Ajuste la hauteur selon tes besoins
 // Split the path by '/' or '\\' depending on the OS
 #ifdef _WIN32
     const char separator = '\\';
@@ -379,21 +412,21 @@ void FileBrowserAppWindow::DrawPathBar(const std::string &path)
         elements.push_back(segment);
     }
 
-for (size_t i = 0; i < elements.size(); ++i)
-{
-    ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "%s", elements[i].c_str());
-
-    if (i < elements.size() - 1)
+    for (size_t i = 0; i < elements.size(); ++i)
     {
-        ImGui::SameLine(0, 5.0f); // Ajuste la valeur ici pour le spacing entre les éléments
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.6f, 0.6f, 0.6f, 1.0f)); // Couleur grise
-        ImGui::TextUnformatted("/");  // Utiliser TextUnformatted évite les effets de décalage de Text
-        ImGui::PopStyleColor();
-        ImGui::SameLine(0, 5.0f);  // Ajuste le spacing après le slash
-    }
-}
+        ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "%s", elements[i].c_str());
 
-ImGui::EndChild();
+        if (i < elements.size() - 1)
+        {
+            ImGui::SameLine(0, 5.0f);                                             // Ajuste la valeur ici pour le spacing entre les éléments
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.6f, 0.6f, 0.6f, 1.0f)); // Couleur grise
+            ImGui::TextUnformatted("/");                                          // Utiliser TextUnformatted évite les effets de décalage de Text
+            ImGui::PopStyleColor();
+            ImGui::SameLine(0, 5.0f); // Ajuste le spacing après le slash
+        }
+    }
+
+    ImGui::EndChild();
 }
 
 void FileBrowserAppWindow::AddChild(const FileBrowserChild &child)
@@ -848,17 +881,17 @@ void FileBrowserAppWindow::DrawHierarchy(std::filesystem::path path, bool isDir,
 
 void FileBrowserAppWindow::RenderSideBar()
 {
-    CustomCollapsingHeaderLogo("Favorite", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_star.png"), [this]()
+    CherryKit::HeaderImageTextButton("Favorite", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_star.png"), [this]()
                                {
                                        for (auto custom_dir : m_FavoriteFolders)
                                        {
                                            DrawHierarchy(custom_dir, true);
                                        } });
 
-    CustomCollapsingHeaderLogo("Main", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_home.png"), [this]()
+    CherryKit::HeaderImageTextButton("Main", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_home.png"), [this]()
                                { DrawHierarchy(m_BaseDirectory, true, "Main"); });
 
-    CustomCollapsingHeaderLogo("Pools & Collections", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_collection.png"), [this]()
+    CherryKit::HeaderImageTextButton("Pools & Collections", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_collection.png"), [this]()
                                {
                                        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(12.0f, 2.0f));
 
@@ -1250,7 +1283,7 @@ void FileBrowserAppWindow::Render()
         std::string childname = child.m_Name + "##left_part" + m_AppWindow->m_Name;
         float val = 250.0f;
 
-        if(i > 0)
+        if (i > 0)
         {
             val = ImGui::GetWindowContentRegionMax().x - 250.0f;
         }

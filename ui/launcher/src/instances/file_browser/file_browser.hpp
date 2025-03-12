@@ -152,14 +152,6 @@ using namespace Cherry;
         std::function<void(const std::vector<std::string> &)> m_CopyPathsCallback;
         std::function<void(const std::vector<std::string> &)> m_PastePathsCallback;
 
-        std::shared_ptr<ImageTextButtonSimple> cp_SaveButton;
-        std::shared_ptr<ImageTextButtonSimple> cp_ImportButton;
-        std::shared_ptr<ImageTextButtonSimple> cp_AddButton;
-
-        std::shared_ptr<CustomDrowpdownImageButtonSimple> cp_SettingsButton;
-
-        std::shared_ptr<ImageButtonSimple> cp_DirectoryUndo;
-        std::shared_ptr<ImageButtonSimple> cp_DirectoryRedo;
     };
 
 

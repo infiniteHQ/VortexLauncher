@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <cctype>
 #include <unordered_set>
-static std::vector<std::string> projectPoolsPaths = {};
 static std::vector<bool> selectedRows(finded_projects.size(), false);
 
 std::vector<std::string> modules_projects;
@@ -133,7 +132,7 @@ ProjectManager::ProjectManager(const std::string &name)
                                         { this->mainButtonsMenuItem(); });
 
     // Create project components
-    cp_SimpleTable = Cherry::Application::Get().CreateComponent<Cherry::SimpleTable>("simpletable_2", "KeyvA", std::vector<std::string>{"", ""});
+    /*cp_SimpleTable = Cherry::Application::Get().CreateComponent<Cherry::SimpleTable>("simpletable_2", "KeyvA", std::vector<std::string>{"", ""});
     cp_SimpleTable->SetHeaderCellPaddingY(12.0f);
     cp_SimpleTable->SetHeaderCellPaddingX(10.0f);
     cp_SimpleTable->SetRowsCellPaddingY(100.0f);
@@ -156,7 +155,7 @@ ProjectManager::ProjectManager(const std::string &name)
     cp_ProjectPath = Cherry::Application::Get().CreateComponent<Cherry::DoubleKeyValSimpleCombo>("keyvaldouble_5", projectPoolsPaths, 0, "Select a path");
 
     v_ProjectOpen = std::make_shared<bool>(true);
-    cp_ProjectOpen = Cherry::Application::Get().CreateComponent<Cherry::DoubleKeyValBoolean>("keyvaldouble_6", v_ProjectOpen, "Open after ?");
+    cp_ProjectOpen = Cherry::Application::Get().CreateComponent<Cherry::DoubleKeyValBoolean>("keyvaldouble_6", v_ProjectOpen, "Open after ?");*/
 
     this->ctx = VortexMaker::GetCurrentContext();
     this->Refresh();
@@ -349,7 +348,7 @@ void ProjectManager::Render()
 
         if (ImGui::BeginPopupModal("Not installed version", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove))
         {
-            Cherry::TitleFourColored("Not installed version", "#B1FF31FF");
+            CherryKit::TitleFour("Not installed version"); // B1FF31FF
             {
                 std::string text_label = "You wanna open the project \"" + no_installed_project_name + "\" but this project was created on the Vortex version \"" + no_installed_version + "\" wich not installed in your system";
                 ImGui::TextWrapped(text_label.c_str());
@@ -358,7 +357,9 @@ void ProjectManager::Render()
 
             if (no_installed_version_available.version != "")
             {
-                Cherry::TitleFiveColored("Available version :", "#797979FF");
+
+                CherryKit::TitleFive("All projects"); // 797979FF
+
                 {
                     // LOGO Section
                     ImGui::BeginChild("LOGO_", ImVec2(160, 40), false, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoScrollbar);
@@ -515,23 +516,24 @@ void ProjectManager::Render()
 
             if (!finded_projects_to_import.empty())
             {
-
                 std::string label = "Import " + std::to_string(finded_projects_to_import.size()) + " project(s)";
 
-                static std::shared_ptr<Cherry::ImageTextButtonSimple> import_btn = std::make_shared<Cherry::ImageTextButtonSimple>("delete_project_pool_button", "");
+                /*static std::shared_ptr<Cherry::ImageTextButtonSimple> import_btn = std::make_shared<Cherry::ImageTextButtonSimple>("delete_project_pool_button", "");
                 import_btn->SetScale(0.85f);
                 import_btn->SetInternalMarginX(10.0f);
                 import_btn->SetLogoSize(15, 15);
                 import_btn->SetBackgroundColorIdle("#00000000");
                 import_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_trash.png"));
-                import_btn->SetLabel(label);
+                import_btn->SetLabel(label);*/
                 static std::string to_import_destination;
 
-                static std::shared_ptr<Cherry::ComboSimple> combo_dest = std::make_shared<Cherry::ComboSimple>("combo", "Import to", project_pools, 0);
+                /*static std::shared_ptr<Cherry::ComboSimple> combo_dest = std::make_shared<Cherry::ComboSimple>("combo", "Import to", project_pools, 0);
                 combo_dest->Render("qd");
-                to_import_destination = combo_dest->GetData("selected_string");
+                to_import_destination = combo_dest->GetData("selected_string");*/
 
-                if (import_btn->Render("import_btn"))
+                CherryKit::ComboText("Import to", &project_pools);
+                                
+                if(CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_trash.png"))->GetData("isClicked") == "true")
                 {
                     for (auto &module : finded_projects_to_import)
                     {
@@ -566,7 +568,8 @@ void ProjectManager::Render()
     {
         ImGui::BeginChild("left_pane", ImVec2(leftPaneWidth, 0), true, ImGuiWindowFlags_NoBackground);
 
-        Cherry::TitleFourColored("All projects ", "#75757575");
+        CherryKit::TitleFour("All projects"); // 75757575
+
         for (int row = 0; row < ctx->IO.sys_projects.size(); row++)
         {
             if (areStringsSimilar(ctx->IO.sys_projects[row]->name, ProjectSearch, threshold) || isOnlySpacesOrEmpty(ProjectSearch))
@@ -685,7 +688,8 @@ void ProjectManager::Render()
 
             ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.0f);
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.0f);
-            Cherry::TitleSixColored("Description", "#A9A9A9FF");
+
+            CherryKit::TitleSix("Description"); // A9A9A9FF
             ImGui::PushStyleColor(ImGuiCol_Text, Cherry::HexToRGBA("#797979FF"));
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.0f);
             ImGui::TextWrapped(m_SelectedEnvproject->description.c_str());
@@ -738,9 +742,9 @@ void ProjectManager::Render()
                     }
                     else
                     {
-                    std::thread([this](){
-                        VortexMaker::OpenProject(m_SelectedEnvproject->path, m_SelectedEnvproject->compatibleWith);
-                    }).detach();
+                        std::thread([this]()
+                                    { VortexMaker::OpenProject(m_SelectedEnvproject->path, m_SelectedEnvproject->compatibleWith); })
+                            .detach();
                     }
                 }
             }
@@ -757,9 +761,9 @@ void ProjectManager::Render()
                 ImGui::SameLine();
                 if (ImGui::Button("Continue", ImVec2(120, 0)))
                 {
-                    std::thread([this](){
-                        VortexMaker::OpenProject(m_SelectedEnvproject->path, m_SelectedEnvproject->compatibleWith);
-                    }).detach();
+                    std::thread([this]()
+                                { VortexMaker::OpenProject(m_SelectedEnvproject->path, m_SelectedEnvproject->compatibleWith); })
+                        .detach();
 
                     ImGui::CloseCurrentPopup();
                 }
@@ -871,7 +875,8 @@ void ProjectManager::Render()
                         ImGui::GetFont()->Scale *= 1.3;
                         ImGui::PushFont(ImGui::GetFont());
 
-                        ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.8f), cp_ProjectName->GetData("value").c_str());
+                        // ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.8f), cp_ProjectName->GetData("value").c_str());
+                        CherryKit::TextSimple(v_ProjectName.c_str());
                         ImGui::SameLine();
 
                         ImGui::GetFont()->Scale = oldsize;
@@ -886,13 +891,18 @@ void ProjectManager::Render()
                     }
 
                     ImGui::PopStyleVar(4);
-                    /*ImGui::InputText("Path", buf, sizeof(buf));
-                    ImGui::InputText("Name", name, 128);
-                    ImGui::InputText("Description", desc, 128);
-                    ImGui::InputText("Authors", auth, 128);
-                    ImGui::InputText("Version", version, 128);*/
 
-                    std::vector<Cherry::SimpleTable::SimpleTableRow> keyvals;
+                    CherryKit::TableSimple("Project props inputs", 
+                    {
+                        CherryKit::KeyValString("Project name", &v_ProjectName),
+                        CherryKit::KeyValString("Project description", &v_ProjectDescription),
+                        CherryKit::KeyValString("Project author", &v_ProjectAuthor),
+                        CherryKit::KeyValString("Project version", &v_ProjectVersion),
+                        CherryKit::KeyValComboString("Project path", &projectPoolsPaths),
+                        CherryKit::KeyValBool(CherryID("PathSelector"), "Open after creation", &v_ProjectOpen)
+                    });
+
+                    /*std::vector<Cherry::SimpleTable::SimpleTableRow> keyvals;
 
                     keyvals.push_back(Cherry::SimpleTable::SimpleTableRow({[&]()
                                                                            { cp_ProjectName->Render(0); },
@@ -926,14 +936,13 @@ void ProjectManager::Render()
                                                                            [&]()
                                                                            { cp_ProjectOpen->Render(1); }}));
                     cp_SimpleTable->Render(keyvals, "AllParams", ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_NoBordersInBody | ImGuiTableFlags_NoBordersInBodyUntilResize);
-
+*/
                     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
                     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
                     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
                     ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 0.0f);
 
-                    std::string path = cp_ProjectPath->GetData("selected_string") + "/" + cp_ProjectName->GetData("value");
-                    std::cout << path << std::endl;
+                    std::string path = Cherry::GetData(CherryID("PathSelector"), "selectedString") + "/" + v_ProjectName;
 
                     float firstButtonPosX = windowSize.x - buttonSize.x - bitButtonSize.y - 75 * 2 - ImGui::GetStyle().ItemSpacing.x * 3;
 
@@ -952,7 +961,7 @@ void ProjectManager::Render()
                     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.2f, 0.2f, 0.0f, 1.8f));
                     if (ImGui::Button("Create new project", bitButtonSize))
                     {
-                        VortexMaker::CreateProject(cp_ProjectName->GetData("value"), auth, cp_ProjectVersion->GetData("selected_string"), desc, path, path + "/icon.png", selected_template_object->m_name);
+                        VortexMaker::CreateProject(v_ProjectName, auth, v_ProjectVersion, desc, path, path + "/icon.png", selected_template_object->m_name);
                         VortexMaker::RefreshEnvironmentProjects();
 
                         if (open)
@@ -1011,16 +1020,17 @@ void ProjectManager::Render()
 
                     ImGui::PopStyleColor();
 
-                    static std::shared_ptr<Cherry::ImageTextButtonSimple> import_btn = std::make_shared<Cherry::ImageTextButtonSimple>("delete_project_pool_button", "");
+                    /*static std::shared_ptr<Cherry::ImageTextButtonSimple> import_btn = std::make_shared<Cherry::ImageTextButtonSimple>("delete_project_pool_button", "");
                     import_btn->SetScale(0.85f);
                     import_btn->SetInternalMarginX(10.0f);
                     import_btn->SetLogoSize(15, 15);
                     import_btn->SetBackgroundColorIdle("#00000000");
                     import_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_delete.png"));
+                    std::string delete_btn_label = "Delete####" + projectPaths[i];*/
 
                     ImGui::TableSetColumnIndex(1);
-                    std::string delete_btn_label = "Delete####" + projectPaths[i];
-                    if (import_btn->Render(delete_btn_label.c_str()))
+
+                    if (CherryKit::ButtonImageText("delete_project_pool_button", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") == "true")
                     {
                         projectPaths.erase(projectPaths.begin() + i);
                         --i;
@@ -1033,7 +1043,7 @@ void ProjectManager::Render()
 
             ImGui::PopStyleColor();
 
-            static std::shared_ptr<Cherry::ImageTextButtonSimple> add_btn = std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "####add");
+            /*static std::shared_ptr<Cherry::ImageTextButtonSimple> add_btn = std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "####add");
             add_btn->SetScale(0.85f);
             add_btn->SetInternalMarginX(10.0f);
             add_btn->SetLogoSize(15, 15);
@@ -1044,11 +1054,11 @@ void ProjectManager::Render()
             save_btn->SetInternalMarginX(10.0f);
             save_btn->SetLogoSize(15, 15);
             save_btn->SetBackgroundColorIdle("#3232F7FF");
-            save_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_save.png"));
+            save_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_save.png"));*/
 
             ImGui::Separator();
 
-            if (add_btn->Render("add_pool"))
+            if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))->GetData("isClicked") == "true")
             {
                 if (newPath[0] != '\0')
                 {
@@ -1070,7 +1080,7 @@ void ProjectManager::Render()
             }
             ImGui::SameLine();
 
-            if (save_btn->Render("save_pool"))
+            if (CherryKit::ButtonImageText("Save", Cherry::GetPath("resources/imgs/icons/misc/icon_save.png"))->GetData("isClicked") == "true")
             {
                 std::string path = VortexMaker::getHomeDirectory() + "/.vx/data/";
                 std::string json_file = path + "/projects_pools.json";
@@ -1145,43 +1155,43 @@ void ProjectManager::addModuleModal()
 
 void ProjectManager::mainButtonsMenuItem()
 {
-    static std::shared_ptr<Cherry::ImageTextButtonSimple> create_project_button = std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "Create a project");
+    /*static std::shared_ptr<Cherry::ImageTextButtonSimple> create_project_button = std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "Create a project");
     create_project_button->SetScale(0.85f);
     create_project_button->SetInternalMarginX(10.0f);
     create_project_button->SetLogoSize(15, 15);
-    create_project_button->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));
+    create_project_button->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));*/
 
-    static std::shared_ptr<Cherry::ImageTextButtonSimple> import_project_button = std::make_shared<Cherry::ImageTextButtonSimple>("import_btn", "Import a project");
+    /*static std::shared_ptr<Cherry::ImageTextButtonSimple> import_project_button = std::make_shared<Cherry::ImageTextButtonSimple>("import_btn", "Import a project");
     import_project_button->SetScale(0.85f);
     import_project_button->SetInternalMarginX(10.0f);
     import_project_button->SetLogoSize(15, 15);
-    import_project_button->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_import.png"));
+    import_project_button->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_import.png"));*/
 
-    static std::shared_ptr<Cherry::ImageTextButtonSimple> open_project_button = std::make_shared<Cherry::ImageTextButtonSimple>("open_btn", "Open a project");
+    /*static std::shared_ptr<Cherry::ImageTextButtonSimple> open_project_button = std::make_shared<Cherry::ImageTextButtonSimple>("open_btn", "Open a project");
     open_project_button->SetScale(0.85f);
     open_project_button->SetInternalMarginX(10.0f);
     open_project_button->SetLogoSize(15, 15);
-    open_project_button->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"));
+    open_project_button->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"));*/
 
-    static std::shared_ptr<Cherry::ImageTextButtonSimple> add_pools_btn = std::make_shared<Cherry::ImageTextButtonSimple>("add_pools_btn", "Search folders");
+    /*static std::shared_ptr<Cherry::ImageTextButtonSimple> add_pools_btn = std::make_shared<Cherry::ImageTextButtonSimple>("add_pools_btn", "Search folders");
     add_pools_btn->SetScale(0.85f);
     add_pools_btn->SetInternalMarginX(10.0f);
     add_pools_btn->SetLogoSize(15, 15);
-    add_pools_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"));
+    add_pools_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"));*/
 
-    static std::shared_ptr<std::string> v_SearchString = std::make_shared<std::string>("");
-    static std::shared_ptr<Cherry::ImageStringInput> input_search = std::make_shared<Cherry::ImageStringInput>("open_btn", v_SearchString, Cherry::GetPath("resources/imgs/icons/misc/icon_search.png"), "####Open a project");
+    static std::string v_SearchString;
+    // static std::shared_ptr<Cherry::ImageStringInput> input_search = std::make_shared<Cherry::ImageStringInput>("open_btn", v_SearchString, Cherry::GetPath("resources/imgs/icons/misc/icon_search.png"), "####Open a project");
 
-    strncpy(ProjectSearch, v_SearchString->c_str(), sizeof(ProjectSearch) - 1);
+    strncpy(ProjectSearch, v_SearchString.c_str(), sizeof(ProjectSearch) - 1);
 
     if (!m_ProjectCreation)
     {
-        if (create_project_button->Render())
+        if (CherryKit::ButtonImageText("Create a project", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))->GetData("isClicked") == "true")
         {
             m_ProjectCreation = true;
         }
 
-        if (import_project_button->Render("import"))
+        if (CherryKit::ButtonImageText("Import a project", Cherry::GetPath("resources/imgs/icons/misc/icon_import.png"))->GetData("isClicked") == "true")
         {
             open_import_projects = true;
         }
@@ -1189,8 +1199,8 @@ void ProjectManager::mainButtonsMenuItem()
         ImGui::PushStyleColor(ImGuiCol_Separator, Cherry::HexToRGBA("#45454545")),
             ImGui::Separator();
         ImGui::PopStyleColor();
+        if (CherryKit::ButtonImageText("CSearch folders", Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"))->GetData("isClicked") == "true")
 
-        if (add_pools_btn->Render("fq"))
         {
             showProjectPools = true;
         }
@@ -1203,7 +1213,8 @@ void ProjectManager::mainButtonsMenuItem()
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.0f, 6.0f)); // Largeur x Hauteur padding
         ImGui::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#353535FF"));
 
-        input_search->Render("_");
+        // input_search->Render("_");
+        CherryKit::InputString("", &v_SearchString);
         ImGui::PopStyleVar();
         ImGui::PopStyleColor();
         ImGui::PopItemWidth();
@@ -1212,7 +1223,7 @@ void ProjectManager::mainButtonsMenuItem()
     }
     else
     {
-        if (open_project_button->Render())
+        if (CherryKit::ButtonImageText("Open a project", Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"))->GetData("isClicked") == "true")
         {
             m_ProjectCreation = false;
         }

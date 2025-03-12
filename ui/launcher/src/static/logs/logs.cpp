@@ -132,22 +132,23 @@ namespace VortexLauncher
 
     void LauncherLogUtility::menubar()
     {
-        static std::shared_ptr<Cherry::ImageTextButtonSimple> refresh_button = std::make_shared<Cherry::ImageTextButtonSimple>("logs_refresh_project_button", "Refresh");
+        /*static std::shared_ptr<Cherry::ImageTextButtonSimple> refresh_button = std::make_shared<Cherry::ImageTextButtonSimple>("logs_refresh_project_button", "Refresh");
         refresh_button->SetScale(0.85f);
         refresh_button->SetInternalMarginX(10.0f);
         refresh_button->SetLogoSize(15, 15);
-        refresh_button->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_collection.png"));
+        refresh_button->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_collection.png"));*/
 
-        static std::shared_ptr<Cherry::ImageTextButtonSimple> add_button = std::make_shared<Cherry::ImageTextButtonSimple>("logs_create_project_button", "Add");
+        /*static std::shared_ptr<Cherry::ImageTextButtonSimple> add_button = std::make_shared<Cherry::ImageTextButtonSimple>("logs_create_project_button", "Add");
         add_button->SetScale(0.85f);
         add_button->SetInternalMarginX(10.0f);
         add_button->SetLogoSize(15, 15);
-        add_button->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));
+        add_button->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));*/
 
-        if (refresh_button->Render())
+        if(CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_collection.png"))->GetData("isClicked") == "true")
         {
+            //
         }
-        if (add_button->Render())
+        if(CherryKit::ButtonImageText("Add", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))->GetData("isClicked") == "true")
         {
             ImGui::OpenPopup("CreationMenu");
         }

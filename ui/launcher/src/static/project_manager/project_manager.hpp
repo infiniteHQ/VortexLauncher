@@ -58,19 +58,20 @@ private:
 
 
 	// Create project components 
-    std::shared_ptr<Cherry::SimpleTable> cp_SimpleTable;    
+    /*std::shared_ptr<Cherry::SimpleTable> cp_SimpleTable;    
     std::shared_ptr<Cherry::DoubleKeyValString> cp_ProjectName;   
     std::shared_ptr<Cherry::DoubleKeyValString> cp_ProjectAuthor;   
     std::shared_ptr<Cherry::DoubleKeyValString> cp_ProjectDescription;   
     std::shared_ptr<Cherry::DoubleKeyValSimpleCombo> cp_ProjectPath;   
     std::shared_ptr<Cherry::DoubleKeyValSimpleCombo> cp_ProjectVersion;   
-    std::shared_ptr<Cherry::DoubleKeyValBoolean> cp_ProjectOpen;   
+    std::shared_ptr<Cherry::DoubleKeyValBoolean> cp_ProjectOpen;   */
 	// Create project values
-	std::shared_ptr<std::string> v_ProjectName;
-	std::shared_ptr<std::string> v_ProjectVersion;
-	std::shared_ptr<std::string> v_ProjectAuthor;
-	std::shared_ptr<std::string> v_ProjectDescription;
-	std::shared_ptr<bool> v_ProjectOpen;
+	std::string v_ProjectName;
+	std::string v_ProjectVersion;
+	std::string v_ProjectAuthor;
+	std::string v_ProjectDescription;
+ 	std::vector<std::string> projectPoolsPaths;
+	bool v_ProjectOpen;
 	std::atomic<bool> m_StillSearching = false;
 	bool SearchStarted = false;
 	std::string m_ElapsedTime;

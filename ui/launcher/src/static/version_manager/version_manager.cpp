@@ -65,7 +65,8 @@ VersionManagerAppWindow::VersionManagerAppWindow(const std::string &name)
     this->AddChild("Summary", "Manage Vortex versions", [this]()
                    {
     VxContext &ctx = *CVortexMaker;
-                       Cherry::TitleFourColored("Quick actions", "#75757575");
+
+                           CherryKit::TitleFour("Quick actions"); // 75757575
 
                        if(ctx.disconnected)
                        {
@@ -84,7 +85,8 @@ VersionManagerAppWindow::VersionManagerAppWindow(const std::string &name)
                        ImGui::Spacing();
                        ImGui::Spacing();
 
-                       Cherry::TitleFourColored("All installed versions", "#75757575");
+
+                           CherryKit::TitleFour("All installed versions"); // 75757575
 
 if(ctx.IO.sys_vortex_version.size() <= 0)
 {
@@ -107,7 +109,7 @@ if(ctx.IO.sys_vortex_version.size() <= 0)
                        }
                        else
                        {
-                       Cherry::TitleFourColored("All available Vortex versions", "#75757575");
+                           CherryKit::TitleFour("All available Vortex versions"); // 75757575
 
 if(ctx.latest_vortex_versions.size() <= 0)
 {
@@ -128,7 +130,7 @@ if(ctx.latest_vortex_versions.size() <= 0)
                    {
 
 
-Cherry::TitleFourColored("All installed versions", "#75757575");
+                           CherryKit::TitleFour("All installed versions"); // 75757575
 
     VxContext &ctx = *CVortexMaker;
 
@@ -203,7 +205,8 @@ void VersionManagerAppWindow::Render()
     ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
     ImVec4 graySeparatorColor = ImVec4(0.4f, 0.4f, 0.4f, 0.5f);
 
-    TitleThree("Manage Vortex version(s)");
+
+                           CherryKit::TitleThree("Manage Vortex version(s)");
     for (const auto &[parent, children] : groupedByParent)
     {
         ImGui::GetFont()->Scale *= 0.8;
@@ -234,7 +237,8 @@ void VersionManagerAppWindow::Render()
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
             }
 
-            if (TextButtonUnderline(child.m_ChildName.c_str()))
+            CherryKit::ButtonText(child.m_ChildName.c_str());
+            if(false)
             {
                 m_SelectedChildName = child.m_ChildName;
             }

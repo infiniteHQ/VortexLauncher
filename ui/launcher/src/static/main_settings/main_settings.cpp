@@ -140,16 +140,15 @@ namespace VortexLauncher
 
                     ImGui::PopStyleColor();
 
-                    static std::shared_ptr<Cherry::ImageTextButtonSimple> del_btn = std::make_shared<Cherry::ImageTextButtonSimple>("delete_project_pool_button", "");
+                    /*static std::shared_ptr<Cherry::ImageTextButtonSimple> del_btn = std::make_shared<Cherry::ImageTextButtonSimple>("delete_project_pool_button", "");
                     del_btn->SetScale(0.85f);
                     del_btn->SetInternalMarginX(10.0f);
                     del_btn->SetLogoSize(15, 15);
                     del_btn->SetBackgroundColorIdle("#00000000");
-                    del_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_delete.png"));
+                    del_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_delete.png"));*/
 
                     ImGui::TableSetColumnIndex(1);
-                    std::string delete_btn_label = "Delete####" + templatesPoolsPaths[i];
-                    if (del_btn->Render(delete_btn_label.c_str()))
+if(CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_delete.png"))->GetData("isClicked") == "true")
                     {
                         templatesPoolsPaths.erase(templatesPoolsPaths.begin() + i);
                         --i;
@@ -162,7 +161,7 @@ namespace VortexLauncher
 
             ImGui::PopStyleColor();
 
-            static std::shared_ptr<Cherry::ImageTextButtonSimple> add_btn = std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "####add");
+            /*static std::shared_ptr<Cherry::ImageTextButtonSimple> add_btn = std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "####add");
             add_btn->SetScale(0.85f);
             add_btn->SetInternalMarginX(10.0f);
             add_btn->SetLogoSize(15, 15);
@@ -173,11 +172,11 @@ namespace VortexLauncher
             save_btn->SetInternalMarginX(10.0f);
             save_btn->SetLogoSize(15, 15);
             save_btn->SetBackgroundColorIdle("#3232F7FF");
-            save_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_save.png"));
+            save_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_save.png"));*/
 
-            ImGui::Separator();
+            CherryKit::Separator();
 
-            if (add_btn->Render("add_pool"))
+if(CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))->GetData("isClicked") == "true")
             {
                 if (newPath[0] != '\0')
                 {
@@ -199,7 +198,7 @@ namespace VortexLauncher
             }
             ImGui::SameLine();
 
-            if (save_btn->Render("save_pool"))
+if(CherryKit::ButtonImageText("Save", Cherry::GetPath("resources/imgs/icons/misc/icon_save.png"))->GetData("isClicked") == "true")
             {
                 std::string path = VortexMaker::getHomeDirectory() + "/.vx/data/";
                 std::string json_file = path + "/template_pools.json";
@@ -236,16 +235,15 @@ namespace VortexLauncher
 
                     ImGui::PopStyleColor();
 
-                    static std::shared_ptr<Cherry::ImageTextButtonSimple> del_btn = std::make_shared<Cherry::ImageTextButtonSimple>("delete_project_pool_button", "");
+                    /*static std::shared_ptr<Cherry::ImageTextButtonSimple> del_btn = std::make_shared<Cherry::ImageTextButtonSimple>("delete_project_pool_button", "");
                     del_btn->SetScale(0.85f);
                     del_btn->SetInternalMarginX(10.0f);
                     del_btn->SetLogoSize(15, 15);
                     del_btn->SetBackgroundColorIdle("#00000000");
-                    del_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_delete.png"));
+                    del_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_delete.png"));*/
 
                     ImGui::TableSetColumnIndex(1);
-                    std::string delete_btn_label = "Delete####" + modulesPoolsPaths[i];
-                    if (del_btn->Render(delete_btn_label.c_str()))
+if(CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_delete.png"))->GetData("isClicked") == "true")
                     {
                         modulesPoolsPaths.erase(modulesPoolsPaths.begin() + i);
                         --i;
@@ -258,7 +256,7 @@ namespace VortexLauncher
 
             ImGui::PopStyleColor();
 
-            static std::shared_ptr<Cherry::ImageTextButtonSimple> add_btn = std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "####add");
+            /*static std::shared_ptr<Cherry::ImageTextButtonSimple> add_btn = std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "####add");
             add_btn->SetScale(0.85f);
             add_btn->SetInternalMarginX(10.0f);
             add_btn->SetLogoSize(15, 15);
@@ -269,11 +267,11 @@ namespace VortexLauncher
             save_btn->SetInternalMarginX(10.0f);
             save_btn->SetLogoSize(15, 15);
             save_btn->SetBackgroundColorIdle("#3232F7FF");
-            save_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_save.png"));
+            save_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_save.png"));*/
 
             ImGui::Separator();
 
-            if (add_btn->Render("add_pool"))
+if(CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))->GetData("isClicked") == "true")
             {
                 if (newPath[0] != '\0')
                 {
@@ -295,7 +293,7 @@ namespace VortexLauncher
             }
             ImGui::SameLine();
 
-            if (save_btn->Render("save_pool"))
+if(CherryKit::ButtonImageText("Save", Cherry::GetPath("resources/imgs/icons/misc/icon_save.png"))->GetData("isClicked") == "true")
             {
                 std::string path = VortexMaker::getHomeDirectory() + "/.vx/configs/";
                 std::string json_file = path + "/modules_pools.json";
@@ -332,16 +330,16 @@ namespace VortexLauncher
 
                     ImGui::PopStyleColor();
 
-                    static std::shared_ptr<Cherry::ImageTextButtonSimple> del_btn = std::make_shared<Cherry::ImageTextButtonSimple>("delete_project_pool_button", "");
+                    /*static std::shared_ptr<Cherry::ImageTextButtonSimple> del_btn = std::make_shared<Cherry::ImageTextButtonSimple>("delete_project_pool_button", "");
                     del_btn->SetScale(0.85f);
                     del_btn->SetInternalMarginX(10.0f);
                     del_btn->SetLogoSize(15, 15);
                     del_btn->SetBackgroundColorIdle("#00000000");
-                    del_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_delete.png"));
+                    del_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_delete.png"));*/
 
                     ImGui::TableSetColumnIndex(1);
-                    std::string delete_btn_label = "Delete####" + projectPoolsPaths[i];
-                    if (del_btn->Render(delete_btn_label.c_str()))
+
+if(CherryKit::ButtonImageText("Save", Cherry::GetPath("resources/imgs/icons/misc/icon_delete.png"))->GetData("isClicked") == "true")
                     {
                         projectPoolsPaths.erase(projectPoolsPaths.begin() + i);
                         --i;
@@ -354,7 +352,7 @@ namespace VortexLauncher
 
             ImGui::PopStyleColor();
 
-            static std::shared_ptr<Cherry::ImageTextButtonSimple> add_btn = std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "####add");
+            /*static std::shared_ptr<Cherry::ImageTextButtonSimple> add_btn = std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "####add");
             add_btn->SetScale(0.85f);
             add_btn->SetInternalMarginX(10.0f);
             add_btn->SetLogoSize(15, 15);
@@ -365,11 +363,11 @@ namespace VortexLauncher
             save_btn->SetInternalMarginX(10.0f);
             save_btn->SetLogoSize(15, 15);
             save_btn->SetBackgroundColorIdle("#3232F7FF");
-            save_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_save.png"));
+            save_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_save.png"));*/
 
-            ImGui::Separator();
+            CherryKit::Separator();
 
-            if (add_btn->Render("add_pool"))
+if(CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))->GetData("isClicked") == "true")
             {
                 if (newPath[0] != '\0')
                 {
@@ -391,7 +389,7 @@ namespace VortexLauncher
             }
             ImGui::SameLine();
 
-            if (save_btn->Render("save_pool"))
+if(CherryKit::ButtonImageText("Save", Cherry::GetPath("resources/imgs/icons/misc/icon_save.png"))->GetData("isClicked") == "true")
             {
                 std::string path = VortexMaker::getHomeDirectory() + "/.vx/configs/";
                 std::string json_file = path + "/projects_pools.json";
@@ -404,7 +402,7 @@ namespace VortexLauncher
         this->AddChild("Paths, Links", "Vortex versions paths", [this]()
                        {
             static char newPath[256] = "";
-            Cherry::TitleSixColored("Important: It's not recommanded to add other pools for Vortex versions than the unique system pool.", "#F63535FF");
+            CherryKit::TitleSix("Important: It's not recommanded to add other pools for Vortex versions than the unique system pool."); // F63535FF
 
             ImGui::Text("Path where Vortex search versions:");
             ImGui::Separator();
@@ -429,16 +427,16 @@ namespace VortexLauncher
 
                     ImGui::PopStyleColor();
 
-                    static std::shared_ptr<Cherry::ImageTextButtonSimple> del_btn = std::make_shared<Cherry::ImageTextButtonSimple>("delete_project_pool_button", "");
+                    /*static std::shared_ptr<Cherry::ImageTextButtonSimple> del_btn = std::make_shared<Cherry::ImageTextButtonSimple>("delete_project_pool_button", "");
                     del_btn->SetScale(0.85f);
                     del_btn->SetInternalMarginX(10.0f);
                     del_btn->SetLogoSize(15, 15);
                     del_btn->SetBackgroundColorIdle("#00000000");
-                    del_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_delete.png"));
+                    del_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_delete.png"));*/
 
                     ImGui::TableSetColumnIndex(1);
-                    std::string delete_btn_label = "Delete####" + vortexVersionPoolsPaths[i];
-                    if (del_btn->Render(delete_btn_label.c_str()))
+
+if(CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_delete.png"))->GetData("isClicked") == "true")
                     {
                         vortexVersionPoolsPaths.erase(vortexVersionPoolsPaths.begin() + i);
                         --i;
@@ -451,7 +449,7 @@ namespace VortexLauncher
 
             ImGui::PopStyleColor();
 
-            static std::shared_ptr<Cherry::ImageTextButtonSimple> add_btn = std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "####add");
+            /*static std::shared_ptr<Cherry::ImageTextButtonSimple> add_btn = std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "####add");
             add_btn->SetScale(0.85f);
             add_btn->SetInternalMarginX(10.0f);
             add_btn->SetLogoSize(15, 15);
@@ -462,11 +460,11 @@ namespace VortexLauncher
             save_btn->SetInternalMarginX(10.0f);
             save_btn->SetLogoSize(15, 15);
             save_btn->SetBackgroundColorIdle("#3232F7FF");
-            save_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_save.png"));
+            save_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_save.png"));*/
 
-            ImGui::Separator();
+            CherryKit::Separator();
 
-            if (add_btn->Render("add_pool"))
+if(CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))->GetData("isClicked") == "true")
             {
                 if (newPath[0] != '\0')
                 {
@@ -479,7 +477,7 @@ namespace VortexLauncher
 
             ImGui::InputText("", newPath, sizeof(newPath));
 
-            ImGui::Separator();
+            CherryKit::Separator();
 
             if (ImGui::Button("Cancel"))
             {
@@ -488,7 +486,7 @@ namespace VortexLauncher
             }
             ImGui::SameLine();
 
-            if (save_btn->Render("save_pool"))
+if(CherryKit::ButtonImageText("Save", Cherry::GetPath("resources/imgs/icons/misc/icon_save.png"))->GetData("isClicked") == "true")
             {
                 std::string path = VortexMaker::getHomeDirectory() + "/.vx/configs/";
                 std::string json_file = path + "/vortex_versions.json";
@@ -570,8 +568,7 @@ std::cout << vortexDists.size() << std::endl;
                            if (ImGui::Button("Refresh"))
                            {
                                RefreshConfig();
-                           }
-                       });
+                           } });
 
         std::shared_ptr<Cherry::AppWindow> win = m_AppWindow;
         m_AppWindow->SetLeftMenubarCallback([]() {});
@@ -637,7 +634,7 @@ std::cout << vortexDists.size() << std::endl;
         ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
         ImVec4 graySeparatorColor = ImVec4(0.4f, 0.4f, 0.4f, 0.5f);
 
-        Cherry::TitleThree("Settings of Vortex");
+        CherryKit::TitleThree("Settings of Vortex");
         for (const auto &[parent, children] : groupedByParent)
         {
 
@@ -669,7 +666,7 @@ std::cout << vortexDists.size() << std::endl;
                     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
                 }
 
-                if (Cherry::TextButtonUnderline(child.m_ChildName.c_str()))
+                if (CherryKit::ButtonText(child.m_ChildName))
                 {
                     m_SelectedChildName = child.m_ChildName;
                 }

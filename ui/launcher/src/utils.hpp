@@ -2,6 +2,8 @@
 #include "../../../main/include/vortex.h"
 #include "../../../main/include/vortex_internals.h"
 
+#include <unordered_set>
+
 #define CHERRY_V1
 #include "../../../lib/cherry/cherry.hpp"
 
@@ -288,7 +290,6 @@ static void DrawHighlightedText(ImDrawList *drawList, ImVec2 textPos, const char
     const char *found = strstr(start, search);
     while (found)
     {
-        // Dessiner le texte avant la correspondance
         if (found > start)
         {
             std::string preText(start, found);
@@ -296,19 +297,16 @@ static void DrawHighlightedText(ImDrawList *drawList, ImVec2 textPos, const char
             textPos.x += ImGui::CalcTextSize(preText.c_str()).x;
         }
 
-        // Dessiner la correspondance mise en surbrillance avec un texte noir
         ImVec2 highlightPos = textPos;
         ImVec2 highlightSize = ImGui::CalcTextSize(search);
         drawList->AddRectFilled(highlightPos, ImVec2(highlightPos.x + highlightSize.x, highlightPos.y + highlightSize.y), highlightColor);
         drawList->AddText(textPos, highlightTextColor, search);
         textPos.x += highlightSize.x;
 
-        // Passer à la partie suivante du texte
         start = found + strlen(search);
         found = strstr(start, search);
     }
 
-    // Dessiner le texte restant après la dernière correspondance
     if (*start)
     {
         drawList->AddText(textPos, textColor, start);
@@ -494,16 +492,16 @@ static void DownloadableVersionButton(const std::string &envproject, int xsize =
     {
         {
             ImGui::BeginDisabled();
-            auto btn = std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "Already installed");
+            /*auto btn = std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "Already installed");
             btn->SetScale(0.85f);
             btn->SetInternalMarginX(10.0f);
             btn->SetInternalMarginY(4.0f);
             btn->SetLogoSize(1, 1);
             btn->SetBorderColorIdle("#00000000");
             btn->SetBackgroundColorClicked("#00000000");
-            btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));
+            btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));*/
 
-            if (btn->Render(envproject))
+        if(CherryKit::ButtonImageText("Already installed", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))->GetData("isClicked") == "true")
             {
                 //
             }
@@ -512,20 +510,19 @@ static void DownloadableVersionButton(const std::string &envproject, int xsize =
         ImGui::SameLine();
 
         {
-            auto btn = std::make_shared<Cherry::ImageButtonSimple>("create_project_button", Cherry::GetPath("resources/imgs/icons/misc/icon_more.png"));
+            /*auto btn = std::make_shared<Cherry::ImageButtonSimple>("create_project_button", Cherry::GetPath("resources/imgs/icons/misc/icon_more.png"));
             btn->SetScale(0.20f);
             btn->SetInternalMarginX(1.0f);
             btn->SetInternalMarginY(1.0f);
             btn->SetLogoSize(5, 5);
             btn->SetBorderColorIdle("#00000000");
-            btn->SetBackgroundColorClicked("#00000000");
+            btn->SetBackgroundColorClicked("#00000000");*/
 
-            if (btn->Render(envproject + "_menu"))
+        if(CherryKit::ButtonImageText("Already installed", Cherry::GetPath("resources/imgs/icons/misc/icon_more.png"))->GetData("isClicked") == "true")
             {
                 ImGui::OpenPopup(("OptionsMenu_" + envproject).c_str());
             }
 
-            // Menu contextuel
             if (ImGui::BeginPopup(("OptionsMenu_" + envproject).c_str()))
             {
                 ImVec4 originalColor = ImGui::GetStyle().Colors[ImGuiCol_Text];
@@ -553,15 +550,15 @@ static void DownloadableVersionButton(const std::string &envproject, int xsize =
     else
     {
         std::string label = "install_vortex_version" + envproject;
-        auto btn = std::make_shared<Cherry::ImageButtonSimple>(label, Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));
+        /*auto btn = std::make_shared<Cherry::ImageButtonSimple>(label, Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));
         btn->SetScale(0.20f);
         btn->SetInternalMarginX(1.0f);
         btn->SetInternalMarginY(1.0f);
         btn->SetLogoSize(5, 5);
         btn->SetBorderColorIdle("#00000000");
-        btn->SetBackgroundColorClicked("#00000000");
+        btn->SetBackgroundColorClicked("#00000000");*/
 
-        if (btn->Render(envproject))
+        if(CherryKit::ButtonImageText("Already installed", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))->GetData("isClicked") == "true")
         {
             std::thread([version, ctx, dist, arch, plat]()
                         { VortexMaker::OpenVortexInstaller(version, arch, dist, plat);
@@ -636,15 +633,15 @@ static void InstalledVersionButton(const std::string &path, const std::string &e
     ImVec2 dotButtonPos = ImVec2(smallRectPos.x + smallRectSize.x + 15, smallRectPos.y);
     ImGui::SetCursorScreenPos(dotButtonPos);
 
-    auto btn = std::make_shared<Cherry::ImageButtonSimple>("create_project_button", Cherry::GetPath("resources/imgs/icons/misc/icon_more.png"));
+    /*auto btn = std::make_shared<Cherry::ImageButtonSimple>("create_project_button", Cherry::GetPath("resources/imgs/icons/misc/icon_more.png"));
     btn->SetScale(0.20f);
     btn->SetInternalMarginX(1.0f);
     btn->SetInternalMarginY(1.0f);
     btn->SetLogoSize(5, 5);
     btn->SetBorderColorIdle("#00000000");
-    btn->SetBackgroundColorClicked("#00000000");
+    btn->SetBackgroundColorClicked("#00000000");*/
 
-    if (btn->Render(bannerpath))
+        if(CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_more.png"))->GetData("isClicked") == "true")
     {
         ImGui::OpenPopup(("OptionsMenu_" + bannerpath).c_str());
     }

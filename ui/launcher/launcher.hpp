@@ -334,14 +334,14 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
   app->SetDefaultLocale("en");
   app->SetLocale("en");
 
-  static std::shared_ptr<Cherry::ImageButtonSimple> btn_close = std::make_shared<Cherry::ImageButtonSimple>("create_project_button", Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"));
+  /*static std::shared_ptr<Cherry::ImageButtonSimple> btn_close = std::make_shared<Cherry::ImageButtonSimple>("create_project_button", Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"));
   btn_close->SetScale(0.20f);
   btn_close->SetInternalMarginX(1.0f);
   btn_close->SetInternalMarginY(1.0f);
   btn_close->SetLogoSize(5, 5);
   btn_close->SetBorderColorIdle("#00000000");
   btn_close->SetBackgroundColorClicked("#00000000");
-  btn_close->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"));
+  btn_close->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"));*/
 
   app->PushLayer(layer);
   app->SetMenubarCallback([app, layer]()
@@ -371,12 +371,13 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
                               ImGuiToast toast(ImGuiToastType::Info, 100000, 
                          
        [](){
-         static std::shared_ptr<Cherry::ImageTextButtonSimple> btn = std::make_shared<Cherry::ImageTextButtonSimple>("UpdateButton", "Update launcher");
+         /*static std::shared_ptr<Cherry::ImageTextButtonSimple> btn = std::make_shared<Cherry::ImageTextButtonSimple>("UpdateButton", "Update launcher");
     btn->SetScale(0.85f);
     btn->SetInternalMarginX(10.0f);
     btn->SetLogoSize(15, 15);
-    btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_upgrade.png"));
-    if(btn->Render("_close"))
+    btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_upgrade.png"));*/
+
+            if(CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_upgrade.png"))->GetData("isClicked") == "true")
     {
       std::thread([](){VortexMaker::OpenLauncherUpdater(VortexMaker::GetCurrentContext()->m_VortexLauncherPath, VortexMaker::GetCurrentContext()->IO.sys_vortexlauncher_dist);
       }).detach();
@@ -384,7 +385,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
       Cherry::Application::Get().Close();
     }                              
     },
-    []() { return btn_close->Render(); },  // Wrap Render in a lambda
+    []() { return (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"))->GetData("isClicked") == "true"); },  // Wrap Render in a lambda
     Cherry::GetTexture(Cherry::GetPath("resources/imgs/icon_update.png"))
     );
 
@@ -405,13 +406,13 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
                             if(ctx.vortex_update_available)
                             {
                               ImGuiToast toast(ImGuiToastType::None, 100000,  [](){
-    static std::shared_ptr<Cherry::ImageTextButtonSimple> create_project_button = std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "Create a project");
+    /*static std::shared_ptr<Cherry::ImageTextButtonSimple> create_project_button = std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "Create a project");
     create_project_button->SetScale(0.85f);
     create_project_button->SetInternalMarginX(10.0f);
     create_project_button->SetLogoSize(15, 15);
-    create_project_button->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_upgrade.png"));
+    create_project_button->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_upgrade.png"));*/
                               },
-    []() { return btn_close->Render(); }
+    []() { return (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"))->GetData("isClicked") == "true"); }
     );
                               toast.setTitle("Vortex %s is live !", ctx.latest_vortex_version.version.c_str());
                               toast.setContent("A new update of Vortex is available ! Try it now");
@@ -427,7 +428,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
 
  if (ImGui::BeginMenu(Cherry::GetLocale("loc.menubar.menu.vortex").c_str()))
                             {
-                              Cherry::MenuItemTextSeparator(Cherry::GetLocale("loc.menubar.summary.general").c_str());
+                              CherryKit::SeparatorText(Cherry::GetLocale("loc.menubar.summary.general"));
 
                               if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.update_vortex").c_str(),  Cherry::GetLocale("loc.menubar.menuitem.update_vortex_desc").c_str(), Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_update.png")), c_Launcher->GetDownloadCenterVisibility()))
                               {
@@ -437,7 +438,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
       //Cherry::Application::Get().Close();
                               }
                               
-                              Cherry::MenuItemTextSeparator(Cherry::GetLocale("loc.menubar.summary.vortex_labs").c_str());
+                              CherryKit::SeparatorText(Cherry::GetLocale("loc.menubar.summary.vortex_labs"));
 
                               ImGui::BeginDisabled();
                               if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.vortex_labs").c_str(), Cherry::GetLocale("loc.menubar.menuitem.vortex_labs_desc").c_str(), Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_net.png")), c_Launcher->GetDownloadCenterVisibility()))
@@ -446,7 +447,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
                               }
                               ImGui::EndDisabled();
 
-                              Cherry::MenuItemTextSeparator(Cherry::GetLocale("loc.menubar.summary.manage").c_str());
+                              CherryKit::SeparatorText(Cherry::GetLocale("loc.menubar.summary.manage"));
 
                               if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.logical_contents").c_str(), Cherry::GetLocale("loc.menubar.menuitem.logical_contents_desc").c_str(),  Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_bricksearch.png")), c_Launcher->GetLogicContentManager()))
                               {
@@ -463,7 +464,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
                                 c_Launcher->SetVersionManager(!c_Launcher->GetVersionManager());
                               }
 
-                              Cherry::MenuItemTextSeparator(Cherry::GetLocale("loc.menubar.summary.other").c_str());
+                              CherryKit::SeparatorText(Cherry::GetLocale("loc.menubar.summary.other"));
 
                               if (ImGui::MenuItem(Cherry::GetLocale("loc.menubar.menuitem.about_vortex").c_str(), Cherry::GetLocale("loc.menubar.menuitem.about_vortex_desc").c_str(), Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_info.png")), c_Launcher->GetLogsVisibility()))
                               {

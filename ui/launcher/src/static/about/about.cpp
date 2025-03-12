@@ -40,7 +40,7 @@ namespace VortexLauncher
         float windowWidth = ImGui::GetWindowSize().x;
 
         ImGui::SetCursorPosX((windowWidth - ImGui::CalcTextSize("Vortex").x) * 0.5f - 21.0f);
-        Cherry::TitleOne("Vortex");
+        CherryKit::TitleOne("Vortex");
 
         ImGui::SetCursorPosX((windowWidth - ImGui::CalcTextSize("Creation Platform").x) * 0.5f);
         ImGui::Text("Creation Platform");

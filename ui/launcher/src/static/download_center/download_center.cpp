@@ -46,11 +46,11 @@ DownloadCenter::DownloadCenter(const std::string &name)
     this->AddChild("Vortex versions", [this]()
                    {
     VxContext &ctx = *CVortexMaker;
-                       Cherry::TitleFourColored("Install latest version ", "#75757575");
+                       CherryKit::TitleFour("Install latest version"); // 75757575
                        ImGui::SameLine();
-                       Cherry::TitleFourColored("See all versions available ", "#75757575");
+                       CherryKit::TitleFour("See all versions available "); // 75757575
 
-                       Cherry::TitleFourColored("All installed version ", "#75757575");
+                       CherryKit::TitleFour("All installed version "); // 75757575
                        for (int row = 0; row < ctx.IO.sys_vortex_version.size(); row++)
                        {
                            if (areStringsSimilar(ctx.IO.sys_vortex_version[row]->name, ProjectSearch, threshold) || isOnlySpacesOrEmpty(ProjectSearch))
@@ -139,7 +139,7 @@ void DownloadCenter::Render()
 
     ImGui::BeginChild("left_pane", ImVec2(leftPaneWidth, 0), true, ImGuiWindowFlags_NoBackground);
 
-    Cherry::TitleThree("");
+    CherryKit::TitleThree("");
 
     for (const auto &child : m_Childs)
     {
@@ -152,7 +152,7 @@ void DownloadCenter::Render()
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
         }
 
-        if (Cherry::TextButtonUnderline(child.first.c_str()))
+        if (CherryKit::ButtonText(child.first.c_str()))
         {
             m_SelectedChildName = child.first;
         }

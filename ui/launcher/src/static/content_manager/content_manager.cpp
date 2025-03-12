@@ -49,7 +49,7 @@ namespace VortexLauncher
 
         this->AddChild("Manage content", "Installed template(s)", [this]()
                        {
-                       Cherry::TitleTwo("Installed template(s)");
+                       CherryKit::TitleTwo("Installed template(s)");
 
                        /*ImGui::Text("You can add paths here");
                        ImGui::SameLine();
@@ -57,40 +57,33 @@ namespace VortexLauncher
 
                        static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
 
-                       static std::shared_ptr<Cherry::CustomDrowpdownImageButtonSimple> filter_btn = std::make_shared<Cherry::CustomDrowpdownImageButtonSimple>("LogicContentManager.FindModules.Filter", "####filder");
+                       /*static std::shared_ptr<Cherry::CustomDrowpdownImageButtonSimple> filter_btn = std::make_shared<Cherry::CustomDrowpdownImageButtonSimple>("LogicContentManager.FindModules.Filter", "####filder");
                        filter_btn->SetScale(0.85f);
                        filter_btn->SetInternalMarginX(10.0f);
                        filter_btn->SetLogoSize(15, 15);
 
                        filter_btn->SetDropDownImage(Cherry::GetPath("resources/imgs/icons/misc/icon_down.png"));
-                       filter_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_filter.png"));
+                       filter_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_filter.png"));*/
 
-                       static std::shared_ptr<Cherry::ImageTextButtonSimple> find_in_folder = std::make_shared<Cherry::ImageTextButtonSimple>("find_in_folder", "Find in folder");
+                       /*static std::shared_ptr<Cherry::ImageTextButtonSimple> find_in_folder = std::make_shared<Cherry::ImageTextButtonSimple>("find_in_folder", "Find in folder");
                        find_in_folder->SetScale(0.85f);
                        find_in_folder->SetInternalMarginX(10.0f);
                        find_in_folder->SetLogoSize(15, 15);
                        find_in_folder->SetBackgroundColorIdle("#3232F7FF");
-                       find_in_folder->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_collection.png"));
+                       find_in_folder->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_collection.png"));*/
 
                        ImGui::Separator();
 
-                       if (filter_btn->Render("LogicContentManager"))
-                       {
-                           ImVec2 mousePos = ImGui::GetMousePos();
-                           ImGui::SetNextWindowPos(mousePos);
-                           ImGui::OpenPopup("ContextMenu");
-                       }
-
-                       if (ImGui::BeginPopup("ContextMenu"))
-                       {
+            CherryKit::ButtonImageDropdown("resources/imgs/icons/misc/icon_filter.png", [&](){
                            if (ImGui::MenuItem("Option 1"))
                            {
                            }
                            if (ImGui::MenuItem("Option 2"))
                            {
                            }
-                           ImGui::EndPopup();
-                       }
+            });
+
+
                        ImGui::SameLine();
                        static char ContentPath[256] = "";
 
@@ -218,7 +211,7 @@ namespace VortexLauncher
                        if (selectedIDs.size() > 0)
                        {
 
-        std::string label = "Delete " + std::to_string(selectedIDs.size()) + " module(s)";
+        /*std::string label = "Delete " + std::to_string(selectedIDs.size()) + " module(s)";
 
 
     static std::shared_ptr<Cherry::ImageTextButtonSimple> del_btn = std::make_shared<Cherry::ImageTextButtonSimple>("delete_project_pool_button", "");
@@ -227,10 +220,8 @@ namespace VortexLauncher
     del_btn->SetLogoSize(15, 15);
     del_btn->SetBackgroundColorIdle("#00000000");
     del_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_trash.png"));
-    del_btn->SetLabel(label);
-
-
-        if(del_btn->Render("del_btn"))
+    del_btn->SetLabel(label);*/
+        if(CherryKit::ButtonImageText("Delete " + std::to_string(selectedIDs.size()) + " module(s)", Cherry::GetPath("resources/imgs/icons/misc/icon_trash.png"))->GetData("isClicked") == "true")
         {
             
                            for (int row = 0; row < VortexMaker::GetCurrentContext()->IO.sys_templates.size(); row++)
@@ -493,10 +484,11 @@ to_suppr_templates.clear();
                     m_ShowTemplatesImportModal = false;
                 }
                 ImGui::SameLine();
-                static std::shared_ptr<Cherry::ComboSimple> combo_dest = std::make_shared<Cherry::ComboSimple>("combo", "####Import to", m_TemplatesPool, 0);
+                /*static std::shared_ptr<Cherry::ComboSimple> combo_dest = std::make_shared<Cherry::ComboSimple>("combo", "####Import to", m_TemplatesPool, 0);
                 ImGui::SetNextItemWidth(200.0f);
                 combo_dest->Render("qd");
-                m_ToImportDestination = combo_dest->GetData("selected_string");
+                m_ToImportDestination = combo_dest->GetData("selected_string");*/
+                m_ToImportDestination = CherryKit::ComboText("", &m_TemplatesPool)->GetData("selectedString");
 
                 ImGui::EndPopup();
             }
@@ -516,7 +508,7 @@ to_suppr_templates.clear();
         ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
         ImVec4 graySeparatorColor = ImVec4(0.4f, 0.4f, 0.4f, 0.5f);
 
-        Cherry::TitleThree("Manage Modules & Plugins");
+        CherryKit::TitleThree("Manage Modules & Plugins");
         for (const auto &[parent, children] : groupedByParent)
         {
 
@@ -548,7 +540,7 @@ to_suppr_templates.clear();
                     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
                 }
 
-                if (Cherry::TextButtonUnderline(child.m_ChildName.c_str()))
+                if (CherryKit::ButtonText(child.m_ChildName.c_str()))
                 {
                     m_SelectedChildName = child.m_ChildName;
                 }
@@ -621,17 +613,17 @@ to_suppr_templates.clear();
             }
         }
 
-        static std::shared_ptr<Cherry::ImageTextButtonSimple> add_btn = std::make_shared<Cherry::ImageTextButtonSimple>("add_btn_module", "####add");
+        /*static std::shared_ptr<Cherry::ImageTextButtonSimple> add_btn = std::make_shared<Cherry::ImageTextButtonSimple>("add_btn_module", "####add");
         add_btn->SetScale(0.85f);
         add_btn->SetInternalMarginX(10.0f);
         add_btn->SetLogoSize(15, 15);
-        add_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));
+        add_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));*/
 
-        static std::shared_ptr<Cherry::ImageTextButtonSimple> find_in_folder = std::make_shared<Cherry::ImageTextButtonSimple>("find_in_folder", "");
+        /*static std::shared_ptr<Cherry::ImageTextButtonSimple> find_in_folder = std::make_shared<Cherry::ImageTextButtonSimple>("find_in_folder", "");
         find_in_folder->SetScale(0.85f);
         find_in_folder->SetInternalMarginX(10.0f);
         find_in_folder->SetLogoSize(15, 15);
-        find_in_folder->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"));
+        find_in_folder->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"));*/
 
         float inputTextWidth = 300.0f;
         float buttonWidth = 100.0f;
@@ -639,7 +631,7 @@ to_suppr_templates.clear();
 
         float titleWidth = ImGui::CalcTextSize("Import module(s) to system").x;
         ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (childWidth - titleWidth - 30.0f) * 0.5f);
-        TitleFour("Import module(s) to system");
+        CherryKit::TitleFour("Import module(s) to system");
 
         ImGui::PushStyleColor(ImGuiCol_Separator, Cherry::HexToRGBA("#272727FF"));
 
@@ -651,14 +643,14 @@ to_suppr_templates.clear();
         ImGui::SameLine();
 
         {
-            static std::shared_ptr<Cherry::ImageTextButtonSimple> btn = std::make_shared<Cherry::ImageTextButtonSimple>("find_in_folder", "");
+            /*static std::shared_ptr<Cherry::ImageTextButtonSimple> btn = std::make_shared<Cherry::ImageTextButtonSimple>("find_in_folder", "");
             btn->SetScale(0.85f);
             btn->SetInternalMarginX(10.0f);
             btn->SetLogoSize(15, 15);
             btn->SetBackgroundColorIdle("#3232F7FF");
-            btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_magnifying_glass.png"));
+            btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_magnifying_glass.png"));*/
 
-            if (btn->Render("__"))
+        if(CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_magnifying_glass.png"))->GetData("isClicked") == "true")
             {
                 m_FindedTemplates.clear();
                 SearchTemplatesOnDirectory(ContentPath);
@@ -667,14 +659,30 @@ to_suppr_templates.clear();
         ImGui::SameLine();
 
         {
-            static std::shared_ptr<Cherry::CustomDrowpdownImageButtonSimple> btn = std::make_shared<Cherry::CustomDrowpdownImageButtonSimple>("LogicContentManager.FindModules.Filter", "####filder");
+            /*static std::shared_ptr<Cherry::CustomDrowpdownImageButtonSimple> btn = std::make_shared<Cherry::CustomDrowpdownImageButtonSimple>("LogicContentManager.FindModules.Filter", "####filder");
             btn->SetScale(0.85f);
             btn->SetInternalMarginX(10.0f);
             btn->SetLogoSize(15, 15);
-
             btn->SetDropDownImage(Application::CookPath("resources/imgs/icons/misc/icon_down.png"));
-            btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_filter.png"));
-            if (btn->Render("LogicContentManager"))
+            btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_filter.png"));*/
+
+
+            CherryKit::ButtonImageDropdown("resources/imgs/icons/misc/icon_filter.png", [&](){
+                /*if (m_TemplatesPool.size() > 0 && m_FilterVersions.size() > 0)
+                {
+                    static std::shared_ptr<Cherry::ComboSimple> combo_pltforms = std::make_shared<Cherry::ComboSimple>("combo3", "####Platforms", m_FilterPlatforms, 0);
+                    ImGui::SetNextItemWidth(200.0f);
+                    combo_pltforms->Render("qd");
+                    m_SelectedPlatform = combo_pltforms->GetData("selected_string");
+
+                    static std::shared_ptr<Cherry::ComboSimple> combo_version = std::make_shared<Cherry::ComboSimple>("combo2", "####Versions", m_FilterVersions, 0);
+                    ImGui::SetNextItemWidth(200.0f);
+                    combo_version->Render("qd");
+                    m_SelectedVersion = combo_version->GetData("selected_string");
+                }*/
+            });
+
+            /*if (btn->Render("LogicContentManager"))
             {
                 ImVec2 mousePos = ImGui::GetMousePos();
                 ImGui::SetNextWindowPos(mousePos);
@@ -694,14 +702,14 @@ to_suppr_templates.clear();
                     ImGui::SetNextItemWidth(200.0f);
                     combo_version->Render("qd");
                     m_SelectedVersion = combo_version->GetData("selected_string");
-                }*/
+                }*
                 ImGui::EndPopup();
-            }
+            }*/
         }
 
         ImGui::SameLine();
 
-        if (find_in_folder->Render("qsdqsd"))
+        if(CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"))->GetData("isClicked") == "true")
         {
             m_FileBrowser = FileBrowserAppWindow::Create("Select a folder", VortexMaker::getHomeDirectory());
             Cherry::ApplicationSpecification spec;
@@ -725,7 +733,7 @@ to_suppr_templates.clear();
             {
                 if (ImGui::BeginMenu("Window"))
                 {
-                    Cherry::MenuItemTextSeparator(Cherry::GetLocale("loc.menubar.menu.general").c_str());
+                    CherryKit::SeparatorText(Cherry::GetLocale("loc.menubar.menu.general"));
 
                     if (ImGui::MenuItem("Close"))
                     {
@@ -813,7 +821,7 @@ to_suppr_templates.clear();
 
         ImGui::Separator();
 
-        std::string label = "Import selected template(s)";
+        /*std::string label = "Import selected template(s)";
 
         static std::shared_ptr<Cherry::ImageTextButtonSimple> del_btn = std::make_shared<Cherry::ImageTextButtonSimple>("delete_project_pool_button", "");
         del_btn->SetScale(0.85f);
@@ -821,9 +829,9 @@ to_suppr_templates.clear();
         del_btn->SetLogoSize(15, 15);
         del_btn->SetBackgroundColorIdle("#00000000");
         del_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_import.png"));
-        del_btn->SetLabel(label);
+        del_btn->SetLabel(label);*/
 
-        if (del_btn->Render("templimport_btn"))
+        if(CherryKit::ButtonImageText("Import selected template(s)", Cherry::GetPath("resources/imgs/icons/misc/icon_import.png"))->GetData("isClicked") == "true")
         {
             m_TemplatesToImport.clear();
             for (auto &mod : modules)

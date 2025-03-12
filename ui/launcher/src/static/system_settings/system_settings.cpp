@@ -338,10 +338,7 @@ void SystemSettings::Render()
 
                             if (column == 0)
                             {
-                                std::string deleteButtonID = "Select###" + std::to_string(row) + "-" + std::to_string(column);
-                                static std::shared_ptr<Cherry::ImageTextButtonSimple> create_project_button = std::make_shared<Cherry::ImageTextButtonSimple>(deleteButtonID.c_str());
-
-                                if (create_project_button->Render())
+                                if(CherryKit::ButtonImageText("create_project_button", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") == "true")
                                 {
                                     selected_module = ctx->IO.sys_em[row];
                                 }
@@ -407,10 +404,7 @@ void SystemSettings::Render()
 
                             if (column == 0)
                             {
-                                std::string deleteButtonID = "Select###" + std::to_string(row) + "-" + std::to_string(column);
-                                static std::shared_ptr<Cherry::ImageTextButtonSimple> delete_button = std::make_shared<Cherry::ImageTextButtonSimple>(deleteButtonID.c_str());
-
-                                if (delete_button->Render())
+                                if(CherryKit::ButtonImageText("delete_button", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") == "true")
                                 {
                                     selected_template = ctx->IO.sys_templates[row];
                                 }
@@ -740,11 +734,12 @@ void SystemSettings::menubar()
             if (ImGui::BeginMenuBar())
             {
                 ImGui::Text("Please chose a folder");
-                static std::shared_ptr<Cherry::ImageTextButtonSimple> refresh_project_button = std::make_shared<Cherry::ImageTextButtonSimple>("");
 
-                if (refresh_project_button->Render())
+                if(CherryKit::ButtonImageText("refresh_project_button", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") == "true")
                 {
+                    //
                 }
+
                 ImGui::InputText("###Path", path_input_template_all, IM_ARRAYSIZE(path_input_template_all));
                 std::string label = "Find###templates";
                 if (ImGui::Button(label.c_str()))
@@ -945,11 +940,12 @@ void SystemSettings::menubar()
             if (ImGui::BeginMenuBar())
             {
                 ImGui::Text("Please chose a folder");
-                static std::shared_ptr<Cherry::ImageTextButtonSimple> refresh_project_button = std::make_shared<Cherry::ImageTextButtonSimple>("");
 
-                if (refresh_project_button->Render())
+                if(CherryKit::ButtonImageText("", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") == "true")
                 {
+
                 }
+                
                 ImGui::InputText("###Path", path_input_all, IM_ARRAYSIZE(path_input_all));
                 std::string label = "Find###templates";
                 if (ImGui::Button(label.c_str()))
@@ -1128,59 +1124,48 @@ void SystemSettings::menubar()
     {
         if (current_section == "mm")
         {
-            static std::shared_ptr<Cherry::ImageTextButtonSimple> import_module = std::make_shared<Cherry::ImageTextButtonSimple>("Import a module");
-            static std::shared_ptr<Cherry::ImageTextButtonSimple> refresh_project_button = std::make_shared<Cherry::ImageTextButtonSimple>("Search modules in a folder");
-
-            if (import_module->Render())
+            if(CherryKit::ButtonImageText("Import a module", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") == "true")
             {
                 open_import_module = true;
             }
-            if (refresh_project_button->Render())
+
+            if(CherryKit::ButtonImageText("Search modules in a folder", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") == "true")
             {
                 open_import_all_module = true;
             }
         }
         if (current_section == "tm")
         {
-            static std::shared_ptr<Cherry::ImageTextButtonSimple> search_modules = std::make_shared<Cherry::ImageTextButtonSimple>("Search modules in a folder");
-
-            if (search_modules->Render())
+            if(CherryKit::ButtonImageText("Search modules in a folder", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") == "true")
             {
                 open_import_all_templates = true;
             }
         }
         if (current_section == "pm")
         {
-            static std::shared_ptr<Cherry::ImageTextButtonSimple> install_plugin = std::make_shared<Cherry::ImageTextButtonSimple>("Install a plugin");
-
-            if (install_plugin->Render())
+            if(CherryKit::ButtonImageText("Install a plugin", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") == "true")
             {
                 //
             }
         }
         if (current_section == "cv")
         {
-            static std::shared_ptr<Cherry::ImageTextButtonSimple> refresh_versions = std::make_shared<Cherry::ImageTextButtonSimple>("Refresh versions");
-            static std::shared_ptr<Cherry::ImageTextButtonSimple> download_a_new_v = std::make_shared<Cherry::ImageTextButtonSimple>("Download a newer version");
-            static std::shared_ptr<Cherry::ImageTextButtonSimple> upgrade_project = std::make_shared<Cherry::ImageTextButtonSimple>("Upgrade a project");
-            static std::shared_ptr<Cherry::ImageTextButtonSimple> upgrade_module = std::make_shared<Cherry::ImageTextButtonSimple>("Upgrade a module");
-
-            if (refresh_versions->Render())
+            if(CherryKit::ButtonImageText("Refresh versions", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") == "true")
             {
                 RegisterAvailableVersions();
             }
 
-            if (download_a_new_v->Render())
+            if(CherryKit::ButtonImageText("Download a newer version", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") == "true")
             {
                 //
             }
 
-            if (upgrade_project->Render())
+            if(CherryKit::ButtonImageText("Upgrade a project", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") == "true")
             {
                 //
             }
 
-            if (upgrade_module->Render())
+            if(CherryKit::ButtonImageText("Upgrade a module", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") == "true")
             {
                 //
             }
