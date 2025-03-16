@@ -3,12 +3,15 @@
 #include "../../../main/include/vortex_internals.h"
 
 #include <unordered_set>
-
-#define CHERRY_V1
-#include "../../../lib/cherry/cherry.hpp"
+#include <stack>
+#include <algorithm>
+#include <filesystem>
+#include <cctype>
 
 #ifndef UTILS_CHERRY_LAUNCHER
 #define UTILS_CHERRY_LAUNCHER
+
+#include "../../../lib/cherry/cherry.hpp"
 
 static std::vector<std::string> labels = {"Open a project", "Create a new project"};
 static int selected = 0;

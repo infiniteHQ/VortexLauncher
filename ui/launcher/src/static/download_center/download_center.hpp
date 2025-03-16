@@ -3,9 +3,6 @@
 #include "../../../../../main/include/vortex_internals.h"
 #include "../../utils.hpp"
 
-#define CHERRY_V1
-#include "../../../../../lib/cherry/cherry.hpp"
-
 #ifndef DOWNLOAD_CENTER_H
 #define DOWNLOAD_CENTER_H
 

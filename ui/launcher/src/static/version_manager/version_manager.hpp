@@ -6,13 +6,8 @@
 #include "../../../../../main/include/modules/load.h"
 #include "../../instances/file_browser/file_browser.hpp"
 
-#include "../../utils.hpp"
-
 #ifndef VERSION_MANAGER_H
 #define VERSION_MANAGER_H
-
-#define CHERRY_V1
-#include "../../../../../lib/cherry/cherry.hpp"
 
 struct VersionManagerAppWindowChild
 {

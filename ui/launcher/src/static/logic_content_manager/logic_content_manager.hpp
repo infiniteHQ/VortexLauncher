@@ -4,15 +4,12 @@
 #include "../../../../../main/include/modules/install.h"
 #include "../../../../../main/include/modules/delete.h"
 #include "../../../../../main/include/modules/load.h"
+
 #include "../../instances/file_browser/file_browser.hpp"
 
-#include "../../utils.hpp"
 
 #ifndef LOGICCONTENTMANAGER_H
 #define LOGICCONTENTMANAGER_H
-
-#define CHERRY_V1
-#include "../../../../../lib/cherry/cherry.hpp"
 
 namespace VortexLauncher
 {

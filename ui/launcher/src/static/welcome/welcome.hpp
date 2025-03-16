@@ -24,6 +24,7 @@ namespace VortexLauncher
         static std::shared_ptr<WelcomeWindow> Create(const std::string &name);
         void SetupRenderCallback();
         void Render();
+        void WelcomeRender();
 
         std::unordered_map<std::string, std::function<void()>> m_Childs;
 

@@ -1,19 +1,10 @@
 #pragma once
 #include "../../../../../main/include/vortex.h"
 #include "../../../../../main/include/vortex_internals.h"
-#include "../../utils.hpp"
-
 #ifndef FILE_BROWSER_H
 #define FILE_BROWSER_H
+#include "../../utils.hpp"
 
-#define CHERRY_V1
-#include "../../../../../lib/cherry/cherry.hpp"
-
-#include <stack>
-#include <algorithm>
-#include <filesystem>
-#include <cctype>
-#include <unordered_set>
 
 using namespace Cherry;
 

@@ -1,4 +1,8 @@
 #pragma once
+
+#ifndef VORTEXLAUNCHER_LAUNCHER_H
+#define VORTEXLAUNCHER_LAUNCHER_H
+
 #include "../../lib/cherry/cherry.hpp"
 
 #include "src/static/project_manager/project_manager.hpp"
@@ -577,3 +581,5 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
   c_Launcher = std::make_shared<Launcher>();
   return app;
 }
+
+#endif // VORTEXLAUNCHER_LAUNCHER_H

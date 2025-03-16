@@ -219,7 +219,6 @@ namespace VortexLauncher
         }
     }
 
-
     static void VersionWelcomeMenu(bool disable_stack, const VortexVersion &envproject, int xsize = 100, int ysize = 100, const std::string &path = "resources/imgs/vortex_banner_unknow.png", bool clickable = true, std::function<void()> action = []() {})
     {
         ImVec2 squareSize(xsize, ysize);
@@ -278,7 +277,7 @@ namespace VortexLauncher
             drawList->AddImage(Cherry::GetTexture(path), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y - 25.0f));
         }
 
-        if(version_installed)
+        if (version_installed)
         {
             drawList->AddImage(Cherry::GetTexture(Cherry::GetPath("resources/imgs/installed_mask.png")), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y - 25.0f));
         }
@@ -472,6 +471,107 @@ namespace VortexLauncher
         }
     }
 
+    void WelcomeWindow::WelcomeRender()
+    {
+        float childWidth = ImGui::GetContentRegionAvail().x;
+        float inputTextWidth = 300.0f;
+        float buttonWidth = 100.0f;
+        float groupWidth = inputTextWidth + ImGui::GetStyle().ItemSpacing.x + buttonWidth;
+
+        Cherry::SetNextComponentProperty("color_text", "#B1FF31");
+        CherryKit::TitleTwo(Cherry::GetLocale("loc.windows.welcome.overview"));
+
+        Cherry::SetNextComponentProperty("color_text", "#797979");
+        CherryKit::TitleSix("Latest news");
+
+        if (VortexMaker::GetCurrentContext()->IO.offline)
+        {
+            NewsBanner(false, "Latest", 400, 150, "?", Cherry::GetPath("resources/imgs/vortex_banner_disconnected.png"));
+            NewsBanner(true, "All Versions", 400, 150, "", Cherry::GetPath("resources/imgs/vortex_banner_disconnected.png"));
+        }
+        else
+        {
+            for (const auto &article : VortexMaker::GetCurrentContext()->IO.news)
+            {
+                if (!article.image_link.empty() &&
+                    (ends_with(article.image_link, ".png") || ends_with(article.image_link, ".jpg")) &&
+                    (article.image_link.find("http://") == 0 || article.image_link.find("https://") == 0))
+                {
+                    NewsBanner(
+                        false,
+                        article.title,
+                        400, 150,
+                        Cherry::GetHttpPath(article.image_link),
+                        article.news_link,
+                        article.description);
+                }
+            }
+        }
+
+        CherryKit::Space(200.0f);
+        Cherry::SetNextComponentProperty("color_text", "#797979");
+        CherryKit::TitleSix("Fast actions");
+        QuickAction(false, "create", 264, 120, Cherry::GetPath("resources/imgs/create_banner.png"), true, m_CreateProjectCallback);
+        QuickAction(false, "open", 263, 120, Cherry::GetPath("resources/imgs/open_banner.png"), true, m_OpenProjectCallback);
+        QuickAction(true, "settings", 264, 120, Cherry::GetPath("resources/imgs/settings_banner.png"), true, m_SettingsCallback);
+
+        for (auto project : VortexMaker::GetCurrentContext()->IO.sys_projects)
+        {
+        }
+
+        Cherry::SetNextComponentProperty("color_text", "#797979");
+        CherryKit::TitleSix("Latest openned project");
+
+        const size_t maxSlots = 4;
+
+        size_t filledSlots = 0;
+        for (const auto &project : m_RecentProjects)
+        {
+            bool isMostRecent = (filledSlots == 0);
+
+            RecentProject(
+                (filledSlots >= 3),
+                project,
+                196,
+                120,
+                project->logoPath,
+                true,
+                [this](const std::shared_ptr<EnvProject> &p)
+                {
+                    m_ProjectCallback(p);
+                });
+
+            ++filledSlots;
+        }
+
+        for (; filledSlots < maxSlots; ++filledSlots)
+        {
+            QuickAction((filledSlots >= 3 ? true : false), "", 196, 120, Cherry::GetPath("resources/imgs/empty_recent_project.png"), false);
+        }
+
+        Cherry::SetNextComponentProperty("color_text", "#797979");
+        CherryKit::TitleSix("Latest available versions");
+
+        int version_index = 0;
+        for (auto version : VortexMaker::GetCurrentContext()->latest_vortex_versions)
+        {
+            if (version_index < 3)
+            {
+                VersionWelcomeMenu(false, version, 264, 120, Cherry::GetHttpPath(version.banner), true, [version]()
+                                   { std::thread([version]()
+                                                 { VortexMaker::OpenVortexInstaller(version.version, version.arch, version.dist, version.plat); })
+                                         .detach(); });
+                version_index++;
+            }
+        }
+
+        while (version_index < 3)
+        {
+            QuickAction(false, "", 264, 120, Cherry::GetPath("resources/imgs/offline_vxv.png"), false);
+            version_index++;
+        }
+    }
+
     WelcomeWindow::WelcomeWindow(const std::string &name)
     {
         m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
@@ -502,101 +602,7 @@ namespace VortexLauncher
 
         });
 
-        this->AddChild("?loc:loc.windows.welcome.overview", [this]()
-                       {
-                           float childWidth = ImGui::GetContentRegionAvail().x;
-                           float inputTextWidth = 300.0f;
-                           float buttonWidth = 100.0f;
-                           float groupWidth = inputTextWidth + ImGui::GetStyle().ItemSpacing.x + buttonWidth;
-
-                           // News
-                           CherryKit::TitleTwo("Overview"); // B1FF31FF
-                           CherryKit::TitleSix("Latest news"); // 797979FF
-
-                           if (VortexMaker::GetCurrentContext()->IO.offline)
-                           {
-                               NewsBanner(false, "Latest", 400, 150, "?", Cherry::GetPath("resources/imgs/vortex_banner_disconnected.png"));
-                               NewsBanner(true, "All Versions", 400, 150, "", Cherry::GetPath("resources/imgs/vortex_banner_disconnected.png"));
-                           }
-                           else
-                           {
-                               for (const auto &article : VortexMaker::GetCurrentContext()->IO.news)
-                               {
-                                   if (!article.image_link.empty() &&
-                                       (ends_with(article.image_link, ".png") || ends_with(article.image_link, ".jpg")) &&
-                                       (article.image_link.find("http://") == 0 || article.image_link.find("https://") == 0))
-                                   {
-                                       NewsBanner(
-                                           false,
-                                           article.title,
-                                           400, 150,
-                                           Cherry::GetHttpPath(article.image_link),
-                                           article.news_link,
-                                           article.description);
-                                   }
-                               }
-                           }
-
-                           CherryKit::Space(200.0f);
-                           CherryKit::TitleSix("Fast actions"); // 797979FF
-                           QuickAction(false, "create", 264, 120, Cherry::GetPath("resources/imgs/create_banner.png"), true, m_CreateProjectCallback);
-                           QuickAction(false, "open", 263, 120, Cherry::GetPath("resources/imgs/open_banner.png"), true, m_OpenProjectCallback);
-                           QuickAction(true, "settings", 264, 120, Cherry::GetPath("resources/imgs/settings_banner.png"), true, m_SettingsCallback);
-
-                           for (auto project : VortexMaker::GetCurrentContext()->IO.sys_projects)
-                           {
-                           }
-
-                           CherryKit::TitleSix("Latest openned project"); // 797979FF
-                           
-                           const size_t maxSlots = 4;
-
-                           size_t filledSlots = 0;
-for (const auto& project : m_RecentProjects) {
-    bool isMostRecent = (filledSlots == 0);
-    
-    RecentProject(
-        (filledSlots >= 3), 
-        project,           
-        196,         
-        120,           
-        project->logoPath,
-            true, 
-            [this](const std::shared_ptr<EnvProject>& p) { 
-                m_ProjectCallback(p);
-            }
-    );
-
-    ++filledSlots;
-}
-
-
-                           // Fill remaining slots with empty project placeholders
-                           for (; filledSlots < maxSlots; ++filledSlots)
-                           {
-                               QuickAction((filledSlots >= 3 ? true : false), "", 196, 120, Cherry::GetPath("resources/imgs/empty_recent_project.png"), false);
-                           }
-
-                           CherryKit::TitleSix("Latest available versions"); // 797979FF
-
-                           int version_index = 0;
-                           for (auto version : VortexMaker::GetCurrentContext()->latest_vortex_versions)
-                           {
-                               if (version_index < 3)
-                               {
-                                   VersionWelcomeMenu(false, version, 264, 120, Cherry::GetHttpPath(version.banner), true, [version]()
-                                               { std::thread([version]()
-                                                             { VortexMaker::OpenVortexInstaller(version.version, version.arch, version.dist, version.plat); })
-                                                     .detach(); });
-                                   version_index++;
-                               }
-                           }
-
-                           while (version_index < 3)
-                           {
-                               QuickAction(false, "", 264, 120, Cherry::GetPath("resources/imgs/offline_vxv.png"), false);
-                               version_index++;
-                           } });
+        this->AddChild("?loc:loc.windows.welcome.overview", [&](){this->WelcomeRender();});
 
         std::shared_ptr<Cherry::AppWindow> win = m_AppWindow;
     }
@@ -681,15 +687,15 @@ for (const auto& project : m_RecentProjects) {
         {
             CherryKit::SeparatorText("Main");
 
-            //Cherry::TextButtonUnderlineOptions opt;
+            // Cherry::TextButtonUnderlineOptions opt;
 
             if (specialChild->first == m_SelectedChildName)
             {
-                //opt.hex_text_idle = "#FFFFFFFF";
+                // opt.hex_text_idle = "#FFFFFFFF";
             }
             else
             {
-                //opt.hex_text_idle = "#A9A9A9FF";
+                // opt.hex_text_idle = "#A9A9A9FF";
             }
             std::string child_name;
 
@@ -703,28 +709,28 @@ for (const auto& project : m_RecentProjects) {
                 child_name = specialChild->first;
             }
 
-            CherryKit::ButtonText(CherryID("all_menus"), child_name.c_str());
+            CherryKit::ButtonText(CherryID(child_name), child_name.c_str());
             if (false)
             {
                 m_SelectedChildName = specialChild->first;
             }
         }
 
-            CherryKit::SeparatorText("All menus");
+        CherryKit::SeparatorText("All menus");
         for (const auto &child : m_Childs)
         {
             if (child.first == "?loc:loc.windows.welcome.overview")
                 continue;
 
-            //Cherry::TextButtonUnderlineOptions opt;
+            // Cherry::TextButtonUnderlineOptions opt;
 
             if (child.first == m_SelectedChildName)
             {
-                //opt.hex_text_idle = "#FFFFFFFF";
+                // opt.hex_text_idle = "#FFFFFFFF";
             }
             else
             {
-                //opt.hex_text_idle = "#A9A9A9FF";
+                // opt.hex_text_idle = "#A9A9A9FF";
             }
             std::string child_name;
 
@@ -738,14 +744,14 @@ for (const auto& project : m_RecentProjects) {
                 child_name = child.first;
             }
 
-            CherryKit::ButtonText(CherryID("all_menus"), child_name.c_str());
+            CherryKit::ButtonText(CherryID(child_name), child_name.c_str());
             // Cherry::GetLastItemData("isClicked")
-            if(false)
+            if (false)
             {
                 m_SelectedChildName = child.first;
             }
 
-            //if (Cherry::TextButtonUnderline(child_name.c_str(), true, opt))
+            // if (Cherry::TextButtonUnderline(child_name.c_str(), true, opt))
         }
 
         ImGui::EndChild();

@@ -5,13 +5,9 @@
 #include "../../../../../main/include/templates/delete.h"
 #include "../../../../../main/include/templates/load.h"
 #include "../../instances/file_browser/file_browser.hpp"
-#include "../../utils.hpp"
 
 #ifndef STATICCONTENT_MANAGER_H
 #define STATICCONTENT_MANAGER_H
-
-#define CHERRY_V1
-#include "../../../../../lib/cherry/cherry.hpp"
 
 namespace VortexLauncher
 {
