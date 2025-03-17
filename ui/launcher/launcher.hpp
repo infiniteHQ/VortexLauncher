@@ -331,6 +331,30 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
   app->AddFont("Consola", Cherry::GetPath("resources/fonts/consola.ttf"), 17.0f);
   app->AddFont("ASMAN", Cherry::GetPath("resources/fonts/ASMAN.TFF"), 17.0f);
 
+  app->AddFont("dvs-c", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSerifCondensed.ttf"), 17.0f);
+  app->AddFont("dvs-ci", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSerifCondensed-Italic.ttf"), 17.0f);
+  app->AddFont("dvs-cbi", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSerifCondensed-BoldItalic.ttf"), 17.0f);
+  app->AddFont("dvs-cb", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSerifCondensed-Bold.ttf"), 17.0f);
+  app->AddFont("dvs", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSerif.ttf"), 17.0f);
+  app->AddFont("dvs-i", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSerif-Italic.ttf"), 17.0f);
+  app->AddFont("dvs-bi", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSerif-BoldItalic.ttf"), 17.0f);
+  app->AddFont("dvs-b", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSerif-Bold.ttf"), 17.0f);
+  app->AddFont("dvm", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSansMono.ttf"), 17.0f);
+  app->AddFont("dvm-o", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSansMono-Oblique.ttf"), 17.0f);
+  app->AddFont("dvm-bo", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSansMono-BoldOblique.ttf"), 17.0f);
+  app->AddFont("dvm-b", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSansMono-Bold.ttf"), 17.0f);
+  app->AddFont("dv-c", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSansCondensed.ttf"), 17.0f);
+  app->AddFont("dv-co", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSansCondensed-Oblique.ttf"), 17.0f);
+  app->AddFont("dv-cbo", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSansCondensed-BoldOblique.ttf"), 17.0f);
+  app->AddFont("dv-cb", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSansCondensed-Bold.ttf"), 17.0f);
+
+  app->AddFont("dv", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSans.ttf"), 17.0f);
+  app->AddFont("dv-o", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSans-Oblique.ttf"), 17.0f);
+  app->AddFont("dv-e", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSans-ExtraLight.ttf"), 17.0f);
+  app->AddFont("dv-bo", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSans-BoldOblique.ttf"), 17.0f);
+  app->AddFont("dv-o", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSans-Bold.ttf"), 17.0f);
+  app->AddFont("dvmt", Cherry::GetPath("resources/fonts/deja_vu/DejaVuMathTeXGyre.ttf"), 17.0f);
+
   app->AddLocale("fr", Cherry::GetPath("resources/locales/fr.json"));
   app->AddLocale("en", Cherry::GetPath("resources/locales/en.json"));
   app->AddLocale("es", Cherry::GetPath("resources/locales/es.json"));
@@ -577,7 +601,10 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
                             }
 
                             ImGui::PopStyleVar();  
-                            ImGui::PopStyleColor(2); });
+                            ImGui::PopStyleColor(2); 
+                            
+                            
+                            });
 
   c_Launcher = std::make_shared<Launcher>();
   return app;

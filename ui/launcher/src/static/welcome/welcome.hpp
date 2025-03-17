@@ -11,14 +11,22 @@
 namespace VortexLauncher
 {
     // This window can be a "subappwindow" of a parent if you use the constructor with parent parameter.
+
+    struct WelcomeWindowChild
+    {
+        std::function<void()> RenderCallback;
+        std::string LogoPath;
+        WelcomeWindowChild(const std::function<void()> &rendercallback = [](){}, const std::string &logopath = "undefined") : RenderCallback(rendercallback), LogoPath(logopath) {};
+    };
+
     class WelcomeWindow : public std::enable_shared_from_this<WelcomeWindow>
     {
     public:
         WelcomeWindow(const std::string &name);
 
-        void AddChild(const std::string &child_name, const std::function<void()> &child);
+        void AddChild(const std::string &child_name, const WelcomeWindowChild &child);
         void RemoveChild(const std::string &child_name);
-        std::function<void()> GetChild(const std::string &child_name);
+        WelcomeWindowChild *GetChild(const std::string &child_name);
 
         std::shared_ptr<Cherry::AppWindow> &GetAppWindow();
         static std::shared_ptr<WelcomeWindow> Create(const std::string &name);
@@ -26,7 +34,7 @@ namespace VortexLauncher
         void Render();
         void WelcomeRender();
 
-        std::unordered_map<std::string, std::function<void()>> m_Childs;
+        std::unordered_map<std::string, WelcomeWindowChild> m_Childs;
 
         std::function<void()> m_CreateProjectCallback;
         std::function<void()> m_OpenProjectCallback;
@@ -39,7 +47,7 @@ namespace VortexLauncher
 
         std::shared_ptr<Cherry::AppWindow> m_AppWindow;
         int selected;
-        float leftPaneWidth = 300.0f;
+        float leftPaneWidth = 290.0f;
     };
 }
 

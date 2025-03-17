@@ -181,6 +181,7 @@ namespace VortexLauncher
         float maxWidth = squareSize.x;
 
         std::string line;
+            Cherry::PushFont("dv-b");
         float lineWidth = 0.0f;
         for (char ch : fullText)
         {
@@ -200,6 +201,7 @@ namespace VortexLauncher
         {
             drawList->AddText(textPos, Cherry::HexToImU32("#999999ff"), line.c_str());
         }
+            Cherry::PopFont();
 
         ImU32 textColor = IM_COL32(255, 255, 255, 255);
         ImU32 highlightColor = IM_COL32(255, 255, 0, 255);
@@ -592,17 +594,13 @@ namespace VortexLauncher
         m_SelectedChildName = "?loc:loc.windows.welcome.overview";
         m_RecentProjects = GetMostRecentProjects(VortexMaker::GetCurrentContext()->IO.sys_projects, 4);
 
-        this->AddChild("About", [this]()
-                       { ImGui::Text("Latest 2 news + Changelog here + articles"); });
+        this->AddChild("Support Us", WelcomeWindowChild([this]() {},Cherry::GetPath("resources/imgs/icons/launcher/heart.png")));
+        this->AddChild("What's news", WelcomeWindowChild([this]() {},Cherry::GetPath("resources/imgs/icons/launcher/web.png")));
+        this->AddChild("Forums", WelcomeWindowChild([this]() {},Cherry::GetPath("resources/imgs/icons/launcher/forum.png")));
+        this->AddChild("Documentation", WelcomeWindowChild([this]() {},Cherry::GetPath("resources/imgs/icons/launcher/docs.png")));
 
-        this->AddChild("What's news ?", [this]()
-                       { ImGui::Text("Latest 2 news + Changelog here + articles"); });
-
-        this->AddChild("Learn", [this]() {
-
-        });
-
-        this->AddChild("?loc:loc.windows.welcome.overview", [&](){this->WelcomeRender();});
+        this->AddChild("?loc:loc.windows.welcome.overview", WelcomeWindowChild([this]()
+                                                                               { this->WelcomeRender(); }, Cherry::GetPath("resources/imgs/icons/launcher/overview.png")));
 
         std::shared_ptr<Cherry::AppWindow> win = m_AppWindow;
     }
@@ -621,7 +619,7 @@ namespace VortexLauncher
         }
         return sortedProjects;
     }
-    void WelcomeWindow::AddChild(const std::string &child_name, const std::function<void()> &child)
+    void WelcomeWindow::AddChild(const std::string &child_name, const WelcomeWindowChild &child)
     {
         m_Childs[child_name] = child;
     }
@@ -657,12 +655,12 @@ namespace VortexLauncher
             } });
     }
 
-    std::function<void()> WelcomeWindow::GetChild(const std::string &child_name)
+    WelcomeWindowChild *WelcomeWindow::GetChild(const std::string &child_name)
     {
         auto it = m_Childs.find(child_name);
         if (it != m_Childs.end())
         {
-            return it->second;
+            return &it->second;
         }
         return nullptr;
     }
@@ -675,55 +673,20 @@ namespace VortexLauncher
         std::string label = "left_pane" + m_AppWindow->m_Name;
         ImGui::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
         ImGui::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#00000000"));
+        ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, ImVec2(0.0f, 0.0f));
+        ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0.0f, 0.0f));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
         ImGui::BeginChild(label.c_str(), ImVec2(leftPaneWidth, 0), true, NULL);
 
-        ImGui::Image(Cherry::GetTexture(Cherry::GetPath("resources/imgs/welcome.png")), ImVec2(270, 55));
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 5.0f);
+        ImGui::Image(Cherry::GetTexture(Cherry::GetPath("resources/imgs/vortexbanner.png")), Cherry::GetTextureSize(Cherry::GetPath("resources/imgs/vortexbanner.png")));
 
-        auto specialChild = std::find_if(m_Childs.begin(), m_Childs.end(), [](const auto &child)
-                                         { return child.first == "?loc:loc.windows.welcome.overview"; });
+        // CherryStyle::SetPadding(7.0f);
 
-        if (specialChild != m_Childs.end())
-        {
-            CherryKit::SeparatorText("Main");
-
-            // Cherry::TextButtonUnderlineOptions opt;
-
-            if (specialChild->first == m_SelectedChildName)
-            {
-                // opt.hex_text_idle = "#FFFFFFFF";
-            }
-            else
-            {
-                // opt.hex_text_idle = "#A9A9A9FF";
-            }
-            std::string child_name;
-
-            if (specialChild->first.rfind("?loc:", 0) == 0)
-            {
-                std::string localeName = specialChild->first.substr(5);
-                child_name = Cherry::GetLocale(localeName) + "####" + localeName;
-            }
-            else
-            {
-                child_name = specialChild->first;
-            }
-
-            CherryKit::ButtonTextUnderline(CherryID(child_name), child_name.c_str());
-            if (false)
-            {
-                m_SelectedChildName = specialChild->first;
-            }
-        }
-
-        CherryKit::SeparatorText("All menus");
         for (const auto &child : m_Childs)
         {
-            if (child.first == "?loc:loc.windows.welcome.overview")
-                continue;
-
-            // Cherry::TextButtonUnderlineOptions opt;
-
             if (child.first == m_SelectedChildName)
             {
                 // opt.hex_text_idle = "#FFFFFFFF";
@@ -744,8 +707,12 @@ namespace VortexLauncher
                 child_name = child.first;
             }
 
-            CherryKit::ButtonTextUnderline(CherryID(child_name), child_name.c_str());
-            // Cherry::GetLastItemData("isClicked")
+            Cherry::SetNextComponentProperty("color_bg", "#00000000");
+            Cherry::SetNextComponentProperty("color_border", "#00000000");
+            Cherry::SetNextComponentProperty("padding_x", "2");
+            Cherry::SetNextComponentProperty("padding_y", "2");
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7.5f);
+            CherryKit::ButtonImageText(CherryID(child_name), child_name.c_str(), child.second.LogoPath);
             if (false)
             {
                 m_SelectedChildName = child.first;
@@ -756,28 +723,7 @@ namespace VortexLauncher
 
         ImGui::EndChild();
         ImGui::PopStyleColor(2);
-        ImGui::PopStyleVar();
-
-        ImGui::SameLine();
-
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
-        ImGui::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#44444466"));
-        ImGui::Button("splitter", ImVec2(splitterWidth, -1));
-        ImGui::PopStyleColor();
-        ImGui::PopStyleVar();
-
-        if (ImGui::IsItemHovered())
-        {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-        }
-
-        if (ImGui::IsItemActive())
-        {
-            float delta = ImGui::GetIO().MouseDelta.x;
-            leftPaneWidth += delta;
-            if (leftPaneWidth < minPaneWidth)
-                leftPaneWidth = minPaneWidth;
-        }
+        ImGui::PopStyleVar(4);
 
         ImGui::SameLine();
         ImGui::BeginGroup();
@@ -791,10 +737,15 @@ namespace VortexLauncher
 
             if (ImGui::BeginChild("ChildPanel", ImVec2(0, 0), false, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_AlwaysVerticalScrollbar))
             {
-                std::function<void()> pannel_render = GetChild(m_SelectedChildName);
-                if (pannel_render)
+                auto child = GetChild(m_SelectedChildName);
+
+                if (child)
                 {
-                    pannel_render();
+                    std::function<void()> pannel_render = child->RenderCallback;
+                    if (pannel_render)
+                    {
+                        pannel_render();
+                    }
                 }
             }
             ImGui::EndChild();
