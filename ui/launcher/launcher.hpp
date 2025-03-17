@@ -329,6 +329,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
   Cherry::Application *app = new Cherry::Application(spec);
   app->SetFavIconPath(Cherry::GetPath("resources/imgs/icon.png"));
   app->AddFont("Consola", Cherry::GetPath("resources/fonts/consola.ttf"), 17.0f);
+  app->AddFont("ASMAN", Cherry::GetPath("resources/fonts/ASMAN.TFF"), 17.0f);
 
   app->AddLocale("fr", Cherry::GetPath("resources/locales/fr.json"));
   app->AddLocale("en", Cherry::GetPath("resources/locales/en.json"));

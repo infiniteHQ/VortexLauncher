@@ -709,7 +709,7 @@ namespace VortexLauncher
                 child_name = specialChild->first;
             }
 
-            CherryKit::ButtonText(CherryID(child_name), child_name.c_str());
+            CherryKit::ButtonTextUnderline(CherryID(child_name), child_name.c_str());
             if (false)
             {
                 m_SelectedChildName = specialChild->first;
@@ -744,7 +744,7 @@ namespace VortexLauncher
                 child_name = child.first;
             }
 
-            CherryKit::ButtonText(CherryID(child_name), child_name.c_str());
+            CherryKit::ButtonTextUnderline(CherryID(child_name), child_name.c_str());
             // Cherry::GetLastItemData("isClicked")
             if (false)
             {
