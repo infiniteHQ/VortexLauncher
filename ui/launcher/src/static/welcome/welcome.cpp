@@ -181,7 +181,7 @@ namespace VortexLauncher
         float maxWidth = squareSize.x;
 
         std::string line;
-            Cherry::PushFont("dv-b");
+        Cherry::PushFont("dv-b");
         float lineWidth = 0.0f;
         for (char ch : fullText)
         {
@@ -201,7 +201,7 @@ namespace VortexLauncher
         {
             drawList->AddText(textPos, Cherry::HexToImU32("#999999ff"), line.c_str());
         }
-            Cherry::PopFont();
+        Cherry::PopFont();
 
         ImU32 textColor = IM_COL32(255, 255, 255, 255);
         ImU32 highlightColor = IM_COL32(255, 255, 0, 255);
@@ -421,7 +421,6 @@ namespace VortexLauncher
 
         if (ImGui::InvisibleButton(button_id.c_str(), totalSize))
         {
-            std::cout << "Clicked" << std::endl;
             if (action)
             {
                 action(envproject);
@@ -475,54 +474,57 @@ namespace VortexLauncher
 
     void WelcomeWindow::WelcomeRender()
     {
-        float childWidth = ImGui::GetContentRegionAvail().x;
-        float inputTextWidth = 300.0f;
-        float buttonWidth = 100.0f;
-        float groupWidth = inputTextWidth + ImGui::GetStyle().ItemSpacing.x + buttonWidth;
-
         Cherry::SetNextComponentProperty("color_text", "#B1FF31");
         CherryKit::TitleTwo(Cherry::GetLocale("loc.windows.welcome.overview"));
 
         Cherry::SetNextComponentProperty("color_text", "#797979");
-        CherryKit::TitleSix("Latest news");
+        CherryKit::TitleSix("Fast actions");
 
-        if (VortexMaker::GetCurrentContext()->IO.offline)
+        CherryKit::GridSimple({
+                                  CherryKit::BlockVerticalCustom(CherryCreateOnly, 270.0f, 120.0f, {
+                                      CherryLambda(CherryKit::Space(20.0f);),
+                                          CherryLambda(CherryKit::ImageLocalCentered(CherryID("1"), Cherry::GetPath("resources/imgs/add.png"), 30, 30);),
+                                          CherryLambda(CherryKit::Space(15.0f);),
+                                          CherryLambda(CherryKit::TextCenter("Create a project");),
+                                  }),
+                                  CherryKit::BlockVerticalCustom(CherryCreateOnly, 270.0f, 120.0f, {
+                                      CherryLambda(CherryKit::Space(20.0f);),
+                                          CherryLambda(CherryKit::ImageLocalCentered(CherryID("2"), Cherry::GetPath("resources/imgs/open.png"), 30, 30);),
+                                          CherryLambda(CherryKit::Space(15.0f);),
+                                          CherryLambda(CherryKit::TextCenter("Open a project");),
+                                  }),
+                                  CherryKit::BlockVerticalCustom(CherryCreateOnly, 270.0f, 120.0f, {
+                                      CherryLambda(CherryKit::Space(20.0f);),
+                                          CherryLambda(CherryKit::ImageLocalCentered(CherryID("3"), Cherry::GetPath("resources/imgs/settings.png"), 30, 30);),
+                                          CherryLambda(CherryKit::Space(15.0f);),
+                                          CherryLambda(CherryKit::TextCenter("Settings & Configurations");),
+                                  }),
+                              },
+                              270.0f, 270.0f);
+
+        Cherry::SetNextComponentProperty("color_text", "#797979");
+        CherryKit::TitleSix("Latest opened projects");
+
+        static std::vector<std::shared_ptr<Cherry::Component>> blocks;
+
+        if (blocks.empty())
         {
-            NewsBanner(false, "Latest", 400, 150, "?", Cherry::GetPath("resources/imgs/vortex_banner_disconnected.png"));
-            NewsBanner(true, "All Versions", 400, 150, "", Cherry::GetPath("resources/imgs/vortex_banner_disconnected.png"));
-        }
-        else
-        {
-            for (const auto &article : VortexMaker::GetCurrentContext()->IO.news)
+            auto recentProjects = VortexMaker::GetRecentProjects(4);
+
+            for (auto project : recentProjects)
             {
-                if (!article.image_link.empty() &&
-                    (ends_with(article.image_link, ".png") || ends_with(article.image_link, ".jpg")) &&
-                    (article.image_link.find("http://") == 0 || article.image_link.find("https://") == 0))
-                {
-                    NewsBanner(
-                        false,
-                        article.title,
-                        400, 150,
-                        Cherry::GetHttpPath(article.image_link),
-                        article.news_link,
-                        article.description);
-                }
+                Cherry::Identifier::UpgradeIncrementorLevel();
+                if (project)
+                    blocks.push_back(
+                        CherryKit::BlockVerticalCustom(CherryCreateOnly, 200.0f, 120.0f, {
+                            CherryLambda(CherryKit::TextSimple(project->name);),
+                                CherryLambda(CherryKit::TextSimple(project->lastOpened);),
+                        }));
+                Cherry::Identifier::DowngradeIncrementorLevel(); // To Cherry::PopGroupContext // Cherry::PushGroupContext
             }
         }
 
-        CherryKit::Space(200.0f);
-        Cherry::SetNextComponentProperty("color_text", "#797979");
-        CherryKit::TitleSix("Fast actions");
-        QuickAction(false, "create", 264, 120, Cherry::GetPath("resources/imgs/create_banner.png"), true, m_CreateProjectCallback);
-        QuickAction(false, "open", 263, 120, Cherry::GetPath("resources/imgs/open_banner.png"), true, m_OpenProjectCallback);
-        QuickAction(true, "settings", 264, 120, Cherry::GetPath("resources/imgs/settings_banner.png"), true, m_SettingsCallback);
-
-        for (auto project : VortexMaker::GetCurrentContext()->IO.sys_projects)
-        {
-        }
-
-        Cherry::SetNextComponentProperty("color_text", "#797979");
-        CherryKit::TitleSix("Latest openned project");
+        CherryKit::GridSimple(blocks, 200.0f, 200.0f);
 
         const size_t maxSlots = 4;
 
@@ -549,6 +551,46 @@ namespace VortexLauncher
         for (; filledSlots < maxSlots; ++filledSlots)
         {
             QuickAction((filledSlots >= 3 ? true : false), "", 196, 120, Cherry::GetPath("resources/imgs/empty_recent_project.png"), false);
+        }
+
+        Cherry::SetNextComponentProperty("color_text", "#797979");
+        CherryKit::TitleSix("Latest news");
+
+        if (VortexMaker::GetCurrentContext()->IO.offline)
+        {
+            NewsBanner(false, "Latest", 400, 150, "?", Cherry::GetPath("resources/imgs/vortex_banner_disconnected.png"));
+            NewsBanner(true, "All Versions", 400, 150, "", Cherry::GetPath("resources/imgs/vortex_banner_disconnected.png"));
+        }
+        else
+        {
+
+            /*TODO CherryKit::GridSimple({
+                NewsBanner(
+                    false,
+                    VortexMaker::GetCurrentContext()->IO.news[0].title,
+                    400, 150,
+                    Cherry::GetHttpPath(VortexMaker::GetCurrentContext()->IO.news[0].image_link),
+                    VortexMaker::GetCurrentContext()->IO.news[0].news_link,
+                    VortexMaker::GetCurrentContext()->IO.news[0].description
+                    ),
+                NewsBanner(
+                    false,
+                    VortexMaker::GetCurrentContext()->IO.news[1].title,
+                    400, 150,
+                    Cherry::GetHttpPath(VortexMaker::GetCurrentContext()->IO.news[1].image_link),
+                    VortexMaker::GetCurrentContext()->IO.news[1].news_link,
+                    VortexMaker::GetCurrentContext()->IO.news[1].description)
+            });*/
+
+            /*for (const auto &article : VortexMaker::GetCurrentContext()->IO.news)
+            {
+                if (!article.image_link.empty() &&
+                    (ends_with(article.image_link, ".png") || ends_with(article.image_link, ".jpg")) &&
+                    (article.image_link.find("http://") == 0 || article.image_link.find("https://") == 0))
+                {
+                    ;
+                }
+            }*/
         }
 
         Cherry::SetNextComponentProperty("color_text", "#797979");
@@ -594,10 +636,10 @@ namespace VortexLauncher
         m_SelectedChildName = "?loc:loc.windows.welcome.overview";
         m_RecentProjects = GetMostRecentProjects(VortexMaker::GetCurrentContext()->IO.sys_projects, 4);
 
-        this->AddChild("Support Us", WelcomeWindowChild([this]() {},Cherry::GetPath("resources/imgs/icons/launcher/heart.png")));
-        this->AddChild("What's news", WelcomeWindowChild([this]() {},Cherry::GetPath("resources/imgs/icons/launcher/web.png")));
-        this->AddChild("Forums", WelcomeWindowChild([this]() {},Cherry::GetPath("resources/imgs/icons/launcher/forum.png")));
-        this->AddChild("Documentation", WelcomeWindowChild([this]() {},Cherry::GetPath("resources/imgs/icons/launcher/docs.png")));
+        this->AddChild("Support Us", WelcomeWindowChild([this]() {}, Cherry::GetPath("resources/imgs/icons/launcher/heart.png")));
+        this->AddChild("What's news", WelcomeWindowChild([this]() {}, Cherry::GetPath("resources/imgs/icons/launcher/web.png")));
+        this->AddChild("Forums", WelcomeWindowChild([this]() {}, Cherry::GetPath("resources/imgs/icons/launcher/forum.png")));
+        this->AddChild("Documentation", WelcomeWindowChild([this]() {}, Cherry::GetPath("resources/imgs/icons/launcher/docs.png")));
 
         this->AddChild("?loc:loc.windows.welcome.overview", WelcomeWindowChild([this]()
                                                                                { this->WelcomeRender(); }, Cherry::GetPath("resources/imgs/icons/launcher/overview.png")));
@@ -711,7 +753,7 @@ namespace VortexLauncher
             Cherry::SetNextComponentProperty("color_border", "#00000000");
             Cherry::SetNextComponentProperty("padding_x", "2");
             Cherry::SetNextComponentProperty("padding_y", "2");
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7.5f);
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7.5f);
             CherryKit::ButtonImageText(CherryID(child_name), child_name.c_str(), child.second.LogoPath);
             if (false)
             {

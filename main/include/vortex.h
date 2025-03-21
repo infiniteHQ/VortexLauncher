@@ -229,6 +229,7 @@ namespace VortexMaker
     VORTEX_API nlohmann::json DumpJSON(const std::string &file);
     VORTEX_API void PopulateJSON(const nlohmann::json &json_data, const std::string &file);
 
+    VORTEX_API std::vector<std::shared_ptr<EnvProject>> GetRecentProjects(int number);
     VORTEX_API void DeleteProject(const std::string &path, const std::string &project_name);
     VORTEX_API void RemoveSystemProjectEntry(const std::string &project_name);
 
