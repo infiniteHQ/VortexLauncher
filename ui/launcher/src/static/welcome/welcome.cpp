@@ -516,7 +516,8 @@ namespace VortexLauncher
                 Cherry::Identifier::UpgradeIncrementorLevel();
                 if (project)
                     blocks.push_back(
-                        CherryKit::BlockVerticalCustom(CherryCreateOnly, 200.0f, 120.0f, {
+                        CherryKit::BlockVerticalCustom(CherryCreateOnly, 200.0f, 120.0f, {                                          
+                            CherryLambda(CherryKit::ImageLocal(CherryID("23"), Cherry::GetPath("resources/imgs/vortex.png"), 200, 50);),
                             CherryLambda(CherryKit::TextSimple(project->name);),
                                 CherryLambda(CherryKit::TextSimple(project->lastOpened);),
                         }));
