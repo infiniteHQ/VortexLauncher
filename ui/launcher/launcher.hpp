@@ -321,16 +321,16 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
   spec.DisableWindowManagerTitleBar = true;
   spec.WindowOnlyClosable = true;
   spec.RenderMode = WindowRenderingMethod::DockingWindows;
-
   spec.DisableTitle = true;
   spec.WindowSaves = false;
   spec.IconPath = Cherry::GetPath("resources/imgs/icon.png");
+  spec.UseAudio();
 
   Cherry::Application *app = new Cherry::Application(spec);
   app->SetFavIconPath(Cherry::GetPath("resources/imgs/icon.png"));
   app->AddFont("Consola", Cherry::GetPath("resources/fonts/consola.ttf"), 17.0f);
   app->AddFont("ASMAN", Cherry::GetPath("resources/fonts/ASMAN.TFF"), 17.0f);
-
+  
   app->AddFont("dvs-c", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSerifCondensed.ttf"), 17.0f);
   app->AddFont("dvs-ci", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSerifCondensed-Italic.ttf"), 17.0f);
   app->AddFont("dvs-cbi", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSerifCondensed-BoldItalic.ttf"), 17.0f);
@@ -415,6 +415,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
     }                              
     },
     []() { return (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"))->GetData("isClicked") == "true"); },  // Wrap Render in a lambda
+    nullptr,   
     Cherry::GetTexture(Cherry::GetPath("resources/imgs/icon_update.png"))
     );
 

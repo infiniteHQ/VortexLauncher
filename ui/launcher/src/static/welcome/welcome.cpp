@@ -30,7 +30,7 @@ void OpenURL(const std::string &url)
 #endif
 }
 
-bool ends_with(const std::string &value, const std::string &suffix)
+bool EndsWith(const std::string &value, const std::string &suffix)
 {
     if (suffix.size() > value.size())
         return false;
@@ -39,582 +39,211 @@ bool ends_with(const std::string &value, const std::string &suffix)
 
 namespace VortexLauncher
 {
-    static void HomeBanner(const std::string &envproject, int xsize = 100, int ysize = 100, const std::string &version = "?", const std::string &path = "resources/imgs/vortex_banner_unknow.png")
-    {
-        ImVec2 squareSize(xsize, ysize);
-
-        const char *originalText = envproject.c_str();
-        char truncatedText[32];
-        const char *versionText = version.c_str();
-
-        if (strlen(originalText) > 24)
-        {
-            strncpy(truncatedText, originalText, 8);
-            strcpy(truncatedText + 8, "...");
-        }
-        else
-        {
-            strcpy(truncatedText, originalText);
-        }
-
-        ImVec2 textSize = ImGui::CalcTextSize(truncatedText);
-        ImVec2 totalSize(squareSize.x, squareSize.y + textSize.y + 5);
-
-        ImVec2 cursorPos = ImGui::GetCursorScreenPos();
-
-        std::string button_id = envproject + "squareButtonWithText" + envproject;
-        if (ImGui::InvisibleButton(button_id.c_str(), totalSize))
-        {
-            // selected_envproject = envproject;
-        }
-
-        if (ImGui::IsItemHovered())
-        {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-        }
-
-        ImDrawList *drawList = ImGui::GetWindowDrawList();
-
-        if (!envproject.empty() && std::filesystem::exists(envproject))
-        {
-            drawList->AddImage(Cherry::GetTexture(envproject), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
-        }
-        else
-        {
-            drawList->AddImage(Cherry::GetTexture(path), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
-        }
-
-        ImVec2 smallRectSize(40, 20);
-        ImVec2 smallRectPos(cursorPos.x + squareSize.x - smallRectSize.x - 5, cursorPos.y + squareSize.y - smallRectSize.y - 5);
-
-        drawList->AddRectFilled(smallRectPos, ImVec2(smallRectPos.x + smallRectSize.x, smallRectPos.y + smallRectSize.y), IM_COL32(0, 0, 0, 255));
-        ImVec2 versionTextPos = ImVec2(smallRectPos.x + (smallRectSize.x - ImGui::CalcTextSize(versionText).x) / 2, smallRectPos.y + (smallRectSize.y - ImGui::CalcTextSize("version").y) / 2);
-        drawList->AddText(versionTextPos, IM_COL32(255, 255, 255, 255), versionText);
-
-        ImVec2 textPos = ImVec2(cursorPos.x + (squareSize.x - textSize.x) / 2, cursorPos.y + squareSize.y + 5);
-
-        ImU32 textColor = IM_COL32(255, 255, 255, 255);
-        ImU32 highlightColor = IM_COL32(255, 255, 0, 255);
-        ImU32 highlightTextColor = IM_COL32(0, 0, 0, 255);
-
-        if (ImGui::IsItemHovered())
-        {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-
-            drawList->AddRect(cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y), IM_COL32(135, 135, 135, 255), 0.0f, 0, 2.0f);
-        }
-
-        // DrawHighlightedText(drawList, textPos, truncatedText, ProjectSearch, highlightColor, textColor, highlightTextColor);
-
-        float windowVisibleX2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
-        if (cursorPos.x + totalSize.x < windowVisibleX2)
-            ImGui::SameLine();
-    }
-
-    static void NewsBanner(bool disable_stack, const std::string &envproject, int xsize = 100, int ysize = 100, const std::string &path = "resources/imgs/vortex_banner_unknow.png", const std::string &link_path = "", const std::string &desc = "")
-    {
-        ImVec2 squareSize(xsize, ysize);
-
-        const char *originalText = envproject.c_str();
-        char truncatedText[32];
-
-        if (strlen(originalText) > 24)
-        {
-            strncpy(truncatedText, originalText, 8);
-            strcpy(truncatedText + 8, "...");
-        }
-        else
-        {
-            strcpy(truncatedText, originalText);
-        }
-
-        ImVec2 textSize = ImGui::CalcTextSize(truncatedText);
-        ImVec2 totalSize(squareSize.x, squareSize.y + textSize.y + 5);
-
-        ImVec2 cursorPos = ImGui::GetCursorScreenPos();
-
-        std::string button_id = envproject + "squareButtonWithText" + envproject;
-        if (ImGui::InvisibleButton(button_id.c_str(), totalSize))
-        {
-            if (link_path != "")
-            {
-                OpenURL(link_path);
-            }
-        }
-
-        if (ImGui::IsItemHovered())
-        {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-        }
-
-        ImDrawList *drawList = ImGui::GetWindowDrawList();
-
-        if (!envproject.empty() && std::filesystem::exists(envproject))
-        {
-            drawList->AddImage(Cherry::GetTexture(envproject), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
-        }
-        else
-        {
-            drawList->AddImage(Cherry::GetTexture(path), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
-        }
-
-        {
-            ImVec2 textPadding(10.0f, 5.0f);
-            float blurHeight = 30.0f;
-
-            ImVec2 blurPos = ImVec2(cursorPos.x, cursorPos.y + squareSize.y - blurHeight);
-            ImVec2 blurSize = ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y);
-
-            drawList->AddRectFilled(blurPos, blurSize, IM_COL32(0, 0, 0, 128));
-
-            ImVec2 textPos = ImVec2(cursorPos.x + textPadding.x, cursorPos.y + squareSize.y - blurHeight + textPadding.y);
-
-            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]); // Assuming font[1] is a larger font. Adjust index as needed.
-
-            drawList->AddText(textPos, IM_COL32(255, 255, 255, 255), envproject.c_str());
-
-            ImGui::PopFont();
-        }
-
-        ImVec2 textPos = ImVec2(cursorPos.x, cursorPos.y + squareSize.y + 5);
-        std::string fullText = desc;
-        float maxWidth = squareSize.x;
-
-        std::string line;
-        Cherry::PushFont("dv-b");
-        float lineWidth = 0.0f;
-        for (char ch : fullText)
-        {
-            ImVec2 charSize = ImGui::CalcTextSize(std::string(1, ch).c_str());
-            if (lineWidth + charSize.x > maxWidth && !line.empty())
-            {
-                drawList->AddText(textPos, Cherry::HexToImU32("#999999ff"), line.c_str());
-                textPos.y += charSize.y;
-                line.clear();
-                lineWidth = 0.0f;
-            }
-            line += ch;
-            lineWidth += charSize.x;
-        }
-
-        if (!line.empty())
-        {
-            drawList->AddText(textPos, Cherry::HexToImU32("#999999ff"), line.c_str());
-        }
-        Cherry::PopFont();
-
-        ImU32 textColor = IM_COL32(255, 255, 255, 255);
-        ImU32 highlightColor = IM_COL32(255, 255, 0, 255);
-        ImU32 highlightTextColor = IM_COL32(0, 0, 0, 255);
-
-        if (ImGui::IsItemHovered())
-        {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-            drawList->AddRect(cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y), IM_COL32(135, 135, 135, 255), 0.0f, 0, 2.0f);
-        }
-
-        if (!disable_stack)
-        {
-            float windowVisibleX2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
-            if (cursorPos.x + totalSize.x < windowVisibleX2)
-                ImGui::SameLine();
-        }
-    }
-
-    static void VersionWelcomeMenu(bool disable_stack, const VortexVersion &envproject, int xsize = 100, int ysize = 100, const std::string &path = "resources/imgs/vortex_banner_unknow.png", bool clickable = true, std::function<void()> action = []() {})
-    {
-        ImVec2 squareSize(xsize, ysize);
-
-        std::string vpath;
-        bool version_installed = VortexMaker::CheckIfVortexVersionUtilityExist(envproject.version, vpath);
-
-        const char *originalText = envproject.name.c_str();
-        char truncatedText[32];
-
-        if (strlen(originalText) > 24)
-        {
-            strncpy(truncatedText, originalText, 8);
-            strcpy(truncatedText + 8, "...");
-        }
-        else
-        {
-            strcpy(truncatedText, originalText);
-        }
-
-        ImVec2 textSize = ImGui::CalcTextSize(truncatedText);
-        ImVec2 totalSize(squareSize.x, squareSize.y + textSize.y + 5);
-
-        ImVec2 cursorPos = ImGui::GetCursorScreenPos();
-
-        std::string button_id = envproject.name + "squareButtonWithText" + envproject.name;
-        if (!clickable)
-        {
-            ImGui::BeginDisabled();
-        }
-        if (ImGui::InvisibleButton(button_id.c_str(), totalSize))
-        {
-            if (action)
-            {
-                action();
-            }
-        }
-        if (!clickable)
-        {
-            ImGui::EndDisabled();
-        }
-
-        if (ImGui::IsItemHovered())
-        {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-        }
-
-        ImDrawList *drawList = ImGui::GetWindowDrawList();
-
-        if (!envproject.banner.empty() && std::filesystem::exists(envproject.banner))
-        {
-            drawList->AddImage(Cherry::GetTexture(envproject.banner), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y - 25.0f));
-        }
-        else
-        {
-            drawList->AddImage(Cherry::GetTexture(path), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y - 25.0f));
-        }
-
-        if (version_installed)
-        {
-            drawList->AddImage(Cherry::GetTexture(Cherry::GetPath("resources/imgs/installed_mask.png")), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y - 25.0f));
-        }
-        else
-        {
-            drawList->AddImage(Cherry::GetTexture(Cherry::GetPath("resources/imgs/install_mask.png")), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y - 25.0f));
-        }
-
-        ImVec2 smallRectSize(40, 20);
-        ImVec2 smallRectPos(cursorPos.x + squareSize.x - smallRectSize.x - 5, cursorPos.y + squareSize.y - smallRectSize.y - 5);
-
-        ImU32 highlightColor = IM_COL32(255, 255, 0, 255);
-        ImU32 highlightTextColor = IM_COL32(0, 0, 0, 255);
-
-        ImVec2 textPos(
-            cursorPos.x + (squareSize.x - textSize.x) / 2.0f,
-            cursorPos.y + squareSize.y + (squareSize.y - squareSize.y - textSize.y) / 2.0f - 5.0f);
-
-        ImU32 textColor = Cherry::HexToImU32("#AEAEAEFF");
-        drawList->AddText(ImVec2(textPos.x, textPos.y - 5.0f), textColor, truncatedText);
-
-        if (ImGui::IsItemHovered())
-        {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-            drawList->AddRect(cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y), IM_COL32(135, 135, 135, 255), 0.0f, 0, 2.0f);
-        }
-
-        if (!disable_stack)
-        {
-            float windowVisibleX2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
-            if (cursorPos.x + totalSize.x < windowVisibleX2)
-                ImGui::SameLine();
-        }
-    }
-
-    static void QuickAction(bool disable_stack, const std::string &envproject, int xsize = 100, int ysize = 100, const std::string &path = "resources/imgs/vortex_banner_unknow.png", bool clickable = true, std::function<void()> action = []() {})
-    {
-        ImVec2 squareSize(xsize, ysize);
-
-        const char *originalText = envproject.c_str();
-        char truncatedText[32];
-
-        if (strlen(originalText) > 24)
-        {
-            strncpy(truncatedText, originalText, 8);
-            strcpy(truncatedText + 8, "...");
-        }
-        else
-        {
-            strcpy(truncatedText, originalText);
-        }
-
-        ImVec2 textSize = ImGui::CalcTextSize(truncatedText);
-        ImVec2 totalSize(squareSize.x, squareSize.y + textSize.y + 5);
-
-        ImVec2 cursorPos = ImGui::GetCursorScreenPos();
-
-        std::string button_id = envproject + "squareButtonWithText" + envproject;
-        if (!clickable)
-        {
-            ImGui::BeginDisabled();
-        }
-        if (ImGui::InvisibleButton(button_id.c_str(), totalSize))
-        {
-            if (action)
-            {
-                action();
-            }
-        }
-        if (!clickable)
-        {
-            ImGui::EndDisabled();
-        }
-
-        if (ImGui::IsItemHovered())
-        {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-        }
-
-        ImDrawList *drawList = ImGui::GetWindowDrawList();
-
-        if (!envproject.empty() && std::filesystem::exists(envproject))
-        {
-            drawList->AddImage(Cherry::GetTexture(envproject), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
-        }
-        else
-        {
-            drawList->AddImage(Cherry::GetTexture(path), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
-        }
-
-        ImVec2 smallRectSize(40, 20);
-        ImVec2 smallRectPos(cursorPos.x + squareSize.x - smallRectSize.x - 5, cursorPos.y + squareSize.y - smallRectSize.y - 5);
-
-        ImU32 textColor = IM_COL32(255, 255, 255, 255);
-        ImU32 highlightColor = IM_COL32(255, 255, 0, 255);
-        ImU32 highlightTextColor = IM_COL32(0, 0, 0, 255);
-
-        if (ImGui::IsItemHovered())
-        {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-            drawList->AddRect(cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y), IM_COL32(135, 135, 135, 255), 0.0f, 0, 2.0f);
-        }
-
-        if (!disable_stack)
-        {
-            float windowVisibleX2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
-            if (cursorPos.x + totalSize.x < windowVisibleX2)
-                ImGui::SameLine();
-        }
-    }
-
-    static void RecentProject(bool disable_stack, const std::shared_ptr<EnvProject> &envproject, int xsize = 100, int ysize = 100, const std::string &path = "resources/imgs/vortex_banner_unknow.png", bool clickable = true, std::function<void(const std::shared_ptr<EnvProject> &)> action = [](const std::shared_ptr<EnvProject> &) {})
-    {
-        ImVec2 squareSize(xsize, ysize);
-
-        const char *originalText = envproject->name.c_str();
-        char truncatedText[32];
-
-        if (strlen(originalText) > 24)
-        {
-            strncpy(truncatedText, originalText, 8);
-            strcpy(truncatedText + 8, "...");
-        }
-        else
-        {
-            strcpy(truncatedText, originalText);
-        }
-
-        ImVec2 textSize = ImGui::CalcTextSize(truncatedText);
-        ImVec2 totalSize(squareSize.x, squareSize.y + textSize.y + 5);
-
-        ImVec2 cursorPos = ImGui::GetCursorScreenPos();
-
-        std::string button_id = envproject->path + "squareTdfgext####" + envproject->path;
-        if (!clickable)
-        {
-            ImGui::BeginDisabled();
-        }
-
-        if (ImGui::InvisibleButton(button_id.c_str(), totalSize))
-        {
-            if (action)
-            {
-                action(envproject);
-            }
-        }
-
-        if (!clickable)
-        {
-            ImGui::EndDisabled();
-        }
-
-        if (ImGui::IsItemHovered())
-        {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-        }
-
-        ImDrawList *drawList = ImGui::GetWindowDrawList();
-
-        if (ImGui::IsItemHovered())
-        {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-            drawList->AddRect(cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y), IM_COL32(135, 135, 135, 255), 0.0f, 0, 2.0f);
-        }
-
-        ImU32 bgColor = Cherry::HexToImU32("#32323232");
-
-        drawList->AddRectFilled(cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y), bgColor, 0.0f);
-
-        ImVec2 imageSize = ImVec2(75.0f, 75.0f);
-
-        ImVec2 textPos(
-            cursorPos.x + (squareSize.x - textSize.x) / 2.0f,
-            cursorPos.y + imageSize.y + (squareSize.y - imageSize.y - textSize.y) / 2.0f + 10.0f);
-
-        ImVec2 imagePos(
-            cursorPos.x + 60,
-            cursorPos.y + imageSize.y + (squareSize.y - imageSize.y - textSize.y) / 2.0f + 10.0f - 90.0f);
-
-        drawList->AddImage(Cherry::GetTexture(path), imagePos, ImVec2(imagePos.x + imageSize.x, imagePos.y + imageSize.y));
-
-        ImU32 textColor = Cherry::HexToImU32("#AEAEAEFF");
-        drawList->AddText(ImVec2(textPos.x, textPos.y - 5.0f), textColor, truncatedText);
-
-        if (!disable_stack)
-        {
-            float windowVisibleX2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
-            if (cursorPos.x + totalSize.x < windowVisibleX2)
-                ImGui::SameLine();
-        }
-    }
-
     void WelcomeWindow::WelcomeRender()
     {
-        Cherry::SetNextComponentProperty("color_text", "#B1FF31");
+        CherryNextProp("color_text", "#B1FF31");
         CherryKit::TitleTwo(Cherry::GetLocale("loc.windows.welcome.overview"));
 
-        Cherry::SetNextComponentProperty("color_text", "#797979");
+        //CherryKit::NodeAreaOpen("test", 500, 500);
+
+        CherryNextProp("color_text", "#797979");
         CherryKit::TitleSix("Fast actions");
 
-        CherryKit::GridSimple({
-                                  CherryKit::BlockVerticalCustom(CherryCreateOnly, 270.0f, 120.0f, {
-                                      CherryLambda(CherryKit::Space(20.0f);),
-                                          CherryLambda(CherryKit::ImageLocalCentered(CherryID("1"), Cherry::GetPath("resources/imgs/add.png"), 30, 30);),
-                                          CherryLambda(CherryKit::Space(15.0f);),
-                                          CherryLambda(CherryKit::TextCenter("Create a project");),
-                                  }),
-                                  CherryKit::BlockVerticalCustom(CherryCreateOnly, 270.0f, 120.0f, {
-                                      CherryLambda(CherryKit::Space(20.0f);),
-                                          CherryLambda(CherryKit::ImageLocalCentered(CherryID("2"), Cherry::GetPath("resources/imgs/open.png"), 30, 30);),
-                                          CherryLambda(CherryKit::Space(15.0f);),
-                                          CherryLambda(CherryKit::TextCenter("Open a project");),
-                                  }),
-                                  CherryKit::BlockVerticalCustom(CherryCreateOnly, 270.0f, 120.0f, {
-                                      CherryLambda(CherryKit::Space(20.0f);),
-                                          CherryLambda(CherryKit::ImageLocalCentered(CherryID("3"), Cherry::GetPath("resources/imgs/settings.png"), 30, 30);),
-                                          CherryLambda(CherryKit::Space(15.0f);),
-                                          CherryLambda(CherryKit::TextCenter("Settings & Configurations");),
-                                  }),
-                              },
-                              270.0f, 270.0f);
+        // Change CherryApp to Cherry:: Alias
+        if(CherryApp.IsKeyPressed(Cherry::CherryKey::D))
+        {
+            CherryApp.PlaySound(CherryPath("resources/audio/cat.wav"));
+        }
 
-        Cherry::SetNextComponentProperty("color_text", "#797979");
+        static std::vector<std::shared_ptr<Cherry::Component>> actions_blocks;
+
+        if(actions_blocks.empty())
+        {
+            actions_blocks.push_back(CherryKit::BlockVerticalCustom(Cherry::IdentifierProperty::CreateOnly, m_CreateProjectCallback, 269.0f, 120.0f,
+            {
+                CherryLambda(CherryKit::Space(20.0f);),
+                CherryLambda(CherryKit::ImageLocalCentered(Cherry::GetPath("resources/imgs/add.png"), 30, 30);),
+                CherryLambda(CherryKit::Space(15.0f);),
+                CherryLambda(CherryKit::TextCenter("Create a project");),
+            }));
+
+            actions_blocks.push_back(CherryKit::BlockVerticalCustom(Cherry::IdentifierProperty::CreateOnly, m_OpenProjectCallback, 269.0f, 120.0f,
+            {
+                CherryLambda(CherryKit::Space(20.0f);),
+                CherryLambda(CherryKit::ImageLocalCentered(Cherry::GetPath("resources/imgs/open.png"), 30, 30);),
+                CherryLambda(CherryKit::Space(15.0f);),
+                CherryLambda(CherryKit::TextCenter("Open a project");),
+            }));
+
+            actions_blocks.push_back(CherryKit::BlockVerticalCustom(Cherry::IdentifierProperty::CreateOnly, m_SettingsCallback, 269.0f, 120.0f,
+            {
+                CherryLambda(CherryKit::Space(20.0f);),
+                CherryLambda(CherryKit::ImageLocalCentered(Cherry::GetPath("resources/imgs/settings.png"), 30, 30);),
+                CherryLambda(CherryKit::Space(15.0f);),
+                CherryLambda(CherryKit::TextCenter("Settings & Configurations");),
+            }));
+
+        }
+
+        // Draw grid with blocks
+        CherryKit::GridSimple(270.0f, 270.0f, actions_blocks);
+
+        CherryNextProp("color_text", "#797979");
         CherryKit::TitleSix("Latest opened projects");
 
         static std::vector<std::shared_ptr<Cherry::Component>> blocks;
 
         if (blocks.empty())
         {
+            Cherry::Identifier::UpgradeIncrementorLevel();
             auto recentProjects = VortexMaker::GetRecentProjects(4);
 
             for (auto project : recentProjects)
             {
-                Cherry::Identifier::UpgradeIncrementorLevel();
                 if (project)
-                    blocks.push_back(
-                        CherryKit::BlockVerticalCustom(CherryCreateOnly, 200.0f, 120.0f, {                                          
-                            CherryLambda(CherryKit::ImageLocal(CherryID("23"), Cherry::GetPath("resources/imgs/vortex.png"), 200, 50);),
-                            CherryLambda(CherryKit::TextSimple(project->name);),
-                                CherryLambda(CherryKit::TextSimple(project->lastOpened);),
-                        }));
-                Cherry::Identifier::DowngradeIncrementorLevel(); // To Cherry::PopGroupContext // Cherry::PushGroupContext
-            }
-        }
-
-        CherryKit::GridSimple(blocks, 200.0f, 200.0f);
-
-        const size_t maxSlots = 4;
-
-        size_t filledSlots = 0;
-        for (const auto &project : m_RecentProjects)
-        {
-            bool isMostRecent = (filledSlots == 0);
-
-            RecentProject(
-                (filledSlots >= 3),
-                project,
-                196,
-                120,
-                project->logoPath,
-                true,
-                [this](const std::shared_ptr<EnvProject> &p)
                 {
-                    m_ProjectCallback(p);
-                });
-
-            ++filledSlots;
+                    auto block = CherryKit::BlockVerticalCustom(Cherry::IdentifierProperty::CreateOnly, [=](){m_ProjectCallback(project);}, 200.0f, 120.0f, 
+                    { 
+                        CherryLambda(CherryKit::ImageLocal(Cherry::GetPath("resources/imgs/def_project_banner.png"), 200, 75);),
+                        CherryLambda(CherryStyle::AddXMargin(5.0f); CherryKit::TitleSix(project->name);),
+                        CherryLambda(
+                            CherryStyle::AddXMargin(5.0f);
+                            CherryStyle::RemoveYMargin(5.0f);
+                            CherryStyle::PushFontSize(0.70f);
+                            CherryKit::TextSimple(project->lastOpened);
+                            CherryStyle::PopFontSize();), 
+                    });
+                    blocks.push_back(block);
+                }
+            }
+            Cherry::Identifier::DowngradeIncrementorLevel(); // To Cherry::PopGroupContext // Cherry::PushGroupContext
         }
+        CherryKit::GridSimple(200.0f, 200.0f, blocks);
+static bool modal_state = false;
 
-        for (; filledSlots < maxSlots; ++filledSlots)
+static bool notification = false;
+
+        if(CherryKit::ButtonText("Spawn Notification 1 ")->GetData("isClicked") == "true")
         {
-            QuickAction((filledSlots >= 3 ? true : false), "", 196, 120, Cherry::GetPath("resources/imgs/empty_recent_project.png"), false);
+            notification = true;
         }
 
-        Cherry::SetNextComponentProperty("color_text", "#797979");
+        //CherryKit::NotificationSimple(&notification, 4, "warn", "Bonjour", "Ceci est un super test afin de voir cela bonjouqfr lkjfhmgjk hdsmfgj");
+        /*CherryKit::NotificationButton(&notification, 9, "warn", "Bonjour", "Ceci est un super test afin de voir cela bonjouqfr lkjfhmgjk hdsmfgj", [](){
+            if(CherryKit::ButtonText("OK ")->GetData("isClicked") == "true")
+            {
+                std::cout << "OK" << std::endl;
+            }
+        });*/
+
+        CherryKit::NotificationCustom(&notification, 9, "warn", "Bonjour", [](){
+            CherryKit::TitleOne("ok ! ");
+        });
+
+
+        if(CherryKit::ButtonText("Spawn Notification 2 ")->GetData("isClicked") == "true")
+        {
+        }
+
+        if(CherryKit::ButtonText("Open Modal")->GetData("isClicked") == "true")
+        {
+            modal_state = true;
+        }
+
+        if(CherryKit::ButtonText("Meow meow")->GetData("isClicked") == "true")
+        {
+            std::thread([](){
+                CherryApp.PlaySound(CherryPath("resources/audio/cat.wav"));
+            }).detach();
+        }
+
+        CherryKit::ModalSimple("Super modal", &modal_state, 
+            CherryLambda(
+                static auto cmp = CherryApp.GetCurrentComponent();
+                if(CherryKit::ButtonText("Close")->GetData("isClicked") == "true")
+                {
+                    // SetCurrentComponentProperty
+                    if(cmp)
+                    cmp->SetProperty("activated", "false");
+                }
+            )
+        );
+
+        CherryKit::Space(20.0f);
+        CherryNextProp("color", "#222222");
+        CherryKit::Separator();
+
+        CherryNextProp("color_text", "#797979");
         CherryKit::TitleSix("Latest news");
+
+        static std::vector<std::shared_ptr<Cherry::Component>> news_blocks;
 
         if (VortexMaker::GetCurrentContext()->IO.offline)
         {
-            NewsBanner(false, "Latest", 400, 150, "?", Cherry::GetPath("resources/imgs/vortex_banner_disconnected.png"));
-            NewsBanner(true, "All Versions", 400, 150, "", Cherry::GetPath("resources/imgs/vortex_banner_disconnected.png"));
+            if (news_blocks.empty())
+            {
+            //auto block = CherryKit::BannerImageContext(Cherry::IdentifierProperty::CreateOnly, 402.0f, 140.0f, Cherry::GetPath("resources/imgs/vortex_banner_disconnected.png"), "", "");
+            //news_blocks.push_back(block);
+            //news_blocks.push_back(block);
+            }
         }
         else
         {
-
-            /*TODO CherryKit::GridSimple({
-                NewsBanner(
-                    false,
-                    VortexMaker::GetCurrentContext()->IO.news[0].title,
-                    400, 150,
-                    Cherry::GetHttpPath(VortexMaker::GetCurrentContext()->IO.news[0].image_link),
-                    VortexMaker::GetCurrentContext()->IO.news[0].news_link,
-                    VortexMaker::GetCurrentContext()->IO.news[0].description
-                    ),
-                NewsBanner(
-                    false,
-                    VortexMaker::GetCurrentContext()->IO.news[1].title,
-                    400, 150,
-                    Cherry::GetHttpPath(VortexMaker::GetCurrentContext()->IO.news[1].image_link),
-                    VortexMaker::GetCurrentContext()->IO.news[1].news_link,
-                    VortexMaker::GetCurrentContext()->IO.news[1].description)
-            });*/
-
-            /*for (const auto &article : VortexMaker::GetCurrentContext()->IO.news)
+            if (news_blocks.empty())
             {
-                if (!article.image_link.empty() &&
-                    (ends_with(article.image_link, ".png") || ends_with(article.image_link, ".jpg")) &&
-                    (article.image_link.find("http://") == 0 || article.image_link.find("https://") == 0))
+                for (const auto &article : VortexMaker::GetCurrentContext()->IO.news)
                 {
-                    ;
+                    if (!article.image_link.empty() &&
+                        (EndsWith(article.image_link, ".png") || EndsWith(article.image_link, ".jpg")) &&
+                        (article.image_link.find("http://") == 0 || article.image_link.find("https://") == 0))
+                    {
+                        //auto block = CherryKit::BannerImageContext(Cherry::IdentifierProperty::CreateOnly, 402.0f, 140.0f, Cherry::GetHttpPath(article.image_link), article.title, article.description);
+                        //news_blocks.push_back(block);
+                    }
                 }
-            }*/
-        }
+            }
 
-        Cherry::SetNextComponentProperty("color_text", "#797979");
+        }
+        
+        CherryKit::GridSimple(400.0f, 400.0f, news_blocks);
+
+        CherryKit::Space(20.0f);
+        CherryNextProp("color", "#222222");
+        CherryKit::Separator();
+
+        CherryNextProp("color_text", "#797979");
         CherryKit::TitleSix("Latest available versions");
 
-        int version_index = 0;
-        for (auto version : VortexMaker::GetCurrentContext()->latest_vortex_versions)
+        static std::vector<std::shared_ptr<Cherry::Component>> last_versions_blocks;
+
+        if (last_versions_blocks.empty())
         {
-            if (version_index < 3)
+            int version_index = 0;
+            for (auto version : VortexMaker::GetCurrentContext()->latest_vortex_versions)
             {
-                VersionWelcomeMenu(false, version, 264, 120, Cherry::GetHttpPath(version.banner), true, [version]()
-                                   { std::thread([version]()
-                                                 { VortexMaker::OpenVortexInstaller(version.version, version.arch, version.dist, version.plat); })
-                                         .detach(); });
-                version_index++;
+                if (version_index < 3)
+                {
+                    auto block = CherryKit::BlockVerticalCustom(Cherry::IdentifierProperty::CreateOnly, [=]() {}, 200.0f, 120.0f, 
+                    {
+                        CherryLambda(CherryKit::ImageHttp(version.banner, 260, 75);),
+                        CherryLambda(CherryStyle::AddXMargin(5.0f); CherryKit::TitleSix(version.name);),
+                        /*CherryLambda
+                        (
+                            CherryStyle::AddXMargin(5.0f);
+                            CherryStyle::RemoveYMargin(5.0f);
+                            CherryStyle::PushFontSize(0.70f);
+                            CherryKit::TextSimple(version.already_installed);
+                            CherryStyle::PopFontSize();
+                        ),*/
+                    });
+                    last_versions_blocks.push_back(block);
+
+                    version_index++;
+                }
             }
         }
 
-        while (version_index < 3)
-        {
-            QuickAction(false, "", 264, 120, Cherry::GetPath("resources/imgs/offline_vxv.png"), false);
-            version_index++;
-        }
+        CherryKit::GridSimple(150.0f, 150.0f, last_versions_blocks);
     }
 
     WelcomeWindow::WelcomeWindow(const std::string &name)
@@ -650,18 +279,17 @@ namespace VortexLauncher
 
     std::vector<std::shared_ptr<EnvProject>> WelcomeWindow::GetMostRecentProjects(const std::vector<std::shared_ptr<EnvProject>> &projects, size_t maxCount)
     {
-        // Sort projects by lastOpened date in descending order
         auto sortedProjects = projects;
         std::sort(sortedProjects.begin(), sortedProjects.end(), [](const std::shared_ptr<EnvProject> &a, const std::shared_ptr<EnvProject> &b)
                   { return a->lastOpened > b->lastOpened; });
 
-        // Return the top `maxCount` projects
         if (sortedProjects.size() > maxCount)
         {
             sortedProjects.resize(maxCount);
         }
         return sortedProjects;
     }
+
     void WelcomeWindow::AddChild(const std::string &child_name, const WelcomeWindowChild &child)
     {
         m_Childs[child_name] = child;
@@ -750,10 +378,10 @@ namespace VortexLauncher
                 child_name = child.first;
             }
 
-            Cherry::SetNextComponentProperty("color_bg", "#00000000");
-            Cherry::SetNextComponentProperty("color_border", "#00000000");
-            Cherry::SetNextComponentProperty("padding_x", "2");
-            Cherry::SetNextComponentProperty("padding_y", "2");
+            CherryNextProp("color_bg", "#00000000");
+            CherryNextProp("color_border", "#00000000");
+            CherryNextProp("padding_x", "2");
+            CherryNextProp("padding_y", "2");
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7.5f);
             CherryKit::ButtonImageText(CherryID(child_name), child_name.c_str(), child.second.LogoPath);
             if (false)
@@ -798,5 +426,4 @@ namespace VortexLauncher
 
         ImGui::EndGroup();
     }
-
 }
