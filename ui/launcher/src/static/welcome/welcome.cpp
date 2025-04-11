@@ -119,55 +119,6 @@ namespace VortexLauncher
             Cherry::Identifier::DowngradeIncrementorLevel(); // To Cherry::PopGroupContext // Cherry::PushGroupContext
         }
         CherryKit::GridSimple(200.0f, 200.0f, blocks);
-static bool modal_state = false;
-
-static bool notification = false;
-
-        if(CherryKit::ButtonText("Spawn Notification 1 ")->GetData("isClicked") == "true")
-        {
-            notification = true;
-        }
-
-        //CherryKit::NotificationSimple(&notification, 4, "warn", "Bonjour", "Ceci est un super test afin de voir cela bonjouqfr lkjfhmgjk hdsmfgj");
-        /*CherryKit::NotificationButton(&notification, 9, "warn", "Bonjour", "Ceci est un super test afin de voir cela bonjouqfr lkjfhmgjk hdsmfgj", [](){
-            if(CherryKit::ButtonText("OK ")->GetData("isClicked") == "true")
-            {
-                std::cout << "OK" << std::endl;
-            }
-        });*/
-
-        CherryKit::NotificationCustom(&notification, 9, "warn", "Bonjour", [](){
-            CherryKit::TitleOne("ok ! ");
-        });
-
-
-        if(CherryKit::ButtonText("Spawn Notification 2 ")->GetData("isClicked") == "true")
-        {
-        }
-
-        if(CherryKit::ButtonText("Open Modal")->GetData("isClicked") == "true")
-        {
-            modal_state = true;
-        }
-
-        if(CherryKit::ButtonText("Meow meow")->GetData("isClicked") == "true")
-        {
-            std::thread([](){
-                CherryApp.PlaySound(CherryPath("resources/audio/cat.wav"));
-            }).detach();
-        }
-
-        CherryKit::ModalSimple("Super modal", &modal_state, 
-            CherryLambda(
-                static auto cmp = CherryApp.GetCurrentComponent();
-                if(CherryKit::ButtonText("Close")->GetData("isClicked") == "true")
-                {
-                    // SetCurrentComponentProperty
-                    if(cmp)
-                    cmp->SetProperty("activated", "false");
-                }
-            )
-        );
 
         CherryKit::Space(20.0f);
         CherryNextProp("color", "#222222");
