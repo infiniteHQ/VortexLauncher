@@ -37,66 +37,39 @@ namespace VortexLauncher
 
     void AboutAppWindow::Render()
     {
-        float windowWidth = ImGui::GetWindowSize().x;
+        float window_width = ImGui::GetWindowSize().x;
+        float image_height = window_width / 3.435f;
 
-        ImGui::SetCursorPosX((windowWidth - ImGui::CalcTextSize("Vortex").x) * 0.5f - 21.0f);
-        CherryKit::TitleOne("Vortex");
+        ImGui::Image(Cherry::GetTexture(Cherry::GetPath("resources/imgs/vortexbanner2.png")), ImVec2(window_width, image_height));
 
-        ImGui::SetCursorPosX((windowWidth - ImGui::CalcTextSize("Creation Platform").x) * 0.5f);
-        ImGui::Text("Creation Platform");
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(2,2)); // CherryStyle::Padding
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2,2)); // CherryStyle::Padding
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#00000000"));
+        ImGui::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#00000000"));
+        CherryStyle::AddXMargin(10.0f);
+        ImGui::BeginChild("aboutchild");//cherry api
 
-        {
-            std::string version = VORTEXLAUNCHER_VERSION;
-            std::string label = "Launcher v. " + version;
+        CherryKit::TitleFive("Vortex Launcher");
 
-            ImGui::SetCursorPosX((windowWidth - ImGui::CalcTextSize(label.c_str()).x) * 0.5f);
-            ImGui::Text(label.c_str());
-        }
+        std::string version = VORTEXLAUNCHER_VERSION;
+        Cherry::PushPermanentProperty("color_text", "#797979");
+        CherryKit::TextSimple("Version: " + version);
+        CherryKit::TextSimple("Hash: QSFG5121");
+        CherryKit::TextSimple("System: Arch Linux x86_64 - Wayland");
 
-        ImGui::BeginDisabled();
-        ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
-        ImGui::Button("", ImVec2(0, 8.0f));
+        CherryKit::Space(12.0f);
+
+        CherryKit::TextSimple("Vortex is a open and free software.");
+        CherryKit::TextSimple("Licensed under the  Apache-2.0 license ");
+        CherryKit::Space(12.0f);
+        Cherry::PopPermanentProperty();
+
+        CherryKit::TextSimple("Never stop hacking !");
+
+        ImGui::EndChild();
+
         ImGui::PopStyleColor(2);
-        ImGui::EndDisabled();
-
-        ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(16.0f, 0.0f));
-
-        ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
-        if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags))
-        {
-            if (ImGui::BeginTabItem("Summary"))
-            {
-                float space = 5.0f;
-                ImGui::TextWrapped("Vortex is a free, open, and open-source platform designed to provide ethical tools to creators, enabling them to create, modify, repair, or hack all kinds of projects. It offers powerful tools while paying close attention to fostering values of ethics, humanity, and environmental responsibility.");
-
-                ImGui::BeginDisabled();
-                ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
-                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
-                ImGui::Button("", ImVec2(0, space));
-                ImGui::PopStyleColor(2);
-                ImGui::EndDisabled();
-                ImGui::TextWrapped("Vortex is a project that includes an editor for creating projects, diagnostic or utility tools, and a community of creators, hackers, and users who aspire to build sovereign computing, achieve independence, and benefit from technology that is healthy for the planet and aligned with the interests of everyone.");
-
-                ImGui::BeginDisabled();
-                ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
-                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
-                ImGui::Button("", ImVec2(0, space));
-                ImGui::PopStyleColor(2);
-                ImGui::EndDisabled();
-                ImGui::TextWrapped("Vortex is also an active creative community where many people contribute daily to building all kinds of things, both hardware and software, and share them with everyone to foster public and impactful innovation. We believe that open-source innovation is the most powerful!");
-
-                ImGui::EndTabItem();
-            }
-
-            if (ImGui::BeginTabItem("Credits"))
-            {
-                ImGui::Text("Original author : Diego Moreno");
-                ImGui::EndTabItem();
-            }
-            ImGui::EndTabBar();
-        }
-        ImGui::PopStyleVar(); // Restaurer le style
-    }
+        ImGui::PopStyleVar(2); // CherryStyle::Padding
+   }
 
 }

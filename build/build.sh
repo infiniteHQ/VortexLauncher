@@ -27,12 +27,18 @@ rm -rf ../lib/installer/ui/installer/assets/builtin
 mkdir -p dist
 mkdir -p build
 
+# -----------------------------
+# Build SPDLOG en Release
+# -----------------------------
 cd build_spdlog
-cmake ../../lib/spdlog
+cmake -DCMAKE_BUILD_TYPE=Release ../../lib/spdlog
 make -j$(nproc)
 
-cd ../build 
-cmake ../.. 
+# -----------------------------
+# Build principal en Release
+# -----------------------------
+cd ../build
+cmake -DCMAKE_BUILD_TYPE=Release ../..
 make -j$(nproc) install
 
 cd ..
@@ -40,6 +46,9 @@ cd ..
 cp ../manifest.json dist/
 cp ../LICENSE dist/
 
+# -----------------------------
+# Création de l'installeur
+# -----------------------------
 if [ "$NO_INSTALLER" = false ]; then
   rm -rf ../lib/installer/ui/installer/assets/builtin
   cd ../lib/installer/build
@@ -53,6 +62,9 @@ if [ "$NO_INSTALLER" = false ]; then
   cp -rn ./build/bin/* dist/bin/
 fi
 
+# -----------------------------
+# Packaging et génération du manifest
+# -----------------------------
 rm -rf shipping
 mkdir -p shipping/launcher/linux
 
@@ -69,7 +81,6 @@ if [ "$NO_INSTALLER" = false ]; then
 
   cp shipping/launcher/linux/vortex_launcher_${VERSION}.tar.gz ../lib/installer/ui/installer/assets/builtin/
   cp shipping/launcher/linux/vortex_launcher_${VERSION}.tar.gz.sha256 ../lib/installer/ui/installer/assets/builtin/
-
   cp -r ../lib/blank_project ../lib/installer/ui/installer/assets/builtin/
 
   MANIFEST_PATH="../lib/installer/ui/installer/assets/builtin/manifest.json"

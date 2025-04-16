@@ -568,7 +568,12 @@ void ProjectManager::Render()
     {
         ImGui::BeginChild("left_pane", ImVec2(leftPaneWidth, 0), true, ImGuiWindowFlags_NoBackground);
 
-        CherryKit::TitleFour("All projects"); // 75757575
+        Cherry::PushFont("ClashBold");
+        CherryNextProp("color_text", "#797979");
+        CherryKit::TitleThree("All");
+        Cherry::PopFont();
+        CherryKit::Separator();
+
 
         for (int row = 0; row < ctx->IO.sys_projects.size(); row++)
         {
@@ -1199,11 +1204,11 @@ void ProjectManager::mainButtonsMenuItem()
         ImGui::PushStyleColor(ImGuiCol_Separator, Cherry::HexToRGBA("#45454545")),
             ImGui::Separator();
         ImGui::PopStyleColor();
-        if (CherryKit::ButtonImageText("CSearch folders", Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"))->GetData("isClicked") == "true")
+        /*if (CherryKit::ButtonImageText("CSearch folders", Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"))->GetData("isClicked") == "true")
 
         {
             showProjectPools = true;
-        }
+        }*/
 
         ImGui::PushStyleColor(ImGuiCol_Separator, Cherry::HexToRGBA("#45454545")),
             ImGui::Separator();

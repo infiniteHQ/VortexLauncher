@@ -197,6 +197,8 @@ public:
       spec.MinHeight = 100;
       spec.MinWidth = 200;
       spec.Height = 450;
+      spec.DisableLogo = true;
+      spec.DisableResize = true;
       spec.Width = 600;
       spec.CustomTitlebar = true;
       spec.DisableWindowManagerTitleBar = true;
@@ -216,9 +218,8 @@ public:
       };
 
       spec.DisableTitle = true;
+      spec.MenubarCallback = [](){};
       spec.WindowSaves = false;
-      spec.MenubarCallback = []() {};
-      spec.IconPath = Cherry::GetPath("resources/imgs/icon.png");
       about_window->GetAppWindow()->AttachOnNewWindow(spec);
     }
   }
@@ -310,7 +311,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
   std::shared_ptr<Layer> layer = std::make_shared<Layer>();
 
   std::string name = "Vortex Launcher";
-  spec.Name = name;
+    spec.Name = name;
   spec.MinHeight = 500;
   spec.MinWidth = 750;
   spec.Height = 600;
@@ -330,30 +331,9 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
   app->SetFavIconPath(Cherry::GetPath("resources/imgs/icon.png"));
   app->AddFont("Consola", Cherry::GetPath("resources/fonts/consola.ttf"), 17.0f);
   app->AddFont("ASMAN", Cherry::GetPath("resources/fonts/ASMAN.TFF"), 17.0f);
-  
-  app->AddFont("dvs-c", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSerifCondensed.ttf"), 17.0f);
-  app->AddFont("dvs-ci", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSerifCondensed-Italic.ttf"), 17.0f);
-  app->AddFont("dvs-cbi", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSerifCondensed-BoldItalic.ttf"), 17.0f);
-  app->AddFont("dvs-cb", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSerifCondensed-Bold.ttf"), 17.0f);
-  app->AddFont("dvs", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSerif.ttf"), 17.0f);
-  app->AddFont("dvs-i", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSerif-Italic.ttf"), 17.0f);
-  app->AddFont("dvs-bi", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSerif-BoldItalic.ttf"), 17.0f);
-  app->AddFont("dvs-b", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSerif-Bold.ttf"), 17.0f);
-  app->AddFont("dvm", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSansMono.ttf"), 17.0f);
-  app->AddFont("dvm-o", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSansMono-Oblique.ttf"), 17.0f);
-  app->AddFont("dvm-bo", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSansMono-BoldOblique.ttf"), 17.0f);
-  app->AddFont("dvm-b", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSansMono-Bold.ttf"), 17.0f);
-  app->AddFont("dv-c", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSansCondensed.ttf"), 17.0f);
-  app->AddFont("dv-co", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSansCondensed-Oblique.ttf"), 17.0f);
-  app->AddFont("dv-cbo", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSansCondensed-BoldOblique.ttf"), 17.0f);
-  app->AddFont("dv-cb", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSansCondensed-Bold.ttf"), 17.0f);
+  app->AddFont("ClashBold", Cherry::GetPath("resources/fonts/ClashDisplay-Semibold.ttf"), 20.0f);
+  app->AddFont("FiraCode", Cherry::GetPath("resources/fonts/FiraCode-Medium.ttf"), 20.0f);
 
-  app->AddFont("dv", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSans.ttf"), 17.0f);
-  app->AddFont("dv-o", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSans-Oblique.ttf"), 17.0f);
-  app->AddFont("dv-e", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSans-ExtraLight.ttf"), 17.0f);
-  app->AddFont("dv-bo", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSans-BoldOblique.ttf"), 17.0f);
-  app->AddFont("dv-o", Cherry::GetPath("resources/fonts/deja_vu/DejaVuSans-Bold.ttf"), 17.0f);
-  app->AddFont("dvmt", Cherry::GetPath("resources/fonts/deja_vu/DejaVuMathTeXGyre.ttf"), 17.0f);
 
   app->AddLocale("fr", Cherry::GetPath("resources/locales/fr.json"));
   app->AddLocale("en", Cherry::GetPath("resources/locales/en.json"));
@@ -389,11 +369,19 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
                             static bool t;
 
                                VxContext &ctx = *CVortexMaker;
-                               if(ctx.launcher_update_available)
-                               {
-                                std::cout << "YYes" << std::endl;
-                               }
-                            if(ctx.launcher_update_available)
+
+                               CherryKit::NotificationButton(&ctx.launcher_update_available, 10, "info", "Update Vortex Launcher", "A new update for the launcher is available !" + ctx.latest_launcher_version.version, [](){
+                                if(CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_upgrade.png"))->GetData("isClicked") == "true")
+                                  {
+                                    std::thread([](){VortexMaker::OpenLauncherUpdater(VortexMaker::GetCurrentContext()->m_VortexLauncherPath, VortexMaker::GetCurrentContext()->IO.sys_vortexlauncher_dist);
+                                    }).detach();
+                                    Cherry::Application::Get().Close();
+                                  }   
+                               });
+
+                               CherryKit::NotificationSimple(&ctx.vortex_update_available, 10, "info", "Vortex "+ctx.latest_vortex_version.version+" is live !", "A new update of Vortex is available ! Try it now" + ctx.latest_launcher_version.version);
+
+                            /*if(ctx.launcher_update_available)
                             {
                                 static bool close_toast = false;
 
@@ -404,15 +392,9 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
     btn->SetScale(0.85f);
     btn->SetInternalMarginX(10.0f);
     btn->SetLogoSize(15, 15);
-    btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_upgrade.png"));*/
+    btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_upgrade.png"));*
 
-            if(CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_upgrade.png"))->GetData("isClicked") == "true")
-    {
-      std::thread([](){VortexMaker::OpenLauncherUpdater(VortexMaker::GetCurrentContext()->m_VortexLauncherPath, VortexMaker::GetCurrentContext()->IO.sys_vortexlauncher_dist);
-      }).detach();
-      
-      Cherry::Application::Get().Close();
-    }                              
+                           
     },
     []() { return (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"))->GetData("isClicked") == "true"); },  // Wrap Render in a lambda
     nullptr,   
@@ -432,15 +414,15 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
                               Cherry::AddNotification(toast);
                               ctx.launcher_update_available = false;
                             }
-
-                            if(ctx.vortex_update_available)
+*/
+                            /*if(ctx.vortex_update_available)
                             {
                               ImGuiToast toast(ImGuiToastType::None, 100000,  [](){
     /*static std::shared_ptr<Cherry::ImageTextButtonSimple> create_project_button = std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "Create a project");
     create_project_button->SetScale(0.85f);
     create_project_button->SetInternalMarginX(10.0f);
     create_project_button->SetLogoSize(15, 15);
-    create_project_button->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_upgrade.png"));*/
+    create_project_button->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_upgrade.png"));*
                               },
     []() { return (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"))->GetData("isClicked") == "true"); }
     );
@@ -453,7 +435,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv)
 
                               Cherry::AddNotification(toast);
                               ctx.vortex_update_available = false;
-                            }
+                            }*/
                             
 
  if (ImGui::BeginMenu(Cherry::GetLocale("loc.menubar.menu.vortex").c_str()))
