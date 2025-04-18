@@ -13,7 +13,7 @@
   <a title="Modules & Plugins" href="#"><img alt="Modules & Plugins" src="https://img.shields.io/badge/Modules-Supported-brightgreen?logo=stackedit&logoColor=%23FFFFFF&style=for-the-badge"></a>
   <a title="Latest Release" href="https://github.com/infiniteHQ/VortexLauncher/releases/latest"><img alt="Latest Release" src="https://img.shields.io/github/v/release/infiniteHQ/VortexLauncher?style=for-the-badge&label=Release&logo=github"></a>
   <a title="Changelog" href="https://github.com/infiniteHQ/VortexLauncher/blob/main/CHANGELOG.md"><img alt="Changelog" src="https://img.shields.io/badge/Changelog-View-blue?style=for-the-badge&logo=readme&logoColor=white"></a>
-  <a title="Website" href="https://vortex.infintie.si/"><img alt="Website" src="https://img.shields.io/badge/Website-Visit-blueviolet?style=for-the-badge&logo=firefox-browser&logoColor=white"></a>
+  <a title="Website" href="https://vortex.infinite.si/"><img alt="Website" src="https://img.shields.io/badge/Website-Visit-blueviolet?style=for-the-badge&logo=firefox-browser&logoColor=white"></a>
 </div>
 
 ### What is Vortex Launcher ?
