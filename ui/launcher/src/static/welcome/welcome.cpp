@@ -43,8 +43,13 @@ namespace VortexLauncher
     {
         //Cherry::SetNextComponentProperty("color_text", "#B1FF31"); // Todo remplace
         Cherry::PushFont("ClashBold");
+        CherryNextProp("color_text", "#797979");
         CherryKit::TitleOne(Cherry::GetLocale("loc.windows.welcome.overview"));
         Cherry::PopFont();
+        CherryNextProp("color", "#252525");
+        CherryKit::Separator();
+
+        CherryKit::Space(5.0f);
 
         CherryNextProp("color_text", "#797979");
         CherryKit::TitleSix("Fast actions");
@@ -80,6 +85,8 @@ namespace VortexLauncher
 
         // Draw grid with blocks
         CherryKit::GridSimple(270.0f, 270.0f, actions_blocks);
+
+        CherryKit::Space(5.0f);
 
         CherryNextProp("color_text", "#797979");
         CherryKit::TitleSix("Latest projects & tools");
@@ -361,6 +368,8 @@ namespace VortexLauncher
             CherryNextProp("color_border", "#00000000");
             CherryNextProp("padding_x", "2");
             CherryNextProp("padding_y", "2");
+            CherryNextProp("size_x", "20");
+            CherryNextProp("size_y", "20");
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7.5f);
             CherryKit::ButtonImageText(CherryID(child_name), child_name.c_str(), child.second.LogoPath);
             if (false)

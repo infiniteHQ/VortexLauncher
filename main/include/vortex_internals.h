@@ -115,6 +115,7 @@ struct EnvProject
 {
   std::string name;
   std::string path;
+  std::string type;
   std::string version;
   std::string compatibleWith;
   std::string description;

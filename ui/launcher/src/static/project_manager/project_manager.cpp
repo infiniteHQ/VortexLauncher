@@ -532,8 +532,8 @@ void ProjectManager::Render()
                 to_import_destination = combo_dest->GetData("selected_string");*/
 
                 CherryKit::ComboText("Import to", &project_pools);
-                                
-                if(CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_trash.png"))->GetData("isClicked") == "true")
+
+                if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_trash.png"))->GetData("isClicked") == "true")
                 {
                     for (auto &module : finded_projects_to_import)
                     {
@@ -570,39 +570,48 @@ void ProjectManager::Render()
 
         Cherry::PushFont("ClashBold");
         CherryNextProp("color_text", "#797979");
-        CherryKit::TitleThree("All");
+        CherryKit::TitleFive("All projects and tools");
         Cherry::PopFont();
+        CherryNextProp("color", "#252525");
         CherryKit::Separator();
 
-
-        for (int row = 0; row < ctx->IO.sys_projects.size(); row++)
+        if(ctx->IO.sys_projects.empty())
         {
-            if (areStringsSimilar(ctx->IO.sys_projects[row]->name, ProjectSearch, threshold) || isOnlySpacesOrEmpty(ProjectSearch))
+            if(CherryKit::BlockVerticalCustom(100.0f, 100.0f, {
+                [&](){CherryKit::Space(20.0f);},
+                [&](){CherryKit::ImageLocalCentered(Cherry::GetPath("resources/base/add.png"));},
+                [&](){CherryKit::TextCenter("Create a project");},
+            }, 200)->GetData("isClicked") == "true")
             {
-                MyButton(ctx->IO.sys_projects[row], m_SelectedEnvproject);
+                m_ProjectCreation = true;
             }
         }
 
+        static std::vector<std::shared_ptr<Cherry::Component>> project_blocks;
+
+        std::cout << "HEHRE2 -> " << ctx->IO.sys_projects.size() <<std::endl;
+
+        if(project_blocks.empty())
+        {
+            for (int row = 0; row < ctx->IO.sys_projects.size(); row++)
+            {
+                auto element = ctx->IO.sys_projects[row];
+                project_blocks.push_back(CherryKit::BlockVerticalCustom(Cherry::IdentifierProperty::CreateOnly, [&](){
+                    m_SelectedEnvproject = element;
+                },100.0f, 100.0f, {
+                    [&](){CherryKit::ImageLocalCentered(Cherry::GetPath(element->logoPath));},
+                    [&](){CherryKit::TitleSix(element->name);},
+                    [&](){CherryKit::TitleSix(element->author);},
+                },  row));
+            }
+        }
+        std::cout << "HEHRE1 project_blocks -> " << project_blocks.size() <<std::endl;
+
+        std::cout << "HEHRE1" << std::endl;
+        CherryKit::GridSimple(100.0f, 100.0f, project_blocks);
+
+        std::cout << "HEHRE3" << std::endl;
         ImGui::EndChild();
-
-        ImGui::SameLine();
-
-        ImGui::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#44444466"));
-        ImGui::Button("splitter", ImVec2(splitterWidth, -1));
-        ImGui::PopStyleColor();
-
-        if (ImGui::IsItemHovered())
-        {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-        }
-
-        if (ImGui::IsItemActive())
-        {
-            float delta = ImGui::GetIO().MouseDelta.x;
-            leftPaneWidth += delta;
-            if (leftPaneWidth < minPaneWidth)
-                leftPaneWidth = minPaneWidth;
-        }
 
         ImGui::SameLine();
 
@@ -627,13 +636,21 @@ void ProjectManager::Render()
         {
             ImGui::PushStyleColor(ImGuiCol_Separator, Cherry::HexToRGBA("#44444466"));
 
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.0f);
+            ImVec2 child_size = ImGui::GetContentRegionAvail();
+            float imagex = child_size.x;
+            float imagey = imagex / 3.235;
+
+            CherryStyle::RemoveYMargin(10.0f);
+
+            ImGui::Image(Cherry::GetTexture(Cherry::GetPath("resources/imgs/vortexbanner2.png")), ImVec2(imagex, imagey));
+
             {
                 // LOGO Section
-                ImGui::BeginChild("LOGO_", ImVec2(50, 50), false, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoScrollbar);
+                CherryStyle::RemoveYMargin(20.0f);
+                CherryStyle::AddXMargin(8.0f);
                 MyButton(m_SelectedEnvproject->logoPath, 50, 50);
-                ImGui::EndChild();
                 ImGui::SameLine();
+                CherryStyle::AddYMargin(20.0f);
             }
 
             {
@@ -642,63 +659,56 @@ void ProjectManager::Render()
                 ImGui::BeginChild(_id, ImVec2(0, 60), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBackground);
                 ImGui::SetCursorPosY(ImGui::GetStyle().ItemSpacing.y);
 
-                float fontScale = 1.2f;
-                float oldFontSize = ImGui::GetFont()->Scale;
-                ImGui::GetFont()->Scale = fontScale;
-                ImGui::PushFont(ImGui::GetFont());
-                ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.9f), m_SelectedEnvproject->name.c_str());
-                ImGui::GetFont()->Scale = oldFontSize;
-                ImGui::PopFont();
-
-                fontScale = 0.8f;
-                oldFontSize = ImGui::GetFont()->Scale;
-                ImGui::GetFont()->Scale = fontScale;
-                ImGui::PushFont(ImGui::GetFont());
-
-                ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.5f), "Last opened: ");
-                ImGui::SameLine();
-                ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.8f, 0.8f), m_SelectedEnvproject->lastOpened.c_str());
-                ImGui::GetFont()->Scale = oldFontSize;
-                ImGui::PopFont();
+                CherryKit::TitleThree(m_SelectedEnvproject->name);
 
                 ImGui::EndChild();
             }
 
             // Divider
+            CherryStyle::RemoveYMargin(30.0f);
             ImGui::Separator();
-            // Details Section
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.0f);
-            if (ImGui::BeginTable("DETAILS_TABLE", 2, ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_NoBordersInBody))
+            CherryStyle::AddXMargin(10.0f);
+            Cherry::SetNextComponentProperty("color_text", "#B1FF31");
+
+            std::string project_type;
+            if (m_SelectedEnvproject->type == "project")
             {
-                auto AddInfoRow = [](const char *label, const std::string &value, const ImVec4 &valueColor = ImVec4(1.0f, 1.0f, 1.0f, 0.9f))
-                {
-                    ImGui::TableNextRow();
-                    ImGui::TableNextColumn();
-                    ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.5f), label);
-                    ImGui::TableNextColumn();
-                    ImGui::TextColored(valueColor, value.c_str());
-                };
-
-                AddInfoRow("Author(s):", m_SelectedEnvproject->author);
-                AddInfoRow("Project version:", m_SelectedEnvproject->version);
-                AddInfoRow("Compatible with:", m_SelectedEnvproject->compatibleWith);
-
-                ImGui::EndTable();
+                project_type = "Project";
+            }
+            else if (m_SelectedEnvproject->type == "tool")
+            {
+                project_type = "Tool";
+            }
+            else
+            {
+                project_type = "Project";
             }
 
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.0f);
-            ImGui::PushStyleColor(ImGuiCol_Text, Cherry::HexToRGBA("#555555FF"));
-            ImGui::TextWrapped(m_SelectedEnvproject->path.c_str());
-            ImGui::PopStyleColor();
+            ImGui::BeginHorizontal("InfoBar");
 
-            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.0f);
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.0f);
+            CherryStyle::AddXMargin(5.0f);
+            CherryKit::TitleSix(project_type);
 
-            CherryKit::TitleSix("Description"); // A9A9A9FF
-            ImGui::PushStyleColor(ImGuiCol_Text, Cherry::HexToRGBA("#797979FF"));
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.0f);
-            ImGui::TextWrapped(m_SelectedEnvproject->description.c_str());
-            ImGui::PopStyleColor();
+            ImVec2 p1 = ImVec2(ImGui::GetCursorScreenPos().x, ImGui::GetCursorScreenPos().y - 5.0f);
+            ImVec2 p2 = ImVec2(p1.x, p1.y + 25);
+            ImGui::GetWindowDrawList()->AddLine(p1, p2, Cherry::HexToImU32("#343434"));
+            ImGui::Dummy(ImVec2(1, 0));
+
+            Cherry::SetNextComponentProperty("color_text", "#585858");
+            CherryKit::TitleSix(m_SelectedEnvproject->compatibleWith);
+
+            ImGui::EndHorizontal();
+
+            ImGui::Separator();
+
+            ImGui::BeginChild("aboutchild", ImVec2(0, 200), true, ImGuiWindowFlags_NoBackground); // cherry api
+
+            Cherry::SetNextComponentProperty("color_text", "#585858");
+            CherryKit::TextSimple(m_SelectedEnvproject->description);
+
+            CherryKit::Space(20.0f);
+
+            ImGui::EndChild();
 
             ImVec2 windowSize = ImGui::GetWindowSize();
             ImVec2 windowPos = ImGui::GetWindowPos();
@@ -897,15 +907,13 @@ void ProjectManager::Render()
 
                     ImGui::PopStyleVar(4);
 
-                    CherryKit::TableSimple("Project props inputs", 
-                    {
-                        CherryKit::KeyValString("Project name", &v_ProjectName),
-                        CherryKit::KeyValString("Project description", &v_ProjectDescription),
-                        CherryKit::KeyValString("Project author", &v_ProjectAuthor),
-                        CherryKit::KeyValString("Project version", &v_ProjectVersion),
-                        CherryKit::KeyValComboString("Project path", &projectPoolsPaths),
-                        CherryKit::KeyValBool(CherryID("PathSelector"), "Open after creation", &v_ProjectOpen)
-                    });
+                    CherryKit::TableSimple("Project props inputs",
+                                           {CherryKit::KeyValString("Project name", &v_ProjectName),
+                                            CherryKit::KeyValString("Project description", &v_ProjectDescription),
+                                            CherryKit::KeyValString("Project author", &v_ProjectAuthor),
+                                            CherryKit::KeyValString("Project version", &v_ProjectVersion),
+                                            CherryKit::KeyValComboString("Project path", &projectPoolsPaths),
+                                            CherryKit::KeyValBool(CherryID("PathSelector"), "Open after creation", &v_ProjectOpen)});
 
                     /*std::vector<Cherry::SimpleTable::SimpleTableRow> keyvals;
 
@@ -1191,6 +1199,7 @@ void ProjectManager::mainButtonsMenuItem()
 
     if (!m_ProjectCreation)
     {
+        CherryStyle::PushFontSize(0.85f);
         if (CherryKit::ButtonImageText("Create a project", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))->GetData("isClicked") == "true")
         {
             m_ProjectCreation = true;
@@ -1204,15 +1213,6 @@ void ProjectManager::mainButtonsMenuItem()
         ImGui::PushStyleColor(ImGuiCol_Separator, Cherry::HexToRGBA("#45454545")),
             ImGui::Separator();
         ImGui::PopStyleColor();
-        /*if (CherryKit::ButtonImageText("CSearch folders", Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"))->GetData("isClicked") == "true")
-
-        {
-            showProjectPools = true;
-        }*/
-
-        ImGui::PushStyleColor(ImGuiCol_Separator, Cherry::HexToRGBA("#45454545")),
-            ImGui::Separator();
-        ImGui::PopStyleColor();
 
         ImGui::PushItemWidth(200);
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.0f, 6.0f)); // Largeur x Hauteur padding
@@ -1220,10 +1220,15 @@ void ProjectManager::mainButtonsMenuItem()
 
         // input_search->Render("_");
         CherryKit::InputString("", &v_SearchString);
+
+        CherryKit::ButtonImageDropdown(Cherry::GetPath("resources/imgs/icons/misc/icon_filter.png"), [&]()
+                                       { CherryKit::TitleFive("T"); });
+
         ImGui::PopStyleVar();
         ImGui::PopStyleColor();
         ImGui::PopItemWidth();
 
+        CherryStyle::PopFontSize();
         // TODO ProjectSearch = v_SearchString->c_str();
     }
     else
