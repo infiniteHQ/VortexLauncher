@@ -5,10 +5,11 @@ AllowAllConstructorInitializersOnNextLine: 'false'
 AllowAllParametersOfDeclarationOnNextLine: 'false'
 AlignConsecutiveMacros: 'true'
 AllowShortCaseLabelsOnASingleLine: 'true'
+BreakBeforeBraces: Attach
 AllowShortFunctionsOnASingleLine: 'None'
-AllowShortIfStatementsOnASingleLine: 'Never'
+AllowShortIfStatementsOnASingleLine: 'Never' 
 AllowShortLoopsOnASingleLine: 'false'
-BreakBeforeBraces: Allman
+
 BinPackArguments: 'false'
 BinPackParameters: 'false'
 Cpp11BracedListStyle: 'false'

@@ -23,8 +23,7 @@ static void MyButton(
     const std::shared_ptr<EnvProject> envproject,
     std::shared_ptr<EnvProject> &selectedproject,
     int xsize = 100,
-    int ysize = 100)
-{
+    int ysize = 100) {
   ImVec2 squareSize(xsize, ysize);
 
   std::string versionpath;
@@ -34,13 +33,10 @@ static void MyButton(
   char truncatedText[12];
   const char *versionText = envproject->compatibleWith.c_str();
 
-  if (strlen(originalText) > 8)
-  {
+  if (strlen(originalText) > 8) {
     strncpy(truncatedText, originalText, 8);
     strcpy(truncatedText + 8, "...");
-  }
-  else
-  {
+  } else {
     strcpy(truncatedText, originalText);
   }
 
@@ -50,12 +46,10 @@ static void MyButton(
   ImVec2 cursorPos = ImGui::GetCursorScreenPos();
 
   std::string button_id = envproject->name + "squareButtonWithText" + envproject->lastOpened;
-  if (ImGui::InvisibleButton(button_id.c_str(), totalSize))
-  {
+  if (ImGui::InvisibleButton(button_id.c_str(), totalSize)) {
     selectedproject = envproject;
 
-    if (!version_exist)
-    {
+    if (!version_exist) {
       no_installed_version = envproject->compatibleWith;
       no_installed_project_name = envproject->name;
       no_installed_project_picture = envproject->logoPath;
@@ -68,20 +62,16 @@ static void MyButton(
     }
   }
 
-  if (ImGui::IsItemHovered())
-  {
+  if (ImGui::IsItemHovered()) {
     ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
   }
 
   ImDrawList *drawList = ImGui::GetWindowDrawList();
 
-  if (!envproject->logoPath.empty())
-  {
+  if (!envproject->logoPath.empty()) {
     drawList->AddImage(
         Cherry::GetTexture(envproject->logoPath), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
-  }
-  else
-  {
+  } else {
     drawList->AddImage(
         Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_vortex_default.png")),
         cursorPos,
@@ -97,18 +87,12 @@ static void MyButton(
       smallRectPos.x + (smallRectSize.x - ImGui::CalcTextSize(versionText).x) / 2,
       smallRectPos.y + (smallRectSize.y - ImGui::CalcTextSize("version").y) / 2);
 
-  if (version_exist)
-  {
+  if (version_exist) {
     drawList->AddText(versionTextPos, IM_COL32(255, 255, 255, 255), versionText);
-  }
-  else
-  {
-    if (VortexMaker::CheckVersionAvailibility(envproject->compatibleWith).version != "")
-    {
+  } else {
+    if (VortexMaker::CheckVersionAvailibility(envproject->compatibleWith).version != "") {
       drawList->AddText(versionTextPos, IM_COL32(255, 100, 20, 255), versionText);
-    }
-    else
-    {
+    } else {
       drawList->AddText(versionTextPos, IM_COL32(255, 20, 20, 255), versionText);
     }
   }
@@ -119,8 +103,7 @@ static void MyButton(
   ImU32 highlightColor = IM_COL32(255, 255, 0, 255);
   ImU32 highlightTextColor = IM_COL32(0, 0, 0, 255);
 
-  if (ImGui::IsItemHovered())
-  {
+  if (ImGui::IsItemHovered()) {
     ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
 
     drawList->AddRect(
@@ -139,8 +122,7 @@ static void MyButton(
     ImGui::SameLine();
 }
 
-ProjectManager::ProjectManager(const std::string &name)
-{
+ProjectManager::ProjectManager(const std::string &name) {
   m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
   m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/icons/misc/icon_collection.png"));
   m_AppWindow->SetDefaultBehavior(Cherry::DefaultAppWindowBehaviors::DefaultDocking, "full");
@@ -185,8 +167,7 @@ ProjectManager::ProjectManager(const std::string &name)
   this->Refresh();
 }
 
-void ProjectManager::Render()
-{
+void ProjectManager::Render() {
   static bool open_deletion_modal = false;
   static bool user_string_validation = false;
   static char string_validation[256] = "";
@@ -195,8 +176,7 @@ void ProjectManager::Render()
   const float splitterWidth = 1.5f;
   static int selected;
 
-  if (open_import_projects)
-  {
+  if (open_import_projects) {
     /*static ImGuiTableFlags window_flags = ImGuiWindowFlags_MenuBar;
     static bool first_time = true;
 
@@ -315,31 +295,26 @@ void ProjectManager::Render()
 */
   }
 
-  if (open_deletion_modal)
-  {
-    if (ImGui::BeginPopupModal("Delete a project", NULL, NULL))
-    {
+  if (open_deletion_modal) {
+    if (ImGui::BeginPopupModal("Delete a project", NULL, NULL)) {
       static char path_input_all[512];
       ImGui::TextWrapped("WARNING, if you click on the Delete button, the project will be erase forever.");
       ImGui::InputText("Please", string_validation, sizeof(string_validation));
-      if (ImGui::Button("Cancel", ImVec2(120, 0)))
-      {
+      if (ImGui::Button("Cancel", ImVec2(120, 0))) {
         open_deletion_modal = false;
         ImGui::CloseCurrentPopup();
       }
       ImGui::SetItemDefaultFocus();
       ImGui::SameLine();
 
-      if (strcmp(string_validation, m_SelectedEnvprojectToRemove->name.c_str()) != 0)
-      {
+      if (strcmp(string_validation, m_SelectedEnvprojectToRemove->name.c_str()) != 0) {
         ImGui::BeginDisabled();
       }
 
       ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 0.2f, 0.2f, 0.9f));
       ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.2f, 0.2f, 1.0f));
       ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 0.2f, 0.2f, 1.8f));
-      if (ImGui::Button("Delete", ImVec2(120, 0)))
-      {
+      if (ImGui::Button("Delete", ImVec2(120, 0))) {
         // Delete
         VortexMaker::DeleteProject(m_SelectedEnvprojectToRemove->path, m_SelectedEnvprojectToRemove->name);
 
@@ -349,8 +324,7 @@ void ProjectManager::Render()
         ImGui::CloseCurrentPopup();
       }
       ImGui::PopStyleColor(3);
-      if (strcmp(string_validation, m_SelectedEnvprojectToRemove->name.c_str()) != 0)
-      {
+      if (strcmp(string_validation, m_SelectedEnvprojectToRemove->name.c_str()) != 0) {
         ImGui::EndDisabled();
       }
       ImGui::EndPopup();
@@ -360,8 +334,7 @@ void ProjectManager::Render()
   if (open_deletion_modal)
     ImGui::OpenPopup("Delete a project");
 
-  if (no_installed_modal_opened)
-  {
+  if (no_installed_modal_opened) {
     ImGui::OpenPopup("Not installed version");
 
     ImVec2 main_window_size = ImGui::GetWindowSize();
@@ -374,8 +347,7 @@ void ProjectManager::Render()
     if (ImGui::BeginPopupModal(
             "Not installed version",
             NULL,
-            ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove))
-    {
+            ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove)) {
       CherryKit::TitleFour("Not installed version");  // B1FF31FF
       {
         std::string text_label = "You wanna open the project \"" + no_installed_project_name +
@@ -385,8 +357,7 @@ void ProjectManager::Render()
       }
       ImGui::Separator();
 
-      if (no_installed_version_available.version != "")
-      {
+      if (no_installed_version_available.version != "") {
         CherryKit::TitleFive("All projects");  // 797979FF
 
         {
@@ -435,18 +406,14 @@ void ProjectManager::Render()
 
         std::string text_label = "But good news ! We can install the version to open this project.";
         ImGui::TextWrapped(text_label.c_str());
-      }
-      else
-      {
+      } else {
         if (true)  // Connected to the Vortex version svc
         {
           std::string text_label =
               "Inforunetly, we cannot find this version. Please contact the project creator, or find manually this version "
               "by import it, or find a good.";
           ImGui::TextWrapped(text_label.c_str());
-        }
-        else
-        {
+        } else {
           std::string text_label =
               "Inforunetly, the web Vortex service not respondding (your connected to internet ?) so we cannot find this "
               "versions  Please contact the project creator, or find manually this version by import it.";
@@ -456,30 +423,24 @@ void ProjectManager::Render()
 
       ImGui::Separator();
 
-      if (ImGui::Button("Close"))
-      {
+      if (ImGui::Button("Close")) {
         ImGui::CloseCurrentPopup();
         no_installed_modal_opened = false;
       }
-      if (no_installed_version_available.version != "")
-      {
+      if (no_installed_version_available.version != "") {
         ImGui::SameLine();
         ImGui::PushStyleColor(ImGuiCol_Text, Cherry::HexToRGBA("#232323FF"));
         ImGui::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#B1FF31FF"));
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#FFFFFFFF"));
         ImGui::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#FFFFFFFF"));
-        if (ImGui::Button("Install and Open"))
-        {
-          std::thread(
-              [this]()
-              {
-                VortexMaker::OpenVortexInstaller(
-                    no_installed_version_available.version,
-                    no_installed_version_available.arch,
-                    no_installed_version_available.dist,
-                    no_installed_version_available.plat);
-              })
-              .detach();
+        if (ImGui::Button("Install and Open")) {
+          std::thread([this]() {
+            VortexMaker::OpenVortexInstaller(
+                no_installed_version_available.version,
+                no_installed_version_available.arch,
+                no_installed_version_available.dist,
+                no_installed_version_available.plat);
+          }).detach();
         }
         ImGui::PopStyleColor(4);
       }
@@ -488,8 +449,7 @@ void ProjectManager::Render()
     }
   }
 
-  if (open_import_projects)
-  {
+  if (open_import_projects) {
     ImGui::OpenPopup("Import project(s)");
 
     ImVec2 main_window_size = ImGui::GetWindowSize();
@@ -502,8 +462,7 @@ void ProjectManager::Render()
     if (ImGui::BeginPopupModal(
             "Import project(s)",
             NULL,
-            ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove))
-    {
+            ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove)) {
       std::string text_label = "Search projects to import... ";
       ImGui::TextWrapped(text_label.c_str());
       ImGui::TextWrapped("Important: This action will not delete/change selected modules...");
@@ -521,44 +480,37 @@ void ProjectManager::Render()
       ImGui::InputText("Folder", pathToFolder, sizeof(pathToFolder));
       ImGui::SameLine();
 
-      if (ImGui::Button("Search"))
-      {
+      if (ImGui::Button("Search")) {
         finded_projects.clear();
         m_StillSearching = true;
         SearchStarted = true;
         VortexMaker::FindpProjectsInDirectoryRecursively(pathToFolder, finded_projects, m_StillSearching, m_ElapsedTime);
       }
 
-      if (m_StillSearching)
-      {
+      if (m_StillSearching) {
         ImGui::Text("Searching....");
         ImGui::SameLine();
-        if (ImGui::Button("Stop"))
-        {
+        if (ImGui::Button("Stop")) {
           m_StillSearching == false;
         }
       }
 
-      if (!m_StillSearching && SearchStarted)
-      {
+      if (!m_StillSearching && SearchStarted) {
         std::string label = std::to_string(finded_projects.size()) + " project(s) finded in over " + m_ElapsedTime;
         ImGui::Text(label.c_str());
       }
 
       static int project_to_import_size = finded_projects.size();
 
-      if (project_to_import_size != finded_projects.size())
-      {
+      if (project_to_import_size != finded_projects.size()) {
         selectedRows.resize(finded_projects.size());
       }
 
-      for (auto &project : finded_projects)
-      {
+      for (auto &project : finded_projects) {
         ProjectImportButton(project);
       }
 
-      if (!finded_projects_to_import.empty())
-      {
+      if (!finded_projects_to_import.empty()) {
         std::string label = "Import " + std::to_string(finded_projects_to_import.size()) + " project(s)";
 
         /*static std::shared_ptr<Cherry::ImageTextButtonSimple> import_btn =
@@ -576,10 +528,8 @@ void ProjectManager::Render()
         CherryKit::ComboText("Import to", &project_pools);
 
         if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_trash.png"))
-                ->GetData("isClicked") == "true")
-        {
-          for (auto &module : finded_projects_to_import)
-          {
+                ->GetData("isClicked") == "true") {
+          for (auto &module : finded_projects_to_import) {
             VortexMaker::ImportProject(module->path, to_import_destination);
           }
 
@@ -591,8 +541,7 @@ void ProjectManager::Render()
         }
       }
 
-      if (ImGui::Button("Cancel"))
-      {
+      if (ImGui::Button("Cancel")) {
         ImGui::CloseCurrentPopup();
         open_import_projects = false;
       }
@@ -607,8 +556,7 @@ void ProjectManager::Render()
     }
   }
 
-  if (!m_ProjectCreation)
-  {
+  if (!m_ProjectCreation) {
     ImGui::BeginChild("left_pane", ImVec2(leftPaneWidth, 0), true, ImGuiWindowFlags_NoBackground);
 
     Cherry::PushFont("ClashBold");
@@ -618,59 +566,70 @@ void ProjectManager::Render()
     CherryNextProp("color", "#252525");
     CherryKit::Separator();
 
-    if (ctx->IO.sys_projects.empty())
-    {
+    if (ctx->IO.sys_projects.empty()) {
       if (CherryKit::BlockVerticalCustom(
               100.0f,
               100.0f,
               {
-                  [&]() { CherryKit::Space(20.0f); },
-                  [&]() { CherryKit::ImageLocalCentered(Cherry::GetPath("resources/base/add.png")); },
-                  [&]() { CherryKit::TextCenter("Create a project"); },
+                  []() { CherryKit::Space(20.0f); },
+                  []() { CherryKit::ImageLocalCentered(Cherry::GetPath("resources/base/add.png")); },
+                  []() { CherryKit::TextCenter("Create a project"); },
               },
               200)
-              ->GetData("isClicked") == "true")
-      {
+              ->GetData("isClicked") == "true") {
         m_ProjectCreation = true;
       }
     }
 
     static std::vector<std::shared_ptr<Cherry::Component>> project_blocks;
 
-    std::cout << "HEHRE2 -> " << ctx->IO.sys_projects.size() << std::endl;
-
-    if (project_blocks.empty())
-    {
-      for (int row = 0; row < ctx->IO.sys_projects.size(); row++)
-      {
+    if (project_blocks.empty()) {
+      for (int row = 0; row < ctx->IO.sys_projects.size(); row++) {
         auto element = ctx->IO.sys_projects[row];
+        std::cout << "HE" << std::endl;
         project_blocks.push_back(CherryKit::BlockVerticalCustom(
-            Cherry::IdentifierProperty::CreateOnly,
+            Cherry::ID(Cherry::IdentifierProperty::CreateOnly, element, row),
             [this, element]() { m_SelectedEnvproject = element; },
-            100.0f,
-            100.0f,
+            150.0f,
+            130.0f,
             {
-                [&]() { CherryKit::ImageLocalCentered(Cherry::GetPath(element->logoPath)); },
-                [&]() { CherryKit::TitleSix(element->name); },
-                [&]() { CherryKit::TitleSix(element->author); },
-            },
-            row));
+                []() { CherryKit::ImageLocal(Cherry::GetPath("resources/imgs/def_project_banner.png"), 150.0f); },
+                [element]() {
+                  CherryStyle::RemoveYMargin(26.0f);
+                  CherryStyle::AddXMargin(15.0f);
+                  CherryKit::ImageLocal(Cherry::GetPath(element->logoPath));
+                },
+                [element]() {
+                  CherryStyle::AddXMargin(5.0f);
+                  Cherry::SetNextComponentProperty("color_text", "#FFFFFF");
+                  CherryKit::TextSimple(element->name);
+                },
+                [element]() {
+                  CherryStyle::AddXMargin(5.0f);
+                  Cherry::SetNextComponentProperty("color_text", "#888888");
+                  CherryKit::TextSimple(element->compatibleWith);
+                  ImGui::SameLine();
+                  CherryKit::TooltipImage(
+                      Cherry::GetPath("resources/base/error.png"),
+                      "Vortex " + element->compatibleWith + " is not installed in your system. Please click to see more.");
+                  ImGui::SameLine();
+                  Cherry::SetNextComponentProperty("color_text", "#888888");
+                  CherryStyle::RemoveXMargin(5.0f);
+                  CherryKit::TextRight(CherryID("qsd"), "Project");
+                },
+            }));
       }
     }
-    std::cout << "HEHRE1 project_blocks -> " << project_blocks.size() << std::endl;
 
-    std::cout << "HEHRE1" << std::endl;
-    CherryKit::GridSimple(100.0f, 100.0f, project_blocks);
+    CherryKit::GridSimple(150.0f, 150.0f, project_blocks);
 
-    std::cout << "HEHRE3" << std::endl;
     ImGui::EndChild();
 
     ImGui::SameLine();
 
     ImGui::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
     ImGui::BeginChild("###rightpan");
-    if (!m_SelectedEnvproject)
-    {
+    if (!m_SelectedEnvproject) {
       auto texture = Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/frame_selectproject.png"));
       auto texture_size = Cherry::GetTextureSize(Cherry::GetPath("resources/imgs/icons/misc/frame_selectproject.png"));
 
@@ -681,9 +640,7 @@ void ProjectManager::Render()
       ImGui::SetCursorPos(image_pos);
 
       ImGui::Image(texture, texture_size);
-    }
-    else
-    {
+    } else {
       ImGui::PushStyleColor(ImGuiCol_Separator, Cherry::HexToRGBA("#44444466"));
 
       ImVec2 child_size = ImGui::GetContentRegionAvail();
@@ -695,7 +652,6 @@ void ProjectManager::Render()
       ImGui::Image(Cherry::GetTexture(Cherry::GetPath("resources/imgs/vortexbanner2.png")), ImVec2(imagex, imagey));
 
       {
-        // LOGO Section
         CherryStyle::RemoveYMargin(20.0f);
         CherryStyle::AddXMargin(8.0f);
         MyButton(m_SelectedEnvproject->logoPath, 50, 50);
@@ -704,7 +660,6 @@ void ProjectManager::Render()
       }
 
       {
-        // Project Info Section
         ImGuiID _id = ImGui::GetID("INFO_PANEL");
         ImGui::BeginChild(_id, ImVec2(0, 60), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBackground);
         ImGui::SetCursorPosY(ImGui::GetStyle().ItemSpacing.y);
@@ -721,16 +676,11 @@ void ProjectManager::Render()
       Cherry::SetNextComponentProperty("color_text", "#B1FF31");
 
       std::string project_type;
-      if (m_SelectedEnvproject->type == "project")
-      {
+      if (m_SelectedEnvproject->type == "project") {
         project_type = "Project";
-      }
-      else if (m_SelectedEnvproject->type == "tool")
-      {
+      } else if (m_SelectedEnvproject->type == "tool") {
         project_type = "Tool";
-      }
-      else
-      {
+      } else {
         project_type = "Project";
       }
 
@@ -773,8 +723,7 @@ void ProjectManager::Render()
       float buttonPosX = windowSize.x - buttonSize.x * 2 - ImGui::GetStyle().ItemSpacing.x * 3;
       ImGui::SetCursorPosX(buttonPosX);
 
-      if (ImGui::Button("Delete", buttonSize))
-      {
+      if (ImGui::Button("Delete", buttonSize)) {
         m_SelectedEnvprojectToRemove = m_SelectedEnvproject;
         open_deletion_modal = true;
       }
@@ -785,13 +734,11 @@ void ProjectManager::Render()
       ImGui::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#689DFFFF"));
       ImGui::PushStyleColor(ImGuiCol_ButtonActive, Cherry::HexToRGBA("#9DBFFFFF"));
 
-      if (ImGui::Button("Open Project", buttonSize))
-      {
+      if (ImGui::Button("Open Project", buttonSize)) {
         std::string versionpath;
         bool version_exist =
             VortexMaker::CheckIfVortexVersionUtilityExist(m_SelectedEnvproject->compatibleWith, versionpath);
-        if (!version_exist)
-        {
+        if (!version_exist) {
           no_installed_version = m_SelectedEnvproject->compatibleWith;
           no_installed_project_name = m_SelectedEnvproject->name;
           no_installed_project_picture = m_SelectedEnvproject->logoPath;
@@ -801,37 +748,29 @@ void ProjectManager::Render()
                                                       // version, and reserve the pagination for all versions page.
 
           no_installed_modal_opened = true;
-        }
-        else
-        {
-          if (VortexMaker::CheckIfProjectRunning(m_SelectedEnvproject->path))
-          {
+        } else {
+          if (VortexMaker::CheckIfProjectRunning(m_SelectedEnvproject->path)) {
             ImGui::OpenPopup("Project Already Running");
-          }
-          else
-          {
-            std::thread([this]()
-                        { VortexMaker::OpenProject(m_SelectedEnvproject->path, m_SelectedEnvproject->compatibleWith); })
-                .detach();
+          } else {
+            std::thread([this]() {
+              VortexMaker::OpenProject(m_SelectedEnvproject->path, m_SelectedEnvproject->compatibleWith);
+            }).detach();
           }
         }
       }
 
-      if (ImGui::BeginPopupModal("Project Already Running", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-      {
+      if (ImGui::BeginPopupModal("Project Already Running", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
         ImGui::Text("The project seems to have already been launched. Would you like to relaunch a new instance?");
 
         ImGui::Spacing();
-        if (ImGui::Button("Cancel", ImVec2(120, 0)))
-        {
+        if (ImGui::Button("Cancel", ImVec2(120, 0))) {
           ImGui::CloseCurrentPopup();
         }
         ImGui::SameLine();
-        if (ImGui::Button("Continue", ImVec2(120, 0)))
-        {
-          std::thread([this]()
-                      { VortexMaker::OpenProject(m_SelectedEnvproject->path, m_SelectedEnvproject->compatibleWith); })
-              .detach();
+        if (ImGui::Button("Continue", ImVec2(120, 0))) {
+          std::thread([this]() {
+            VortexMaker::OpenProject(m_SelectedEnvproject->path, m_SelectedEnvproject->compatibleWith);
+          }).detach();
 
           ImGui::CloseCurrentPopup();
         }
@@ -845,9 +784,7 @@ void ProjectManager::Render()
 
     ImGui::EndChild();
     ImGui::PopStyleColor();
-  }
-  else
-  {
+  } else {
     float columnWidths[3] = { 140.0f, 250.0f, 150.0f };
 
     ImVec2 windowSize = ImGui::GetWindowSize();
@@ -872,14 +809,12 @@ void ProjectManager::Render()
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
     ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 0.0f);
-    for (int i = 0; i < 3; ++i)
-    {
+    for (int i = 0; i < 3; ++i) {
       float columnWidth = availableWidth * columnProportions[i];
       ImGui::SetColumnWidth(i, columnWidth);
       ImGui::PushStyleColor(ImGuiCol_ChildBg, columnColors[i]);
       ImGui::BeginChild(ImGui::GetID((void *)(intptr_t)i), ImVec2(columnWidth, 0), true);
-      if (i == 0)
-      {
+      if (i == 0) {
         MyBanner(Cherry::GetPath("resources/imgs/banners/b_all_bases.png"));
         MyBanner(Cherry::GetPath("resources/imgs/banners/b_operating_systems.png"));
         MyBanner(Cherry::GetPath("resources/imgs/banners/b_app_svc.png"));
@@ -887,20 +822,14 @@ void ProjectManager::Render()
         MyBanner(Cherry::GetPath("resources/imgs/banners/b_assets_components.png"));
       }
 
-      else if (i == 1)
-      {
-        for (int project = 0; project < project_templates.size(); project++)
-        {
-          if (project_templates[project] != NULL)
-          {
+      else if (i == 1) {
+        for (int project = 0; project < project_templates.size(); project++) {
+          if (project_templates[project] != NULL) {
             TemplateButton(project_templates[project]);
           }
         }
-      }
-      else if (i == 2)
-      {
-        if (!selected_template_object)
-        {
+      } else if (i == 2) {
+        if (!selected_template_object) {
           auto texture = Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/frame_selectproject.png"));
           auto texture_size = Cherry::GetTextureSize(Cherry::GetPath("resources/imgs/icons/misc/frame_selectproject.png"));
 
@@ -911,9 +840,7 @@ void ProjectManager::Render()
           ImGui::SetCursorPos(image_pos);
 
           ImGui::Image(texture, texture_size);
-        }
-        else
-        {
+        } else {
           ImVec2 windowSize = ImGui::GetWindowSize();
           ImVec2 contentSize = ImGui::GetContentRegionAvail();
           ImVec2 buttonSize = ImVec2(100, 30);
@@ -926,8 +853,7 @@ void ProjectManager::Render()
           static bool open = true;
           {
             ImGui::BeginChild("LOGO_", ImVec2(70, 70), true);
-            if (!selected_template_object->m_logo_path.empty())
-            {
+            if (!selected_template_object->m_logo_path.empty()) {
               MyButton(selected_template_object->m_logo_path, 60, 60);
             }
 
@@ -1017,8 +943,7 @@ void ProjectManager::Render()
 
           ImGui::SetCursorPos(ImVec2(firstButtonPosX, buttonPosY));
 
-          if (ImGui::Button("Settings", buttonSize))
-          {
+          if (ImGui::Button("Settings", buttonSize)) {
           }
 
           ImGui::SameLine();
@@ -1026,14 +951,12 @@ void ProjectManager::Render()
           ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.2f, 1.0f, 0.8f));
           ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.2f, 1.0f, 1.0f));
           ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.2f, 0.2f, 0.0f, 1.8f));
-          if (ImGui::Button("Create new project", bitButtonSize))
-          {
+          if (ImGui::Button("Create new project", bitButtonSize)) {
             VortexMaker::CreateProject(
                 v_ProjectName, auth, v_ProjectVersion, desc, path, path + "/icon.png", selected_template_object->m_name);
             VortexMaker::RefreshEnvironmentProjects();
 
-            if (open)
-            {
+            if (open) {
               // TODO
             }
           }
@@ -1052,36 +975,31 @@ void ProjectManager::Render()
   static std::vector<std::string> projectPaths;
   static char newPath[256] = "";
   static bool initialized = false;
-  if (!initialized)
-  {
+  if (!initialized) {
     std::string path = VortexMaker::getHomeDirectory() + "/.vx/configs/";
     std::string json_file = path + "/projects_pools.json";
     loadProjects(projectPaths, json_file);
     initialized = true;
   }
 
-  if (showProjectPools)
-  {
+  if (showProjectPools) {
     ImGui::OpenPopup("Manage Project Pools");
     if (ImGui::BeginPopupModal(
             "Manage Project Pools",
             NULL,
-            ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove))
-    {
+            ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove)) {
       ImGui::Text("Path where Vortex search projects:");
       ImGui::Separator();
 
       ImGui::PushStyleColor(ImGuiCol_TableRowBg, Cherry::HexToRGBA("#151515FF"));
-      if (ImGui::BeginTable("##project_paths", 2))
-      {
+      if (ImGui::BeginTable("##project_paths", 2)) {
         ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(8.0f, 8.0f));
 
         ImGui::TableSetupColumn("Path");
         ImGui::TableSetupColumn("Action");
         ImGui::TableHeadersRow();
 
-        for (size_t i = 0; i < projectPaths.size(); ++i)
-        {
+        for (size_t i = 0; i < projectPaths.size(); ++i) {
           ImGui::TableNextRow();
 
           ImGui::TableSetColumnIndex(0);
@@ -1102,8 +1020,7 @@ void ProjectManager::Render()
           ImGui::TableSetColumnIndex(1);
 
           if (CherryKit::ButtonImageText("delete_project_pool_button", Cherry::GetPath("resources/base/undefined"))
-                  ->GetData("isClicked") == "true")
-          {
+                  ->GetData("isClicked") == "true") {
             projectPaths.erase(projectPaths.begin() + i);
             --i;
           }
@@ -1131,10 +1048,8 @@ void ProjectManager::Render()
       ImGui::Separator();
 
       if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))->GetData("isClicked") ==
-          "true")
-      {
-        if (newPath[0] != '\0')
-        {
+          "true") {
+        if (newPath[0] != '\0') {
           projectPaths.push_back(std::string(newPath));
           newPath[0] = '\0';
         }
@@ -1146,16 +1061,14 @@ void ProjectManager::Render()
 
       ImGui::Separator();
 
-      if (ImGui::Button("Cancel"))
-      {
+      if (ImGui::Button("Cancel")) {
         ImGui::CloseCurrentPopup();
         showProjectPools = false;
       }
       ImGui::SameLine();
 
       if (CherryKit::ButtonImageText("Save", Cherry::GetPath("resources/imgs/icons/misc/icon_save.png"))
-              ->GetData("isClicked") == "true")
-      {
+              ->GetData("isClicked") == "true") {
         std::string path = VortexMaker::getHomeDirectory() + "/.vx/data/";
         std::string json_file = path + "/projects_pools.json";
         saveProjects(projectPaths, json_file);
@@ -1168,70 +1081,56 @@ void ProjectManager::Render()
   }
 }
 
-std::shared_ptr<Cherry::AppWindow> &ProjectManager::GetAppWindow()
-{
+std::shared_ptr<Cherry::AppWindow> &ProjectManager::GetAppWindow() {
   return m_AppWindow;
 }
 
-std::shared_ptr<ProjectManager> ProjectManager::Create(const std::string &name)
-{
+std::shared_ptr<ProjectManager> ProjectManager::Create(const std::string &name) {
   auto instance = std::shared_ptr<ProjectManager>(new ProjectManager(name));
   instance->SetupRenderCallback();
   return instance;
 }
 
-void ProjectManager::SetupRenderCallback()
-{
+void ProjectManager::SetupRenderCallback() {
   auto self = shared_from_this();
-  m_AppWindow->SetRenderCallback(
-      [self]()
-      {
-        if (self)
-        {
-          self->Render();
-        }
-      });
+  m_AppWindow->SetRenderCallback([self]() {
+    if (self) {
+      self->Render();
+    }
+  });
 }
 
 // Helper functions for menu items
 
-static void handleRefresh()
-{
+static void handleRefresh() {
   // Behavior
 }
 
-static void handleAddToProject(const std::string &name, const std::string &version)
-{
+static void handleAddToProject(const std::string &name, const std::string &version) {
   // Behavior
 }
 
-static void handleFilterBuildRebuild()
-{
+static void handleFilterBuildRebuild() {
   // Behavior
 }
 
-static void handleGlobalBuild()
-{
+static void handleGlobalBuild() {
   // Behavior
 }
 
-static void handleCreateModule()
-{
+static void handleCreateModule() {
   // Behavior
 }
 
-static void handleSearch()
-{
+static void handleSearch() {
   // Behavior
 }
 
-void ProjectManager::addModuleModal()
-{
+void ProjectManager::addModuleModal() {
   //
 }
 
-void ProjectManager::mainButtonsMenuItem()
-{
+void ProjectManager::mainButtonsMenuItem() {
   /*static std::shared_ptr<Cherry::ImageTextButtonSimple> create_project_button =
   std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "Create a project");
   create_project_button->SetScale(0.85f);
@@ -1263,18 +1162,15 @@ void ProjectManager::mainButtonsMenuItem()
 
   strncpy(ProjectSearch, v_SearchString.c_str(), sizeof(ProjectSearch) - 1);
 
-  if (!m_ProjectCreation)
-  {
+  if (!m_ProjectCreation) {
     CherryStyle::PushFontSize(0.85f);
     if (CherryKit::ButtonImageText("Create a project", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))
-            ->GetData("isClicked") == "true")
-    {
+            ->GetData("isClicked") == "true") {
       m_ProjectCreation = true;
     }
 
     if (CherryKit::ButtonImageText("Import a project", Cherry::GetPath("resources/imgs/icons/misc/icon_import.png"))
-            ->GetData("isClicked") == "true")
-    {
+            ->GetData("isClicked") == "true") {
       open_import_projects = true;
     }
 
@@ -1297,73 +1193,55 @@ void ProjectManager::mainButtonsMenuItem()
 
     CherryStyle::PopFontSize();
     // TODO ProjectSearch = v_SearchString->c_str();
-  }
-  else
-  {
+  } else {
     if (CherryKit::ButtonImageText("Open a project", Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"))
-            ->GetData("isClicked") == "true")
-    {
+            ->GetData("isClicked") == "true") {
       m_ProjectCreation = false;
     }
   }
 }
 
-void ProjectManager::filterMenuItem()
-{
+void ProjectManager::filterMenuItem() {
   ImGui::Separator();
-  if (ImGui::BeginMenu("Filters"))
-  {
-    if (ImGui::MenuItem("Build/Rebuild single parts"))
-    {
+  if (ImGui::BeginMenu("Filters")) {
+    if (ImGui::MenuItem("Build/Rebuild single parts")) {
       handleFilterBuildRebuild();
     }
-    if (ImGui::MenuItem("Global build"))
-    {
+    if (ImGui::MenuItem("Global build")) {
       handleGlobalBuild();
     }
     ImGui::EndMenu();
   }
 }
 
-void ProjectManager::createMenuItem()
-{
-  if (ImGui::BeginMenu("Create a module"))
-  {
-    if (ImGui::MenuItem("Build/Rebuild single parts"))
-    {
+void ProjectManager::createMenuItem() {
+  if (ImGui::BeginMenu("Create a module")) {
+    if (ImGui::MenuItem("Build/Rebuild single parts")) {
       handleCreateModule();
     }
-    if (ImGui::MenuItem("Global build"))
-    {
+    if (ImGui::MenuItem("Global build")) {
       handleGlobalBuild();
     }
     ImGui::EndMenu();
   }
 }
 
-void ProjectManager::searchMenuItem()
-{
-  if (ImGui::BeginMenu("Search"))
-  {
-    if (ImGui::MenuItem("Build/Rebuild single parts"))
-    {
+void ProjectManager::searchMenuItem() {
+  if (ImGui::BeginMenu("Search")) {
+    if (ImGui::MenuItem("Build/Rebuild single parts")) {
       handleSearch();
     }
-    if (ImGui::MenuItem("Global build"))
-    {
+    if (ImGui::MenuItem("Global build")) {
       handleGlobalBuild();
     }
     ImGui::EndMenu();
   }
 }
 
-void ProjectManager::Refresh()
-{
+void ProjectManager::Refresh() {
   project_templates.clear();
-  for (auto tem : this->ctx->IO.sys_templates)
-  {
-    if (tem->m_type == "project")
-    {
+  for (auto tem : this->ctx->IO.sys_templates) {
+    if (tem->m_type == "project") {
       project_templates.push_back(tem);
     }
   }
