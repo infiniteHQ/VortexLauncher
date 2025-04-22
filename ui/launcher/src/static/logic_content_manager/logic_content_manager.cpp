@@ -1,1011 +1,226 @@
 #include "./logic_content_manager.hpp"
-using namespace Cherry;
 
-namespace VortexLauncher
-{
-    LogicContentManager::LogicContentManager(const std::string &name)
-    {
-        m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
-        m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/icons/misc/icon_home.png"));
+#include <cstdlib>  // std::system
+#include <cstring>
+#include <iostream>
+#include <string>
 
-        m_AppWindow->SetVisibility(false);
-        m_AppWindow->SetCloseCallback([this]()
-                                      { m_AppWindow->SetVisibility(false); });
+#if defined(_WIN32)
+#include <shellapi.h>
+#include <windows.h>
+#elif defined(__APPLE__)
+#include <TargetConditionals.h>
+#include <stdlib.h>
+#elif defined(__linux__)
+#include <stdlib.h>
+#endif
 
-        m_AppWindow->m_TabMenuCallback = []() {};
+namespace VortexLauncher {
+  void LogicalContentManager::ModulesRender() {
+    // Cherry::SetNextComponentProperty("color_text", "#B1FF31"); // Todo remplace
+    Cherry::PushFont("ClashBold");
+    CherryNextProp("color_text", "#797979");
+    CherryKit::TitleOne("QSf");
+    Cherry::PopFont();
+    CherryNextProp("color", "#252525");
+    CherryKit::Separator();
+  }
 
-        m_AppWindow->SetInternalPaddingX(10.0f);
-        m_AppWindow->SetInternalPaddingY(10.0f);
+  LogicalContentManager::LogicalContentManager(const std::string &name) {
+    m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
+    m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/icons/misc/icon_home.png"));
+    m_AppWindow->SetClosable(false);
 
-        RefreshVersionsToRender();
+    m_AppWindow->m_TabMenuCallback = []() {
+      ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
+      ImVec4 graySeparatorColor = ImVec4(0.4f, 0.4f, 0.4f, 0.5f);
+      ImVec4 darkBackgroundColor = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
+      ImVec4 lightBorderColor = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
+    };
 
-        this->AddChild("Manage logical content", "Installed module(s)", [this]()
-                       {
-                           CherryKit::TitleTwo("Installed module(s)");
-                           ImGui::TextWrapped("There is every modules installed in your system and available to import on yours projects. Theses projects come from modules pool path(s).");
+    m_AppWindow->SetInternalPaddingX(0.0f);
+    m_AppWindow->SetInternalPaddingY(0.0f);
 
-                           /*ImGui::Text("You can add paths here");
-                           ImGui::SameLine();
-                           Cherry::TextButtonUnderline("here", true, "#3434F7FF");*/
+    m_SelectedChildName = "Plugins";
+    m_RecentProjects = GetMostRecentProjects(VortexMaker::GetCurrentContext()->IO.sys_projects, 4);
 
-                           static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
+    this->AddChild(
+        "Help",
+        LogicalContentManagerChild(
+            [this]() {
+              Cherry::PushFont("ClashBold");
+              CherryNextProp("color_text", "#BCBCBC");
+              CherryKit::TitleFive("Understanding the Vortex approach.");
+              Cherry::PopFont();
 
-                           /*static std::shared_ptr<Cherry::CustomDrowpdownImageButtonSimple> filter_btn = std::make_shared<Cherry::CustomDrowpdownImageButtonSimple>("LogicContentManager.FindModules.Filter", "####filder");
-                           filter_btn->SetScale(0.85f);
-                           filter_btn->SetInternalMarginX(10.0f);
-                           filter_btn->SetLogoSize(15, 15);
+              CherryNextProp("color", "#252525");
+              CherryKit::Separator();
+              CherryNextProp("color_text", "#999999");
+              CherryKit::TextWrapped(
+                  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
+                  "dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip "
+                  "ex ea commodo consequat.");
+            },
+            Cherry::GetPath("resources/imgs/help.png")));
+    this->AddChild(
+        "Plugins",
+        LogicalContentManagerChild(
+            [this]() {
+              Cherry::PushFont("ClashBold");
+              CherryNextProp("color_text", "#797979");
+              CherryKit::TitleFive("All plugins in the system");
+              Cherry::PopFont();
+              ImGui::SameLine();
+              CherryKit::TooltipText(CherryID("Test"), "(?)", "This is plugins installed in the systelm !");
 
-                           filter_btn->SetDropDownImage(Application::CookPath("resources/imgs/icons/misc/icon_down.png"));
-                           filter_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_filter.png"));*/
+              ImGui::SameLine();
+              CherryKit::ButtonImageText("Import", Cherry::GetPath("resources/imgs/icons/misc/icon_import.png"));
+              ImGui::SameLine();
+              CherryKit::ButtonImageText("Browse", Cherry::GetPath("resources/imgs/icons/misc/icon_import.png"));
 
-                           /*static std::shared_ptr<Cherry::ImageTextButtonSimple> find_in_folder = std::make_shared<Cherry::ImageTextButtonSimple>("find_in_folder", "Find in folder");
-                           find_in_folder->SetScale(0.85f);
-                           find_in_folder->SetInternalMarginX(10.0f);
-                           find_in_folder->SetLogoSize(15, 15);
-                           find_in_folder->SetBackgroundColorIdle("#3232F7FF");
-                           find_in_folder->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_collection.png"));*/
+              CherryNextProp("color", "#252525");
+              CherryKit::Separator();
+            },
+            Cherry::GetPath("resources/imgs/plug.png")));
+    this->AddChild("Modules", LogicalContentManagerChild([this]() { }, Cherry::GetPath("resources/imgs/box.png")));
 
+    std::shared_ptr<Cherry::AppWindow> win = m_AppWindow;
+  }
 
-                           ImGui::Separator();
-        CherryKit::ButtonImageDropdown(Cherry::GetPath("resources/imgs/icons/misc/icon_filter.png"), [](){
-            if (ImGui::MenuItem("Option 1"))
-            {
-                //
-            }
-            if (ImGui::MenuItem("Option 2"))
-            {
-                //
-            }
+  std::vector<std::shared_ptr<EnvProject>> LogicalContentManager::GetMostRecentProjects(
+      const std::vector<std::shared_ptr<EnvProject>> &projects,
+      size_t maxCount) {
+    auto sortedProjects = projects;
+    std::sort(
+        sortedProjects.begin(),
+        sortedProjects.end(),
+        [](const std::shared_ptr<EnvProject> &a, const std::shared_ptr<EnvProject> &b) {
+          return a->lastOpened > b->lastOpened;
         });
 
-                           ImGui::SameLine();
-                           static char ContentPath[256] = "";
+    if (sortedProjects.size() > maxCount) {
+      sortedProjects.resize(maxCount);
+    }
+    return sortedProjects;
+  }
 
-                           ImGui::InputText("", ContentPath, sizeof(ContentPath));
+  void LogicalContentManager::AddChild(const std::string &child_name, const LogicalContentManagerChild &child) {
+    m_Childs[child_name] = child;
+  }
 
-                           ImGui::Separator();
+  void LogicalContentManager::RemoveChild(const std::string &child_name) {
+    auto it = m_Childs.find(child_name);
+    if (it != m_Childs.end()) {
+      m_Childs.erase(it);
+    }
+  }
 
-                           static std::vector<bool> selectedRows(VortexMaker::GetCurrentContext()->IO.sys_em.size(), false);
+  std::shared_ptr<Cherry::AppWindow> &LogicalContentManager::GetAppWindow() {
+    return m_AppWindow;
+  }
 
-                           if (ImGui::BeginTable("modules_tables", 6, flags))
-                           {
-                               ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed);
-                               ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed);
-                               ImGui::TableSetupColumn("Image", ImGuiTableColumnFlags_WidthFixed);
-                               ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed);
-                               ImGui::TableSetupColumn("Version", ImGuiTableColumnFlags_WidthFixed);
-                               ImGui::TableSetupColumn("Path", ImGuiTableColumnFlags_WidthFixed);
-                               ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed);
-                               ImGui::TableHeadersRow();
+  std::shared_ptr<LogicalContentManager> LogicalContentManager::Create(const std::string &name) {
+    auto instance = std::shared_ptr<LogicalContentManager>(new LogicalContentManager(name));
+    instance->SetupRenderCallback();
+    return instance;
+  }
 
-                               for (int row = 0; row < VortexMaker::GetCurrentContext()->IO.sys_em.size(); row++)
-                               {
-                                   ImGui::TableNextRow();
+  void LogicalContentManager::SetupRenderCallback() {
+    auto self = shared_from_this();
+    m_AppWindow->SetRenderCallback([self]() {
+      if (self) {
+        self->Render();
+      }
+    });
+  }
 
-                                   ImVec2 min = ImGui::GetItemRectMin();
-                                   ImVec2 max = ImGui::GetItemRectMax();
-                                   bool isHovered = ImGui::IsMouseHoveringRect(min, max);
+  LogicalContentManagerChild *LogicalContentManager::GetChild(const std::string &child_name) {
+    auto it = m_Childs.find(child_name);
+    if (it != m_Childs.end()) {
+      return &it->second;
+    }
+    return nullptr;
+  }
 
-                                   if (ImGui::IsMouseReleased(ImGuiMouseButton_Right) && isHovered)
-                                   {
-                                       ImGui::OpenPopup(("context_menu_" + std::to_string(row)).c_str());
-                                   }
+  void LogicalContentManager::Render() {
+    const float minPaneWidth = 50.0f;
+    const float splitterWidth = 1.5f;
 
-                                   if (isHovered)
-                                   {
-                                       ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImColor(0.3f, 0.3f, 0.3f));
-                                   }
-                                   if (selectedRows[row])
-                                   {
-                                       ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImColor(0.5f, 0.5f, 0.9f));
-                                   }
+    std::string label = "left_pane" + m_AppWindow->m_Name;
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
+    ImGui::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#00000000"));
+    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, ImVec2(0.0f, 0.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0.0f, 0.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
+    ImGui::BeginChild(label.c_str(), ImVec2(leftPaneWidth, 0), true, NULL);
 
-                                   for (int column = 0; column < 7; column++)
-                                   {
-                                       ImGui::TableSetColumnIndex(column);
-                                       if (column == 0)
-                                       {
-                                           ImGui::PushID(row);
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 5.0f);
+    ImGui::Image(Cherry::GetTexture(Cherry::GetPath("resources/imgs/lc_banner.png")), ImVec2(280, 142));
 
-                                           if (ImGui::Selectable("##RowSelectable", selectedRows[row], ImGuiSelectableFlags_SpanAllColumns, ImVec2(0, 30)))
-                                           {
-                                               bool isCtrlPressed = ImGui::GetIO().KeyCtrl;
+    // CherryStyle::SetPadding(7.0f);
 
-                                               if (!isCtrlPressed)
-                                               {
-                                                   for (int i = 0; i < selectedRows.size(); ++i)
-                                                   {
-                                                       selectedRows[i] = false;
-                                                   }
-                                               }
+    for (const auto &child : m_Childs) {
+      if (child.first == m_SelectedChildName) {
+        // opt.hex_text_idle = "#FFFFFFFF";
+      } else {
+        // opt.hex_text_idle = "#A9A9A9FF";
+      }
+      std::string child_name;
 
-                                               selectedRows[row] = !selectedRows[row];
-                                           }
-                                       }
-                                       else if (column == 1)
-                                       {
-                                           bool checkboxValue = selectedRows[row];
-                                           if (ImGui::Checkbox("##SelectedCheckboxAfterImage", &checkboxValue))
-                                           {
-                                               selectedRows[row] = checkboxValue;
-                                           }
-                                       }
-                                       else if (column == 2)
-                                       {
-                                           ImGui::Image(Cherry::GetTexture(VortexMaker::GetCurrentContext()->IO.sys_em[row]->m_logo_path), ImVec2(30, 30));
-                                       }
-                                       else if (column == 3)
-                                       {
-                                           ImGui::Text(VortexMaker::GetCurrentContext()->IO.sys_em[row]->m_name.c_str());
-                                       }
-                                       else if (column == 4)
-                                       {
-                                           ImGui::Text(VortexMaker::GetCurrentContext()->IO.sys_em[row]->m_version.c_str());
-                                       }
-                                       else if (column == 5)
-                                       {
-                                           ImGui::Text(VortexMaker::GetCurrentContext()->IO.sys_em[row]->m_path.c_str());
-                                       }
-                                       else if (column == 6)
-                                       {
-                                           ImGui::Text(VortexMaker::GetCurrentContext()->IO.sys_em[row]->m_type.c_str());
-                                       }
-                                   }
+      if (child.first.rfind("?loc:", 0) == 0) {
+        std::string localeName = child.first.substr(5);
+        child_name = Cherry::GetLocale(localeName) + "####" + localeName;
+      } else {
+        child_name = child.first;
+      }
 
-                                   if (ImGui::BeginPopup(("context_menu_" + std::to_string(row)).c_str()))
-                                   {
-                                       if (ImGui::MenuItem("Open"))
-                                       {
-                                       }
-                                       if (ImGui::MenuItem("Delete"))
-                                       {
-                                       }
-                                       ImGui::EndPopup();
-                                   }
-                               }
+      CherryNextProp("color_bg", "#00000000");
+      CherryNextProp("color_border", "#00000000");
+      CherryNextProp("padding_x", "2");
+      CherryNextProp("padding_y", "2");
+      CherryNextProp("size_x", "20");
+      CherryNextProp("size_y", "20");
+      ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7.5f);
 
-                               ImGui::EndTable();
-                           }
+      if (CherryKit::ButtonImageText(CherryID(child_name), child_name.c_str(), child.second.LogoPath)
+              ->GetData("isClicked") == "true") {
+        m_SelectedChildName = child.first;
+      }
 
-                           m_SelectedIds.clear();
-                           for (int i = 0; i < selectedRows.size(); i++)
-                           {
-                               if (selectedRows[i])
-                               {
-                                   m_SelectedIds.push_back(i);
-                               }
-                           }
-
-                           if (m_SelectedIds.size() > 0)
-                           {
-
-                               std::string label = "Delete " + std::to_string(m_SelectedIds.size()) + " module(s)";
-
-                               /*static std::shared_ptr<Cherry::ImageTextButtonSimple> del_btn = std::make_shared<Cherry::ImageTextButtonSimple>("delete_project_pool_button", "");
-                               del_btn->SetScale(0.85f);
-                               del_btn->SetInternalMarginX(10.0f);
-                               del_btn->SetLogoSize(15, 15);
-                               del_btn->SetBackgroundColorIdle("#00000000");
-                               del_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_trash.png"));
-                               del_btn->SetLabel(label);*/
-                               
-                                if(CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_trash.png"))->GetData("isClicked") == "true")
-                               {
-                                   for (int row = 0; row < VortexMaker::GetCurrentContext()->IO.sys_em.size(); row++)
-                                   {
-                                       for (auto &selected : m_SelectedIds)
-                                       {
-                                           if (row == selected)
-                                           {
-                                               m_ModulesToSuppr.push_back(VortexMaker::GetCurrentContext()->IO.sys_em[row]);
-                                           }
-                                       }
-                                   }
-
-                                   m_ShowModulesDeletionModal = true;
-                               }
-                           } });
-
-        this->AddChild("Manage logical content", "Installed plugin(s)", [this]()
-                       { CherryKit::TitleTwo("Plugins aren't available for the moment"); });
-
-        this->AddChild("Import logical content", "Import module(s)", [this]()
-                       { RenderImportModules(); });
-
-        this->AddChild("Import logical content", "Import plugin(s)", [this]()
-                       {
-                           CherryKit::TitleTwo("Import plugin(s)");
-                           ImGui::TextWrapped("This section allow you to import plugin(s) into one of your plugins pools. After that you will can install these plugins into your projects");
-                           //
-                       });
-
-        this->AddChild("Settings", "Modules pools", [this]()
-                       {
-                           //
-                       });
-
-        this->AddChild("Settings", "Plugins pools", [this]()
-                       {
-                           //
-                       });
-
-        std::shared_ptr<Cherry::AppWindow> win = m_AppWindow;
-        m_AppWindow->SetLeftMenubarCallback([]() {});
-        m_AppWindow->SetRightMenubarCallback([win]() {});
+      // if (Cherry::TextButtonUnderline(child_name.c_str(), true, opt))
     }
 
-    void LogicContentManager::RefreshVersionsToRender()
-    {
-        m_FilterVersions.clear();
-        m_FilterVersions.push_back("All versions");
+    ImGui::EndChild();
+    ImGui::PopStyleColor(2);
+    ImGui::PopStyleVar(4);
 
-        std::vector<std::shared_ptr<ModuleInterface>> modules = m_FindedModules;
-        for (auto mod : modules)
-        {
-            for (auto ver : mod->m_supported_versions)
-            {
-                if (std::find(m_FilterVersions.begin(), m_FilterVersions.end(), ver) == m_FilterVersions.end())
-                {
-                    m_FilterVersions.push_back(ver);
-                }
-            }
+    ImGui::SameLine();
+    ImGui::BeginGroup();
+
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.0f);
+
+    if (!m_SelectedChildName.empty()) {
+      ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20.0f, 20.0f));
+      ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(20.0f, 20.0f));
+
+      if (ImGui::BeginChild(
+              "ChildPanel", ImVec2(0, 0), false, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_AlwaysVerticalScrollbar)) {
+        auto child = GetChild(m_SelectedChildName);
+
+        if (child) {
+          std::function<void()> pannel_render = child->RenderCallback;
+          if (pannel_render) {
+            pannel_render();
+          }
         }
+      }
+      ImGui::EndChild();
+
+      ImGui::PopStyleVar(2);
     }
 
-    void LogicContentManager::SearchModulesOnDirectory(const std::string &path)
-    {
-        m_StillSearching = true;
-        m_SearchStarted = true;
-        VortexMaker::FindModulesInDirectoryRecursively(path, m_FindedModules, m_StillSearching, m_SearchElapsedTime);
-    }
-
-    void LogicContentManager::AddChild(const std::string &parent_name, const std::string &child_name, const std::function<void()> &child)
-    {
-        m_Childs.push_back(LogicContentManagerChild(parent_name, child_name, child));
-    }
-
-    void LogicContentManager::RemoveChild(const std::string &child_name)
-    {
-        //
-    }
-
-    bool LogicContentManager::MyButton(const std::string &name, const std::string &path, const std::string &description, const std::string &size, bool selected, const std::string &logo, ImU32 bgColor = IM_COL32(100, 100, 100, 255), ImU32 borderColor = IM_COL32(150, 150, 150, 255), ImU32 lineColor = IM_COL32(255, 255, 0, 255), float maxTextWidth = 100.0f, float borderRadius = 5.0f)
-    {
-        bool pressed = false;
-
-        float logoSize = 60.0f;
-        float extraHeight = 80.0f;
-        float padding = 10.0f;
-        float separatorHeight = 2.0f;
-        float textOffsetY = 5.0f;
-        float versionBoxWidth = 10.0f;
-        float versionBoxHeight = 20.0f;
-        float thumbnailIconOffsetY = 30.0f;
-
-        float oldfontsize = ImGui::GetFont()->Scale;
-        ImFont *oldFont = ImGui::GetFont();
-
-        if (selected)
-        {
-            bgColor = IM_COL32(80, 80, 240, 255);
-            borderColor = IM_COL32(150, 150, 255, 255);
-        }
-
-        ImVec2 squareSize(logoSize, logoSize);
-
-        const char *originalText = name.c_str();
-        std::string truncatedText = name;
-
-        if (ImGui::CalcTextSize(originalText).x > maxTextWidth)
-        {
-            truncatedText = name.substr(0, 20);
-            if (ImGui::CalcTextSize(truncatedText.c_str()).x > maxTextWidth)
-            {
-                truncatedText = name.substr(0, 10) + "\n" + name.substr(10, 10);
-            }
-        }
-        else
-        {
-            truncatedText = name + "\n";
-        }
-
-        ImVec2 fixedSize(maxTextWidth + padding * 2, logoSize + extraHeight + padding * 2);
-
-        ImVec2 cursorPos = ImGui::GetCursorScreenPos();
-
-        std::string button_id = path + "squareButtonWithText" + name;
-        if (ImGui::InvisibleButton(button_id.c_str(), fixedSize))
-        {
-            pressed = true;
-        }
-
-        if (ImGui::IsItemHovered())
-        {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-        }
-
-        ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
-        ImVec4 graySeparatorColor = ImVec4(0.4f, 0.4f, 0.4f, 0.5f);
-        ImVec4 darkBackgroundColor = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
-        ImVec4 lightBorderColor = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
-
-        ImGui::PushStyleColor(ImGuiCol_PopupBg, darkBackgroundColor);
-        ImGui::PushStyleColor(ImGuiCol_Border, lightBorderColor);
-
-        ImGui::PushStyleVar(ImGuiStyleVar_PopupRounding, 3.0f);
-
-        static bool open_deletion_modal = false;
-
-        static bool delete_single_file = false;
-        static std::string delete_single_file_path = "";
-
-        ImGui::PopStyleVar();
-        ImGui::PopStyleColor(2);
-
-        ImDrawList *drawList = ImGui::GetWindowDrawList();
-
-        drawList->AddRectFilled(cursorPos, ImVec2(cursorPos.x + fixedSize.x, cursorPos.y + fixedSize.y), bgColor, borderRadius);
-        drawList->AddRectFilled(cursorPos, ImVec2(cursorPos.x + fixedSize.x, cursorPos.y + thumbnailIconOffsetY + squareSize.y), IM_COL32(26, 26, 26, 255), borderRadius, ImDrawFlags_RoundCornersTop);
-        drawList->AddRect(cursorPos, ImVec2(cursorPos.x + fixedSize.x, cursorPos.y + fixedSize.y), borderColor, borderRadius, 0, 1.0f);
-
-        ImVec2 logoPos = ImVec2(cursorPos.x + (fixedSize.x - squareSize.x) / 2, cursorPos.y + padding);
-
-        ImVec2 sizePos = ImVec2(cursorPos.x + padding, cursorPos.y + squareSize.y + thumbnailIconOffsetY - 20 + textOffsetY);
-        ImGui::SetCursorScreenPos(sizePos);
-
-        ImTextureID logotexture = Application::GetCurrentRenderedWindow()->get_texture(logo);
-        drawList->AddImage(logotexture, logoPos, ImVec2(logoPos.x + squareSize.x, logoPos.y + squareSize.y));
-
-        ImGui::GetFont()->Scale = 0.7f;
-        ImGui::PushFont(ImGui::GetFont());
-
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
-        ImGui::PushItemWidth(maxTextWidth);
-        ImGui::TextWrapped(size.c_str());
-        ImGui::PopItemWidth();
-        ImGui::PopStyleColor();
-
-        ImGui::GetFont()->Scale = oldfontsize;
-        ImGui::PopFont();
-
-        ImVec2 lineStart = ImVec2(cursorPos.x, cursorPos.y + squareSize.y + thumbnailIconOffsetY + separatorHeight);
-        ImVec2 lineEnd = ImVec2(cursorPos.x + fixedSize.x, cursorPos.y + squareSize.y + thumbnailIconOffsetY + separatorHeight);
-        drawList->AddLine(lineStart, lineEnd, lineColor, separatorHeight);
-
-        ImGui::GetFont()->Scale = 0.9f;
-        ImGui::PushFont(ImGui::GetFont());
-
-        ImVec2 textPos = ImVec2(cursorPos.x + padding, cursorPos.y + squareSize.y + thumbnailIconOffsetY + textOffsetY);
-        ImGui::SetCursorScreenPos(textPos);
-        ImGui::PushItemWidth(maxTextWidth);
-        ImU32 textColor = IM_COL32(255, 255, 255, 255);
-        ImU32 highlightColor = IM_COL32(255, 255, 0, 255);
-        ImU32 highlightTextColor = IM_COL32(0, 0, 0, 255);
-        DrawHighlightedText(drawList, textPos, truncatedText.c_str(), ModulesSearch, highlightColor, textColor, highlightTextColor);
-
-        ImGui::PopItemWidth();
-
-        ImGui::GetFont()->Scale = oldfontsize;
-        ImGui::PopFont();
-
-        ImVec2 descriptionPos = ImVec2(cursorPos.x + padding, cursorPos.y + squareSize.y + thumbnailIconOffsetY + 35 + textOffsetY);
-        ImGui::SetCursorScreenPos(descriptionPos);
-
-        ImGui::GetFont()->Scale = 0.7f;
-        ImGui::PushFont(ImGui::GetFont());
-
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
-        ImGui::PushItemWidth(maxTextWidth);
-        ImGui::TextWrapped(description.c_str());
-        ImGui::PopItemWidth();
-        ImGui::PopStyleColor();
-
-        ImGui::GetFont()->Scale = oldfontsize;
-        ImGui::PopFont();
-
-        ImVec2 smallRectPos = ImVec2(cursorPos.x + fixedSize.x - versionBoxWidth - padding, cursorPos.y + fixedSize.y - versionBoxHeight - padding);
-        drawList->AddRectFilled(smallRectPos, ImVec2(smallRectPos.x + versionBoxWidth, smallRectPos.y + versionBoxHeight), IM_COL32(0, 0, 0, 255), borderRadius);
-
-        float windowVisibleX2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
-        if (cursorPos.x + fixedSize.x < windowVisibleX2)
-            ImGui::SameLine();
-
-        ImGui::SetCursorScreenPos(ImVec2(cursorPos.x, cursorPos.y + fixedSize.y + padding));
-
-        ImGui::GetFont()->Scale = oldfontsize;
-
-        return pressed;
-    }
-
-    void LogicContentManager::RenderImportModules()
-    {
-        float childWidth = ImGui::GetContentRegionAvail().x;
-        float windowWidth = ImGui::GetWindowSize().x;
-
-        if (m_FileBrowser)
-        {
-            if (m_FileBrowser->m_GetFileBrowserPath)
-            {
-                strncpy(ContentPath, m_FileBrowser->m_CurrentDirectory.string().c_str(), sizeof(ContentPath) - 1);
-                ContentPath[sizeof(ContentPath) - 1] = '\0';
-                m_FileBrowser->m_GetFileBrowserPath = false;
-                m_FindedModules.clear();
-
-                SearchModulesOnDirectory(ContentPath);
-
-                m_FileBrowser->GetAppWindow()->SetVisibility(false);
-                m_FileBrowser->GetAppWindow()->SetParentWindow(Cherry::Application::GetCurrentRenderedWindow()->GetName());
-            }
-        }
-
-        /*static std::shared_ptr<Cherry::ImageTextButtonSimple> add_btn = std::make_shared<Cherry::ImageTextButtonSimple>("add_btn_module", "####add");
-        add_btn->SetScale(0.85f);
-        add_btn->SetInternalMarginX(10.0f);
-        add_btn->SetLogoSize(15, 15);
-        add_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));*/
-
-        /*static std::shared_ptr<Cherry::ImageTextButtonSimple> find_in_folder = std::make_shared<Cherry::ImageTextButtonSimple>("find_in_folder", "");
-        find_in_folder->SetScale(0.85f);
-        find_in_folder->SetInternalMarginX(10.0f);
-        find_in_folder->SetLogoSize(15, 15);
-        find_in_folder->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"));*/
-
-        float inputTextWidth = 300.0f;
-        float buttonWidth = 100.0f;
-        float groupWidth = inputTextWidth + ImGui::GetStyle().ItemSpacing.x + buttonWidth;
-
-        float titleWidth = ImGui::CalcTextSize("Import module(s) to system").x;
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (childWidth - titleWidth - 30.0f) * 0.5f);
-        CherryKit::TitleFour("Import module(s) to system");
-
-        ImGui::PushStyleColor(ImGuiCol_Separator, Cherry::HexToRGBA("#272727FF"));
-
-        float offsetX = (childWidth - groupWidth) * 0.5f;
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + offsetX);
-
-        ImGui::SetNextItemWidth(inputTextWidth);
-        ImGui::InputText("", ContentPath, sizeof(ContentPath));
-        ImGui::SameLine();
-
-        {
-            /*static std::shared_ptr<Cherry::ImageTextButtonSimple> btn = std::make_shared<Cherry::ImageTextButtonSimple>("find_in_folder", "");
-            btn->SetScale(0.85f);
-            btn->SetInternalMarginX(10.0f);
-            btn->SetLogoSize(15, 15);
-            btn->SetBackgroundColorIdle("#3232F7FF");
-            btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_magnifying_glass.png"));*/
-
-        if(CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_magnifying_glass.png"))->GetData("isClicked") == "true")
-            {
-                m_FindedModules.clear();
-                SearchModulesOnDirectory(ContentPath);
-            }
-        }
-        ImGui::SameLine();
-
-        {
-            /*static std::shared_ptr<Cherry::CustomDrowpdownImageButtonSimple> btn = std::make_shared<Cherry::CustomDrowpdownImageButtonSimple>("LogicContentManager.FindModules.Filter", "####filder");
-            btn->SetScale(0.85f);
-            btn->SetInternalMarginX(10.0f);
-            btn->SetLogoSize(15, 15);
-            btn->SetDropDownImage(Application::CookPath("resources/imgs/icons/misc/icon_down.png"));
-            btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_filter.png"));*/
-
-            CherryKit::ButtonImageDropdown("resources/imgs/icons/misc/icon_filter.png", [&](){
-                if (m_ModulesPool.size() > 0 && m_FilterVersions.size() > 0)
-                {
-                    /*static std::shared_ptr<Cherry::ComboSimple> combo_pltforms = std::make_shared<Cherry::ComboSimple>("combo3", "####Platforms", m_FilterPlatforms, 0);
-                    ImGui::SetNextItemWidth(200.0f);
-                    combo_pltforms->Render("qd");
-                    m_SelectedPlatform = combo_pltforms->GetData("selected_string");*/
-                    m_SelectedVersion = CherryKit::ComboText("", &m_FilterPlatforms)->GetData("selectedString");
-
-                    /*static std::shared_ptr<Cherry::ComboSimple> combo_version = std::make_shared<Cherry::ComboSimple>("combo2", "####Versions", m_FilterVersions, 0);
-                    ImGui::SetNextItemWidth(200.0f);
-                    combo_version->Render("qd");
-                    m_SelectedVersion = combo_version->GetData("selected_string");*/
-                    m_SelectedVersion = CherryKit::ComboText("", &m_FilterVersions)->GetData("selectedString");
-
-                }
-            });
-
-            /*if (btn->Render("LogicContentManager"))
-            {
-                ImVec2 mousePos = ImGui::GetMousePos();
-                ImGui::SetNextWindowPos(mousePos);
-                ImGui::OpenPopup("ContextMenu");
-            }
-
-            if (ImGui::BeginPopup("ContextMenu"))
-            {
-                ImGui::EndPopup();
-            }*/
-        }
-
-        ImGui::SameLine();
-        if(CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"))->GetData("isClicked") == "true")
-        {
-            m_FileBrowser = FileBrowserAppWindow::Create("Select a folder", VortexMaker::getHomeDirectory());
-            Cherry::ApplicationSpecification spec;
-
-            std::string name = "Select folder";
-            spec.Name = name;
-            spec.MinHeight = 500;
-            spec.MinWidth = 500;
-            spec.Height = 500;
-            spec.Width = 950;
-            spec.CustomTitlebar = true;
-            spec.DisableWindowManagerTitleBar = true;
-            spec.WindowOnlyClosable = false;
-            spec.RenderMode = Cherry::WindowRenderingMethod::SimpleWindow;
-            spec.UniqueAppWindowName = m_FileBrowser->GetAppWindow()->m_Name;
-            spec.UsingCloseCallback = true;
-            spec.FavIconPath = Cherry::GetPath("resources/imgs/icon/misc/icon_folder.png");
-            spec.IconPath = Cherry::GetPath("resources/imgs/icon/misc/icon_folder.png");
-
-            spec.MenubarCallback = [this]()
-            {
-                if (ImGui::BeginMenu("Window"))
-                {
-                    CherryKit::SeparatorText(Cherry::GetLocale("loc.menubar.menu.general"));
-
-                    if (ImGui::MenuItem("Close"))
-                    {
-                        Cherry::DeleteAppWindow(m_FileBrowser->GetAppWindow());
-                    }
-
-                    ImGui::EndMenu();
-                }
-            };
-
-            spec.CloseCallback = [this]()
-            {
-                Cherry::DeleteAppWindow(m_FileBrowser->GetAppWindow());
-            };
-
-            spec.DisableTitle = true;
-            spec.WindowSaves = false;
-            m_FileBrowser->GetAppWindow()->AttachOnNewWindow(spec);
-
-            m_FileBrowser->GetAppWindow()->SetVisibility(true);
-            Cherry::AddAppWindow(m_FileBrowser->GetAppWindow());
-        }
-
-        ImGui::Separator();
-
-        const float padding = 19.0f;
-        const float thumbnailSize = 94.0f;
-
-        float cellSize = thumbnailSize + padding;
-
-        float panelWidth = ImGui::GetContentRegionAvail().x;
-        int columnCount = (int)(panelWidth / cellSize);
-        if (columnCount < 1)
-            columnCount = 1;
-
-        ImGui::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#00000000"));
-        ImGui::BeginChild("finded_contents", ImVec2(0, 0 - 45.0f), false);
-        ImGui::Columns(columnCount, 0, false);
-
-        std::vector<std::shared_ptr<ModuleInterface>> modules = m_FindedModules;
-
-        for (auto &itemEntry : modules)
-        {
-            bool skip = true;
-            if (m_SelectedVersion == "All versions")
-            {
-                skip = false;
-            }
-
-            for (auto ver : itemEntry->m_supported_versions)
-            {
-                if (m_SelectedVersion == ver)
-                {
-                    skip = false;
-                }
-            }
-
-            if (skip)
-            {
-                continue;
-            }
-
-            if (areStringsSimilar(itemEntry->m_proper_name, ModulesSearch, threshold) || isOnlySpacesOrEmpty(ModulesSearch))
-            {
-                if (MyButton(itemEntry->m_proper_name, itemEntry->m_path, itemEntry->m_name, itemEntry->m_version, itemEntry->m_selected, itemEntry->m_logo_path, IM_COL32(56, 56, 56, 150), IM_COL32(50, 50, 50, 255), Cherry::HexToImU32("#B1FF31FF")))
-                {
-                    itemEntry->m_selected = !itemEntry->m_selected;
-                }
-            }
-
-            ImGui::NextColumn();
-        }
-        ImGui::EndColumns();
-        ImGui::EndChild();
-        ImGui::PopStyleColor();
-
-        float windowHeight = ImGui::GetWindowSize().y;
-        float contentHeight = ImGui::GetCursorPosY();
-        float bottomPadding = 10.0f;
-        float targetPosY = contentHeight - bottomPadding;
-
-        ImGui::SetCursorPosY(targetPosY);
-
-        ImGui::Separator();
-
-        std::string label = "Import selected module(s)";
-
-        /*static std::shared_ptr<Cherry::ImageTextButtonSimple> del_btn = std::make_shared<Cherry::ImageTextButtonSimple>("delete_project_pool_button", "");
-        del_btn->SetScale(0.85f);
-        del_btn->SetInternalMarginX(10.0f);
-        del_btn->SetLogoSize(15, 15);
-        del_btn->SetBackgroundColorIdle("#00000000");
-        del_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_import.png"));
-        del_btn->SetLabel(label);*/
-
-        if(CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_import.png"))->GetData("isClicked") == "true")
-        {
-            m_ModulesToImport.clear();
-            for (auto &mod : modules)
-            {
-                if (mod->m_selected)
-                    m_ModulesToImport.push_back(mod);
-            }
-
-            m_ShowModulesImportModal = true;
-        }
-
-        ImGui::SameLine();
-        m_ModulesPool = VortexMaker::GetCurrentContext()->IO.sys_modules_pools;
-
-        ImGui::SameLine();
-
-        ImGui::SetNextItemWidth(200.0f);
-        ImGui::InputText("###Search", ModulesSearch, sizeof(ModulesSearch));
-
-        ImGui::SameLine();
-
-        if (m_StillSearching)
-        {
-            std::string label = "Searching..." + std::to_string(m_FindedModules.size()) + " module(s) founded yet. Elapsed time : " + m_SearchElapsedTime;
-            ImGui::TextWrapped(label.c_str());
-            ImGui::SameLine();
-            if (ImGui::Button("Stop"))
-            {
-                m_StillSearching = false;
-            }
-        }
-        else
-        {
-            if (m_SearchStarted)
-            {
-                std::string label = "" + std::to_string(m_FindedModules.size()) + " module(s) founded on " + m_SearchElapsedTime + ".";
-                ImGui::TextWrapped(label.c_str());
-            }
-            else
-            {
-                ImGui::TextWrapped("Please select a folder to search for module(s)...");
-            }
-        }
-
-        ImGui::PopStyleColor();
-    }
-
-    std::function<void()> LogicContentManager::GetChild(const std::string &child_name)
-    {
-        for (auto &child : m_Childs)
-        {
-            if (child.m_ChildName == child_name)
-            {
-                return child.m_Callback;
-            }
-        }
-        return nullptr;
-    }
-
-    std::shared_ptr<Cherry::AppWindow> &LogicContentManager::GetAppWindow()
-    {
-        return m_AppWindow;
-    }
-
-    std::shared_ptr<LogicContentManager> LogicContentManager::Create(const std::string &name)
-    {
-        auto instance = std::shared_ptr<LogicContentManager>(new LogicContentManager(name));
-        instance->SetupRenderCallback();
-        return instance;
-    }
-
-    void LogicContentManager::SetupRenderCallback()
-    {
-        auto self = shared_from_this();
-        m_AppWindow->SetRenderCallback([self]()
-                                       {
-            if (self) {
-                self->Render();
-            } });
-    }
-
-    void LogicContentManager::Render()
-    {
-        if (m_ShowModulesImportModal)
-        {
-            ImGui::OpenPopup("Import module(s)");
-
-            ImVec2 main_window_size = ImGui::GetWindowSize();
-            ImVec2 window_pos = ImGui::GetWindowPos();
-
-            ImGui::SetNextWindowPos(ImVec2(window_pos.x + (main_window_size.x * 0.5f) - 300, window_pos.y + 150));
-
-            ImGui::SetNextWindowSize(ImVec2(600, 0), ImGuiCond_Always);
-
-            if (ImGui::BeginPopupModal("Import module(s)", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove))
-            {
-                std::string text_label = "Are you sure to import these " + std::to_string(m_SelectedIds.size()) + " modules ? ";
-                ImGui::TextWrapped(text_label.c_str());
-                ImGui::TextWrapped("Important: This action will not delete/change selected modules...");
-                ImGui::TextWrapped("These modules will be imported:");
-
-                ImGui::Separator();
-
-                static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
-
-                float max_table_height = 200.0f;
-                ImGui::BeginChild("TableScrollRegion", ImVec2(0, max_table_height), true, ImGuiWindowFlags_HorizontalScrollbar);
-
-                if (ImGui::BeginTable("modules_will_be_imported", 5, flags))
-                {
-                    ImGui::TableSetupColumn("Image", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableSetupColumn("Version", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableSetupColumn("Path", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableHeadersRow();
-
-                    for (int row = 0; row < m_ModulesToImport.size(); row++)
-                    {
-                        ImGui::TableNextRow();
-                        for (int column = 0; column < 5; column++)
-                        {
-                            ImGui::TableSetColumnIndex(column);
-                            if (column == 0)
-                            {
-                                ImGui::Image(Cherry::GetTexture(m_ModulesToImport[row]->m_logo_path), ImVec2(30, 30));
-                            }
-                            else if (column == 1)
-                            {
-                                ImGui::Text(m_ModulesToImport[row]->m_name.c_str());
-                            }
-                            else if (column == 2)
-                            {
-                                ImGui::Text(m_ModulesToImport[row]->m_proper_name.c_str());
-                            }
-                            else if (column == 3)
-                            {
-                                ImGui::Text(m_ModulesToImport[row]->m_version.c_str());
-                            }
-                            else if (column == 4)
-                            {
-                                ImGui::Text(m_ModulesToImport[row]->m_path.c_str());
-                            }
-                        }
-                    }
-
-                    ImGui::EndTable();
-                }
-
-                ImGui::EndChild();
-
-                ImGui::Separator();
-
-                if (ImGui::Button("Cancel"))
-                {
-                    ImGui::CloseCurrentPopup();
-                    m_ShowModulesImportModal = false;
-                }
-                ImGui::SameLine();
-                if (ImGui::Button("Confirm Import"))
-                {
-                    for (auto &module : m_ModulesToImport)
-                    {
-                        VortexMaker::InstallModuleToSystem(module->m_path, m_ToImportDestination);
-                    }
-
-                    VortexMaker::LoadSystemModules(VortexMaker::GetCurrentContext()->IO.sys_em);
-
-                    m_ModulesToImport.clear();
-                    ImGui::CloseCurrentPopup();
-                    m_ShowModulesImportModal = false;
-                }
-                ImGui::SameLine();
-                /*static std::shared_ptr<Cherry::ComboSimple> combo_dest = std::make_shared<Cherry::ComboSimple>("combo", "####Import to", m_ModulesPool, 0);
-                ImGui::SetNextItemWidth(200.0f);
-                combo_dest->Render("qd");*/
-
-
-                m_ToImportDestination = CherryKit::ComboText("", &m_ModulesPool)->GetData("selectedString");
-
-                //m_ToImportDestination = combo_dest->GetData("selected_string");
-
-                ImGui::EndPopup();
-            }
-        }
-
-        if (m_ShowModulesDeletionModal)
-        {
-            ImGui::OpenPopup("Delete module(s)");
-
-            ImVec2 main_window_size = ImGui::GetWindowSize();
-            ImVec2 window_pos = ImGui::GetWindowPos();
-
-            ImGui::SetNextWindowPos(ImVec2(window_pos.x + (main_window_size.x * 0.5f) - 300, window_pos.y + 150));
-
-            ImGui::SetNextWindowSize(ImVec2(600, 0), ImGuiCond_Always);
-
-            if (ImGui::BeginPopupModal("Delete module(s)", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove))
-            {
-                std::string text_label = "Are yout sure to delete theses " + std::to_string(m_SelectedIds.size()) + " modules ? ";
-                ImGui::TextWrapped(text_label.c_str());
-                ImGui::TextWrapped("Important: This action will not delete selected modules from projects you've got, this action will only uninstall project available from your system. To delete modules of your projects, go on the project editor, modules manager and delete modules manually.");
-                ImGui::TextWrapped("Theses modules will be deleted :");
-
-                ImGui::Separator();
-
-                static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
-
-                if (ImGui::BeginTable("modules_will_be_deleted", 5, flags))
-                {
-                    ImGui::TableSetupColumn("Image", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableSetupColumn("Version", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableSetupColumn("Path", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableHeadersRow();
-
-                    for (int row = 0; row < m_ModulesToSuppr.size(); row++)
-                    {
-                        ImGui::TableNextRow();
-                        for (int column = 0; column < 5; column++)
-                        {
-                            ImGui::TableSetColumnIndex(column);
-                            if (column == 0)
-                            {
-                                ImGui::Image(Cherry::GetTexture(m_ModulesToSuppr[row]->m_logo_path), ImVec2(30, 30));
-                            }
-                            else if (column == 1)
-                            {
-                                ImGui::Text(m_ModulesToSuppr[row]->m_name.c_str());
-                            }
-                            else if (column == 2)
-                            {
-                                ImGui::Text(m_ModulesToSuppr[row]->m_proper_name.c_str());
-                            }
-                            else if (column == 3)
-                            {
-                                ImGui::Text(m_ModulesToSuppr[row]->m_version.c_str());
-                            }
-                            else if (column == 4)
-                            {
-                                ImGui::Text(m_ModulesToSuppr[row]->m_path.c_str());
-                            }
-                        }
-                    }
-
-                    ImGui::EndTable();
-                }
-
-                ImGui::Separator();
-
-                if (ImGui::Button("Cancel"))
-                {
-                    ImGui::CloseCurrentPopup();
-                    m_ShowModulesDeletionModal = false;
-                }
-                ImGui::SameLine();
-                if (ImGui::Button("Confirm Delete"))
-                {
-                    for (auto &module : m_ModulesToSuppr)
-                    {
-                        VortexMaker::DeleteSystemModule(module->m_name, module->m_version);
-                    }
-
-                    VortexMaker::LoadSystemModules(VortexMaker::GetCurrentContext()->IO.sys_em);
-
-                    m_ModulesToSuppr.clear();
-                    ImGui::CloseCurrentPopup();
-                    m_ShowModulesDeletionModal = false;
-                }
-
-                ImGui::EndPopup();
-            }
-        }
-
-        const float minPaneWidth = 50.0f;
-        const float splitterWidth = 1.5f;
-        std::map<std::string, std::vector<LogicContentManagerChild>> groupedByParent;
-        for (const auto &child : m_Childs)
-        {
-            groupedByParent[child.m_Parent].push_back(child);
-        }
-
-        std::string label = "left_pane" + m_AppWindow->m_Name;
-        ImGui::BeginChild(label.c_str(), ImVec2(leftPaneWidth, 0), true, ImGuiWindowFlags_NoBackground);
-
-        ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
-        ImVec4 graySeparatorColor = ImVec4(0.4f, 0.4f, 0.4f, 0.5f);
-
-        CherryKit::TitleThree("Manage Modules & Plugins");
-        for (const auto &[parent, children] : groupedByParent)
-        {
-
-            ImGui::GetFont()->Scale *= 0.8;
-            ImGui::PushFont(ImGui::GetFont());
-
-            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
-
-            ImGui::PushStyleColor(ImGuiCol_Text, grayColor);
-            ImGui::Text(parent.c_str());
-            ImGui::PopStyleColor();
-
-            ImGui::PushStyleColor(ImGuiCol_Separator, graySeparatorColor);
-            ImGui::Separator();
-            ImGui::PopStyleColor();
-
-            ImGui::GetFont()->Scale = 0.84;
-            ImGui::PopFont();
-            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);
-
-            for (const auto &child : children)
-            {
-                if (child.m_ChildName == m_SelectedChildName)
-                {
-                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
-                }
-                else
-                {
-                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
-                }
-
-                if (CherryKit::ButtonText(child.m_ChildName)->GetData("isClicked") == "true")
-                {
-                    m_SelectedChildName = child.m_ChildName;
-                }
-
-                ImGui::PopStyleColor();
-            }
-        }
-        ImGui::EndChild();
-
-        ImGui::SameLine();
-
-        ImGui::PushStyleColor(ImGuiCol_Button, HexToRGBA("#44444466"));
-        ImGui::Button("splitter", ImVec2(splitterWidth, -1));
-        ImGui::PopStyleColor();
-
-        if (ImGui::IsItemHovered())
-        {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-        }
-
-        if (ImGui::IsItemActive())
-        {
-            float delta = ImGui::GetIO().MouseDelta.x;
-            leftPaneWidth += delta;
-            if (leftPaneWidth < minPaneWidth)
-                leftPaneWidth = minPaneWidth;
-        }
-
-        ImGui::SameLine();
-        ImGui::BeginGroup();
-
-        if (!m_SelectedChildName.empty())
-        {
-            std::function<void()> pannel_render = GetChild(m_SelectedChildName);
-            if (pannel_render)
-            {
-                pannel_render();
-            }
-        }
-
-        ImGui::EndGroup();
-    }
-} // namespace VortexLauncher
+    ImGui::EndGroup();
+  }
+}  // namespace VortexLauncher

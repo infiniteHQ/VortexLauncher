@@ -1,85 +1,57 @@
 #pragma once
+
 #include "../../../../../main/include/vortex.h"
 #include "../../../../../main/include/vortex_internals.h"
-#include "../../../../../main/include/modules/install.h"
-#include "../../../../../main/include/modules/delete.h"
-#include "../../../../../main/include/modules/load.h"
 
-#include "../../instances/file_browser/file_browser.hpp"
+#ifndef LOGICAL_CONTENT_WINDOW_H
+#define LOGICAL_CONTENT_WINDOW_H
 
+#include "../../../../../lib/cherry/cherry.hpp"
 
-#ifndef LOGICCONTENTMANAGER_H
-#define LOGICCONTENTMANAGER_H
+namespace VortexLauncher {
+  // This window can be a "subappwindow" of a parent if you use the constructor with parent parameter.
 
-namespace VortexLauncher
-{
-    struct LogicContentManagerChild
-    {
-        std::string m_Parent;
-        std::string m_ChildName;
-        std::function<void()> m_Callback;
+  struct LogicalContentManagerChild {
+    std::function<void()> RenderCallback;
+    std::string LogoPath;
+    LogicalContentManagerChild(
+        const std::function<void()> &rendercallback = []() { },
+        const std::string &logopath = "undefined")
+        : RenderCallback(rendercallback),
+          LogoPath(logopath) { };
+  };
 
-        LogicContentManagerChild(const std::string &parent_name, const std::string &child_name, const std::function<void()> &child) : m_Parent(parent_name),
-                                                                                                                                      m_ChildName(child_name),
-                                                                                                                                      m_Callback(child)
-        {
-        }
-    };
+  class LogicalContentManager : public std::enable_shared_from_this<LogicalContentManager> {
+   public:
+    LogicalContentManager(const std::string &name);
 
-    class LogicContentManager : public std::enable_shared_from_this<LogicContentManager>
-    {
-    public:
-        LogicContentManager(const std::string &name);
+    void AddChild(const std::string &child_name, const LogicalContentManagerChild &child);
+    void RemoveChild(const std::string &child_name);
+    LogicalContentManagerChild *GetChild(const std::string &child_name);
 
-        void AddChild(const std::string &parent_name, const std::string &child_name, const std::function<void()> &child);
-        void RemoveChild(const std::string &child_name);
-        std::function<void()> GetChild(const std::string &child_name);
+    std::shared_ptr<Cherry::AppWindow> &GetAppWindow();
+    static std::shared_ptr<LogicalContentManager> Create(const std::string &name);
+    void SetupRenderCallback();
+    void Render();
+    void ModulesRender();
 
-        void RefreshVersionsToRender();
-        void RenderImportModules();
+    std::unordered_map<std::string, LogicalContentManagerChild> m_Childs;
 
-        std::shared_ptr<Cherry::AppWindow> &GetAppWindow();
-        static std::shared_ptr<LogicContentManager> Create(const std::string &name);
-        void SetupRenderCallback();
-        void Render();
-        void SearchModulesOnDirectory(const std::string &path);
-        bool MyButton(const std::string &name, const std::string &path, const std::string &description, const std::string &size, bool selected, const std::string &logo, ImU32 bgColor, ImU32 borderColor, ImU32 lineColor, float maxTextWidth, float borderRadius);
+    std::function<void()> m_CreateProjectCallback;
+    std::function<void()> m_OpenProjectCallback;
+    std::function<void()> m_SettingsCallback;
+    std::function<void(const std::shared_ptr<EnvProject> &)> m_ProjectCallback;
 
-        std::vector<LogicContentManagerChild> m_Childs;
-        std::string m_SelectedChildName;
-        std::shared_ptr<FileBrowserAppWindow> m_FileBrowser;
-        std::shared_ptr<Cherry::AppWindow> m_AppWindow;
+    std::vector<std::shared_ptr<EnvProject>> GetMostRecentProjects(
+        const std::vector<std::shared_ptr<EnvProject>> &projects,
+        size_t maxCount);
+    std::vector<std::shared_ptr<EnvProject>> m_RecentProjects;
+    std::string m_SelectedChildName;
 
-        std::vector<std::shared_ptr<ModuleInterface>> m_FindedModules;
-        std::vector<std::shared_ptr<ModuleInterface>> m_SelectedModules;
-        std::vector<std::shared_ptr<ModuleInterface>> m_ModulesToSuppr;
-        std::vector<std::shared_ptr<ModuleInterface>> m_ModulesToImport;
-        std::atomic<bool> m_StillSearching = false;
-        bool m_SearchStarted = false;
-        std::string m_SearchElapsedTime;
+    std::shared_ptr<Cherry::AppWindow> m_AppWindow;
+    int selected;
+    float leftPaneWidth = 290.0f;
+  };
+}  // namespace VortexLauncher
 
-        bool m_ShowModulesDeletionModal = false;
-        bool m_ShowModulesImportModal = false;
-        bool m_ShowPluginsDeletionModal = false;
-        bool m_ShowPluginsImportModal = false;
-        std::vector<int> m_SelectedIds;
-        std::mutex m_ModulesMutex;
-        int m_ToImportDestinationIndex;
-        std::vector<std::string> m_ModulesPool;
-        std::string m_ToImportDestination;
-        char ContentPath[512] = "";
-
-        
-        std::vector<std::string> m_FilterPlatforms = {"All platforms", "Linux", "Windows"};
-        std::vector<std::string> m_FilterVersions = {"All versions"};;
-        std::string m_SelectedVersion = "All versions";
-        std::string m_SelectedPlatform = "All platforms";
-        char ModulesSearch[512];
-        std::vector<std::string> m_TemplatesPool;
-        float leftPaneWidth = 300.0f;
-        int selected;
-    };
-
-}
-
-#endif // LOGICCONTENTMANAGER_H
+#endif  // LOGICAL_CONTENT_WINDOW_H
