@@ -9,7 +9,7 @@
 #include "../../lib/cherry/cherry.hpp"
 #include "src/static/about/about.hpp"
 #include "src/static/content_manager/content_manager.hpp"
-#include "src/static/download_center/download_center.hpp"
+// #include "src/static/download_center/download_center.hpp"
 #include "src/static/logic_content_manager/logic_content_manager.hpp"
 #include "src/static/logs/logs.hpp"
 #include "src/static/main_settings/main_settings.hpp"
@@ -87,9 +87,9 @@ class Launcher {
     Cherry::AddAppWindow(project_manager->GetAppWindow());
 
     // Download center (change to Vortex Lab integratio)
-    download_center = DownloadCenter::Create("Download Center");
+    /*download_center = DownloadCenter::Create("Download Center");
     download_center->GetAppWindow()->SetVisibility(false);
-    Cherry::AddAppWindow(download_center->GetAppWindow());
+    Cherry::AddAppWindow(download_center->GetAppWindow());*/
 
     // Main settings
     system_settings = MainSettings::Create("?loc:loc.window_names.settings");
@@ -112,7 +112,7 @@ class Launcher {
     Cherry::AddAppWindow(content_manager->GetAppWindow());
 
     // Version manager
-    version_manager = VersionManagerAppWindow::Create("?loc:loc.window_names.version_manager");
+    version_manager = VersionManager::Create("?loc:loc.window_names.version_manager");
     version_manager->GetAppWindow()->SetVisibility(false);
     Cherry::AddAppWindow(version_manager->GetAppWindow());
 
@@ -142,7 +142,7 @@ class Launcher {
     welcome_window->GetAppWindow()->SetVisibility(visibility);
   }
 
-  void SetDownloadCenterVisibility(const bool &visibility) {
+  /*void SetDownloadCenterVisibility(const bool &visibility) {
     download_center->GetAppWindow()->SetVisibility(visibility);
     if (visibility) {
       Cherry::ApplicationSpecification spec;
@@ -164,7 +164,7 @@ class Launcher {
       spec.IconPath = Cherry::GetPath("resources/imgs/icon_update.png");
       download_center->GetAppWindow()->AttachOnNewWindow(spec);
     }
-  }
+  }*/
 
   void SetAboutWindowVisibility(const bool &visibility) {
     about_window->GetAppWindow()->SetVisibility(visibility);
@@ -229,9 +229,9 @@ class Launcher {
     return logic_content_manager->GetAppWindow()->m_Visible;
   }
 
-  bool GetDownloadCenterVisibility() {
+  /*bool GetDownloadCenterVisibility() {
     return download_center->GetAppWindow()->m_Visible;
-  }
+  }*/
 
   bool GetLogsVisibility() {
     return logs_window->GetAppWindow()->m_Visible;
@@ -257,10 +257,10 @@ class Launcher {
   std::shared_ptr<LauncherLogUtility> logs_window;
   std::shared_ptr<MainSettings> system_settings;
   std::shared_ptr<ProjectManager> project_manager;
-  std::shared_ptr<DownloadCenter> download_center;
+  // std::shared_ptr<DownloadCenter> download_center;
   std::shared_ptr<WelcomeWindow> welcome_window;
   std::shared_ptr<LogicalContentManager> logic_content_manager;
-  std::shared_ptr<VersionManagerAppWindow> version_manager;
+  std::shared_ptr<VersionManager> version_manager;
   std::shared_ptr<ContentManager> content_manager;
   std::shared_ptr<AboutAppWindow> about_window;
 
@@ -355,7 +355,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
         &ctx.vortex_update_available,
         10,
         "info",
-        "Vortex " + ctx.latest_vortex_version.version + " is live !",
+        "Vortex " + ctx.latest_vortex_version->version + " is live !",
         "A new update of Vortex is available ! Try it now" + ctx.latest_launcher_version.version);
 
     /*if(ctx.launcher_update_available)
@@ -422,7 +422,7 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"))->GetData("isClicked
               Cherry::GetLocale("loc.menubar.menuitem.update_vortex").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.update_vortex_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_update.png")),
-              c_Launcher->GetDownloadCenterVisibility())) {
+              false)) {
         std::thread([]() {
           VortexMaker::OpenLauncherUpdater(
               VortexMaker::GetCurrentContext()->m_VortexLauncherPath,
@@ -439,7 +439,7 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"))->GetData("isClicked
               Cherry::GetLocale("loc.menubar.menuitem.vortex_labs").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.vortex_labs_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_net.png")),
-              c_Launcher->GetDownloadCenterVisibility())) {
+              false)) {
         // c_Launcher->SetDownloadCenterVisibility(!c_Launcher->GetDownloadCenterVisibility());
       }
       ImGui::EndDisabled();
@@ -484,7 +484,7 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"))->GetData("isClicked
               Cherry::GetLocale("loc.menubar.menuitem.about_contributors").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.about_contributors_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_people.png")),
-              c_Launcher->GetDownloadCenterVisibility())) {
+              false)) {
       }
 
       if (ImGui::MenuItem(

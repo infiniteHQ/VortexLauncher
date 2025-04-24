@@ -10,8 +10,6 @@ set(CHERRY_ENABLE_NET ON)
 set(CHERRY_ENABLE_AUDIO ON)
 set(IMGUI_ENABLE_FREETYPE ON)
 
-
-
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../lib/cherry cherry_build)
 
 file(
@@ -31,6 +29,7 @@ else()
     message(FATAL_ERROR "No source files found for the launcher target.")
 endif()
 
+target_include_directories(launcher PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../main/include" )
 target_link_libraries(launcher PRIVATE cherry)
 
 # Step 1: Gather all files from assets directory

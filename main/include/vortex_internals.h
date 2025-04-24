@@ -31,7 +31,8 @@
 //_____________________________________________________________________________
 
 // Enable SSE intrinsics if available
-#if (defined __SSE__ || defined __x86_64__ || defined _M_X64 || (defined(_M_IX86_FP) && (_M_IX86_FP >= 1))) && !defined(IMGUI_DISABLE_SSE)
+#if (defined __SSE__ || defined __x86_64__ || defined _M_X64 || (defined(_M_IX86_FP) && (_M_IX86_FP >= 1))) && \
+    !defined(IMGUI_DISABLE_SSE)
 #define IMGUI_ENABLE_SSE
 #include <immintrin.h>
 #endif
@@ -39,11 +40,14 @@
 // Visual Studio warnings
 #ifdef _MSC_VER
 #pragma warning(push)
-#pragma warning(disable : 4251)           // class 'xxx' needs to have dll-interface to be used by clients of struct 'xxx' // when IMGUI_API is set to__declspec(dllexport)
-#pragma warning(disable : 26812)          // The enum type 'xxx' is unscoped. Prefer 'enum class' over 'enum' (Enum.3). [MSVC Static Analyzer)
-#pragma warning(disable : 26495)          // [Static Analyzer] Variable 'XXX' is uninitialized. Always initialize a member variable (type.6).
-#if defined(_MSC_VER) && _MSC_VER >= 1922 // MSVC 2019 16.2 or later
-#pragma warning(disable : 5054)           // operator '|': deprecated between enumerations of different types
+#pragma warning(disable : 4251)  // class 'xxx' needs to have dll-interface to be used by clients of struct 'xxx' // when
+                                 // IMGUI_API is set to__declspec(dllexport)
+#pragma warning( \
+    disable : 26812)  // The enum type 'xxx' is unscoped. Prefer 'enum class' over 'enum' (Enum.3). [MSVC Static Analyzer)
+#pragma warning( \
+    disable : 26495)  // [Static Analyzer] Variable 'XXX' is uninitialized. Always initialize a member variable (type.6).
+#if defined(_MSC_VER) && _MSC_VER >= 1922  // MSVC 2019 16.2 or later
+#pragma warning(disable : 5054)            // operator '|': deprecated between enumerations of different types
 #endif
 #endif
 
@@ -51,21 +55,25 @@
 #if defined(__clang__)
 #pragma clang diagnostic push
 #if __has_warning("-Wunknown-warning-option")
-#pragma clang diagnostic ignored "-Wunknown-warning-option" // warning: unknown warning group 'xxx'
+#pragma clang diagnostic ignored "-Wunknown-warning-option"  // warning: unknown warning group 'xxx'
 #endif
-#pragma clang diagnostic ignored "-Wunknown-pragmas"    // warning: unknown warning group 'xxx'
-#pragma clang diagnostic ignored "-Wfloat-equal"        // warning: comparing floating point with == or != is unsafe // storing and comparing against same constants ok, for ImFloor()
-#pragma clang diagnostic ignored "-Wunused-function"    // for stb_textedit.h
-#pragma clang diagnostic ignored "-Wmissing-prototypes" // for stb_textedit.h
+#pragma clang diagnostic ignored "-Wunknown-pragmas"  // warning: unknown warning group 'xxx'
+#pragma clang diagnostic ignored "-Wfloat-equal"  // warning: comparing floating point with == or != is unsafe // storing and
+                                                  // comparing against same constants ok, for ImFloor()
+#pragma clang diagnostic ignored "-Wunused-function"     // for stb_textedit.h
+#pragma clang diagnostic ignored "-Wmissing-prototypes"  // for stb_textedit.h
 #pragma clang diagnostic ignored "-Wold-style-cast"
 #pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
 #pragma clang diagnostic ignored "-Wdouble-promotion"
-#pragma clang diagnostic ignored "-Wimplicit-int-float-conversion" // warning: implicit conversion from 'xxx' to 'float' may lose precision
-#pragma clang diagnostic ignored "-Wmissing-noreturn"              // warning: function 'xxx' could be declared with attribute 'noreturn'
+#pragma clang diagnostic ignored \
+    "-Wimplicit-int-float-conversion"  // warning: implicit conversion from 'xxx' to 'float' may lose precision
+#pragma clang diagnostic ignored "-Wmissing-noreturn"  // warning: function 'xxx' could be declared with attribute 'noreturn'
 #elif defined(__GNUC__)
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpragmas"         // warning: unknown option after '#pragma GCC diagnostic' kind
-#pragma GCC diagnostic ignored "-Wclass-memaccess" // [__GNUC__ >= 8] warning: 'memset/memcpy' clearing/writing an object of type 'xxxx' with no trivial copy-assignment; use assignment or value-initialization instead
+#pragma GCC diagnostic ignored "-Wpragmas"  // warning: unknown option after '#pragma GCC diagnostic' kind
+#pragma GCC diagnostic ignored \
+    "-Wclass-memaccess"  // [__GNUC__ >= 8] warning: 'memset/memcpy' clearing/writing an object of type 'xxxx' with no
+                         // trivial copy-assignment; use assignment or value-initialization instead
 #endif
 
 //_____________________________________________________________________________
@@ -79,7 +87,7 @@ struct VxContext;
 // See implementation of this variable in imgui.cpp for comments and details.
 //_____________________________________________________________________________
 #ifndef CVortexMaker
-extern VORTEX_API VxContext *CVortexMaker; // Current implicit context pointer
+extern VORTEX_API VxContext *CVortexMaker;  // Current implicit context pointer
 #endif
 //_____________________________________________________________________________
 
@@ -94,25 +102,25 @@ extern VORTEX_API VxContext *CVortexMaker; // Current implicit context pointer
 // [SECTION]: Generic helpers & utils
 //_____________________________________________________________________________
 
-#define Vx_STRING_TO_INT(_str, _h) str2int(_str, _h);
+#define Vx_STRING_TO_INT(_str, _h)       str2int(_str, _h);
 #define Vx_BASE64ENCODE(_toencodebuffer) base64_encode(_toencodebuffer);
 #define Vx_BASE64DECODE(_todecodebuffer) base64_decode(_todecodebuffer);
 
 //_____________________________________________________________________________
 
-struct VortexMakerDebugAllocInfo
-{
-  int TotalAllocCount; // Number of call to MemAlloc().
+struct VortexMakerDebugAllocInfo {
+  int TotalAllocCount;  // Number of call to MemAlloc().
   int TotalFreeCount;
-  VortexMakerDebugAllocInfo() { memset(this, 0, sizeof(*this)); }
+  VortexMakerDebugAllocInfo() {
+    memset(this, 0, sizeof(*this));
+  }
 };
 
 //_____________________________________________________________________________
 // [SECTION]: Internal structures
 //_____________________________________________________________________________
 
-struct EnvProject
-{
+struct EnvProject {
   std::string name;
   std::string path;
   std::string type;
@@ -124,28 +132,27 @@ struct EnvProject
   std::string lastOpened;
 };
 
-
-struct VortexNews
-{
+struct VortexNews {
   std::string topic;
   std::string title;
   std::string description;
   std::string image_link;
-  std::string news_link; // to redirect
+  std::string news_link;  // to redirect
 };
 
-struct VxSystemLog
-{
+struct VxSystemLog {
   spdlog::level::level_enum m_level;
   std::string m_filter;
   std::string m_message;
   std::string m_timestamp;
 
-  VxSystemLog(spdlog::level::level_enum level, std::string filter, std::string message) : m_level(level), m_filter(filter), m_message(message){};
+  VxSystemLog(spdlog::level::level_enum level, std::string filter, std::string message)
+      : m_level(level),
+        m_filter(filter),
+        m_message(message) { };
 };
 
-struct SessionState
-{
+struct SessionState {
   //
   std::string session_id;
 
@@ -165,8 +172,7 @@ struct SessionState
   bool last_used_module_output_event_modified = false;
 };
 
-struct VxIO
-{
+struct VxIO {
   int MetricsActiveAllocations;
 
   // EM / Editor Modules
@@ -183,8 +189,8 @@ struct VxIO
   std::vector<std::string> sys_modules_pools;
   std::vector<std::string> sys_templates_pools;
   std::vector<std::string> sys_plugins_pools;
-  std::vector<std::shared_ptr<VortexVersion>> sys_vortex_version;
-  std::vector<std::string> sys_available_versions;
+  std::vector<std::shared_ptr<VortexVersion>> sys_vortex_versions;
+  std::vector<std::shared_ptr<VortexVersion>> available_vortex_versions;
 
   // Dists
   std::vector<std::string> sys_vortex_dists;
@@ -199,21 +205,14 @@ struct VxIO
   bool offline = false;
 };
 
-struct VxPaths
-{
+struct VxPaths {
   std::string toolchainDistFolder;
   std::string hostDistFolder;
 };
 
-enum class PlatformVendor
-{ 
-    Linux,
-    Windows,
-    Macos
-};
+enum class PlatformVendor { Linux, Windows, Macos };
 
-struct VortexLauncherVersion
-{
+struct VortexLauncherVersion {
   std::string version;
   std::string dist;
   std::string arch;
@@ -222,14 +221,14 @@ struct VortexLauncherVersion
   std::string created_at;
 };
 
-struct VortexVersion
-{
+struct VortexVersion {
   std::string version;
   std::string name;
   std::string path;
   std::string sum;
   std::string date;
   std::string banner;
+  std::string icon;
   std::string arch;
   std::string plat;
   std::string dist;
@@ -243,8 +242,7 @@ struct VortexVersion
 // This context contain all user data about VortexMaker functionnal interfaces &
 // all instances of custom contents.
 //-----------------------------------------------------------------------------
-struct VxContext
-{// Master flags
+struct VxContext {  // Master flags
   bool initialized;
   int session_count = 0;
 
@@ -257,13 +255,13 @@ struct VxContext
 
   // Vendor
   PlatformVendor m_PlatformVendor;
-  // Paths 
-  std::string m_VortexPath; // relative to ".vx"
-  std::string m_VortexLauncherPath; // relative to the emplacement where the Vortex Launcher is.
+  // Paths
+  std::string m_VortexPath;          // relative to ".vx"
+  std::string m_VortexLauncherPath;  // relative to the emplacement where the Vortex Launcher is.
 
   std::vector<VortexVersion> latest_vortex_versions;
   VortexLauncherVersion latest_launcher_version;
-  VortexVersion latest_vortex_version;
+  std::shared_ptr<VortexVersion> latest_vortex_version;
   bool launcher_update_available = false;
   bool vortex_update_available = false;
   bool blankproject_exist = false;
@@ -308,13 +306,13 @@ struct VxContext
 // Basicly, you don't need to care about this. For all user interactions of
 // Hypernet & Vx, go on the main userapi on vortex.h
 //__________________________________________________________________________________________________________________
-namespace VortexMaker
-{
+namespace VortexMaker {
 
   // Utils & Base
-  VORTEX_API void DebugAllocHook(VortexMakerDebugAllocInfo *info, void *ptr, size_t size); // size >= 0 : alloc, size = -1 : free
-  
-}
+  VORTEX_API void
+  DebugAllocHook(VortexMakerDebugAllocInfo *info, void *ptr, size_t size);  // size >= 0 : alloc, size = -1 : free
+
+}  // namespace VortexMaker
 //_____________________________________________________________________________
 
-#endif // VORTEX_DISABLE
+#endif  // VORTEX_DISABLE

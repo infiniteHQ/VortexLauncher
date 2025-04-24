@@ -608,7 +608,7 @@ VORTEX_API bool VortexMaker::CheckIfVortexVersionUtilityExist(const std::string 
     }
   }
 
-  for (auto &ver : ctx.IO.sys_vortex_version) {
+  for (auto &ver : ctx.IO.sys_vortex_versions) {
     path = ver->path;
     std::string contextVersion = ver->version;
     pos = contextVersion.find('.');
@@ -629,8 +629,8 @@ VORTEX_API bool VortexMaker::CheckIfVortexVersionUtilityExist(const std::string 
 VORTEX_API void VortexMaker::RefreshEnvironmentVortexVersion() {
   // Get reference to the Vortex context
   VxContext &ctx = *CVortexMaker;
-  ctx.IO.sys_available_versions.clear();
-  ctx.IO.sys_vortex_version.clear();
+  // ctx.IO.available_vortex_versions.clear();
+  ctx.IO.sys_vortex_versions.clear();
 
   for (auto &base_path : VortexMaker::GetCurrentContext()->IO.sys_vortex_versions_pools) {
     if (!std::filesystem::exists(base_path)) {
@@ -666,8 +666,8 @@ VORTEX_API void VortexMaker::RefreshEnvironmentVortexVersion() {
             vortex_version->path = entry.path().string();
             vortex_version->working = is_working;
 
-            ctx.IO.sys_vortex_version.push_back(vortex_version);
-            ctx.IO.sys_available_versions.push_back(version);
+            ctx.IO.sys_vortex_versions.push_back(vortex_version);
+            // ctx.IO.available_vortex_versions.push_back(version);
           } catch (const std::exception &e) {
             continue;
           }
@@ -789,6 +789,34 @@ void VortexMaker::RefreshEnvironmentProjects() {
       VortexMaker::LogError("Error accessing pool path: ", e.what());
     }
   }
+}
+
+VORTEX_API void VortexMaker::OpenFolderInFileManager(const std::string &path) {
+#if defined(_WIN32) || defined(_WIN64)
+  std::string command = "explorer \"" + path + "\"";
+  std::system(command.c_str());
+#elif defined(__APPLE__)
+  std::string command = "open \"" + path + "\"";
+  std::system(command.c_str());
+#elif defined(__linux__)
+  std::string command =
+      "dbus-send --session "
+      "--dest=org.freedesktop.FileManager1 "
+      "--type=method_call "
+      "/org/freedesktop/FileManager1 "
+      "org.freedesktop.FileManager1.ShowFolders "
+      "array:string:\"" +
+      path + "\" string:\"\"";
+
+  int retCode = std::system(command.c_str());
+  if (retCode != 0) {
+    std::cerr << "D-Bus method failed, trying xdg-open...\n";
+    command = "xdg-open \"" + path + "\"";
+    std::system(command.c_str());
+  }
+#else
+#error "OS not supported!"
+#endif
 }
 
 VORTEX_API void VortexMaker::UpdateEnvironmentProject(
@@ -990,7 +1018,7 @@ VORTEX_API void VortexMaker::UpdateEnvironmentProject(const std::string &oldname
   }
 }
 
-VORTEX_API void VortexMaker::PostLatestVortexVersion(const VortexVersion &version) {
+VORTEX_API void VortexMaker::PostLatestVortexVersion(const std::shared_ptr<VortexVersion> &version) {
   VxContext &ctx = *CVortexMaker;
 
   std::string path = VortexMaker::getHomeDirectory() + (VortexMaker::IsWindows() ? "\\.vx\\data\\" : "/.vx/data/");
@@ -1008,9 +1036,9 @@ VORTEX_API void VortexMaker::PostLatestVortexVersion(const VortexVersion &versio
   }
 
   nlohmann::json version_data = {
-    { "version", ctx.latest_vortex_version.version }, { "name", ctx.latest_vortex_version.name },
-    { "path", ctx.latest_vortex_version.path },       { "sum", ctx.latest_vortex_version.sum },
-    { "date", ctx.latest_vortex_version.date },       { "banner", ctx.latest_vortex_version.banner }
+    { "version", ctx.latest_vortex_version->version }, { "name", ctx.latest_vortex_version->name },
+    { "path", ctx.latest_vortex_version->path },       { "sum", ctx.latest_vortex_version->sum },
+    { "date", ctx.latest_vortex_version->date },       { "banner", ctx.latest_vortex_version->banner }
   };
 
   data["latest_saved_version"] = version_data;

@@ -114,11 +114,11 @@ namespace VortexLauncher {
               {
                   [=]() { CherryKit::ImageLocal(Cherry::GetPath("resources/imgs/def_project_banner.png"), 200, 75); },
                   [=]() {
-                    CherryStyle::AddXMargin(5.0f);
+                    CherryStyle::AddMarginX(5.0f);
                     CherryKit::TitleSix(project->name);
                   },
                   [=]() {
-                    CherryStyle::AddXMargin(5.0f);
+                    CherryStyle::AddMarginX(5.0f);
                     CherryStyle::RemoveYMargin(5.0f);
                     CherryStyle::PushFontSize(0.70f);
                     CherryKit::TextSimple(project->lastOpened);
@@ -230,12 +230,12 @@ namespace VortexLauncher {
               {
                   [=]() { CherryKit::ImageHttp(version.banner, 260, 75); },
                   [=]() {
-                    CherryStyle::AddXMargin(5.0f);
+                    CherryStyle::AddMarginX(5.0f);
                     CherryKit::TitleSix(version.name);
                   },
                   /*CherryLambda
                   (
-                      CherryStyle::AddXMargin(5.0f);
+                      CherryStyle::AddMarginX(5.0f);
                       CherryStyle::RemoveYMargin(5.0f);
                       CherryStyle::PushFontSize(0.70f);
                       CherryKit::TextSimple(version.already_installed);

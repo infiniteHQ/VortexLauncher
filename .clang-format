@@ -1,4 +1,3 @@
-
 BasedOnStyle: Google
 AlignAfterOpenBracket: 'AlwaysBreak'
 AllowAllConstructorInitializersOnNextLine: 'false'
@@ -9,7 +8,6 @@ BreakBeforeBraces: Attach
 AllowShortFunctionsOnASingleLine: 'None'
 AllowShortIfStatementsOnASingleLine: 'Never' 
 AllowShortLoopsOnASingleLine: 'false'
-
 BinPackArguments: 'false'
 BinPackParameters: 'false'
 Cpp11BracedListStyle: 'false'

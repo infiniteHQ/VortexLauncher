@@ -159,8 +159,8 @@ namespace VortexLauncher {
     }
 
     ImGui::EndChild();
-    ImGui::PopStyleColor(2);
     ImGui::PopStyleVar(4);
+    ImGui::PopStyleColor(2);
 
     ImGui::SameLine();
     ImGui::BeginGroup();
