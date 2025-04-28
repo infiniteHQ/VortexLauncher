@@ -621,7 +621,7 @@ VORTEX_API void VortexMaker::InstallModuleToSystem(const std::string &path, cons
     std::string author = json_data["author"].get<std::string>();
 
     // std::string origin_path = path.substr(0, path.find_last_of("/"));
-    modules_path += "/" + name + "." + version;
+    modules_path += "/" + name + "." + version;  // TODO : HASH name to avoid collision
 
     VortexMaker::LogInfo("Core", "Installing the module " + name + "...");
 

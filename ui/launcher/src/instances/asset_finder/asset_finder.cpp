@@ -1,4 +1,4 @@
-#include "./file_browser.hpp"
+#include "./asset_finder.hpp"
 
 // To move in class members
 static float padding = 30.0f;
@@ -245,7 +245,7 @@ FileTypes detect_file(const std::string &path) {
 
 // static std::vector<std::pair<std::shared_ptr<ContenBrowserItem>, std::string>> recognized_modules_items;
 
-FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::string &start_path) {
+AssetFinder::AssetFinder(const std::string &name, const std::string &start_path) {
   m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
   m_AppWindow->SetIcon(Cherry::Application::CookPath("resources/imgs/icons/misc/icon_folder.png"));
   std::shared_ptr<Cherry::AppWindow> win = m_AppWindow;
@@ -333,7 +333,8 @@ FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::s
 
   m_AppWindow->SetRightMenubarCallback([this]() {
     ImGui::PushStyleColor(ImGuiCol_FrameBg, Cherry::HexToRGBA("#00000000"));
-    ImGui::BeginChildFrame(ImGui::GetID("btn_ch"), ImVec2(100, 50));
+    static int width = 200;
+    ImGui::BeginChildFrame(ImGui::GetID("btn_ch"), ImVec2(width, 50));
     /*static std::shared_ptr<Cherry::ImageTextButtonSimple> del_btn =
        std::make_shared<Cherry::ImageTextButtonSimple>("search_button", "Done"); del_btn->SetScale(0.85f);
                                                  del_btn->SetInternalMarginX(10.0f);
@@ -341,10 +342,27 @@ FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::s
                                                  del_btn->SetBackgroundColorIdle("#00000000");
                                                  del_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_magnifying_glass.png"));*/
 
-    if (CherryKit::ButtonImageText("Done", Cherry::GetPath("resources/imgs/icons/misc/icon_magnifying_glass.png"))
+    auto combo = CherryKit::ComboText("Install to", &m_TargetPossibilities);
+
+    m_TargetPoolIndex = std::stoi(combo->GetProperty("selected"));
+
+    if (CherryKit::ButtonImageText("Cancel", Cherry::GetPath("resources/imgs/icons/misc/icon_magnifying_glass.png"))
             ->GetData("isClicked") == "true") {
       m_GetFileBrowserPath = true;
     }
+
+    if (!m_Selected.empty()) {
+      CherryGUI::SameLine();
+      std::string label = "Import " + std::to_string(m_Selected.size()) + " module(s)";
+      if (CherryKit::ButtonImageText(label, Cherry::GetPath("resources/imgs/icons/misc/icon_magnifying_glass.png"))
+              ->GetData("isClicked") == "true") {
+        m_GetFileBrowserPath = true;
+      }
+      width = 300;
+    } else {
+      width = 200;
+    }
+
     ImGui::EndChildFrame();
     ImGui::PopStyleColor();
   });
@@ -352,17 +370,17 @@ FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::s
   m_BaseDirectory = start_path;
   m_CurrentDirectory = m_BaseDirectory;
 
-  FileBrowserChild sidebar("RenderSideBar", [this]() { RenderSideBar(); }, 100.0f);
+  AssetFinderChild sidebar("RenderSideBar", [this]() { RenderSideBar(); }, 100.0f);
   sidebar.Enable();
   sidebar.m_BackgroundColor = ImVec4(0.0f, 0.6f, 0.6f, 0.0f);
   AddChild(sidebar);
 
-  FileBrowserChild contentbar("RenderContentBar", [this]() { RenderContentBar(); });
+  AssetFinderChild contentbar("RenderContentBar", [this]() { RenderContentBar(); });
   contentbar.Enable();
   AddChild(contentbar);
 }
 
-void FileBrowserAppWindow::DrawPathBar(const std::string &path) {
+void AssetFinder::DrawPathBar(const std::string &path) {
   ImGui::BeginChild("PathBar", ImVec2(0, 30), false);  // Ajuste la hauteur selon tes besoins
 // Split the path by '/' or '\\' depending on the OS
 #ifdef _WIN32
@@ -395,11 +413,11 @@ void FileBrowserAppWindow::DrawPathBar(const std::string &path) {
   ImGui::EndChild();
 }
 
-void FileBrowserAppWindow::AddChild(const FileBrowserChild &child) {
+void AssetFinder::AddChild(const AssetFinderChild &child) {
   m_Childs.push_back(child);
 }
 
-void FileBrowserAppWindow::GoBack() {
+void AssetFinder::GoBack() {
   if (!m_BackHistory.empty()) {
     m_ForwardHistory.push(m_CurrentDirectory);
     m_CurrentDirectory = m_BackHistory.top();
@@ -407,7 +425,7 @@ void FileBrowserAppWindow::GoBack() {
   }
 }
 
-void FileBrowserAppWindow::GoForward() {
+void AssetFinder::GoForward() {
   if (!m_ForwardHistory.empty()) {
     m_BackHistory.push(m_CurrentDirectory);
     m_CurrentDirectory = m_ForwardHistory.top();
@@ -415,7 +433,7 @@ void FileBrowserAppWindow::GoForward() {
   }
 }
 
-void FileBrowserAppWindow::ChangeDirectory(const std::filesystem::path &newDirectory) {
+void AssetFinder::ChangeDirectory(const std::filesystem::path &newDirectory) {
   if (newDirectory != m_CurrentDirectory) {
     if (!m_CurrentDirectory.empty()) {
       m_BackHistory.push(m_CurrentDirectory);
@@ -428,7 +446,7 @@ void FileBrowserAppWindow::ChangeDirectory(const std::filesystem::path &newDirec
   }
 }
 
-bool FileBrowserAppWindow::MyButton(
+bool AssetFinder::MyButton(
     const std::string &name,
     const std::string &path,
     const std::string &description,
@@ -732,7 +750,7 @@ bool FileBrowserAppWindow::MyButton(
   return pressed;
 }
 
-void FileBrowserAppWindow::DrawFolderIcon(ImVec2 pos, ImVec2 size, ImU32 color) {
+void AssetFinder::DrawFolderIcon(ImVec2 pos, ImVec2 size, ImU32 color) {
   ImDrawList *drawList = ImGui::GetWindowDrawList();
 
   float folderFlapHeight = size.y * 0.2f;
@@ -760,7 +778,7 @@ void FileBrowserAppWindow::DrawFolderIcon(ImVec2 pos, ImVec2 size, ImU32 color) 
   drawList->AddTriangleFilled(flapBottomRight, flapSlopeEnd, ImVec2(flapBottomRight.x - 3, flapTopLeft.y), color);
 }
 
-void FileBrowserAppWindow::MyFolderButton(const char *id, ImVec2 size, ImU32 color, const std::string &path) {
+void AssetFinder::MyFolderButton(const char *id, ImVec2 size, ImU32 color, const std::string &path) {
   ImVec2 pos = ImGui::GetCursorScreenPos();
 
   ImGui::InvisibleButton(id, size);
@@ -781,7 +799,7 @@ void FileBrowserAppWindow::MyFolderButton(const char *id, ImVec2 size, ImU32 col
   }
 }
 
-void FileBrowserAppWindow::DrawHierarchy(std::filesystem::path path, bool isDir, const std::string &label) {
+void AssetFinder::DrawHierarchy(std::filesystem::path path, bool isDir, const std::string &label) {
   ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 12.0f);
   std::string tree_label = "???";
   if (label.empty()) {
@@ -813,7 +831,7 @@ void FileBrowserAppWindow::DrawHierarchy(std::filesystem::path path, bool isDir,
   ImVec2 size = ImGui::GetItemRectSize();
 }
 
-void FileBrowserAppWindow::RenderSideBar() {
+void AssetFinder::RenderSideBar() {
   CherryKit::HeaderImageTextButton(
       "Favorite", Cherry::Application::CookPath("resources/imgs/icons/misc/icon_star.png"), [this]() {
         for (auto custom_dir : m_FavoriteFolders) {
@@ -885,7 +903,233 @@ void FileBrowserAppWindow::RenderSideBar() {
   }
 }
 
-void FileBrowserAppWindow::RenderContentBar() {
+bool AssetFinder::ItemCard(
+    const std::string &name,
+    const std::string &path,
+    const std::string &description,
+    const std::string &size,
+    bool selected,
+    const std::string &logo,
+    ImU32 bgColor,
+    ImU32 borderColor,
+    ImU32 lineColor,
+    float maxTextWidth,
+    float borderRadius) {
+  bool pressed = false;
+
+  float logoSize = 60.0f;
+  float extraHeight = 80.0f;
+  float padding = 10.0f;
+  float separatorHeight = 2.0f;
+  float textOffsetY = 5.0f;
+  float versionBoxWidth = 10.0f;
+  float versionBoxHeight = 20.0f;
+  float thumbnailIconOffsetY = 30.0f;
+
+  float oldfontsize = ImGui::GetFont()->Scale;
+  ImFont *oldFont = ImGui::GetFont();
+
+  if (selected) {
+    bgColor = IM_COL32(80, 80, 240, 255);
+    borderColor = IM_COL32(150, 150, 255, 255);
+  }
+
+  ImVec2 squareSize(logoSize, logoSize);
+
+  const char *originalText = name.c_str();
+  std::string truncatedText = name;
+
+  if (ImGui::CalcTextSize(originalText).x > maxTextWidth) {
+    truncatedText = name.substr(0, 20);
+    if (ImGui::CalcTextSize(truncatedText.c_str()).x > maxTextWidth) {
+      truncatedText = name.substr(0, 10) + "\n" + name.substr(10, 10);
+    }
+  } else {
+    truncatedText = name + "\n";
+  }
+
+  ImVec2 fixedSize(maxTextWidth + padding * 2, logoSize + extraHeight + padding * 2);
+
+  ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+
+  std::string button_id = name + "squareButtonWithText" + name;
+  if (ImGui::InvisibleButton(button_id.c_str(), fixedSize)) {
+    pressed = true;
+  }
+
+  if (ImGui::IsItemHovered()) {
+    ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+  }
+
+  ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
+  ImVec4 graySeparatorColor = ImVec4(0.4f, 0.4f, 0.4f, 0.5f);
+  ImVec4 darkBackgroundColor = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
+  ImVec4 lightBorderColor = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
+
+  ImGui::PushStyleColor(ImGuiCol_PopupBg, darkBackgroundColor);
+
+  ImGui::PushStyleColor(ImGuiCol_Border, lightBorderColor);
+
+  ImGui::PushStyleVar(ImGuiStyleVar_PopupRounding, 3.0f);
+
+  static bool open_deletion_modal = false;
+
+  static bool delete_single_file = false;
+  static std::string delete_single_file_path = "";
+
+  if (open_deletion_modal) {
+    ImGui::SetNextWindowSize(ImVec2(300, 200));
+
+    static ImGuiTableFlags window_flags = ImGuiWindowFlags_NoResize;
+    if (ImGui::BeginPopupModal("Delete file(s)", NULL, window_flags)) {
+      static char path_input_all[512];
+
+      if (delete_single_file) {
+        ImGui::TextWrapped("WARNING, one file");
+      } else {
+        ImGui::TextWrapped(
+            "WARNING, if you click on the Delete button, the "
+            "project will be erase forever.");
+      }
+
+      ImGui::SetItemDefaultFocus();
+
+      if (ImGui::Button("Cancel", ImVec2(120, 0))) {
+        open_deletion_modal = false;
+        ImGui::CloseCurrentPopup();
+      }
+      ImGui::SameLine();
+      ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 0.2f, 0.2f, 0.9f));
+      ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.2f, 0.2f, 1.0f));
+      ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 0.2f, 0.2f, 1.8f));
+      if (ImGui::Button("Delete", ImVec2(120, 0))) {
+        if (delete_single_file) {
+          if (m_DeletePathCallback) {
+            m_DeletePathCallback(delete_single_file_path);
+          }
+          delete_single_file_path = "";
+          delete_single_file = false;
+        } else {
+          for (auto item : m_Selected) {
+            m_DeletePathCallback(item);
+          }
+        }
+
+        open_deletion_modal = false;
+        ImGui::CloseCurrentPopup();
+      }
+      ImGui::PopStyleColor(3);
+      ImGui::EndPopup();
+    }
+  }
+  if (open_deletion_modal)
+    ImGui::OpenPopup("Delete file(s)");
+
+  if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
+    m_Selected.push_back(path);
+  }
+
+  ImGui::PopStyleVar();
+  ImGui::PopStyleColor(2);
+
+  ImDrawList *drawList = ImGui::GetWindowDrawList();
+
+  drawList->AddRectFilled(cursorPos, ImVec2(cursorPos.x + fixedSize.x, cursorPos.y + fixedSize.y), bgColor, borderRadius);
+  drawList->AddRectFilled(
+      cursorPos,
+      ImVec2(cursorPos.x + fixedSize.x, cursorPos.y + thumbnailIconOffsetY + squareSize.y),
+      IM_COL32(26, 26, 26, 255),
+      borderRadius,
+      ImDrawFlags_RoundCornersTop);
+  drawList->AddRect(
+      cursorPos, ImVec2(cursorPos.x + fixedSize.x, cursorPos.y + fixedSize.y), borderColor, borderRadius, 0, 1.0f);
+
+  ImVec2 logoPos = ImVec2(cursorPos.x + (fixedSize.x - squareSize.x) / 2, cursorPos.y + padding);
+
+  ImVec2 sizePos = ImVec2(cursorPos.x + padding, cursorPos.y + squareSize.y + thumbnailIconOffsetY - 20 + textOffsetY);
+  ImGui::SetCursorScreenPos(sizePos);
+
+  static ImTextureID logotexture = Application::GetCurrentRenderedWindow()->get_texture(logo);
+  drawList->AddImage(logotexture, logoPos, ImVec2(logoPos.x + squareSize.x, logoPos.y + squareSize.y));
+
+  ImGui::GetFont()->Scale = 0.7;
+  ImGui::PushFont(ImGui::GetFont());
+  ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+  ImGui::PushItemWidth(maxTextWidth);
+  ImGui::TextWrapped(size.c_str());
+  ImGui::PopItemWidth();
+  ImGui::PopStyleColor();
+
+  ImGui::GetFont()->Scale = oldfontsize;
+  ImGui::PopFont();
+
+  ImVec2 lineStart = ImVec2(cursorPos.x, cursorPos.y + squareSize.y + thumbnailIconOffsetY + separatorHeight);
+  ImVec2 lineEnd = ImVec2(cursorPos.x + fixedSize.x, cursorPos.y + squareSize.y + thumbnailIconOffsetY + separatorHeight);
+  drawList->AddLine(lineStart, lineEnd, lineColor, separatorHeight);
+
+  ImGui::GetFont()->Scale = 0.9;
+  ImGui::PushFont(ImGui::GetFont());
+
+  ImVec2 textPos = ImVec2(cursorPos.x + padding, cursorPos.y + squareSize.y + thumbnailIconOffsetY + textOffsetY);
+  ImGui::SetCursorScreenPos(textPos);
+  ImGui::PushItemWidth(maxTextWidth);
+  ImU32 textColor = IM_COL32(255, 255, 255, 255);
+  ImU32 highlightColor = IM_COL32(255, 255, 0, 255);
+  ImU32 highlightTextColor = IM_COL32(0, 0, 0, 255);
+
+  if (pathToRename == path) {
+    ImGui::SetItemAllowOverlap();
+    ImGui::PushID(path.c_str());
+    if (ImGui::InputText("", pathRename, sizeof(pathRename), ImGuiInputTextFlags_EnterReturnsTrue)) {
+      pathToRename = "";
+    }
+    if (ImGui::IsItemDeactivatedAfterEdit()) {
+      pathToRename = "";
+    }
+    ImGui::PopID();
+  } else {
+    DrawHighlightedText(
+        drawList, textPos, truncatedText.c_str(), ProjectSearch, highlightColor, textColor, highlightTextColor);
+  }
+
+  ImGui::PopItemWidth();
+
+  ImGui::GetFont()->Scale = oldfontsize;
+  ImGui::PopFont();
+
+  ImVec2 descriptionPos =
+      ImVec2(cursorPos.x + padding, cursorPos.y + squareSize.y + thumbnailIconOffsetY + 35 + textOffsetY);
+  ImGui::SetCursorScreenPos(descriptionPos);
+
+  ImGui::GetFont()->Scale = 0.7;
+  ImGui::PushFont(ImGui::GetFont());
+  ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+  ImGui::PushItemWidth(maxTextWidth);
+  ImGui::TextWrapped(description.c_str());
+  ImGui::PopItemWidth();
+  ImGui::PopStyleColor();
+
+  ImGui::GetFont()->Scale = oldfontsize;
+  ImGui::PopFont();
+
+  ImVec2 smallRectPos =
+      ImVec2(cursorPos.x + fixedSize.x - versionBoxWidth - padding, cursorPos.y + fixedSize.y - versionBoxHeight - padding);
+  drawList->AddRectFilled(
+      smallRectPos,
+      ImVec2(smallRectPos.x + versionBoxWidth, smallRectPos.y + versionBoxHeight),
+      IM_COL32(0, 0, 0, 255),
+      borderRadius);
+
+  float windowVisibleX2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
+  if (cursorPos.x + fixedSize.x < windowVisibleX2)
+    ImGui::SameLine();
+
+  ImGui::SetCursorScreenPos(ImVec2(cursorPos.x, cursorPos.y + fixedSize.y + padding));
+
+  return pressed;
+}
+
+void AssetFinder::RenderContentBar() {
   ImGuiStyle &style = ImGui::GetStyle();
   ImVec4 originalChildBgColor = style.Colors[ImGuiCol_ChildBg];
   ImVec4 originalBorderColor = style.Colors[ImGuiCol_Border];
@@ -902,14 +1146,44 @@ void FileBrowserAppWindow::RenderContentBar() {
   int columnCount = (int)(panelWidth / cellSize);
   if (columnCount < 1)
     columnCount = 1;
+  static std::vector<std::pair<std::shared_ptr<AssetFinderItem>, std::string>> recognized_modules_items;
 
   std::vector<std::filesystem::directory_entry> directories;
+  std::vector<std::filesystem::directory_entry> files;
+
+  recognized_modules_items.clear();
 
   for (auto &directoryEntry : std::filesystem::directory_iterator(m_CurrentDirectory)) {
     if (directoryEntry.is_directory()) {
       directories.push_back(directoryEntry);
+    } else {
+      files.push_back(directoryEntry);
     }
   }
+
+  std::unordered_set<std::filesystem::path> recognized_paths;
+
+  for (auto &directoryEntry : directories) {
+    std::string path = directoryEntry.path().string();
+    for (auto &item : m_ItemToReconize) {
+      if (item->f_Detect && item->f_Detect(path)) {
+        recognized_modules_items.push_back({ item, path });
+        recognized_paths.insert(directoryEntry.path());
+        break;
+      }
+    }
+  }
+
+  directories.erase(
+      std::remove_if(
+          directories.begin(),
+          directories.end(),
+          [&](const auto &entry) { return recognized_paths.find(entry.path()) != recognized_paths.end(); }),
+      directories.end());
+
+  std::sort(directories.begin(), directories.end(), [](const auto &a, const auto &b) {
+    return a.path().filename().string() < b.path().filename().string();
+  });
 
   std::sort(directories.begin(), directories.end(), [](const auto &a, const auto &b) {
     return a.path().filename().string() < b.path().filename().string();
@@ -959,6 +1233,7 @@ void FileBrowserAppWindow::RenderContentBar() {
 
   ImGui::PopStyleVar();
   ImGui::PopStyleColor(2);
+
   for (auto &directoryEntry : directories) {
     const auto &path = directoryEntry.path();
     std::string filenameString = path.filename().string();
@@ -1116,20 +1391,68 @@ void FileBrowserAppWindow::RenderContentBar() {
     }
   }
 
+  for (auto &itemEntry : recognized_modules_items) {
+    const auto &path = itemEntry.second;
+    std::filesystem::path fsPath(path);
+    std::string filenameString = fsPath.filename().string();
+
+    bool selected = false;
+
+    if (std::find(m_Selected.begin(), m_Selected.end(), path) != m_Selected.end()) {
+      selected = true;
+    }
+
+    if (areStringsSimilar(filenameString, ProjectSearch, threshold) || isOnlySpacesOrEmpty(ProjectSearch)) {
+      std::uintmax_t folderSize = getDirectorySize(path);
+      std::string folderSizeString = formatFileSize(folderSize);
+      ImGui::PushID(filenameString.c_str());
+
+      if (ItemCard(
+              filenameString,
+              path,
+              itemEntry.first->m_Description,
+              folderSizeString,
+              selected,
+              Application::CookPath("resources/imgs/icons/files/icon_picture_file.png"),
+              IM_COL32(56, 56, 56, 150),
+              IM_COL32(50, 50, 50, 255),
+              IM_COL32(
+                  itemEntry.first->m_LineColor.x,
+                  itemEntry.first->m_LineColor.y,
+                  itemEntry.first->m_LineColor.z,
+                  itemEntry.first->m_LineColor.w))) {
+        if (ImGui::IsMouseDoubleClicked(0)) {
+          // itemEntry.first->f_Execute(path);
+          // VXERROR("te", "tyr");
+        }
+
+        if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) || ImGui::IsKeyDown(ImGuiKey_RightCtrl)) {
+          m_Selected.push_back(path);
+        } else {
+          m_Selected.clear();
+          m_Selected.push_back(path);
+        }
+      }
+
+      ImGui::PopID();
+      ImGui::NextColumn();
+    }
+  }
+
   ImGui::Columns(1);
 }
 
-std::shared_ptr<Cherry::AppWindow> &FileBrowserAppWindow::GetAppWindow() {
+std::shared_ptr<Cherry::AppWindow> &AssetFinder::GetAppWindow() {
   return m_AppWindow;
 }
 
-std::shared_ptr<FileBrowserAppWindow> FileBrowserAppWindow::Create(const std::string &name, const std::string &base_path) {
-  auto instance = std::shared_ptr<FileBrowserAppWindow>(new FileBrowserAppWindow(name, base_path));
+std::shared_ptr<AssetFinder> AssetFinder::Create(const std::string &name, const std::string &base_path) {
+  auto instance = std::shared_ptr<AssetFinder>(new AssetFinder(name, base_path));
   instance->SetupRenderCallback();
   return instance;
 }
 
-void FileBrowserAppWindow::SetupRenderCallback() {
+void AssetFinder::SetupRenderCallback() {
   auto self = shared_from_this();
   m_AppWindow->SetRenderCallback([self]() {
     if (self) {
@@ -1138,7 +1461,7 @@ void FileBrowserAppWindow::SetupRenderCallback() {
   });
 }
 
-void FileBrowserAppWindow::Render() {
+void AssetFinder::Render() {
   const float splitterWidth = 1.5f;
   const float margin = 10.0f;
 

@@ -1,7 +1,11 @@
 #pragma once
 
+#include "../../../../../main/include/modules/delete.h"
+#include "../../../../../main/include/modules/install.h"
+#include "../../../../../main/include/modules/load.h"
 #include "../../../../../main/include/vortex.h"
 #include "../../../../../main/include/vortex_internals.h"
+#include "../../instances/asset_finder/asset_finder.hpp"
 
 #ifndef LOGICAL_CONTENT_WINDOW_H
 #define LOGICAL_CONTENT_WINDOW_H
@@ -34,8 +38,20 @@ namespace VortexLauncher {
     void SetupRenderCallback();
     void Render();
     void ModulesRender();
+    void SearchModulesOnDirectory(const std::string &path);
 
     std::unordered_map<std::string, LogicalContentManagerChild> m_Childs;
+
+    std::shared_ptr<AssetFinder> m_AssetFinder;
+
+    std::vector<std::shared_ptr<ModuleInterface>> m_FindedModules;
+    std::vector<std::shared_ptr<ModuleInterface>> m_SelectedModules;
+    std::vector<std::shared_ptr<ModuleInterface>> m_ModulesToSuppr;
+    std::vector<std::shared_ptr<ModuleInterface>> m_ModulesToImport;
+
+    std::atomic<bool> m_StillSearching = false;
+    bool m_SearchStarted = false;
+    std::string m_SearchElapsedTime;
 
     std::function<void()> m_CreateProjectCallback;
     std::function<void()> m_OpenProjectCallback;

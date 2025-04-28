@@ -20,7 +20,7 @@
 /* TODO :
   - (Cherry : Border radius on blocks)
   - Doing : Delete a module or a plugin (by openning a modal window)
-  - Doing : Import a local module or plugin
+  - Doing : Import a local module or plugin -> Require the file browser (builtin with Cherry)
   - Prepare the Infinite Lab integration
   - Doing : Better cards.
 */
@@ -34,6 +34,12 @@ namespace VortexLauncher {
     Cherry::PopFont();
     CherryNextProp("color", "#252525");
     CherryKit::Separator();
+  }
+
+  void LogicalContentManager::SearchModulesOnDirectory(const std::string &path) {
+    m_StillSearching = true;
+    m_SearchStarted = true;
+    VortexMaker::FindModulesInDirectoryRecursively(path, m_FindedModules, m_StillSearching, m_SearchElapsedTime);
   }
 
   LogicalContentManager::LogicalContentManager(const std::string &name) {
@@ -127,7 +133,52 @@ namespace VortexLauncher {
               Cherry::SetNextComponentProperty("padding_y", "4");
               if (CherryKit::ButtonImageText("Import", Cherry::GetPath("resources/base/add.png"))->GetData("isClicked") ==
                   "true") {
-                import_module_modal_opened = true;
+                m_AssetFinder = AssetFinder::Create("Select a folder", VortexMaker::getHomeDirectory());
+                Cherry::ApplicationSpecification spec;
+
+                std::string name = "Select folder";
+                spec.Name = name;
+                spec.MinHeight = 500;
+                spec.MinWidth = 500;
+                spec.Height = 500;
+                spec.Width = 950;
+                spec.CustomTitlebar = true;
+                spec.DisableWindowManagerTitleBar = true;
+                spec.WindowOnlyClosable = false;
+                spec.RenderMode = Cherry::WindowRenderingMethod::SimpleWindow;
+                spec.UniqueAppWindowName = m_AssetFinder->GetAppWindow()->m_Name;
+                spec.UsingCloseCallback = true;
+                spec.FavIconPath = Cherry::GetPath("resources/imgs/icon/misc/icon_folder.png");
+                spec.IconPath = Cherry::GetPath("resources/imgs/icon/misc/icon_folder.png");
+
+                spec.MenubarCallback = [this]() {
+                  if (ImGui::BeginMenu("Window")) {
+                    CherryKit::SeparatorText(Cherry::GetLocale("loc.menubar.menu.general"));
+
+                    if (ImGui::MenuItem("Close")) {
+                      Cherry::DeleteAppWindow(m_AssetFinder->GetAppWindow());
+                    }
+
+                    ImGui::EndMenu();
+                  }
+                };
+
+                spec.CloseCallback = [this]() { Cherry::DeleteAppWindow(m_AssetFinder->GetAppWindow()); };
+
+                spec.DisableTitle = true;
+                spec.WindowSaves = false;
+
+                m_AssetFinder->GetAppWindow()->AttachOnNewWindow(spec);
+
+                if (!VortexMaker::GetCurrentContext()->IO.sys_modules_pools.empty()) {
+                  m_AssetFinder->m_TargetPossibilities = VortexMaker::GetCurrentContext()->IO.sys_modules_pools;
+                }
+
+                m_AssetFinder->GetAppWindow()->SetVisibility(true);
+                m_AssetFinder->m_ItemToReconize.push_back(std::make_shared<AssetFinderItem>(
+                    VortexMaker::CheckModuleInDirectory, "Module sample", "Description", ImVec4(1.0f, 0.0f, 0.0f, 1.0f)));
+
+                Cherry::AddAppWindow(m_AssetFinder->GetAppWindow());
               }
 
               ImGui::SameLine();
@@ -138,9 +189,54 @@ namespace VortexLauncher {
               CherryNextProp("color", "#252525");
               CherryKit::Separator();
 
-              // TODO : A file browser ? Yes !
-              CherryKit::ModalSimple("Import module(s)", &import_module_modal_opened, []() {
+              if (m_AssetFinder) {
+                if (m_AssetFinder->m_GetFileBrowserPath) {
+                  m_AssetFinder->m_GetFileBrowserPath = false;
+                  m_FindedModules.clear();
 
+                  // SearchModulesOnDirectory(ContentPath);
+                  std::string pool;
+                  if (!VortexMaker::GetCurrentContext()->IO.sys_modules_pools[m_AssetFinder->m_TargetPoolIndex].empty()) {
+                    pool = VortexMaker::GetCurrentContext()->IO.sys_modules_pools[m_AssetFinder->m_TargetPoolIndex];
+                  }
+
+                  for (auto selected : m_AssetFinder->m_Selected) {
+                    VortexMaker::InstallModuleToSystem(selected, pool);
+                  }
+
+                  m_AssetFinder->GetAppWindow()->SetVisibility(false);
+                  m_AssetFinder->GetAppWindow()->SetParentWindow(Cherry::Application::GetCurrentRenderedWindow()->GetName());
+                }
+              }
+
+              CherryKit::ModalSimple("Import module(s)", &import_module_modal_opened, [this]() {
+
+              });
+
+              CherryKit::ModalSimple("Delete a module", &delete_module_modal_opened, []() {
+                if (!module_to_delete) {
+                  delete_module_modal_opened = false;
+                  return;
+                }
+
+                CherryKit::TextWrapped(
+                    "Important: This action will not delete selected modules from projects you've got, this action will "
+                    "only "
+                    "uninstall project available from your system. To delete modules of your projects, go on the project "
+                    "editor, "
+                    "modules manager and delete modules manually.");
+                CherryKit::Separator();
+
+                if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"))
+                        ->GetData("isClicked") == "true") {
+                  delete_module_modal_opened = false;
+                }
+                CherryGUI::SameLine();
+
+                if (CherryKit::ButtonImageText("Confirm Delete", Cherry::GetPath("resources/imgs/trash.png"))
+                        ->GetData("isClicked") == "true") {
+                  VortexMaker::DeleteSystemModule(module_to_delete->m_name, module_to_delete->m_version);
+                }
               });
 
               if (modules_block.empty()) {
@@ -185,6 +281,9 @@ namespace VortexLauncher {
                           [module]() {
                             Cherry::SetNextComponentProperty("color", "#353535");
                             CherryKit::Separator();
+
+                            CherryStyle::RemoveYMargin(20.0f);
+                            CherryGUI::BeginChild("###action_bar", ImVec2(200, 50), false, ImGuiWindowFlags_NoScrollbar);
                             CherryStyle::AddMarginX(5.0f);
                             Cherry::SetNextComponentProperty("color_text", "#888888");
                             CherryKit::TextSimple("em");
@@ -208,6 +307,7 @@ namespace VortexLauncher {
                             CherryGUI::SameLine();
                             if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/trash.png"))
                                     ->GetData("isClicked") == "true") {
+                              std::cout << "True" << std::endl;
                               delete_module_modal_opened = true;
                             }
 
@@ -218,39 +318,17 @@ namespace VortexLauncher {
                                     ->GetData("isClicked") == "true") {
                               VortexMaker::OpenFolderInFileManager(module->m_path);
                             }
+
+                            CherryGUI::EndChild();
                           },
                       }));
                 }
               }
 
-              CherryKit::ModalSimple("Delete a module", &delete_module_modal_opened, []() {
-                if (!module_to_delete) {
-                  delete_module_modal_opened = false;
-                  return;
-                }
-
-                CherryKit::TextWrapped(
-                    "Important: This action will not delete selected modules from projects you've got, this action will "
-                    "only "
-                    "uninstall project available from your system. To delete modules of your projects, go on the project "
-                    "editor, "
-                    "modules manager and delete modules manually.");
-                CherryKit::Separator();
-
-                if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"))
-                        ->GetData("isClicked") == "true") {
-                  delete_module_modal_opened = false;
-                }
-                CherryGUI::SameLine();
-
-                if (CherryKit::ButtonImageText("Confirm Delete", Cherry::GetPath("resources/imgs/trash.png"))
-                        ->GetData("isClicked") == "true") {
-                  VortexMaker::DeleteSystemModule(module_to_delete->m_name, module_to_delete->m_version);
-                }
-              });
-
               // Draw grid with blocks
+              Cherry::PushPermanentProperty("block_border_radius", "6.0");
               CherryKit::GridSimple(270.0f, 270.0f, modules_block);
+              Cherry::PopPermanentProperty();
             },
             Cherry::GetPath("resources/imgs/box.png")));
 
@@ -365,8 +443,7 @@ namespace VortexLauncher {
       {
         CherryGUI::SameLine();
         Cherry::SetNextComponentProperty("color_text", "#676767");
-        CherryStyle::AddMarginY()
-            CherryKit::TextSimple("(" + std::to_string(VortexMaker::GetCurrentContext()->IO.sys_em.size()) + ")");
+        CherryKit::TextSimple("(" + std::to_string(VortexMaker::GetCurrentContext()->IO.sys_em.size()) + ")");
       }
 
       // if (Cherry::TextButtonUnderline(child_name.c_str(), true, opt))
