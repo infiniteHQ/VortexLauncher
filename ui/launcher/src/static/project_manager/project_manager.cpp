@@ -625,7 +625,7 @@ void ProjectManager::Render() {
       }
     }
 
-    CherryKit::GridSimple(150.0f, 150.0f, project_blocks);
+    CherryKit::GridSimple(150.0f, 150.0f, &project_blocks);
 
     ImGui::EndChild();
 
@@ -831,7 +831,7 @@ void ProjectManager::Render() {
     ImGui::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#000000"));
     ImGui::BeginChild("left", ImVec2(280, 0), true);
     CherryStyle::AddMarginY(5.0f);
-    CherryKit::GridSimple(CherryID("banner"), 290, 290, pt_blocks);
+    CherryKit::GridSimple(CherryID("banner"), 290, 290, &pt_blocks);
     ImGui::EndChild();
     ImGui::PopStyleColor();
 

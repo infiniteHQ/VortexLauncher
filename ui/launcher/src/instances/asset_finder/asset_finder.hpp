@@ -123,7 +123,7 @@ class AssetFinder : public std::enable_shared_from_this<AssetFinder> {
 
   // To move in components
   void DrawFolderIcon(ImVec2 pos, ImVec2 size, ImU32 color);
-  void MyFolderButton(const char *id, ImVec2 size, ImU32 color, const std::string &path);
+  void FolderButton(const char *id, ImVec2 size, ImU32 color, const std::string &path);
   void DrawHierarchy(std::filesystem::path path, bool isDir, const std::string &label = "");
 
   void SetDefaultFolderColor(const std::string &hex);
@@ -144,7 +144,7 @@ class AssetFinder : public std::enable_shared_from_this<AssetFinder> {
   void SetColoredFolder(const std::string &path, const std::string &hex_color) { };
 
   std::vector<AssetFinderChild> m_Childs;
-  std::filesystem::path m_CurrentDirectory;
+  std::string m_CurrentDirectory;
 
   std::function<bool(const std::string &)> m_IsValidPathCallback;
   std::vector<std::string> m_SelectedPath;

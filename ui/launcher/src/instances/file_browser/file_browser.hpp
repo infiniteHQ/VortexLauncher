@@ -5,145 +5,157 @@
 #define FILE_BROWSER_H
 #include "../../utils.hpp"
 
-
 using namespace Cherry;
 
-    struct FileBrowserChild
-    {
-        std::function<void()> m_Child;
-        std::string m_Name;
-        bool m_Disabled = true;
-        float m_DefaultSize = 0.0f;
-        float m_MinSize;
-        float m_MaxSize;
-        float m_Size = 200.0f;
-        float m_Ratio = 0.0f;
-        bool m_Resizable = true;
-        bool m_ResizeDisabled = false;
-        bool m_Initialized = false;
-        bool m_InitializedSec = false;
-        bool m_InitializedTh = false;
-        ImVec4 m_BackgroundColor = ImVec4(0.0f,0.0f,0.0f,0.0f);
+struct FileBrowserChild {
+  std::function<void()> m_Child;
+  std::string m_Name;
+  bool m_Disabled = true;
+  float m_DefaultSize = 0.0f;
+  float m_MinSize;
+  float m_MaxSize;
+  float m_Size = 200.0f;
+  float m_Ratio = 0.0f;
+  bool m_Resizable = true;
+  bool m_ResizeDisabled = false;
+  bool m_Initialized = false;
+  bool m_InitializedSec = false;
+  bool m_InitializedTh = false;
+  ImVec4 m_BackgroundColor = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
 
-        void Enable()
-        {
-            m_Disabled = true;
-        }
+  void Enable() {
+    m_Disabled = true;
+  }
 
-        void Disable()
-        {
-            m_Disabled = false;
-        }
+  void Disable() {
+    m_Disabled = false;
+  }
 
-        FileBrowserChild(const std::string &name, const std::function<void()> &child, const float &default_size = 0.0f, const bool &resize_disabled = false, const float &min_size = 0.0f, const float &max_size = 0.0f)
-            : m_Name(name),
-              m_Child(child),
-              m_ResizeDisabled(resize_disabled),
-              m_DefaultSize(default_size),
-              m_MinSize(min_size),
-              m_MaxSize(max_size) {}
-    };
+  FileBrowserChild(
+      const std::string &name,
+      const std::function<void()> &child,
+      const float &default_size = 0.0f,
+      const bool &resize_disabled = false,
+      const float &min_size = 0.0f,
+      const float &max_size = 0.0f)
+      : m_Name(name),
+        m_Child(child),
+        m_ResizeDisabled(resize_disabled),
+        m_DefaultSize(default_size),
+        m_MinSize(min_size),
+        m_MaxSize(max_size) {
+  }
+};
 
-    class FileBrowserAppWindow : public std::enable_shared_from_this<FileBrowserAppWindow>
-    {
-    public:
-        FileBrowserAppWindow(const std::string &name, const std::string &start_path);
-        // FileBrowserAppWindow(const std::string &name);
+class FileBrowserAppWindow : public std::enable_shared_from_this<FileBrowserAppWindow> {
+ public:
+  FileBrowserAppWindow(const std::string &name, const std::string &start_path);
+  // FileBrowserAppWindow(const std::string &name);
 
-        std::shared_ptr<Cherry::AppWindow> &GetAppWindow();
-        static std::shared_ptr<FileBrowserAppWindow> Create(const std::string &name, const std::string &base_path);
-        void SetupRenderCallback();
-        void Render();
+  std::shared_ptr<Cherry::AppWindow> &GetAppWindow();
+  static std::shared_ptr<FileBrowserAppWindow> Create(const std::string &name, const std::string &base_path);
+  void SetupRenderCallback();
+  void Render();
 
-        bool MyButton(const std::string &name, const std::string &path, const std::string &description, const std::string &size, bool selected, const std::string &logo, ImU32 bgColor, ImU32 borderColor, ImU32 lineColor, float maxTextWidth, float borderRadius);
-        void AddChild(const FileBrowserChild &child);
-        void ChangeDirectory(const std::filesystem::path &newDirectory);
-        void GoBack();
-        void GoForward();
-        void DrawPathBar(const std::string& path);
+  bool MyButton(
+      const std::string &name,
+      const std::string &path,
+      const std::string &description,
+      const std::string &size,
+      bool selected,
+      const std::string &logo,
+      ImU32 bgColor,
+      ImU32 borderColor,
+      ImU32 lineColor,
+      float maxTextWidth,
+      float borderRadius);
+  void AddChild(const FileBrowserChild &child);
+  void ChangeDirectory(const std::filesystem::path &newDirectory);
+  void GoBack();
+  void GoForward();
+  void DrawPathBar(const std::string &path);
 
-        void RenderSideBar();
-        void RenderContentBar();
+  void RenderSideBar();
+  void RenderContentBar();
 
-        void Select(const std::string &path)
-        {
-            for (auto already : m_Selected)
-            {
-                if (path == already)
-                {
-                    return;
-                }
-            }
-            m_Selected.push_back(path);
-        }
+  void Select(const std::string &path) {
+    for (auto already : m_Selected) {
+      if (path == already) {
+        return;
+      }
+    }
+    m_Selected.push_back(path);
+  }
 
-        // To move in components
-        void DrawFolderIcon(ImVec2 pos, ImVec2 size, ImU32 color);
-        void MyFolderButton(const char *id, ImVec2 size, ImU32 color, const std::string &path);
-        void DrawHierarchy(std::filesystem::path path, bool isDir, const std::string &label = "");
+  // To move in components
+  void DrawFolderIcon(ImVec2 pos, ImVec2 size, ImU32 color);
+  void MyFolderButton(const char *id, ImVec2 size, ImU32 color, const std::string &path);
+  void DrawHierarchy(std::filesystem::path path, bool isDir, const std::string &label = "");
 
-        void SetDefaultFolderColor(const std::string &hex);
+  void SetDefaultFolderColor(const std::string &hex);
 
-        std::string GetFileBrowserFolderColor(const std::string &path)
-        {
-            for (auto &colored_folder : m_FolderColors)
-            {
-                if (colored_folder.first == path)
-                {
-                    return colored_folder.second;
-                }
-            }
+  std::string GetFileBrowserFolderColor(const std::string &path) {
+    for (auto &colored_folder : m_FolderColors) {
+      if (colored_folder.first == path) {
+        return colored_folder.second;
+      }
+    }
 
-            return "#997D44FF";
-        }
+    return "#997D44FF";
+  }
 
-        bool IsPathFavorite(const std::string &path) { return false; };
-        void SetColoredFolder(const std::string &path, const std::string &hex_color) {};
+  bool IsPathFavorite(const std::string &path) {
+    return false;
+  };
+  void SetColoredFolder(const std::string &path, const std::string &hex_color) { };
 
-        std::vector<FileBrowserChild> m_Childs;
-        std::filesystem::path m_CurrentDirectory;
+  std::vector<FileBrowserChild> m_Childs;
+  std::filesystem::path m_CurrentDirectory;
 
-        bool m_GetFileBrowserPath = false;
-    private:
-        bool opened;
+  bool m_GetFileBrowserPath = false;
 
-        bool m_ThumbnailMode = true;
-        bool m_ListMode = false;
+ private:
+  bool opened;
 
-        bool m_ShowTypes = false;
-        bool m_ShowSizes = false;
+  bool m_ThumbnailMode = true;
+  bool m_ListMode = false;
 
-        // !!!
-        bool m_ShowFolderPannel = true;
-        bool m_ShowFilterPannel = false;
-        bool m_ShowThumbnailVisualizer = false;
-        bool m_ShowSelectionQuantifier = false;
+  bool m_ShowTypes = false;
+  bool m_ShowSizes = false;
 
-        std::filesystem::path m_BaseDirectory;
+  // !!!
+  bool m_PreviousFilterPannelState = false;
+  bool m_PreviousThumbnailVisualizerState = false;
 
-        std::stack<std::filesystem::path> m_BackHistory;
-        std::stack<std::filesystem::path> m_ForwardHistory;
+  bool m_ChildSizesInitialized = false;
+  bool m_ShowFolderPannel = true;
+  bool m_ShowFilterPannel = false;
+  bool m_ShowThumbnailVisualizer = false;
+  bool m_ShowSelectionQuantifier = false;
 
-        std::vector<std::string> m_Selected;
-        std::vector<std::string> m_CopySelection;
-        std::vector<std::string> m_CutSelection;
+  std::filesystem::path m_BaseDirectory;
 
-        std::string m_DefaultFolderColor;
+  std::stack<std::filesystem::path> m_BackHistory;
+  std::stack<std::filesystem::path> m_ForwardHistory;
 
-        // Path/Color
-        std::vector<std::pair<std::string, std::string>> m_FolderColors;
-        std::vector<std::string> m_FavoriteFolders;
-        std::vector<std::string> m_Pools;
+  std::vector<std::string> m_Selected;
+  std::vector<std::string> m_CopySelection;
+  std::vector<std::string> m_CutSelection;
 
-        std::vector<std::filesystem::path> m_Favorites;
-        
-        std::shared_ptr<Cherry::AppWindow> m_AppWindow;
+  std::string m_DefaultFolderColor;
 
-        std::function<void(const std::string &)> m_DeletePathCallback;
-        std::function<void(const std::vector<std::string> &)> m_CopyPathsCallback;
-        std::function<void(const std::vector<std::string> &)> m_PastePathsCallback;
+  // Path/Color
+  std::vector<std::pair<std::string, std::string>> m_FolderColors;
+  std::vector<std::string> m_FavoriteFolders;
+  std::vector<std::string> m_Pools;
 
-    };
+  std::vector<std::filesystem::path> m_Favorites;
 
+  std::shared_ptr<Cherry::AppWindow> m_AppWindow;
 
-#endif // UIKIT_V1_AIO_CONTENT_FileBrowser
+  std::function<void(const std::string &)> m_DeletePathCallback;
+  std::function<void(const std::vector<std::string> &)> m_CopyPathsCallback;
+  std::function<void(const std::vector<std::string> &)> m_PastePathsCallback;
+};
+
+#endif  // UIKIT_V1_AIO_CONTENT_FileBrowser

@@ -354,7 +354,7 @@ FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::s
 
   FileBrowserChild sidebar("RenderSideBar", [this]() { RenderSideBar(); }, 100.0f);
   sidebar.Enable();
-  sidebar.m_BackgroundColor = ImVec4(0.0f, 0.6f, 0.6f, 0.0f);
+  sidebar.m_BackgroundColor = Cherry::HexToRGBA("#353535");
   AddChild(sidebar);
 
   FileBrowserChild contentbar("RenderContentBar", [this]() { RenderContentBar(); });
@@ -782,33 +782,56 @@ void FileBrowserAppWindow::MyFolderButton(const char *id, ImVec2 size, ImU32 col
 }
 
 void FileBrowserAppWindow::DrawHierarchy(std::filesystem::path path, bool isDir, const std::string &label) {
+  if (!isDir)
+    return;
+
   ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 12.0f);
-  std::string tree_label = "???";
-  if (label.empty()) {
-    tree_label = path.filename().string() + "###treenode";
-  } else {
-    tree_label = label + "###treenode";
-  }
+
+  std::string uniqueID = path.string() + "###treenode";
+
+  std::string tree_label = label.empty() ? path.filename().string() + "###" + uniqueID + label + path.string()
+                                         : label + "###" + uniqueID + label + path.string();
 
   ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_Framed |
                                      ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_FramePadding;
+
   ImVec2 cursorPos = ImGui::GetCursorPos();
   ImGui::SetItemAllowOverlap();
-
   ImVec2 pos = ImGui::GetCursorScreenPos();
-  ImU32 col;
 
   DrawFolderIcon(pos, ImVec2(12, 12), HexToImU32(GetFileBrowserFolderColor(path.string())));
 
   if (ImGui::TreeNode(tree_label.c_str())) {
-    for (auto &dirEntry : std::filesystem::directory_iterator(path.string())) {
-      const std::filesystem::path &otherPath = dirEntry.path();
+    ChangeDirectory(path);
 
-      DrawHierarchy(otherPath, dirEntry.is_directory());
+    try {
+      std::vector<std::filesystem::directory_entry> entries;
+      for (auto &dirEntry : std::filesystem::directory_iterator(path)) {
+        if (dirEntry.is_directory()) {
+          entries.push_back(dirEntry);
+        }
+      }
+
+      std::sort(entries.begin(), entries.end(), [](const auto &a, const auto &b) {
+        return a.path().filename() < b.path().filename();
+      });
+
+      for (const auto &dirEntry : entries) {
+        try {
+          const std::filesystem::path &otherPath = dirEntry.path();
+          DrawHierarchy(otherPath, dirEntry.is_directory());
+        } catch (const std::exception &e) {
+          std::cerr << "Error while display the directory " << dirEntry.path() << " - " << e.what() << std::endl;
+          continue;
+        }
+      }
+    } catch (const std::exception &e) {
+      std::cerr << "Error while display the directory " << path << " - " << e.what() << std::endl;
     }
 
     ImGui::TreePop();
   }
+
   ImVec2 finalCursorPos = ImGui::GetCursorPos();
   ImVec2 size = ImGui::GetItemRectSize();
 }

@@ -39,7 +39,7 @@ namespace VortexLauncher {
   void WelcomeWindow::WelcomeRender() {
     // Cherry::SetNextComponentProperty("color_text", "#B1FF31"); // Todo remplace
     Cherry::PushFont("ClashBold");
-    CherryNextProp("color_text", "#797979");
+    CherryNextProp("color_text", "#BBBBBB");
     CherryKit::TitleOne(Cherry::GetLocale("loc.windows.welcome.overview"));
     Cherry::PopFont();
     CherryNextProp("color", "#252525");
@@ -91,7 +91,7 @@ namespace VortexLauncher {
     }
 
     // Draw grid with blocks
-    CherryKit::GridSimple(270.0f, 270.0f, actions_blocks);
+    CherryKit::GridSimple(270.0f, 270.0f, &actions_blocks);
 
     CherryKit::Space(5.0f);
 
@@ -163,14 +163,14 @@ namespace VortexLauncher {
         i++;
       }
     }
-    CherryKit::GridSimple(200.0f, 200.0f, blocks);
+    CherryKit::GridSimple(200.0f, 200.0f, &blocks);
 
     CherryKit::Space(20.0f);
     CherryNextProp("color", "#222222");
 
     Cherry::PushFont("ClashBold");
     CherryNextProp("color_text", "#797979");
-    CherryKit::TitleThree("Latest news");
+    CherryKit::TitleFour("Latest news");
     Cherry::PopFont();
     CherryKit::Separator();
 
@@ -207,7 +207,7 @@ namespace VortexLauncher {
       }
     }
 
-    CherryKit::GridSimple(400.0f, 400.0f, news_blocks);
+    CherryKit::GridSimple(400.0f, 400.0f, &news_blocks);
 
     CherryKit::Space(20.0f);
     Cherry::PushFont("ClashBold");
@@ -249,7 +249,7 @@ namespace VortexLauncher {
       }
     }
 
-    CherryKit::GridSimple(150.0f, 150.0f, last_versions_blocks);
+    CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
   }
 
   WelcomeWindow::WelcomeWindow(const std::string &name) {
