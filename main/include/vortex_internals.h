@@ -179,6 +179,7 @@ struct VxIO {
   std::vector<void *> em_handles;
   std::vector<std::shared_ptr<ModuleInterface>> em;
   std::vector<std::shared_ptr<ModuleInterface>> sys_em;
+  std::vector<std::shared_ptr<ModuleInterface>> sys_ep;
 
   // Know projects in system
   std::vector<std::shared_ptr<EnvProject>> sys_projects;

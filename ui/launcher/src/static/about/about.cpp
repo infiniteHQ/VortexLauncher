@@ -46,9 +46,12 @@ namespace VortexLauncher {
 
     CherryKit::TitleFive("Vortex Launcher");
 
-    std::string version = VORTEXLAUNCHER_VERSION;
+    std::string vortex_launcher_version = VORTEXLAUNCHER_VERSION;
+    std::string cherry_version = CHERRY_VERSION;
+
     Cherry::PushPermanentProperty("color_text", "#797979");
-    CherryKit::TextSimple("Version: " + version);
+    CherryKit::TextSimple("Version: " + vortex_launcher_version);
+    CherryKit::TextSimple("Cherry version: " + cherry_version);
     CherryKit::TextSimple("Hash: QSFG5121");
     CherryKit::TextSimple("System: Arch Linux x86_64 - Wayland");
 

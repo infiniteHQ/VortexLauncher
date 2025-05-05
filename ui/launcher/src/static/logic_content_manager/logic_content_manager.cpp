@@ -82,6 +82,8 @@ namespace VortexLauncher {
         "Plugins",
         LogicalContentManagerChild(
             [this]() {
+              static std::vector<std::shared_ptr<Cherry::Component>> plugins_block;
+
               Cherry::PushFont("ClashBold");
               CherryNextProp("color_text", "#797979");
               CherryKit::TitleFive("All plugins in the system");
@@ -103,6 +105,99 @@ namespace VortexLauncher {
 
               CherryNextProp("color", "#252525");
               CherryKit::Separator();
+
+              if (plugins_block.empty()) {
+                for (auto sysmodule : VortexMaker::GetCurrentContext()->IO.sys_ep) {
+                  plugins_block.push_back(CherryKit::BlockVerticalCustom(
+                      Cherry::IdentifierPattern(Cherry::IdentifierProperty::CreateOnly, sysmodule->m_name),
+                      m_CreateProjectCallback,
+                      269.0f,
+                      160.0f,
+                      {
+                          [sysmodule]() {
+                            if (sysmodule->m_banner_path.empty()) {
+                              CherryKit::ImageLocal(Cherry::GetPath("resources/imgs/def_project_banner.png"), 269.0f);
+                            }
+
+                            else {
+                              CherryKit::ImageLocal(sysmodule->m_banner_path, 269.0f);
+                            }
+                          },
+                          [sysmodule]() {
+                            CherryStyle::RemoveYMargin(35.0f);
+                            CherryStyle::AddMarginX(10.0f);
+                            CherryKit::ImageLocal(Cherry::GetPath(sysmodule->m_logo_path), 40.0f, 40.0f);
+                          },
+                          [sysmodule]() {
+                            CherryStyle::AddMarginX(5.0f);
+                            Cherry::SetNextComponentProperty("color_text", "#FFFFFF");
+                            CherryKit::TextSimple(sysmodule->m_proper_name);
+                            CherryGUI::SameLine();
+                            Cherry::SetNextComponentProperty("color_text", "#686868");
+                            CherryKit::TextSimple(sysmodule->m_version);
+
+                            CherryStyle::AddMarginX(5.0f);
+                            Cherry::SetNextComponentProperty("color_text", "#9B9B9B");
+                            std::string wrapped_description = sysmodule->m_description;
+                            if (wrapped_description.size() > 75) {
+                              wrapped_description = wrapped_description.substr(0, 72);
+                              wrapped_description.append("...");
+                            }
+                            CherryKit::TextWrapped(wrapped_description);
+                          },
+                          [sysmodule]() {
+                            Cherry::SetNextComponentProperty("color", "#353535");
+                            CherryKit::Separator();
+
+                            CherryStyle::RemoveYMargin(20.0f);
+                            CherryGUI::BeginChild("###action_bar", ImVec2(200, 50), false, ImGuiWindowFlags_NoScrollbar);
+                            CherryStyle::AddMarginX(5.0f);
+                            Cherry::SetNextComponentProperty("color_text", "#888888");
+                            CherryKit::TextSimple("em");
+
+                            CherryGUI::SameLine();
+
+                            CherryKit::TooltipImageCustom(Cherry::GetPath("resources/imgs/help.png"), [sysmodule]() {
+                              CherryKit::SeparatorText("Vortex compat");
+                              CherryKit::TextWrapped(
+                                  std::to_string(sysmodule->m_supported_versions.size()) + " supported version(s)");
+                              for (auto v : sysmodule->m_supported_versions) {
+                                Cherry::SetNextComponentProperty("color_text", "#888888");
+                                CherryKit::TextSimple(v);
+                              }
+
+                              // TODO versions...
+                              CherryKit::SeparatorText("Platform(s)");
+                              // TODO : enum supported platforms
+                            });
+
+                            CherryGUI::SameLine();
+                            if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/trash.png"))
+                                    ->GetData("isClicked") == "true") {
+                              std::cout << "True" << std::endl;
+
+                              // module_to_delete = sysmodule;
+                              // delete_module_modal_opened = true;
+                            }
+
+                            CherryGUI::SameLine();
+
+                            if (CherryKit::ButtonImageText(
+                                    "", Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"))
+                                    ->GetData("isClicked") == "true") {
+                              VortexMaker::OpenFolderInFileManager(sysmodule->m_path);
+                            }
+
+                            CherryGUI::EndChild();
+                          },
+                      }));
+                }
+              }
+
+              // Draw grid with blocks
+              Cherry::PushPermanentProperty("block_border_radius", "6.0");
+              CherryKit::GridSimple(270.0f, 270.0f, &plugins_block);
+              Cherry::PopPermanentProperty();
             },
             Cherry::GetPath("resources/imgs/plug.png")));
     this->AddChild(
@@ -133,7 +228,7 @@ namespace VortexLauncher {
               Cherry::SetNextComponentProperty("padding_y", "4");
               if (CherryKit::ButtonImageText("Import", Cherry::GetPath("resources/base/add.png"))->GetData("isClicked") ==
                   "true") {
-                m_AssetFinder = AssetFinder::Create("Select a folder", VortexMaker::getHomeDirectory());
+                m_AssetFinder = AssetFinder::Create("Import module(s)", VortexMaker::getHomeDirectory());
                 Cherry::ApplicationSpecification spec;
 
                 std::string name = "Find module(s)";
@@ -141,7 +236,7 @@ namespace VortexLauncher {
                 spec.MinHeight = 500;
                 spec.MinWidth = 500;
                 spec.Height = 600;
-                spec.Width = 1100;
+                spec.Width = 1150;
                 spec.DisableTitle = false;
                 spec.CustomTitlebar = true;
                 spec.DisableWindowManagerTitleBar = true;
@@ -149,24 +244,18 @@ namespace VortexLauncher {
                 spec.RenderMode = Cherry::WindowRenderingMethod::SimpleWindow;
                 spec.UniqueAppWindowName = m_AssetFinder->GetAppWindow()->m_Name;
                 spec.UsingCloseCallback = true;
-                spec.FavIconPath = Cherry::GetPath("resources/imgs/box.png");
-                spec.IconPath = Cherry::GetPath("resources/imgs/box.png");
-
+                spec.FavIconPath = Cherry::GetPath("resources/imgs/vbox.png");
+                spec.IconPath = Cherry::GetPath("resources/imgs/vbox.png");
+                spec.CloseCallback = [this]() { Cherry::DeleteAppWindow(m_AssetFinder->GetAppWindow()); };
+                spec.WindowSaves = false;
                 spec.MenubarCallback = [this]() {
                   if (ImGui::BeginMenu("Window")) {
-                    CherryKit::SeparatorText(Cherry::GetLocale("loc.menubar.menu.general"));
-
                     if (ImGui::MenuItem("Close")) {
                       Cherry::DeleteAppWindow(m_AssetFinder->GetAppWindow());
                     }
-
                     ImGui::EndMenu();
                   }
                 };
-
-                spec.CloseCallback = [this]() { Cherry::DeleteAppWindow(m_AssetFinder->GetAppWindow()); };
-
-                spec.WindowSaves = false;
 
                 m_AssetFinder->GetAppWindow()->AttachOnNewWindow(spec);
 
@@ -176,7 +265,7 @@ namespace VortexLauncher {
 
                 m_AssetFinder->GetAppWindow()->SetVisibility(true);
                 m_AssetFinder->m_ItemToReconize.push_back(std::make_shared<AssetFinderItem>(
-                    VortexMaker::CheckModuleInDirectory, "Module sample", "Description", ImVec4(1.0f, 0.0f, 0.0f, 1.0f)));
+                    VortexMaker::CheckModuleInDirectory, "Module sample", "Module", Cherry::HexToRGBA("#B1FF31")));
 
                 Cherry::AddAppWindow(m_AssetFinder->GetAppWindow());
               }

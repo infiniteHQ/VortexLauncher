@@ -8,8 +8,8 @@
 // Versions & Build identification
 //_____________________________________________________________________________
 // (Integer encoded as XYYZZ for use in #if preprocessor conditionals, e.g. '#if VORTEXLAUNCHER_VERSION_NUM >= 12345')
-#define VORTEXLAUNCHER_VERSION     "1.3.5"
-#define VORTEXLAUNCHER_VERSION_NUM 10305
+#define VORTEXLAUNCHER_VERSION     "1.4.0 WIP"
+#define VORTEXLAUNCHER_VERSION_NUM 010400  // Major.Medium.Minor
 
 //_____________________________________________________________________________
 
@@ -238,6 +238,7 @@ namespace VortexMaker {
       std::atomic<bool> &stillSearching,
       std::string &elapsedTime);
 
+  VORTEX_API bool CheckProjectInDirectory(const std::string &path);
   VORTEX_API std::vector<std::shared_ptr<EnvProject>> FindProjectInFolder(const std::string &path);
   VORTEX_API bool executeInChildProcess(const std::string &command);
 

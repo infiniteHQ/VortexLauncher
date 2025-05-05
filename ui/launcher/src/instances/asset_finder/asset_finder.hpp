@@ -154,6 +154,7 @@ class AssetFinder : public std::enable_shared_from_this<AssetFinder> {
 
   std::vector<std::string> m_Selected;
   bool m_GetFileBrowserPath = false;
+  std::string m_ElementName;
 
  private:
   bool opened;

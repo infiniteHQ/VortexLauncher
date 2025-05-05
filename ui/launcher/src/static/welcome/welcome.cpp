@@ -35,8 +35,11 @@ bool EndsWith(const std::string &value, const std::string &suffix) {
   return std::equal(suffix.rbegin(), suffix.rend(), value.rbegin());
 }
 
+static std::string test;
 namespace VortexLauncher {
   void WelcomeWindow::WelcomeRender() {
+    // CherryKit::TableSimple("", { CherryKit::KeyValString("Project name", &test) });
+
     // Cherry::SetNextComponentProperty("color_text", "#B1FF31"); // Todo remplace
     Cherry::PushFont("ClashBold");
     CherryNextProp("color_text", "#BBBBBB");

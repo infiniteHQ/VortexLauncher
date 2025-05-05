@@ -1,6 +1,7 @@
 #pragma once
 #include "../../../../../main/include/vortex.h"
 #include "../../../../../main/include/vortex_internals.h"
+#include "../../instances/asset_finder/asset_finder.hpp"
 #include "../../utils.hpp"
 
 #define CHERRY_V1
@@ -55,11 +56,13 @@ class ProjectManager : public std::enable_shared_from_this<ProjectManager> {
   std::shared_ptr<Cherry::Image> m_AddIcon;
   std::shared_ptr<Cherry::Image> m_TrashIcon;
 
+  std::shared_ptr<AssetFinder> m_AssetFinder;
+
   // Create project values
   std::string v_ProjectName = "New Project";
-  std::string v_ProjectVersion;
-  std::string v_ProjectAuthor;
-  std::string v_ProjectDescription;
+  std::string v_ProjectVersion = "";
+  std::string v_ProjectAuthor = "";
+  std::string v_ProjectDescription = "";
   std::vector<std::string> projectPoolsPaths;
   bool v_ProjectOpen;
   std::atomic<bool> m_StillSearching = false;

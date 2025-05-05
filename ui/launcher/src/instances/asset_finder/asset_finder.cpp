@@ -415,6 +415,13 @@ AssetFinder::AssetFinder(const std::string &name, const std::string &start_path)
     // this->DrawPathBar(m_CurrentDirectory.string());
   });
 
+  m_AppWindow->SetRightMenubarCallback([this]() {
+    if (CherryKit::ButtonImageText("Options", Cherry::GetPath("resources/imgs/options.png"))->GetData("isClicked") ==
+        "true") {
+      m_GetFileBrowserPath = true;
+    }
+  });
+
   m_AppWindow->SetRightBottombarCallback([this]() {
     CherryStyle::RemoveYMargin(10.0f);
     CherryStyle::RemoveXMargin(200.0f);
@@ -430,9 +437,9 @@ AssetFinder::AssetFinder(const std::string &name, const std::string &start_path)
     std::string label;
 
     if (m_Selected.empty()) {
-      label = "Import module(s)";
+      label = "Import " + m_ElementName + "(s)";
     } else {
-      label = "Import " + std::to_string(m_Selected.size()) + " module(s)";
+      label = "Import " + std::to_string(m_Selected.size()) + " " + m_ElementName + "(s)";
     }
 
     if (!m_Selected.empty()) {
