@@ -25,6 +25,7 @@
 #endif
 
 #include "./modules/interface.h"
+#include "./plugins/interface.h"
 #include "./templates/install.h"
 #include "./templates/interface.h"
 
@@ -178,8 +179,9 @@ struct VxIO {
   // EM / Editor Modules
   std::vector<void *> em_handles;
   std::vector<std::shared_ptr<ModuleInterface>> em;
-  std::vector<std::shared_ptr<ModuleInterface>> sys_em;
-  std::vector<std::shared_ptr<ModuleInterface>> sys_ep;
+  std::vector<std::shared_ptr<PluginInterface>> ep;
+  std::vector<std::shared_ptr<ModuleInterface>> sys_em;  // It's include esm (Script modules)
+  std::vector<std::shared_ptr<PluginInterface>> sys_ep;  // It's include esp (Script plugins)
 
   // Know projects in system
   std::vector<std::shared_ptr<EnvProject>> sys_projects;

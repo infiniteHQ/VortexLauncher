@@ -605,6 +605,43 @@ void VortexMaker::GetAllocatorFunctions(
   *p_user_data = CVxAllocatorUserData;
 }
 
+VORTEX_API void VortexMaker::InstallPluginToSystem(const std::string &path, const std::string &pool_path) {
+  std::string plugins_path = pool_path;
+  std::string json_file = path + "/plugin.json";
+
+  // Verify if the plugin is valid
+  try {
+    // Load JSON data from the plugin configuration file
+    auto json_data = VortexMaker::DumpJSON(json_file);
+    std::string name = json_data["name"].get<std::string>();
+    std::string proper_name = json_data["proper_name"].get<std::string>();
+    std::string type = json_data["type"].get<std::string>();
+    std::string version = json_data["version"].get<std::string>();
+    std::string description = json_data["description"].get<std::string>();
+    std::string author = json_data["author"].get<std::string>();
+
+    // std::string origin_path = path.substr(0, path.find_last_of("/"));
+    plugins_path += "/" + name + "." + version;  // TODO : HASH name to avoid collision
+
+    VortexMaker::LogInfo("Core", "Installing the plugin " + name + "...");
+
+    // Create directory
+    {
+      std::string cmd = "mkdir " + plugins_path;
+      system(cmd.c_str());
+    }
+
+    // Move the plugin in the final system path
+    {
+      std::string cmd = "cp -r " + path + "/* " + plugins_path;
+      system(cmd.c_str());
+    }
+  } catch (const std::exception &e) {
+    // Print error if an exception occurs
+    std::cerr << "Error: " << e.what() << std::endl;
+  }
+}
+
 VORTEX_API void VortexMaker::InstallModuleToSystem(const std::string &path, const std::string &pool_path) {
   std::string modules_path = pool_path;
   std::string json_file = path + "/module.json";

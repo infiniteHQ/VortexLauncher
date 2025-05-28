@@ -216,6 +216,7 @@ namespace VortexMaker {
   VORTEX_API std::shared_ptr<spdlog::logger> CreateConsoleLogger();
   VORTEX_API void DropLoggers();
 
+  VORTEX_API void InstallPluginToSystem(const std::string &path, const std::string &pool_path);
   VORTEX_API void InstallModuleToSystem(const std::string &path, const std::string &pool_path);
   VORTEX_API void InstallModule(const std::string &module_name, const std::string &version, bool &restart_modules);
   VORTEX_API std::vector<std::string> SearchFiles(const std::string &path, const std::string &filename);

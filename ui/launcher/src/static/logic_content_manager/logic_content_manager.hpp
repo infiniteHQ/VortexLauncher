@@ -3,6 +3,9 @@
 #include "../../../../../main/include/modules/delete.h"
 #include "../../../../../main/include/modules/install.h"
 #include "../../../../../main/include/modules/load.h"
+#include "../../../../../main/include/plugins/delete.h"
+#include "../../../../../main/include/plugins/install.h"
+#include "../../../../../main/include/plugins/load.h"
 #include "../../../../../main/include/vortex.h"
 #include "../../../../../main/include/vortex_internals.h"
 #include "../../instances/asset_finder/asset_finder.hpp"
@@ -48,6 +51,11 @@ namespace VortexLauncher {
     std::vector<std::shared_ptr<ModuleInterface>> m_SelectedModules;
     std::vector<std::shared_ptr<ModuleInterface>> m_ModulesToSuppr;
     std::vector<std::shared_ptr<ModuleInterface>> m_ModulesToImport;
+
+    std::vector<std::shared_ptr<PluginInterface>> m_FindedPlugins;
+    std::vector<std::shared_ptr<PluginInterface>> m_SelectedPlugins;
+    std::vector<std::shared_ptr<PluginInterface>> m_PluginsToSuppr;
+    std::vector<std::shared_ptr<PluginInterface>> m_PluginsToImport;
 
     std::atomic<bool> m_StillSearching = false;
     bool m_SearchStarted = false;

@@ -100,19 +100,19 @@ namespace VortexLauncher {
                     available_versions.push_back([available_version](int c) {
                       switch (c) {
                         case 0: {
-                          CherryKit::ImageHttp(available_version->banner, 100.0f, 35.0f);
+                          CherryKit::ImageHttp(available_version->banner, 140.0f, 50.0f);
                           break;
                         }
                         case 1: {
-                          CherryStyle::AddMarginY(9.0f);
-                          CherryKit::TitleSix(available_version->name);
+                          CherryStyle::AddMarginY(13.0f);
+                          CherryKit::TitleFour(available_version->name);
                           CherryGUI::SameLine();
                           Cherry::SetNextComponentProperty("color_text", "#656565");
                           CherryKit::TitleSix("(" + available_version->plat + "/" + available_version->arch + ")");
                           break;
                         }
                         case 2: {  // dist
-                          CherryStyle::AddMarginY(9.0f);
+                          CherryStyle::AddMarginY(13.0f);
                           CherryKit::TitleSix(available_version->dist);
                           break;
                         }
@@ -120,7 +120,7 @@ namespace VortexLauncher {
                           bool exist = VortexMaker::CheckIfVortexVersionUtilityExist(
                               available_version->version, available_version->path);
                           if (exist) {
-                            CherryStyle::AddMarginY(4.0f);
+                            CherryStyle::AddMarginY(7.0f);
                             if (CherryKit::ButtonImageText(
                                     "Reinstall", Cherry::GetPath("resources/imgs/icons/misc/icon_settings.png"))
                                     ->GetData("isClicked") == "true") {
@@ -136,7 +136,7 @@ namespace VortexLauncher {
                               }).detach();
                             }
                           } else {
-                            CherryStyle::AddMarginY(4.0f);
+                            CherryStyle::AddMarginY(7.0f);
                             if (CherryKit::ButtonImageText(
                                     "Install", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))
                                     ->GetData("isClicked") == "true") {
