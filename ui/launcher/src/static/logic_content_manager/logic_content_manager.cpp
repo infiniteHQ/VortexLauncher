@@ -218,28 +218,22 @@ namespace VortexLauncher {
                   plugins_block.push_back(CherryKit::BlockVerticalCustom(
                       Cherry::IdentifierPattern(Cherry::IdentifierProperty::CreateOnly, sysplugin->m_name),
                       m_CreateProjectCallback,
-                      269.0f,
-                      160.0f,
+                      200.0f,
+                      130.0f,
                       {
                           [sysplugin]() {
-                            if (sysplugin->m_banner_path.empty()) {
-                              CherryKit::ImageLocal(Cherry::GetPath("resources/imgs/def_project_banner.png"), 269.0f);
-                            }
+                            CherryStyle::AddMarginX(5.0f);
+                            CherryStyle::AddMarginY(5.0f);
+                            CherryKit::ImageLocal(Cherry::GetPath(sysplugin->m_logo_path), 28.0f, 28.0f);
 
-                            else {
-                              CherryKit::ImageLocal(sysplugin->m_banner_path, 269.0f);
-                            }
-                          },
-                          [sysplugin]() {
-                            CherryStyle::RemoveYMargin(35.0f);
-                            CherryStyle::AddMarginX(10.0f);
-                            CherryKit::ImageLocal(Cherry::GetPath(sysplugin->m_logo_path), 40.0f, 40.0f);
+                            CherryGUI::SameLine();
+                            Cherry::SetNextComponentProperty("color_text", "#FFFFFF");
+                            CherryStyle::AddMarginY(7.0f);
+                            CherryKit::TextSimple(sysplugin->m_proper_name);
                           },
                           [sysplugin]() {
                             CherryStyle::AddMarginX(5.0f);
-                            Cherry::SetNextComponentProperty("color_text", "#FFFFFF");
-                            CherryKit::TextSimple(sysplugin->m_proper_name);
-                            CherryGUI::SameLine();
+                            CherryStyle::RemoveYMargin(5.0f);
                             Cherry::SetNextComponentProperty("color_text", "#686868");
                             CherryKit::TextSimple(sysplugin->m_version);
 

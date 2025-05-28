@@ -24,6 +24,8 @@
 #include "vortex.h"
 #endif
 
+#include "./contents/install.h"
+#include "./contents/interface.h"
 #include "./modules/interface.h"
 #include "./plugins/interface.h"
 #include "./templates/install.h"
@@ -191,6 +193,7 @@ struct VxIO {
   std::vector<std::string> sys_vortex_versions_pools;
   std::vector<std::string> sys_modules_pools;
   std::vector<std::string> sys_templates_pools;
+  std::vector<std::string> sys_contents_pools;
   std::vector<std::string> sys_plugins_pools;
   std::vector<std::shared_ptr<VortexVersion>> sys_vortex_versions;
   std::vector<std::shared_ptr<VortexVersion>> available_vortex_versions;
@@ -202,6 +205,7 @@ struct VxIO {
   // Templates
   std::vector<std::shared_ptr<TemplateInterface>> templates;
   std::vector<std::shared_ptr<TemplateInterface>> sys_templates;
+  std::vector<std::shared_ptr<ContentInterface>> sys_contents;
 
   // Misc
   std::vector<VortexNews> news;

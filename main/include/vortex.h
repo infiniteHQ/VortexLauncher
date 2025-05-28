@@ -179,6 +179,13 @@ namespace VortexMaker {
 
   VORTEX_API void InitProject(const nlohmann::json &main_config);
 
+  std::string GetPath(const std::string &path);
+  std::string CookPath(std::string_view input_path);
+
+#ifdef _WIN32
+  std::string convertPathToWindowsStyle(const std::string &path);
+#endif
+
   VORTEX_API void DetectPlatformVendor();
   VORTEX_API void GetPlatformVendor();
 
@@ -264,6 +271,7 @@ namespace VortexMaker {
   VORTEX_API void RefreshVortexDists();
   VORTEX_API void RefreshVortexLauncherDists();
   VORTEX_API void RefreshEnvironmentProjectsPools();
+  VORTEX_API void RefreshEnvironmentContentsPools();
   VORTEX_API void RefreshEnvironmentModulesPools();
   VORTEX_API void RefreshEnvironmentTemplatesPools();
   VORTEX_API void RefreshEnvironmentPluginsPools();

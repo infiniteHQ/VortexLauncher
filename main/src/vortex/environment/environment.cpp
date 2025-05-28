@@ -118,6 +118,18 @@ VORTEX_API void VortexMaker::InitEnvironment() {
   {
     std::string endpath;
 #ifdef _WIN32
+    endpath = "contents\\contents\\";
+#else
+    endpath = "contents/contents/";
+#endif
+
+    std::string path = vxBasePath + endpath;
+    VortexMaker::createFolderIfNotExists(path);
+  }
+
+  {
+    std::string endpath;
+#ifdef _WIN32
     endpath = "contents\\assets\\";
 #else
     endpath = "contents/assets/";
@@ -212,6 +224,22 @@ VORTEX_API void VortexMaker::InitEnvironment() {
 
   {
     std::string path = vxBasePath + "configs/";
+    std::string file = path + "contents_pools.json";
+
+    std::string content_path;
+#ifdef _WIN32
+    content_path = "contents\\contents/";
+#else
+    content_path = "contents/contents/";
+#endif
+
+    nlohmann::json default_data = { { "contents_pools", nlohmann::json::array({ vxBasePath + content_path }) } };
+
+    VortexMaker::createJsonFileIfNotExists(file, default_data);
+  }
+
+  {
+    std::string path = vxBasePath + "configs/";
     std::string file = path + "vortex_versions_pools.json";
 
     std::string def_vx_path;
@@ -236,8 +264,18 @@ VORTEX_API void VortexMaker::InitEnvironment() {
   }
 
   {
-    std::string path = vxBasePath + "contents/templates/vortex.templates.builtin.__blankproject/";
-    VortexMaker::createFolderIfNotExists(path);
+    std::string path = vxBasePath + "contents/templates";
+    std::string blank_template_path = path + "/blank_project";
+    if (!fs::exists(blank_template_path)) {
+      try {
+        std::string cmd = "cp -r " + VortexMaker::GetPath("resources/templates/blank_project") + " " + path;
+        system(cmd.c_str());
+        VortexMaker::LogInfo("Core", "Path '" + path + "' created with success.");
+      } catch (const std::exception &ex) {
+        VortexMaker::LogError("Core", "Error while creating folder '" + path + "'");
+        VortexMaker::LogError("Core", ex.what());
+      }
+    }
   }
 
   {
@@ -499,6 +537,41 @@ VORTEX_API void VortexMaker::RefreshEnvironmentModulesPools() {
     auto json_data = VortexMaker::DumpJSON(json_file);
     for (auto pool : json_data["modules_pools"]) {
       ctx.IO.sys_modules_pools.push_back(pool);
+    }
+  } catch (const std::exception &e) {
+    // Print error if an exception occurs
+    VortexMaker::LogError("Error: ", e.what());
+  }
+}
+
+VORTEX_API void VortexMaker::RefreshEnvironmentContentsPools() {
+  // Get reference to the Vortex context
+  VxContext &ctx = *CVortexMaker;
+
+  // Set path depending on platform
+  std::string path;
+  if (VortexMaker::IsWindows()) {
+    path = VortexMaker::getHomeDirectory() + "\\.vx\\configs\\";
+  } else {
+    path = VortexMaker::getHomeDirectory() + "/.vx/configs/";
+  }
+
+  std::string json_file;
+  if (VortexMaker::IsWindows()) {
+    json_file = path + "\\contents_pools.json";
+  } else {
+    json_file = path + "/contents_pools.json";
+  }
+
+  // Clear contents list
+  ctx.IO.sys_contents_pools.clear();
+
+  // Verify if the contents pools file is valid
+  try {
+    // Load JSON data from the contents configuration file
+    auto json_data = VortexMaker::DumpJSON(json_file);
+    for (auto pool : json_data["contents_pools"]) {
+      ctx.IO.sys_contents_pools.push_back(pool);
     }
   } catch (const std::exception &e) {
     // Print error if an exception occurs

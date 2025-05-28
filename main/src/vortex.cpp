@@ -605,6 +605,47 @@ void VortexMaker::GetAllocatorFunctions(
   *p_user_data = CVxAllocatorUserData;
 }
 
+#ifdef _WIN32
+std::string VortexMaker::convertPathToWindowsStyle(const std::string &path) {
+  std::string windowsPath = path;
+  std::replace(windowsPath.begin(), windowsPath.end(), '/', '\\');
+  return windowsPath;
+}
+#endif
+
+std::string VortexMaker::CookPath(std::string_view input_path) {
+  static const std::string root_path = []() {
+    std::string path;
+#ifdef _WIN32
+    char result[MAX_PATH];
+    if (GetModuleFileNameA(NULL, result, MAX_PATH))
+      path = std::filesystem::path(result).parent_path().string();
+    else
+      std::cerr << "Failed to get root path" << std::endl;
+#else
+    char result[PATH_MAX];
+    ssize_t count = readlink("/proc/self/exe", result, sizeof(result) - 1);
+    if (count != -1) {
+      result[count] = '\0';
+      path = std::filesystem::path(result).parent_path().string();
+    } else {
+      std::cerr << "Failed to get root path" << std::endl;
+    }
+#endif
+    return path;
+  }();
+
+  return (input_path.empty() || input_path[0] == '/') ? std::string(input_path) : root_path + "/" + std::string(input_path);
+}
+
+std::string VortexMaker::GetPath(const std::string &path) {
+#ifdef _WIN32
+  return VortexMaker::convertPathToWindowsStyle(VortexMaker::CookPath(path));
+#else
+  return VortexMaker::CookPath(path);
+#endif
+}
+
 VORTEX_API void VortexMaker::InstallPluginToSystem(const std::string &path, const std::string &pool_path) {
   std::string plugins_path = pool_path;
   std::string json_file = path + "/plugin.json";
