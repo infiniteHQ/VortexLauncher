@@ -340,7 +340,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
         "Update Vortex Launcher",
         "A new update for the launcher is available !" + ctx.latest_launcher_version.version,
         []() {
-          if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_upgrade.png"))
+          if (CherryKit::ButtonImageText("Update now", Cherry::GetPath("resources/imgs/icons/misc/icon_upgrade.png"))
                   ->GetData("isClicked") == "true") {
             std::thread([]() {
               VortexMaker::OpenLauncherUpdater(

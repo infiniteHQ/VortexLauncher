@@ -100,16 +100,57 @@ namespace VortexLauncher {
                     available_versions.push_back([available_version](int c) {
                       switch (c) {
                         case 0: {
-                          // LOGO
+                          CherryKit::ImageHttp(available_version->banner, 100.0f, 35.0f);
                           break;
                         }
                         case 1: {
+                          CherryStyle::AddMarginY(9.0f);
                           CherryKit::TitleSix(available_version->name);
                           CherryGUI::SameLine();
+                          Cherry::SetNextComponentProperty("color_text", "#656565");
                           CherryKit::TitleSix("(" + available_version->plat + "/" + available_version->arch + ")");
                           break;
                         }
-                        case 2: {
+                        case 2: {  // dist
+                          CherryStyle::AddMarginY(9.0f);
+                          CherryKit::TitleSix(available_version->dist);
+                          break;
+                        }
+                        case 3: {
+                          bool exist = VortexMaker::CheckIfVortexVersionUtilityExist(
+                              available_version->version, available_version->path);
+                          if (exist) {
+                            CherryStyle::AddMarginY(4.0f);
+                            if (CherryKit::ButtonImageText(
+                                    "Reinstall", Cherry::GetPath("resources/imgs/icons/misc/icon_settings.png"))
+                                    ->GetData("isClicked") == "true") {
+                              std::thread([available_version]() {
+                                VortexMaker::OpenVortexUninstaller(available_version->path);
+                                VortexMaker::OpenVortexInstaller(
+                                    available_version->version,
+                                    available_version->arch,
+                                    available_version->dist,
+                                    available_version->plat);
+
+                                VortexMaker::RefreshEnvironmentVortexVersion();
+                              }).detach();
+                            }
+                          } else {
+                            CherryStyle::AddMarginY(4.0f);
+                            if (CherryKit::ButtonImageText(
+                                    "Install", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))
+                                    ->GetData("isClicked") == "true") {
+                              std::thread([available_version]() {
+                                VortexMaker::OpenVortexInstaller(
+                                    available_version->version,
+                                    available_version->arch,
+                                    available_version->dist,
+                                    available_version->plat);
+                                VortexMaker::RefreshEnvironmentVortexVersion();
+                              }).detach();
+                            }
+                          }
+
                           break;
                         }
                         default: {
@@ -128,14 +169,16 @@ namespace VortexLauncher {
                   }
                 }
 
-                Cherry::SetNextComponentProperty("color_border", "#B1FF31");
-                Cherry::SetNextComponentProperty("columns_number", "3");
+                Cherry::SetNextComponentProperty("columns_number", "4");
                 Cherry::SetNextComponentProperty("columns_name_0", "");
                 Cherry::SetNextComponentProperty("columns_name_1", "Version name");
-                Cherry::SetNextComponentProperty("columns_name_2", "Actions");
-                Cherry::SetNextComponentProperty("columns_width_0", "30.0");
-                Cherry::SetNextComponentProperty("columns_width_1", "30.0");
-                CherryKit::TableCustom("Available Vortex Versions", available_versions);
+                Cherry::SetNextComponentProperty("columns_name_2", "Dist");
+                Cherry::SetNextComponentProperty("columns_name_3", "Actions");
+                Cherry::SetNextComponentProperty("columns_width_0", "5.0f");
+                Cherry::SetNextComponentProperty("columns_width_1", "10.0f");
+                Cherry::SetNextComponentProperty("columns_width_2", "5.0f");
+                Cherry::SetNextComponentProperty("columns_width_3", "10.0f");
+                CherryKit::TableCustom(CherryID("sdfg"), "Available Vortex Versions", available_versions);
               }
             },
             Cherry::GetPath("resources/imgs/add.png")));
@@ -169,20 +212,21 @@ namespace VortexLauncher {
               static std::vector<std::function<void(int)>> versions_render_callbacks;
 
               if (versions_render_callbacks.empty()) {
+                std::cout << "Nbr of v : " << VortexMaker::GetCurrentContext()->IO.sys_vortex_versions.size() << std::endl;
                 for (auto version : VortexMaker::GetCurrentContext()->IO.sys_vortex_versions) {
                   versions_render_callbacks.push_back([version](int c) {
                     switch (c) {
                       case 0: {  // Image
-                        CherryKit::ImageLocal(Cherry::GetPath(version->icon), 30.0f, 30.0f);
+                        CherryKit::ImageLocal(Cherry::GetPath(version->banner), 100.0f, 35.0f);
                         break;
                       }
                       case 1: {  // Name
+                        CherryStyle::AddMarginY(9.0f);
                         CherryKit::TitleSix(version->name);
-                        CherryGUI::SameLine();
-                        CherryKit::TitleSix("(" + version->plat + "/" + version->arch + ")");
                         break;
                       }
                       case 2: {  // Actions
+                        CherryStyle::AddMarginY(4.0f);
                         if (CherryKit::ButtonImageText("Delete", Cherry::GetPath("resources/imgs/trash.png"))
                                 ->GetData("isClicked") == "true") {
                           std::thread([version]() { VortexMaker::OpenVortexUninstaller(version->path); }).detach();
@@ -202,14 +246,14 @@ namespace VortexLauncher {
                 }
               }
 
-              Cherry::SetNextComponentProperty("color_border", "#B1FF31");
               Cherry::SetNextComponentProperty("columns_number", "3");
               Cherry::SetNextComponentProperty("columns_name_0", "");
               Cherry::SetNextComponentProperty("columns_name_1", "Version name");
               Cherry::SetNextComponentProperty("columns_name_2", "Actions");
-              Cherry::SetNextComponentProperty("columns_width_0", "30.0");
-              Cherry::SetNextComponentProperty("columns_width_1", "30.0");
-              CherryKit::TableCustom("Installed Vortex versions", versions_render_callbacks);
+              Cherry::SetNextComponentProperty("columns_width_0", "3.0f");
+              Cherry::SetNextComponentProperty("columns_width_1", "10.0f");
+              Cherry::SetNextComponentProperty("columns_width_2", "10.0f");
+              CherryKit::TableCustom(CherryID("qsf"), "Installed Vortex versions", versions_render_callbacks);
             },
             Cherry::GetPath("resources/imgs/stack.png")));
 

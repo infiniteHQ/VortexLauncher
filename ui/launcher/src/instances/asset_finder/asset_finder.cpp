@@ -416,15 +416,15 @@ AssetFinder::AssetFinder(const std::string &name, const std::string &start_path)
   });
 
   m_AppWindow->SetRightMenubarCallback([this]() {
-    if (CherryKit::ButtonImageText("Options", Cherry::GetPath("resources/imgs/options.png"))->GetData("isClicked") ==
-        "true") {
+    if (CherryKit::ButtonImageTextDropdown("Options", Cherry::GetPath("resources/imgs/icons/misc/icon_settings.png"))
+            ->GetData("isClicked") == "true") {
       m_GetFileBrowserPath = true;
     }
   });
 
   m_AppWindow->SetRightBottombarCallback([this]() {
     CherryStyle::RemoveYMargin(10.0f);
-    CherryStyle::RemoveXMargin(200.0f);
+    CherryStyle::RemoveXMargin(75.0f);
     if (CherryKit::ButtonImageText("Cancel", Cherry::GetPath("resources/imgs/icons/misc/icon_return.png"))
             ->GetData("isClicked") == "true") {
       m_GetFileBrowserPath = true;

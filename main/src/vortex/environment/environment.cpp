@@ -669,6 +669,7 @@ VORTEX_API void VortexMaker::RefreshEnvironmentVortexVersion() {
             ctx.IO.sys_vortex_versions.push_back(vortex_version);
             // ctx.IO.available_vortex_versions.push_back(version);
           } catch (const std::exception &e) {
+            std::cout << "FAIL" << std::endl;
             continue;
           }
         } else {

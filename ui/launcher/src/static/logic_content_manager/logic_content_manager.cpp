@@ -153,11 +153,14 @@ namespace VortexLauncher {
                             CherryGUI::BeginChild("###action_bar", ImVec2(200, 50), false, ImGuiWindowFlags_NoScrollbar);
                             CherryStyle::AddMarginX(5.0f);
                             Cherry::SetNextComponentProperty("color_text", "#888888");
+
+                            CherryStyle::AddMarginY(5.0f);
+
                             CherryKit::TextSimple("em");
 
                             CherryGUI::SameLine();
 
-                            CherryKit::TooltipImageCustom(Cherry::GetPath("resources/imgs/help.png"), [sysmodule]() {
+                            CherryKit::TooltipTextCustom("(?)", [sysmodule]() {
                               CherryKit::SeparatorText("Vortex compat");
                               CherryKit::TextWrapped(
                                   std::to_string(sysmodule->m_supported_versions.size()) + " supported version(s)");
@@ -364,6 +367,22 @@ namespace VortexLauncher {
                             Cherry::SetNextComponentProperty("color_text", "#686868");
                             CherryKit::TextSimple(sysmodule->m_version);
 
+                            CherryGUI::SameLine();
+
+                            CherryKit::TooltipTextCustom("(?)", [sysmodule]() {
+                              CherryKit::SeparatorText("Vortex compat");
+                              CherryKit::TextWrapped(
+                                  std::to_string(sysmodule->m_supported_versions.size()) + " supported version(s)");
+                              for (auto v : sysmodule->m_supported_versions) {
+                                Cherry::SetNextComponentProperty("color_text", "#888888");
+                                CherryKit::TextSimple(v);
+                              }
+
+                              // TODO versions...
+                              CherryKit::SeparatorText("Platform(s)");
+                              // TODO : enum supported platforms
+                            });
+
                             CherryStyle::AddMarginX(5.0f);
                             Cherry::SetNextComponentProperty("color_text", "#9B9B9B");
                             std::string wrapped_description = sysmodule->m_description;
@@ -381,23 +400,6 @@ namespace VortexLauncher {
                             CherryGUI::BeginChild("###action_bar", ImVec2(200, 50), false, ImGuiWindowFlags_NoScrollbar);
                             CherryStyle::AddMarginX(5.0f);
                             Cherry::SetNextComponentProperty("color_text", "#888888");
-                            CherryKit::TextSimple("em");
-
-                            CherryGUI::SameLine();
-
-                            CherryKit::TooltipImageCustom(Cherry::GetPath("resources/imgs/help.png"), [sysmodule]() {
-                              CherryKit::SeparatorText("Vortex compat");
-                              CherryKit::TextWrapped(
-                                  std::to_string(sysmodule->m_supported_versions.size()) + " supported version(s)");
-                              for (auto v : sysmodule->m_supported_versions) {
-                                Cherry::SetNextComponentProperty("color_text", "#888888");
-                                CherryKit::TextSimple(v);
-                              }
-
-                              // TODO versions...
-                              CherryKit::SeparatorText("Platform(s)");
-                              // TODO : enum supported platforms
-                            });
 
                             CherryGUI::SameLine();
                             if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/trash.png"))
