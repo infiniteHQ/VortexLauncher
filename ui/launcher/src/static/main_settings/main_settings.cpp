@@ -16,6 +16,183 @@
 #endif
 
 namespace VortexLauncher {
+
+  static void saveVortexVersions(const std::vector<std::string> &paths, const std::string &jsonFilePath) {
+    nlohmann::json jsonData;
+    jsonData["vortex_versions_pools"] = paths;
+
+    std::ofstream file(jsonFilePath);
+    if (file) {
+      file << jsonData.dump(4);
+    }
+  }
+
+  static void loadVortexVersions(std::vector<std::string> &paths, const std::string &jsonFilePath) {
+    std::ifstream file(jsonFilePath);
+    if (file) {
+      nlohmann::json jsonData;
+      file >> jsonData;
+      for (const auto &path : jsonData["vortex_versions_pools"]) {
+        paths.push_back(path.get<std::string>());
+      }
+    }
+  }
+
+  static void saveTemplates(const std::vector<std::string> &paths, const std::string &jsonFilePath) {
+    nlohmann::json jsonData;
+    jsonData["templates_pools"] = paths;
+
+    std::ofstream file(jsonFilePath);
+    if (file) {
+      file << jsonData.dump(4);
+    }
+  }
+
+  static void loadTemplates(std::vector<std::string> &paths, const std::string &jsonFilePath) {
+    std::ifstream file(jsonFilePath);
+    if (file) {
+      nlohmann::json jsonData;
+      file >> jsonData;
+      for (const auto &path : jsonData["templates_pools"]) {
+        paths.push_back(path.get<std::string>());
+      }
+    }
+  }
+
+  static void saveContents(const std::vector<std::string> &paths, const std::string &jsonFilePath) {
+    nlohmann::json jsonData;
+    jsonData["contents_pools"] = paths;
+
+    std::ofstream file(jsonFilePath);
+    if (file) {
+      file << jsonData.dump(4);
+    }
+  }
+
+  static void loadContents(std::vector<std::string> &paths, const std::string &jsonFilePath) {
+    std::ifstream file(jsonFilePath);
+    if (file) {
+      nlohmann::json jsonData;
+      file >> jsonData;
+      for (const auto &path : jsonData["contents_pools"]) {
+        paths.push_back(path.get<std::string>());
+      }
+    }
+  }
+  static void saveModules(const std::vector<std::string> &paths, const std::string &jsonFilePath) {
+    nlohmann::json jsonData;
+    jsonData["modules_pools"] = paths;
+
+    std::ofstream file(jsonFilePath);
+    if (file) {
+      file << jsonData.dump(4);
+    }
+  }
+
+  static void loadModules(std::vector<std::string> &paths, const std::string &jsonFilePath) {
+    std::ifstream file(jsonFilePath);
+    if (file) {
+      nlohmann::json jsonData;
+      file >> jsonData;
+      for (const auto &path : jsonData["modules_pools"]) {
+        paths.push_back(path.get<std::string>());
+      }
+    }
+  }
+
+  static void savePlugins(const std::vector<std::string> &paths, const std::string &jsonFilePath) {
+    nlohmann::json jsonData;
+    jsonData["plugins_pools"] = paths;
+
+    std::ofstream file(jsonFilePath);
+    if (file) {
+      file << jsonData.dump(4);
+    }
+  }
+
+  static void loadPlugins(std::vector<std::string> &paths, const std::string &jsonFilePath) {
+    std::ifstream file(jsonFilePath);
+    if (file) {
+      nlohmann::json jsonData;
+      file >> jsonData;
+      for (const auto &path : jsonData["plugins_pools"]) {
+        paths.push_back(path.get<std::string>());
+      }
+    }
+  }
+
+  static void saveProjects(const std::vector<std::string> &projectPaths, const std::string &jsonFilePath) {
+    nlohmann::json jsonData;
+    jsonData["projects_pools"] = projectPaths;
+
+    std::ofstream file(jsonFilePath);
+    if (file) {
+      file << jsonData.dump(4);
+    }
+  }
+
+  static void loadProjects(std::vector<std::string> &projectPaths, const std::string &jsonFilePath) {
+    std::ifstream file(jsonFilePath);
+    if (file) {
+      nlohmann::json jsonData;
+      file >> jsonData;
+      for (const auto &path : jsonData["projects_pools"]) {
+        projectPaths.push_back(path.get<std::string>());
+      }
+    }
+  }
+
+  void PathListEditor(const std::string &type, std::vector<std::string> *list, std::string *newPath) {
+    if (!list || !newPath)
+      return;
+
+    ImGui::PushStyleColor(ImGuiCol_TableRowBg, Cherry::HexToRGBA("#151515FF"));
+    if (ImGui::BeginTable("##project_paths", 2)) {
+      ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(8.0f, 8.0f));
+
+      ImGui::TableSetupColumn("Path");
+      ImGui::TableSetupColumn("Action");
+      ImGui::TableHeadersRow();
+
+      for (size_t i = 0; i < list->size(); ++i) {
+        ImGui::TableNextRow();
+
+        ImGui::TableSetColumnIndex(0);
+        ImGui::PushStyleColor(ImGuiCol_TableRowBg, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
+
+        ImGui::Text("%s", (*list)[i].c_str());
+
+        ImGui::PopStyleColor();
+
+        ImGui::TableSetColumnIndex(1);
+        if (CherryKit::ButtonImageText(
+                CherryID("delete_entry" + type), "", Cherry::GetPath("resources/imgs/icons/misc/icon_delete.png"))
+                ->GetData("isClicked") == "true") {
+          list->erase(list->begin() + i);
+          --i;
+        }
+      }
+
+      ImGui::PopStyleVar();
+      ImGui::EndTable();
+    }
+
+    ImGui::PopStyleColor();
+
+    if (CherryKit::ButtonImageText(
+            CherryID("add_entry" + type), "", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))
+            ->GetData("isClicked") == "true") {
+      if (!newPath->empty()) {
+        list->push_back(*newPath);
+        newPath->clear();
+      }
+    }
+
+    ImGui::SameLine();
+
+    CherryKit::InputString("", newPath);
+  }
+
   void MainSettings::ModulesRender() {
     // Cherry::SetNextComponentProperty("color_text", "#B1FF31"); // Todo remplace
     Cherry::PushFont("ClashBold");
@@ -26,10 +203,67 @@ namespace VortexLauncher {
     CherryKit::Separator();
   }
 
+  std::string GetConfigFilePath() {
+    std::string homeDir = VortexMaker::getHomeDirectory();
+    std::string configPath;
+    if (VortexMaker::IsWindows()) {
+      configPath = homeDir + "\\.vx\\configs\\dists.json";
+    } else {
+      configPath = homeDir + "/.vx/configs/dists.json";
+    }
+    return configPath;
+  }
+
+  nlohmann::json LoadConfig(const std::string &filePath) {
+    std::ifstream file(filePath);
+    nlohmann::json config;
+    if (file.is_open()) {
+      file >> config;
+    } else {
+      config = { { "vortex_dists", { "def" } }, { "vortexlauncher_dist", "def" } };
+    }
+    return config;
+  }
+
+  void SaveConfig(const std::string &filePath, const nlohmann::json &config) {
+    std::ofstream file(filePath);
+    if (file.is_open()) {
+      file << config.dump(4);
+    }
+  }
+
+  void MainSettings::RefreshConfig() {
+    auto config = LoadConfig(GetConfigFilePath());
+    vortexDists = config["vortex_dists"].get<std::vector<std::string>>();
+    vortexLauncherDist = config["vortexlauncher_dist"].get<std::string>();
+    std::string path = VortexMaker::getHomeDirectory() + "/.vx/configs/";
+    m_ProjectPoolsPaths.clear();
+    m_ModulesPoolsPaths.clear();
+    m_PluginsPoolsPaths.clear();
+    m_TemplatesPoolsPaths.clear();
+    m_ContentsPoolsPaths.clear();
+    m_VortexVersionPoolsPaths.clear();
+    loadProjects(m_ProjectPoolsPaths, path + "/projects_pools.json");
+    loadModules(m_ModulesPoolsPaths, path + "/modules_pools.json");
+    loadPlugins(m_PluginsPoolsPaths, path + "/plugins_pools.json");
+    loadTemplates(m_TemplatesPoolsPaths, path + "/templates_pools.json");
+    loadContents(m_ContentsPoolsPaths, path + "/contents_pools.json");
+    loadVortexVersions(m_VortexVersionPoolsPaths, path + "/vortex_versions_pools.json");
+  }
+
+  void MainSettings::SaveCurrentConfig() {
+    nlohmann::json config;
+    config["vortex_dists"] = vortexDists;
+    config["vortexlauncher_dist"] = vortexLauncherDist;
+    SaveConfig(GetConfigFilePath(), config);
+  }
+
   MainSettings::MainSettings(const std::string &name) {
     m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
     m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/icons/misc/icon_home.png"));
     m_AppWindow->SetClosable(false);
+
+    RefreshConfig();
 
     m_AppWindow->m_TabMenuCallback = []() {
       ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
@@ -41,14 +275,184 @@ namespace VortexLauncher {
     m_AppWindow->SetInternalPaddingX(0.0f);
     m_AppWindow->SetInternalPaddingY(0.0f);
 
-    m_SelectedChildName = "Plugins";
+    m_SelectedChildName = "Updates & Distribution";
     m_RecentProjects = GetMostRecentProjects(VortexMaker::GetCurrentContext()->IO.sys_projects, 4);
 
     this->AddChild("Help", MainSettingsChild([this]() { }, Cherry::GetPath("resources/imgs/help.png")));
-    this->AddChild("Accessibility", MainSettingsChild([this]() { }, Cherry::GetPath("resources/imgs/accessibility.png")));
-    this->AddChild("Theme", MainSettingsChild([this]() { }, Cherry::GetPath("resources/imgs/paint.png")));
-    this->AddChild("System paths", MainSettingsChild([this]() { }, Cherry::GetPath("resources/imgs/link.png")));
-    this->AddChild("Updates & Distribution", MainSettingsChild([this]() { }, Cherry::GetPath("resources/imgs/update.png")));
+    this->AddChild(
+        "Accessibility",
+        MainSettingsChild(
+            [this]() {
+              CherryNextProp("color_text", "#797979");
+              CherryKit::TitleFive("Accessibility settings");
+              Cherry::PopFont();
+              CherryNextProp("color", "#252525");
+              CherryKit::Separator();
+              CherryKit::TextSimple("No settings for the moment. Work in progress");
+            },
+            Cherry::GetPath("resources/imgs/accessibility.png")));
+    this->AddChild(
+        "Theme",
+        MainSettingsChild(
+            [this]() {
+              Cherry::PushFont("ClashBold");
+              CherryNextProp("color_text", "#797979");
+              CherryKit::TitleFive("Theme settings");
+              Cherry::PopFont();
+              CherryNextProp("color", "#252525");
+              CherryKit::Separator();
+              CherryKit::TextSimple("No settings for the moment. Work in progress");
+            },
+            Cherry::GetPath("resources/imgs/paint.png")));
+    this->AddChild(
+        "System paths",
+        MainSettingsChild(
+            [this]() {
+              Cherry::PushFont("ClashBold");
+              CherryNextProp("color_text", "#797979");
+              CherryKit::TitleFive("System paths settings");
+              Cherry::PopFont();
+              ImGui::SameLine();
+              CherryKit::TooltipTextCustom("(?)", []() {
+                CherryKit::TitleFour("em : Editor Modules");
+                CherryKit::TextWrapped("Lorem ipsum Lorem ipsumLorem ipsum");
+                CherryStyle::AddMarginY(10.0f);
+                CherryKit::TitleFour("esm : Editor Script Modules");
+                CherryKit::TextWrapped("Lorem ipsum Lorem ipsumLorem ipsum");
+              });
+
+              ImGui::SameLine();
+              CherryStyle::AddMarginX(10.0f);
+              Cherry::SetNextComponentProperty("padding_x", "8");
+              Cherry::SetNextComponentProperty("padding_y", "4");
+              if (CherryKit::ButtonImageText("Refresh", Cherry::GetPath("resources/imgs/icons/misc/icon_refresh.png"))
+                      ->GetData("isClicked") == "true") {
+                RefreshConfig();
+              }
+
+              ImGui::SameLine();
+              CherryStyle::AddMarginX(10.0f);
+              Cherry::SetNextComponentProperty("padding_x", "8");
+              Cherry::SetNextComponentProperty("padding_y", "4");
+              if (CherryKit::ButtonImageText("Save", Cherry::GetPath("resources/imgs/icons/misc/icon_refresh.png"))
+                      ->GetData("isClicked") == "true") {
+                SaveCurrentConfig();
+              }
+
+              CherryNextProp("color", "#252525");
+              CherryKit::Separator();
+
+              Cherry::SetNextComponentProperty("header_text_visible", "false");
+              Cherry::SetNextComponentProperty("cell_padding_y_row", "2.0");
+
+              CherryKit::TableSimple(
+                  "Settings",
+                  {
+                      CherryKit::KeyValCustom(
+                          "Project paths",
+                          [=]() { PathListEditor("Project paths", &m_ProjectPoolsPaths, &m_NewProjectPath); }),
+                      CherryKit::KeyValCustom(
+                          "Vortex version paths",
+                          [=]() {
+                            PathListEditor("Vortex version paths", &m_VortexVersionPoolsPaths, &m_NewVortexVersionPath);
+                          }),
+                      CherryKit::KeyValCustom(
+                          "Modules paths",
+                          [=]() { PathListEditor("Modules paths", &m_ModulesPoolsPaths, &m_NewModulesPath); }),
+                      CherryKit::KeyValCustom(
+                          "Plugins paths",
+                          [=]() { PathListEditor("Plugins paths", &m_PluginsPoolsPaths, &m_NewPluginsPath); }),
+                      CherryKit::KeyValCustom(
+                          "Templates paths",
+                          [=]() { PathListEditor("Templates paths", &m_TemplatesPoolsPaths, &m_NewTemplatesPath); }),
+                      CherryKit::KeyValCustom(
+                          "Contents paths",
+                          [=]() { PathListEditor("Contents paths", &m_ContentsPoolsPaths, &m_NewContentsPath); }),
+                  });
+            },
+            Cherry::GetPath("resources/imgs/link.png")));
+    this->AddChild(
+        "Updates & Distribution",
+        MainSettingsChild(
+            [this]() {
+              Cherry::PushFont("ClashBold");
+              CherryNextProp("color_text", "#797979");
+              CherryKit::TitleFive("Updates & Distribution settings");
+              Cherry::PopFont();
+              ImGui::SameLine();
+              CherryKit::TooltipTextCustom("(?)", []() {
+                CherryKit::TitleFour("em : Editor Modules");
+                CherryKit::TextWrapped("Lorem ipsum Lorem ipsumLorem ipsum");
+                CherryStyle::AddMarginY(10.0f);
+                CherryKit::TitleFour("esm : Editor Script Modules");
+                CherryKit::TextWrapped("Lorem ipsum Lorem ipsumLorem ipsum");
+              });
+
+              ImGui::SameLine();
+              CherryStyle::AddMarginX(10.0f);
+              Cherry::SetNextComponentProperty("padding_x", "8");
+              Cherry::SetNextComponentProperty("padding_y", "4");
+              if (CherryKit::ButtonImageText("Refresh", Cherry::GetPath("resources/imgs/icons/misc/icon_refresh.png"))
+                      ->GetData("isClicked") == "true") {
+                RefreshConfig();
+              }
+
+              ImGui::SameLine();
+              CherryStyle::AddMarginX(10.0f);
+              Cherry::SetNextComponentProperty("padding_x", "8");
+              Cherry::SetNextComponentProperty("padding_y", "4");
+              if (CherryKit::ButtonImageText("Save", Cherry::GetPath("resources/imgs/icons/misc/icon_refresh.png"))
+                      ->GetData("isClicked") == "true") {
+                SaveCurrentConfig();
+              }
+
+              CherryNextProp("color", "#252525");
+              CherryKit::Separator();
+
+              Cherry::SetNextComponentProperty("header_text_visible", "false");
+              Cherry::SetNextComponentProperty("cell_padding_y_row", "2.0");
+
+              CherryKit::TableSimple(
+                  "Settings",
+                  {
+                      CherryKit::KeyValCustom(
+                          "Vortex distributions",
+                          [=]() {
+                            if (ImGui::BeginTable("##vortex_dists", 2)) {
+                              ImGui::TableSetupColumn("Path");
+                              ImGui::TableSetupColumn("Action");
+                              ImGui::TableHeadersRow();
+                              std::cout << vortexDists.size() << std::endl;
+                              for (size_t i = 0; i < vortexDists.size(); ++i) {
+                                ImGui::TableNextRow();
+                                ImGui::TableSetColumnIndex(0);
+                                ImGui::Text("%s", vortexDists[i].c_str());
+
+                                ImGui::TableSetColumnIndex(1);
+
+                                if (CherryKit::ButtonImageText(
+                                        CherryID("delete" + std::to_string(i)),
+                                        "",
+                                        Cherry::GetPath("resources/imgs/trash.png"))
+                                        ->GetData("isClicked") == "true") {
+                                  vortexDists.erase(vortexDists.begin() + i);
+                                  --i;
+                                }
+                              }
+                              ImGui::EndTable();
+                            }
+
+                            CherryKit::InputString("Add", &newDist);
+                            CherryGUI::SameLine();
+                            if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/base/add.png"))
+                                    ->GetData("isClicked") == "true") {
+                              vortexDists.push_back(newDist);
+                            }
+                          }),
+                      CherryKit::KeyValString("Vortex Launcher distribution", &vortexLauncherDist),
+                  });
+            },
+            Cherry::GetPath("resources/imgs/update.png")));
 
     std::shared_ptr<Cherry::AppWindow> win = m_AppWindow;
   }

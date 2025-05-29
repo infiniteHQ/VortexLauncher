@@ -35,7 +35,24 @@ namespace VortexLauncher {
     void Render();
     void ModulesRender();
 
+    void RefreshConfig();
+
+    void SaveCurrentConfig();
     std::unordered_map<std::string, MainSettingsChild> m_Childs;
+
+    std::string m_NewProjectPath;
+    std::string m_NewModulesPath;
+    std::string m_NewPluginsPath;
+    std::string m_NewTemplatesPath;
+    std::string m_NewContentsPath;
+    std::string m_NewVortexVersionPath;
+
+    std::vector<std::string> m_ProjectPoolsPaths;
+    std::vector<std::string> m_ModulesPoolsPaths;
+    std::vector<std::string> m_PluginsPoolsPaths;
+    std::vector<std::string> m_TemplatesPoolsPaths;
+    std::vector<std::string> m_ContentsPoolsPaths;
+    std::vector<std::string> m_VortexVersionPoolsPaths;
 
     std::function<void()> m_CreateProjectCallback;
     std::function<void()> m_OpenProjectCallback;
@@ -47,6 +64,10 @@ namespace VortexLauncher {
         size_t maxCount);
     std::vector<std::shared_ptr<EnvProject>> m_RecentProjects;
     std::string m_SelectedChildName;
+
+    std::vector<std::string> vortexDists;
+    std::string vortexLauncherDist;
+    std::string newDist;
 
     std::shared_ptr<Cherry::AppWindow> m_AppWindow;
     int selected;
