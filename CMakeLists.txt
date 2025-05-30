@@ -7,10 +7,32 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fPIC")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(VORTEX_VERSION "1.3.5")
+set(VORTEX_DIST "beta")
+set(VORTEX_BUILD "dev")
 
 set(CHERRY_CEF OFF)
 set(CHERRY_ENABLE_NET ON)
 set(CHERRY_ENABLE_AUDIO ON)
+
+if(VORTEX_BUILD STREQUAL "prod")
+    string(TIMESTAMP BUILD_DATE "%b %d, %Y - %H:%M" UTC)
+    add_compile_definitions(BUILD_DATE_STR="${BUILD_DATE}")
+    add_compile_definitions(BUILD_DIST="${BUILD_DATE}")
+
+    execute_process(
+        COMMAND git rev-parse --short HEAD
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE GIT_COMMIT_HASH
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    add_compile_definitions(GIT_COMMIT_HASH="${GIT_COMMIT_HASH}")
+else()
+    add_compile_definitions(BUILD_DATE_STR="DEV_BUILD")
+    add_compile_definitions(BUILD_DIST="DEV_BUILD")
+    add_compile_definitions(GIT_COMMIT_HASH="0000000")
+endif()
+
+
 
 file(GLOB_RECURSE vortex_launcher_SHARED_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/main/src/*.cpp")
 

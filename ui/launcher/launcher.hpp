@@ -178,7 +178,7 @@ class Launcher {
       spec.Height = 450;
       spec.DisableLogo = true;
       spec.DisableResize = true;
-      spec.Width = 600;
+      spec.Width = 750;
       spec.CustomTitlebar = true;
       spec.DisableWindowManagerTitleBar = true;
       spec.WindowOnlyClosable = true;
@@ -195,7 +195,6 @@ class Launcher {
         Cherry::AddAppWindow(about_window->GetAppWindow());
       };
 
-      spec.DisableTitle = true;
       spec.MenubarCallback = []() { };
       spec.WindowSaves = false;
       about_window->GetAppWindow()->AttachOnNewWindow(spec);
