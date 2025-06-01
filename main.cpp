@@ -109,6 +109,12 @@ void PrintHeader() {
 VxContext *InitBlankRuntime(bool logger) {
   VxContext *ctx = VortexMaker::CreateContext();
 
+#ifdef _WIN32
+  ctx->m_VortexLauncherPath = VortexMaker::GetPath(".\\");
+#else
+  ctx->m_VortexLauncherPath = VortexMaker::GetPath("./");
+#endif
+
   ctx->state.session_id = session_id;
   ctx->version = VORTEXLAUNCHER_VERSION;
 
@@ -123,8 +129,6 @@ VxContext *InitBlankRuntime(bool logger) {
   VortexMaker::InitEnvironment();
   VortexMaker::DetectPlatform();
   VortexMaker::DetectArch();
-
-  ctx->m_VortexLauncherPath = Cherry::GetPath("");
 
   // Refresh environment pools
   VortexMaker::RefreshEnvironmentProjectsPools();

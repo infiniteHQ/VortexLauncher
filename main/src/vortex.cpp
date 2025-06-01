@@ -554,6 +554,8 @@ VORTEX_API void VortexMaker::OpenLauncherUpdater(const std::string &path, const 
   command = ctx.m_VortexLauncherPath + "/VortexUpdater --path=" + path + " --workdir=" + path + " --dist=" + dist;
 #endif
 
+  std::cout << "CMLD : " << command << std::endl;
+
   bool success = executeInChildProcess(command);
 
   if (success) {
