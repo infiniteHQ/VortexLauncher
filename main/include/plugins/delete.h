@@ -10,4 +10,4 @@ namespace VortexMaker {
   VORTEX_API void DeleteSystemPlugin(const std::string& name, const std::string& version);
 }
 
-#endif / PLUGIN_DELETE_H
+#endif // PLUGIN_DELETE_H

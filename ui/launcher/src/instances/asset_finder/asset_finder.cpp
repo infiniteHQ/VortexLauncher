@@ -456,7 +456,7 @@ AssetFinder::AssetFinder(const std::string &name, const std::string &start_path)
   });
 
   m_BaseDirectory = start_path;
-  m_CurrentDirectory = m_BaseDirectory;
+  m_CurrentDirectory = m_BaseDirectory.string();
 
   AssetFinderChild sidebar("RenderSideBar", [this]() { RenderSideBar(); }, 110.0f);
   sidebar.Enable();
@@ -508,7 +508,7 @@ void AssetFinder::AddChild(const AssetFinderChild &child) {
 void AssetFinder::GoBack() {
   if (!m_BackHistory.empty()) {
     m_ForwardHistory.push(m_CurrentDirectory);
-    m_CurrentDirectory = m_BackHistory.top();
+    m_CurrentDirectory = m_BackHistory.top().string();
     m_BackHistory.pop();
   }
 }
@@ -516,7 +516,7 @@ void AssetFinder::GoBack() {
 void AssetFinder::GoForward() {
   if (!m_ForwardHistory.empty()) {
     m_BackHistory.push(m_CurrentDirectory);
-    m_CurrentDirectory = m_ForwardHistory.top();
+    m_CurrentDirectory = m_ForwardHistory.top().string();
     m_ForwardHistory.pop();
   }
 }
@@ -530,7 +530,7 @@ void AssetFinder::ChangeDirectory(const std::filesystem::path &newDirectory) {
         m_ForwardHistory.pop();
       }
     }
-    m_CurrentDirectory = newDirectory;
+    m_CurrentDirectory = newDirectory.string();
   }
 }
 

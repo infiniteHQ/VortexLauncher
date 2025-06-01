@@ -21,6 +21,7 @@ std::string getVortexLauncherDist() {
 #endif
 
 static std::string vxl_exehash = "";
+static std::string system_desktop = "";
 
 std::string computeSHA256Short(const std::string &filepath, size_t length = 10) {
   std::ifstream file(filepath, std::ios::binary);
@@ -128,6 +129,11 @@ namespace VortexLauncher {
     m_AppWindow->SetInternalPaddingX(8.0f);
     m_AppWindow->SetInternalPaddingY(8.0f);
 
+    
+#if defined(__linux__)
+    system_desktop = " - " + getLinuxDesktopEnvAndDisplayServer();
+    #endif
+
     std::shared_ptr<Cherry::AppWindow> win = m_AppWindow;
   }
 
@@ -189,7 +195,7 @@ namespace VortexLauncher {
         getVortexLauncherHash() + ") git(" + getGitCommit() + ")");
 
     Cherry::SetNextComponentProperty("color_text", "#878787");
-    CherryKit::TextSimple("System: " + os_name + " " + os_arch + " - " + getLinuxDesktopEnvAndDisplayServer());
+    CherryKit::TextSimple("System: " + os_name + " " + os_arch  + system_desktop);
 
     ImGui::EndChild();
     CherryGUI::SameLine();

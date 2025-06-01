@@ -18,7 +18,7 @@
 #include <string>
 
 // Fonction utilitaire pour convertir une chaîne UTF-8 (const char*) en wide string (LPCWSTR)
-std::wstring ConvertToWideString(const std::string &narrow_string)
+static std::wstring ConvertToWideString(const std::string &narrow_string)
 {
     int size_needed = MultiByteToWideChar(CP_UTF8, 0, narrow_string.c_str(), -1, nullptr, 0);
     if (size_needed == 0)
