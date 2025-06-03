@@ -129,10 +129,9 @@ namespace VortexLauncher {
     m_AppWindow->SetInternalPaddingX(8.0f);
     m_AppWindow->SetInternalPaddingY(8.0f);
 
-    
 #if defined(__linux__)
     system_desktop = " - " + getLinuxDesktopEnvAndDisplayServer();
-    #endif
+#endif
 
     std::shared_ptr<Cherry::AppWindow> win = m_AppWindow;
   }
@@ -195,7 +194,7 @@ namespace VortexLauncher {
         getVortexLauncherHash() + ") git(" + getGitCommit() + ")");
 
     Cherry::SetNextComponentProperty("color_text", "#878787");
-    CherryKit::TextSimple("System: " + os_name + " " + os_arch  + system_desktop);
+    CherryKit::TextSimple("System: " + os_name + " " + os_arch + system_desktop);
 
     ImGui::EndChild();
     CherryGUI::SameLine();

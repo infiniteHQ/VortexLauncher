@@ -96,7 +96,9 @@ namespace VortexLauncher {
                 static std::vector<std::function<void(int)>> available_versions;
 
                 if (available_versions.empty()) {
+                  static int i = 0;
                   for (auto available_version : VortexMaker::GetCurrentContext()->IO.available_vortex_versions) {
+                    i++;
                     available_versions.push_back([available_version](int c) {
                       switch (c) {
                         case 0: {
@@ -122,7 +124,9 @@ namespace VortexLauncher {
                           if (exist) {
                             CherryStyle::AddMarginY(7.0f);
                             if (CherryKit::ButtonImageText(
-                                    "Reinstall", Cherry::GetPath("resources/imgs/icons/misc/icon_settings.png"))
+                                    CherryID("available_versions_reinstall" + std::to_string(i)),
+                                    "Reinstall",
+                                    Cherry::GetPath("resources/imgs/icons/misc/icon_settings.png"))
                                     ->GetData("isClicked") == "true") {
                               std::thread([available_version]() {
                                 VortexMaker::OpenVortexUninstaller(available_version->path);
@@ -138,7 +142,9 @@ namespace VortexLauncher {
                           } else {
                             CherryStyle::AddMarginY(7.0f);
                             if (CherryKit::ButtonImageText(
-                                    "Install", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))
+                                    CherryID("available_versions" + std::to_string(i)),
+                                    "Install",
+                                    Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))
                                     ->GetData("isClicked") == "true") {
                               std::thread([available_version]() {
                                 VortexMaker::OpenVortexInstaller(
@@ -154,7 +160,10 @@ namespace VortexLauncher {
                           break;
                         }
                         default: {
-                          if (CherryKit::ButtonImageText("Install", Cherry::GetPath("resources/base/add.png"))
+                          if (CherryKit::ButtonImageText(
+                                  CherryID("available_versions_install" + std::to_string(i)),
+                                  "Install",
+                                  Cherry::GetPath("resources/base/add.png"))
                                   ->GetData("isClicked") == "true") {
                             VortexMaker::OpenVortexInstaller(
                                 available_version->version,
@@ -212,8 +221,9 @@ namespace VortexLauncher {
               static std::vector<std::function<void(int)>> versions_render_callbacks;
 
               if (versions_render_callbacks.empty()) {
-                std::cout << "Nbr of v : " << VortexMaker::GetCurrentContext()->IO.sys_vortex_versions.size() << std::endl;
+                static int i = 0;
                 for (auto version : VortexMaker::GetCurrentContext()->IO.sys_vortex_versions) {
+                  i++;
                   versions_render_callbacks.push_back([version](int c) {
                     switch (c) {
                       case 0: {  // Image
@@ -227,13 +237,18 @@ namespace VortexLauncher {
                       }
                       case 2: {  // Actions
                         CherryStyle::AddMarginY(4.0f);
-                        if (CherryKit::ButtonImageText("Delete", Cherry::GetPath("resources/imgs/trash.png"))
+                        if (CherryKit::ButtonImageText(
+                                CherryID("versions_render_callbacks" + std::to_string(i)),
+                                "Delete",
+                                Cherry::GetPath("resources/imgs/trash.png"))
                                 ->GetData("isClicked") == "true") {
                           std::thread([version]() { VortexMaker::OpenVortexUninstaller(version->path); }).detach();
                         }
                         CherryGUI::SameLine();
                         if (CherryKit::ButtonImageText(
-                                "", Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"))
+                                CherryID("versions_render_callbacks_search" + std::to_string(i)),
+                                "",
+                                Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"))
                                 ->GetData("isClicked") == "true") {
                           VortexMaker::OpenFolderInFileManager(version->path);
                         }

@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fPIC")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-set(VORTEX_VERSION "1.3.5")
+set(VORTEX_VERSION "1.4.0")
 set(VORTEX_DIST "beta")
 set(VORTEX_BUILD "dev")
 
@@ -151,48 +151,6 @@ install(TARGETS SDL2
         RUNTIME DESTINATION ${INSTALL_BIN_DIR})
 
       cmake_policy(SET CMP0177 NEW)
-
-      if(WIN32)
-      set(MINGW_DLLS 
-          libbrotlicommon.dll
-          libbrotlidec.dll
-          libcrypto-3-x64.dll
-          libcurl-4.dll
-          libffi-8.dll
-          libgcc_s_seh-1.dll
-          libiconv-2.dll
-          libidn2-0.dll
-          libintl-8.dll
-          libnghttp2-14.dll
-          libnghttp3-9.dll
-          libpsl-5.dll
-          libssh2-1.dll
-          libssl-3-x64.dll
-          libstdc++-6.dll
-          libunistring-5.dll
-          libwinpthread-1.dll
-          libzstd.dll
-          zlib1.dll
-      )
-  
-      if(NOT INSTALL_BIN_DIR)
-          message(FATAL_ERROR "INSTALL_BIN_DIR n'est pas défini ! Vérifiez votre configuration.")
-      endif()
-  
-      file(TO_CMAKE_PATH "C:/msys64/mingw64/bin" MINGW_PATH)
-  
-      foreach(DLL ${MINGW_DLLS})
-          set(DLL_PATH "${MINGW_PATH}/${DLL}")
-          message(STATUS "Checking DLL: ${DLL_PATH}")
-  
-          if(EXISTS ${DLL_PATH})
-              message(STATUS "✅ Installing: ${DLL} → ${INSTALL_BIN_DIR}")
-              install(FILES ${DLL_PATH} DESTINATION ${INSTALL_BIN_DIR})
-          else()
-              message(WARNING "⚠️  DLL not found: ${DLL_PATH}")
-          endif()
-      endforeach()
-  endif()
   
 target_include_directories(vortex_launcher_shared PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/restclient-cpp/include)
 

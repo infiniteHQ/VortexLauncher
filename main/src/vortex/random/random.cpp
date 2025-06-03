@@ -12,7 +12,7 @@
 VORTEX_API std::string VortexMaker::gen_random(int len) {
   // Alphanumeric characters to choose from
   static const char alphanum[] =
-      "01.3.56789"
+      "01.4.06789"
       "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
       "abcdefghijklmnopqrstuvwxyz";
 

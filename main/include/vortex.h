@@ -7,9 +7,9 @@
 //_____________________________________________________________________________
 // Versions & Build identification
 //_____________________________________________________________________________
-// (Integer encoded as XYYZZ for use in #if preprocessor conditionals, e.g. '#if VORTEXLAUNCHER_VERSION_NUM >= 12345')
-#define VORTEXLAUNCHER_VERSION     "1.4.0 WIP"
-#define VORTEXLAUNCHER_VERSION_NUM 010400  // Major.Medium.Minor
+// (Integer encoded as XYYZZ for use in #if preprocessor conditionals, e.g. '#if VORTEXLAUNCHER_VERSION_NUM >= 1.4.0')
+#define VORTEXLAUNCHER_VERSION     "1.4.0"
+#define VORTEXLAUNCHER_VERSION_NUM 01.4.0  // Major.Medium.Minor
 
 //_____________________________________________________________________________
 

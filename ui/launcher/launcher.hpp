@@ -331,7 +331,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
     static bool t;
 
     VxContext &ctx = *CVortexMaker;
-
+    std::cout << "=ctx.launcher_update_available <" << ctx.launcher_update_available << std::endl;
     CherryKit::NotificationButton(
         &ctx.launcher_update_available,
         10,

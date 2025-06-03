@@ -478,16 +478,44 @@ void ProjectManager::Render() {
                   Cherry::SetNextComponentProperty("color", "#353535");
                   CherryKit::Separator();
                   CherryStyle::AddMarginX(5.0f);
-                  Cherry::SetNextComponentProperty("color_text", "#888888");
+
+                  std::string versionpath;
+                  bool version_available =
+                      VortexMaker::CheckIfVortexVersionUtilityExist(element->compatibleWith, versionpath);
+                  if (version_available) {
+                    Cherry::SetNextComponentProperty("color_text", "#AAAAAA");
+                  } else {
+                    if (VortexMaker::CheckVersionAvailibility(element->compatibleWith).version == "") {
+                      Cherry::SetNextComponentProperty("color_text", "#EE5555");
+                    } else {
+                      Cherry::SetNextComponentProperty("color_text", "#EEAA55");
+                    }
+                  }
                   CherryKit::TextSimple(element->compatibleWith);
-                  ImGui::SameLine();
-                  CherryKit::TooltipImage(
-                      Cherry::GetPath("resources/base/error.png"),
-                      "Vortex " + element->compatibleWith + " is not installed in your system. Please click to see more.");
-                  ImGui::SameLine();
-                  Cherry::SetNextComponentProperty("color_text", "#888888");
-                  CherryStyle::RemoveXMargin(5.0f);
-                  // CherryKit::TextRight(CherryID("qsd"), "Project");
+                  if (!version_available) {
+                    ImGui::SameLine();
+
+                    if (VortexMaker::CheckVersionAvailibility(element->compatibleWith).version == "") {
+                      CherryKit::TooltipImage(
+                          Cherry::GetPath("resources/base/error.png"),
+                          "Vortex " + element->compatibleWith +
+                              " is not installed in your system. Please click to see more.");
+                      ImGui::SameLine();
+                      Cherry::SetNextComponentProperty("color_text", "#888888");
+
+                      // CherryKit::TextRight(CherryID("qsd"), "Project");
+                    } else {
+                      CherryKit::TooltipImage(
+                          Cherry::GetPath("resources/base/warn.png"),
+                          "Vortex " + element->compatibleWith +
+                              " is not installed in your system but available to download.");
+                      ImGui::SameLine();
+                      Cherry::SetNextComponentProperty("color_text", "#888888");
+
+                      // CherryKit::TextRight(CherryID("qsd"), "Project");
+                    }
+                    CherryStyle::RemoveXMargin(5.0f);
+                  }
                 },
             }));
       }
@@ -1098,8 +1126,8 @@ void ProjectManager::mainButtonsMenuItem() {
   create_project_button->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));*/
 
   /*static std::shared_ptr<Cherry::ImageTextButtonSimple> import_project_button =
-  std::make_shared<Cherry::ImageTextButtonSimple>("import_btn", "Import a project"); import_project_button->SetScale(0.85f);
-  import_project_button->SetInternalMarginX(10.0f);
+  std::make_shared<Cherry::ImageTextButtonSimple>("import_btn", "Import a project");
+  import_project_button->SetScale(0.85f); import_project_button->SetInternalMarginX(10.0f);
   import_project_button->SetLogoSize(15, 15);
   import_project_button->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_import.png"));*/
 
