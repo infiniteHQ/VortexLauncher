@@ -208,17 +208,7 @@ namespace VortexLauncher {
     CherryNextProp("size_x", "20");
     CherryNextProp("size_y", "20");
 
-    if (CherryKit::ButtonImageText("Support Us", Cherry::GetPath("resources/base/add.png"))->GetData("isClicked") ==
-        "true") {
-    }
-
-    CherryNextProp("color_bg", "#00000000");
-    CherryNextProp("color_border", "#00000000");
-    CherryNextProp("padding_x", "2");
-    CherryNextProp("padding_y", "2");
-    CherryNextProp("size_x", "20");
-    CherryNextProp("size_y", "20");
-    if (CherryKit::ButtonImageText("Credits & Contributors", Cherry::GetPath("resources/base/add.png"))
+    if (CherryKit::ButtonImageText("Support Us", Cherry::GetPath("resources/imgs/icons/launcher/heart.png"))
             ->GetData("isClicked") == "true") {
     }
 
@@ -228,17 +218,26 @@ namespace VortexLauncher {
     CherryNextProp("padding_y", "2");
     CherryNextProp("size_x", "20");
     CherryNextProp("size_y", "20");
-    if (CherryKit::ButtonImageText("Learn and Documentation", Cherry::GetPath("resources/base/add.png"))
+    if (CherryKit::ButtonImageText("Credits & Contributors", Cherry::GetPath("resources/imgs/icons/misc/icon_people.png"))
             ->GetData("isClicked") == "true") {
     }
 
-    Cherry::SetNextComponentProperty("color_text", "#878787");
+    CherryNextProp("color_bg", "#00000000");
+    CherryNextProp("color_border", "#00000000");
+    CherryNextProp("padding_x", "2");
+    CherryNextProp("padding_y", "2");
+    CherryNextProp("size_x", "20");
+    CherryNextProp("size_y", "20");
+    if (CherryKit::ButtonImageText("Learn and Documentation", Cherry::GetPath("resources/imgs/icons/launcher/docs.png"))
+            ->GetData("isClicked") == "true") {
+    }
+
+    CherryKit::Space(1.0f);
+    Cherry::SetNextComponentProperty("color_text", "#565656");
     CherryKit::TextSimple("Vortex is a open and free software.");
-    Cherry::SetNextComponentProperty("color_text", "#878787");
+    Cherry::SetNextComponentProperty("color_text", "#565656");
     CherryKit::TextSimple("Licensed under the  Apache-2.0 license ");
-    CherryKit::Space(12.0f);
-
-    Cherry::SetNextComponentProperty("color_text", "#878787");
+    Cherry::SetNextComponentProperty("color_text", "#565656");
     CherryKit::TextSimple("Never stop hacking !");
 
     ImGui::EndChild();
