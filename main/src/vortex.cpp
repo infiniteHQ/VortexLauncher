@@ -733,6 +733,20 @@ VortexVersion VortexMaker::CheckVersionAvailibility(const std::string &version) 
   return VortexVersion();
 }
 
+VORTEX_API void VortexMaker::OpenURL(const std::string &url) {
+#if defined(_WIN32)
+  ShellExecuteA(NULL, "open", url.c_str(), NULL, NULL, SW_SHOWNORMAL);
+#elif defined(__APPLE__)
+  std::string command = "open " + url;
+  system(command.c_str());
+#elif defined(__linux__)
+  std::string command = "xdg-open " + url;
+  system(command.c_str());
+#else
+  std::cerr << "Unsupported platform: unable to open URL." << std::endl;
+#endif
+}
+
 /**
  * @brief Get the current Vortex context.
  *

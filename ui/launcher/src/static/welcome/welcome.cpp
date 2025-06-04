@@ -15,20 +15,6 @@
 #include <stdlib.h>
 #endif
 
-void OpenURL(const std::string &url) {
-#if defined(_WIN32)
-  ShellExecuteA(NULL, "open", url.c_str(), NULL, NULL, SW_SHOWNORMAL);
-#elif defined(__APPLE__)
-  std::string command = "open " + url;
-  system(command.c_str());
-#elif defined(__linux__)
-  std::string command = "xdg-open " + url;
-  system(command.c_str());
-#else
-  std::cerr << "Unsupported platform: unable to open URL." << std::endl;
-#endif
-}
-
 bool EndsWith(const std::string &value, const std::string &suffix) {
   if (suffix.size() > value.size())
     return false;
@@ -274,12 +260,21 @@ namespace VortexLauncher {
     m_RecentProjects = GetMostRecentProjects(VortexMaker::GetCurrentContext()->IO.sys_projects, 4);
 
     this->AddChild(
-        "Support Us", WelcomeWindowChild([this]() { }, Cherry::GetPath("resources/imgs/icons/launcher/heart.png")));
+        "Support Us",
+        WelcomeWindowChild(
+            [this]() { }, Cherry::GetPath("resources/imgs/icons/launcher/heart.png"), "https://fund.infinite.si/"));
     this->AddChild(
-        "What's news", WelcomeWindowChild([this]() { }, Cherry::GetPath("resources/imgs/icons/launcher/web.png")));
-    this->AddChild("Forums", WelcomeWindowChild([this]() { }, Cherry::GetPath("resources/imgs/icons/launcher/forum.png")));
+        "What's news",
+        WelcomeWindowChild(
+            [this]() { }, Cherry::GetPath("resources/imgs/icons/launcher/web.png"), "https://vortex.infinite.si/news"));
     this->AddChild(
-        "Documentation", WelcomeWindowChild([this]() { }, Cherry::GetPath("resources/imgs/icons/launcher/docs.png")));
+        "Forums",
+        WelcomeWindowChild(
+            [this]() { }, Cherry::GetPath("resources/imgs/icons/launcher/forum.png"), "https://forums.infinite.si/vortex"));
+    this->AddChild(
+        "Documentation",
+        WelcomeWindowChild(
+            [this]() { }, Cherry::GetPath("resources/imgs/icons/launcher/docs.png"), "https://vortex.infinite.si/learn"));
 
     this->AddChild(
         "?loc:loc.windows.welcome.overview",
@@ -378,16 +373,32 @@ namespace VortexLauncher {
         child_name = child.first;
       }
 
-      CherryNextProp("color_bg", "#00000000");
-      CherryNextProp("color_border", "#00000000");
-      CherryNextProp("padding_x", "2");
-      CherryNextProp("padding_y", "2");
-      CherryNextProp("size_x", "20");
-      CherryNextProp("size_y", "20");
-      ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7.5f);
-      CherryKit::ButtonImageText(CherryID(child_name), child_name.c_str(), child.second.LogoPath);
-      if (false) {
-        m_SelectedChildName = child.first;
+      if (child.second.WebLink == "undefined") {
+        CherryNextProp("color_bg", "#00000000");
+        CherryNextProp("color_border", "#00000000");
+        CherryNextProp("padding_x", "2");
+        CherryNextProp("padding_y", "2");
+        CherryNextProp("size_x", "20");
+        CherryNextProp("size_y", "20");
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7.5f);
+        CherryKit::ButtonImageText(CherryID(child_name), child_name.c_str(), child.second.LogoPath);
+        // Open other tabs...
+      } else {
+        CherryNextProp("color_bg", "#00000000");
+        CherryNextProp("color_border", "#00000000");
+        CherryNextProp("padding_x", "2");
+        CherryNextProp("padding_y", "2");
+        CherryNextProp("size_x", "20");
+        CherryNextProp("size_y", "20");
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7.5f);
+        if (CherryKit::ButtonImageTextImage(
+                CherryID(child_name),
+                child_name.c_str(),
+                child.second.LogoPath,
+                Cherry::GetPath("resources/imgs/weblink.png"))
+                ->GetData("isClicked") == "true") {
+          VortexMaker::OpenURL(child.second.WebLink);
+        }
       }
 
       // if (Cherry::TextButtonUnderline(child_name.c_str(), true, opt))

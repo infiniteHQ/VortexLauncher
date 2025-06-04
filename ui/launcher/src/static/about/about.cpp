@@ -208,8 +208,12 @@ namespace VortexLauncher {
     CherryNextProp("size_x", "20");
     CherryNextProp("size_y", "20");
 
-    if (CherryKit::ButtonImageText("Support Us", Cherry::GetPath("resources/imgs/icons/launcher/heart.png"))
+    if (CherryKit::ButtonImageTextImage(
+            "Support Us",
+            Cherry::GetPath("resources/imgs/icons/launcher/heart.png"),
+            Cherry::GetPath("resources/imgs/weblink.png"))
             ->GetData("isClicked") == "true") {
+      VortexMaker::OpenURL("https://fund.infinite.si/");
     }
 
     CherryNextProp("color_bg", "#00000000");
@@ -218,8 +222,12 @@ namespace VortexLauncher {
     CherryNextProp("padding_y", "2");
     CherryNextProp("size_x", "20");
     CherryNextProp("size_y", "20");
-    if (CherryKit::ButtonImageText("Credits & Contributors", Cherry::GetPath("resources/imgs/icons/misc/icon_people.png"))
+    if (CherryKit::ButtonImageTextImage(
+            "Credits & Contributors",
+            Cherry::GetPath("resources/imgs/icons/misc/icon_people.png"),
+            Cherry::GetPath("resources/imgs/weblink.png"))
             ->GetData("isClicked") == "true") {
+      VortexMaker::OpenURL("https://github.com/infiniteHQ/Vortex/graphs/contributors");
     }
 
     CherryNextProp("color_bg", "#00000000");
@@ -228,8 +236,12 @@ namespace VortexLauncher {
     CherryNextProp("padding_y", "2");
     CherryNextProp("size_x", "20");
     CherryNextProp("size_y", "20");
-    if (CherryKit::ButtonImageText("Learn and Documentation", Cherry::GetPath("resources/imgs/icons/launcher/docs.png"))
+    if (CherryKit::ButtonImageTextImage(
+            "Learn and Documentation",
+            Cherry::GetPath("resources/imgs/icons/launcher/docs.png"),
+            Cherry::GetPath("resources/imgs/weblink.png"))
             ->GetData("isClicked") == "true") {
+      VortexMaker::OpenURL("https://vortex.infinite.si/learn");
     }
 
     CherryKit::Space(1.0f);
