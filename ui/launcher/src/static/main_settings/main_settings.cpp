@@ -146,9 +146,9 @@ namespace VortexLauncher {
     if (!list || !newPath)
       return;
 
-    ImGui::PushStyleColor(ImGuiCol_TableRowBg, Cherry::HexToRGBA("#151515FF"));
+    CherryGUI::PushStyleColor(ImGuiCol_TableRowBg, Cherry::HexToRGBA("#151515FF"));
     if (ImGui::BeginTable("##project_paths", 2)) {
-      ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(8.0f, 8.0f));
+      CherryGUI::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(8.0f, 8.0f));
 
       ImGui::TableSetupColumn("Path");
       ImGui::TableSetupColumn("Action");
@@ -158,15 +158,14 @@ namespace VortexLauncher {
         ImGui::TableNextRow();
 
         ImGui::TableSetColumnIndex(0);
-        ImGui::PushStyleColor(ImGuiCol_TableRowBg, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
+        CherryGUI::PushStyleColor(ImGuiCol_TableRowBg, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
 
         ImGui::Text("%s", (*list)[i].c_str());
 
-        ImGui::PopStyleColor();
+        CherryGUI::PopStyleColor();
 
         ImGui::TableSetColumnIndex(1);
-        if (CherryKit::ButtonImageText(
-                CherryID("delete_entry" + type), "", Cherry::GetPath("resources/imgs/icons/misc/icon_delete.png"))
+        if (CherryKit::ButtonImageText(CherryID("delete_entry" + type), "", Cherry::GetPath("resources/imgs/trash.png"))
                 ->GetData("isClicked") == "true") {
           list->erase(list->begin() + i);
           --i;
@@ -177,7 +176,7 @@ namespace VortexLauncher {
       ImGui::EndTable();
     }
 
-    ImGui::PopStyleColor();
+    CherryGUI::PopStyleColor();
 
     if (CherryKit::ButtonImageText(
             CherryID("add_entry" + type), "", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))
@@ -261,7 +260,9 @@ namespace VortexLauncher {
   MainSettings::MainSettings(const std::string &name) {
     m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
     m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/icons/misc/icon_home.png"));
-    m_AppWindow->SetClosable(false);
+
+    m_AppWindow->SetClosable(true);
+    m_AppWindow->m_CloseCallback = [=]() { m_AppWindow->SetVisibility(false); };
 
     RefreshConfig();
 
@@ -278,11 +279,24 @@ namespace VortexLauncher {
     m_SelectedChildName = "Updates & Distribution";
     m_RecentProjects = GetMostRecentProjects(VortexMaker::GetCurrentContext()->IO.sys_projects, 4);
 
-    this->AddChild("Help", MainSettingsChild([this]() { }, Cherry::GetPath("resources/imgs/help.png")));
+    this->AddChild(
+        "Help",
+        MainSettingsChild(
+            [this]() {
+              if (CherryKit::ButtonImageTextImage(
+                      "Learn and Documentation",
+                      Cherry::GetPath("resources/imgs/icons/launcher/docs.png"),
+                      Cherry::GetPath("resources/imgs/weblink.png"))
+                      ->GetData("isClicked") == "true") {
+                VortexMaker::OpenURL("https://vortex.infinite.si/learn");
+              }
+            },
+            Cherry::GetPath("resources/imgs/help.png")));
     this->AddChild(
         "Accessibility",
         MainSettingsChild(
             [this]() {
+              Cherry::PushFont("ClashBold");
               CherryNextProp("color_text", "#797979");
               CherryKit::TitleFive("Accessibility settings");
               Cherry::PopFont();
@@ -517,12 +531,12 @@ namespace VortexLauncher {
     const float splitterWidth = 1.5f;
 
     std::string label = "left_pane" + m_AppWindow->m_Name;
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
-    ImGui::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#00000000"));
-    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, ImVec2(0.0f, 0.0f));
-    ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0.0f, 0.0f));
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
+    CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
+    CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#00000000"));
+    CherryGUI::PushStyleVar(ImGuiStyleVar_ChildRounding, ImVec2(0.0f, 0.0f));
+    CherryGUI::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0.0f, 0.0f));
+    CherryGUI::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+    CherryGUI::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
     ImGui::BeginChild(label.c_str(), ImVec2(leftPaneWidth, 0), true, NULL);
 
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
@@ -564,7 +578,7 @@ namespace VortexLauncher {
 
     ImGui::EndChild();
     ImGui::PopStyleVar(4);
-    ImGui::PopStyleColor(2);
+    CherryGUI::PopStyleColor(2);
 
     ImGui::SameLine();
     ImGui::BeginGroup();
@@ -572,8 +586,8 @@ namespace VortexLauncher {
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.0f);
 
     if (!m_SelectedChildName.empty()) {
-      ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20.0f, 20.0f));
-      ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(20.0f, 20.0f));
+      CherryGUI::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20.0f, 20.0f));
+      CherryGUI::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(20.0f, 20.0f));
 
       if (ImGui::BeginChild(
               "ChildPanel", ImVec2(0, 0), false, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_AlwaysVerticalScrollbar)) {

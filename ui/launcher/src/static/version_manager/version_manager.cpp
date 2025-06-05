@@ -28,8 +28,10 @@ namespace VortexLauncher {
 
   VersionManager::VersionManager(const std::string &name) {
     m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
-    m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/icons/misc/icon_home.png"));
-    m_AppWindow->SetClosable(false);
+    m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/icons/misc/icon_versions.png"));
+
+    m_AppWindow->SetClosable(true);
+    m_AppWindow->m_CloseCallback = [=]() { m_AppWindow->SetVisibility(false); };
 
     m_AppWindow->m_TabMenuCallback = []() {
       ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
@@ -56,9 +58,19 @@ namespace VortexLauncher {
               CherryKit::Separator();
               CherryNextProp("color_text", "#999999");
               CherryKit::TextWrapped(
-                  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
-                  "dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip "
-                  "ex ea commodo consequat.");
+                  "The Vortex Launcher lets you manage the versions of the Editor installed on your system—it allows you to "
+                  "install, import, update, or remove them. The Vortex Editor is used to launch, run, and edit a tool or "
+                  "project. We separate versions and allow multiple ones to coexist so that all tools and projects can work "
+                  "together, regardless of their version or compatibility. The launcher acts as a central hub for managing "
+                  "and installing different versions of the Vortex Editor.");
+
+              if (CherryKit::ButtonImageTextImage(
+                      "Learn and Documentation",
+                      Cherry::GetPath("resources/imgs/icons/launcher/docs.png"),
+                      Cherry::GetPath("resources/imgs/weblink.png"))
+                      ->GetData("isClicked") == "true") {
+                VortexMaker::OpenURL("https://vortex.infinite.si/learn");
+              }
             },
             Cherry::GetPath("resources/imgs/help.png")));
 
@@ -84,6 +96,7 @@ namespace VortexLauncher {
               if (CherryKit::ButtonImageText(
                       "Import a version", Cherry::GetPath("resources/imgs/icons/misc/icon_import.png"))
                       ->GetData("isClicked") == "true") {
+                m_WipNotification = true;
                 // TODO Open local importation modal
               }
 
@@ -96,10 +109,10 @@ namespace VortexLauncher {
                 static std::vector<std::function<void(int)>> available_versions;
 
                 if (available_versions.empty()) {
-                  static int i = 0;
+                  int i = 0;
                   for (auto available_version : VortexMaker::GetCurrentContext()->IO.available_vortex_versions) {
                     i++;
-                    available_versions.push_back([available_version](int c) {
+                    available_versions.push_back([available_version, i](int c) {
                       switch (c) {
                         case 0: {
                           CherryKit::ImageHttp(available_version->banner, 140.0f, 50.0f);
@@ -221,10 +234,10 @@ namespace VortexLauncher {
               static std::vector<std::function<void(int)>> versions_render_callbacks;
 
               if (versions_render_callbacks.empty()) {
-                static int i = 0;
+                int i = 0;
                 for (auto version : VortexMaker::GetCurrentContext()->IO.sys_vortex_versions) {
                   i++;
-                  versions_render_callbacks.push_back([version](int c) {
+                  versions_render_callbacks.push_back([version, i](int c) {
                     switch (c) {
                       case 0: {  // Image
                         CherryKit::ImageLocal(Cherry::GetPath(version->banner), 100.0f, 35.0f);
@@ -331,17 +344,22 @@ namespace VortexLauncher {
   }
 
   void VersionManager::Render() {
-    const float minPaneWidth = 50.0f;
-    const float splitterWidth = 1.5f;
+    CherryKit::NotificationButton(
+        &m_WipNotification,
+        4,
+        "info",
+        "Work in progress",
+        "This feature is not available yet. Thanks for your patience.",
+        []() { });
 
-    std::string label = "left_pane" + m_AppWindow->m_Name;
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
-    ImGui::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#00000000"));
-    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, ImVec2(0.0f, 0.0f));
-    ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0.0f, 0.0f));
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
-    ImGui::BeginChild(label.c_str(), ImVec2(leftPaneWidth, 0), true, NULL);
+    std::string label = "left_pane_" + m_AppWindow->m_Name;
+    CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
+    CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#00000000"));
+    CherryGUI::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
+    CherryGUI::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0.0f, 0.0f));
+    CherryGUI::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+    CherryGUI::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
+    ImGui::BeginChild(label.c_str(), ImVec2(leftPaneWidth, 0), true);
 
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 5.0f);
@@ -381,8 +399,8 @@ namespace VortexLauncher {
     }
 
     ImGui::EndChild();
-    ImGui::PopStyleColor(2);
-    ImGui::PopStyleVar(4);
+    CherryGUI::PopStyleColor(2);
+    CherryGUI::PopStyleVar(4);
 
     ImGui::SameLine();
     ImGui::BeginGroup();
@@ -390,11 +408,14 @@ namespace VortexLauncher {
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.0f);
 
     if (!m_SelectedChildName.empty()) {
-      ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20.0f, 20.0f));
-      ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(20.0f, 20.0f));
+      CherryGUI::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20.0f, 20.0f));
+      CherryGUI::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(20.0f, 20.0f));
 
       if (ImGui::BeginChild(
-              "ChildPanel", ImVec2(0, 0), false, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_AlwaysVerticalScrollbar)) {
+              "ChildPanelVManager",
+              ImVec2(0, 0),
+              false,
+              ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_AlwaysVerticalScrollbar)) {
         auto child = GetChild(m_SelectedChildName);
 
         if (child) {
@@ -406,9 +427,10 @@ namespace VortexLauncher {
       }
       ImGui::EndChild();
 
-      ImGui::PopStyleVar(2);
+      CherryGUI::PopStyleVar(2);
     }
 
     ImGui::EndGroup();
   }
+
 }  // namespace VortexLauncher

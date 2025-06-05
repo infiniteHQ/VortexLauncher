@@ -331,7 +331,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
     static bool t;
 
     VxContext &ctx = *CVortexMaker;
-    std::cout << "=ctx.launcher_update_available <" << ctx.launcher_update_available << std::endl;
+
     CherryKit::NotificationButton(
         &ctx.launcher_update_available,
         10,
@@ -484,6 +484,7 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"))->GetData("isClicked
               Cherry::GetLocale("loc.menubar.menuitem.about_contributors_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_people.png")),
               false)) {
+        VortexMaker::OpenURL("https://vortex.infinite.si/contributors");
       }
 
       if (ImGui::MenuItem(
@@ -491,6 +492,7 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"))->GetData("isClicked
               Cherry::GetLocale("loc.menubar.menuitem.documentation_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_book.png")),
               c_Launcher->GetMainSettingsVisibility())) {
+        VortexMaker::OpenURL("https://vortex.infinite.si/learn");
       }
 
       ImGui::EndMenu();

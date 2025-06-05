@@ -126,6 +126,9 @@ namespace VortexLauncher {
     m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
     m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/icons/misc/icon_home.png"));
 
+    m_AppWindow->SetClosable(true);
+    m_AppWindow->m_CloseCallback = [=]() { m_AppWindow->SetVisibility(false); };
+
     m_AppWindow->SetInternalPaddingX(8.0f);
     m_AppWindow->SetInternalPaddingY(8.0f);
 

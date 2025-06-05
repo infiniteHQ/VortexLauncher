@@ -18,14 +18,6 @@
 #include <stdlib.h>
 #endif
 
-/* TODO :
-  - (Cherry : Border radius on blocks)
-  - Doing : Delete a module or a plugin (by openning a modal window)
-  - Doing : Import a local module or plugin -> Require the file browser (builtin with Cherry)
-  - Prepare the Infinite Lab integration
-  - Doing : Better cards.
-*/
-
 namespace VortexLauncher {
   void LogicalContentManager::ModulesRender() {
     // Cherry::SetNextComponentProperty("color_text", "#B1FF31"); // Todo remplace
@@ -45,8 +37,10 @@ namespace VortexLauncher {
 
   LogicalContentManager::LogicalContentManager(const std::string &name) {
     m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
-    m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/icons/misc/icon_home.png"));
-    m_AppWindow->SetClosable(false);
+    m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/icons/misc/icon_bricksearch.png"));
+
+    m_AppWindow->SetClosable(true);
+    m_AppWindow->m_CloseCallback = [=]() { m_AppWindow->SetVisibility(false); };
 
     m_AppWindow->m_TabMenuCallback = []() {
       ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
@@ -74,9 +68,19 @@ namespace VortexLauncher {
               CherryKit::Separator();
               CherryNextProp("color_text", "#999999");
               CherryKit::TextWrapped(
-                  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
-                  "dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip "
-                  "ex ea commodo consequat.");
+                  "Logical content consists of modular components that add features to a project and the Vortex Editor. The "
+                  "Vortex Editor alone simply provides the project context and enables all logical and static content to "
+                  "communicate with each other. The editor guarantees interoperability between components. It allows all "
+                  "parts to interact and provides essential utilities like content managers, project settings, and the "
+                  "content browser—along with logging and debugging tools.");
+
+              if (CherryKit::ButtonImageTextImage(
+                      "Learn and Documentation",
+                      Cherry::GetPath("resources/imgs/icons/launcher/docs.png"),
+                      Cherry::GetPath("resources/imgs/weblink.png"))
+                      ->GetData("isClicked") == "true") {
+                VortexMaker::OpenURL("https://vortex.infinite.si/learn");
+              }
             },
             Cherry::GetPath("resources/imgs/help.png")));
     this->AddChild(
@@ -152,7 +156,11 @@ namespace VortexLauncher {
               ImGui::SameLine();
               Cherry::SetNextComponentProperty("padding_x", "8");
               Cherry::SetNextComponentProperty("padding_y", "4");
-              CherryKit::ButtonImageText("Browse", Cherry::GetPath("resources/imgs/icons/misc/icon_net.png"));
+
+              if (CherryKit::ButtonImageText("Browse", Cherry::GetPath("resources/imgs/icons/misc/icon_net.png"))
+                      ->GetData("isClicked") == "true") {
+                m_WipNotification = true;
+              }
 
               CherryNextProp("color", "#252525");
               CherryKit::Separator();
@@ -373,8 +381,10 @@ namespace VortexLauncher {
               ImGui::SameLine();
               Cherry::SetNextComponentProperty("padding_x", "8");
               Cherry::SetNextComponentProperty("padding_y", "4");
-              CherryKit::ButtonImageText("Browse", Cherry::GetPath("resources/imgs/icons/misc/icon_net.png"));
-
+              if (CherryKit::ButtonImageText("Browse", Cherry::GetPath("resources/imgs/icons/misc/icon_net.png"))
+                      ->GetData("isClicked") == "true") {
+                m_WipNotification = true;
+              }
               CherryNextProp("color", "#252525");
               CherryKit::Separator();
 
@@ -590,14 +600,22 @@ namespace VortexLauncher {
     const float minPaneWidth = 50.0f;
     const float splitterWidth = 1.5f;
 
+    CherryKit::NotificationButton(
+        &m_WipNotification,
+        4,
+        "info",
+        "Work in progress",
+        "This feature is not available yet. Thanks for your patience.",
+        []() { });
+
     std::string label = "left_pane" + m_AppWindow->m_Name;
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
-    ImGui::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#00000000"));
-    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0.0f, 0.0f));
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
-    ImGui::BeginChild(label.c_str(), ImVec2(leftPaneWidth, 0), true, NULL);
+    CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
+    CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#00000000"));
+    CherryGUI::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
+    CherryGUI::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0.0f, 0.0f));
+    CherryGUI::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+    CherryGUI::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
+    ImGui::BeginChild(label.c_str(), ImVec2(leftPaneWidth, 0), true);
 
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 5.0f);
@@ -655,8 +673,8 @@ namespace VortexLauncher {
     }
 
     ImGui::EndChild();
-    ImGui::PopStyleColor(2);
-    ImGui::PopStyleVar(4);
+    CherryGUI::PopStyleColor(2);
+    CherryGUI::PopStyleVar(4);
 
     ImGui::SameLine();
     ImGui::BeginGroup();
@@ -664,8 +682,8 @@ namespace VortexLauncher {
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.0f);
 
     if (!m_SelectedChildName.empty()) {
-      ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20.0f, 20.0f));
-      ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(20.0f, 20.0f));
+      CherryGUI::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20.0f, 20.0f));
+      CherryGUI::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(20.0f, 20.0f));
 
       if (ImGui::BeginChild(
               "ChildPanel", ImVec2(0, 0), false, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_AlwaysVerticalScrollbar)) {
@@ -680,7 +698,7 @@ namespace VortexLauncher {
       }
       ImGui::EndChild();
 
-      ImGui::PopStyleVar(2);
+      CherryGUI::PopStyleVar(2);
     }
 
     ImGui::EndGroup();

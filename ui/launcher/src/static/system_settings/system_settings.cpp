@@ -1,6 +1,6 @@
 #include "system_settings.hpp"
 
-static std::string current_section = "mm"; // mm / pm tm cv
+static std::string current_section = "mm";  // mm / pm tm cv
 static std::shared_ptr<ModuleInterface> selected_module;
 static std::shared_ptr<TemplateInterface> selected_template;
 static std::string default_project_avatar = "/usr/local/include/Vortex/1.1/imgs/base_vortex.png";
@@ -16,775 +16,651 @@ static std::shared_ptr<ModuleInterface> single_module_to_add;
 
 static std::vector<std::string> available_versions;
 
-bool TestVortexExecutable(const std::string &path)
-{
-    std::array<char, 128> buffer;
-    std::string result;
-    std::string command = path + " -test";
+bool TestVortexExecutable(const std::string &path) {
+  std::array<char, 128> buffer;
+  std::string result;
+  std::string command = path + " -test";
 
-    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(command.c_str(), "r"), pclose);
-    if (!pipe)
-    {
-        std::cerr << "popen() failed!" << std::endl;
-        return false;
-    }
+  std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(command.c_str(), "r"), pclose);
+  if (!pipe) {
+    std::cerr << "popen() failed!" << std::endl;
+    return false;
+  }
 
-    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
-    {
-        result += buffer.data();
-    }
+  while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+    result += buffer.data();
+  }
 
-    int return_code = pclose(pipe.release());
+  int return_code = pclose(pipe.release());
 
-    return (result.find("ok") != std::string::npos) && (return_code == 0);
+  return (result.find("ok") != std::string::npos) && (return_code == 0);
 }
 
-void RegisterAvailableVersions()
-{
-    const std::string base_path = "/usr/local/bin/Vortex";
-    available_versions.clear();
-    for (const auto &entry : std::filesystem::directory_iterator(base_path))
-    {
-        if (entry.is_directory())
-        {
-            std::string version = entry.path().filename().string();
-            std::string vortex_executable = entry.path().string() + "/vortex";
+void RegisterAvailableVersions() {
+  const std::string base_path = "/usr/local/bin/Vortex";
+  available_versions.clear();
+  for (const auto &entry : std::filesystem::directory_iterator(base_path)) {
+    if (entry.is_directory()) {
+      std::string version = entry.path().filename().string();
+      std::string vortex_executable = entry.path().string() + "/vortex";
 
-            if (TestVortexExecutable(vortex_executable))
-            {
-                available_versions.push_back(version);
-            }
-        }
+      if (TestVortexExecutable(vortex_executable)) {
+        available_versions.push_back(version);
+      }
     }
+  }
 }
 
-enum class ProjectStates
-{
-    SAME_NAME_ALREADY_EXIST,
-    NOT_INSTALLED,
+enum class ProjectStates {
+  SAME_NAME_ALREADY_EXIST,
+  NOT_INSTALLED,
 };
-enum class ModulesStates
-{
-    ALREADY_INSTALLED_WITH_CORRECT_VERSION,
-    ALREADY_INSTALLED_WITH_ANOTHER_VERSION,
-    NOT_INSTALLED,
+enum class ModulesStates {
+  ALREADY_INSTALLED_WITH_CORRECT_VERSION,
+  ALREADY_INSTALLED_WITH_ANOTHER_VERSION,
+  NOT_INSTALLED,
 };
 
-enum class TemplatesStates
-{
-    SAME_NAME_DETECTED,
-    NOT_INSTALLED,
+enum class TemplatesStates {
+  SAME_NAME_DETECTED,
+  NOT_INSTALLED,
 };
 
 static std::unordered_map<std::string, std::pair<ModulesStates, std::shared_ptr<ModuleInterface>>> all_modules_to_add;
 static std::vector<std::pair<TemplatesStates, std::shared_ptr<TemplateInterface>>> all_templates_to_add;
 
-static void CheckAllTemplatesStates(std::vector<std::shared_ptr<TemplateInterface>> finded_templates)
-{
-    VxContext *ctx = VortexMaker::GetCurrentContext();
+static void CheckAllTemplatesStates(std::vector<std::shared_ptr<TemplateInterface>> finded_templates) {
+  VxContext *ctx = VortexMaker::GetCurrentContext();
 
-    all_templates_to_add.clear();
+  all_templates_to_add.clear();
 
-    for (auto template_ : finded_templates)
-    {
-        bool resolved = false;
+  for (auto template_ : finded_templates) {
+    bool resolved = false;
 
-        for (auto sys_modules : ctx->IO.sys_templates)
-        {
-            if (resolved)
-            {
-                continue;
-            }
+    for (auto sys_modules : ctx->IO.sys_templates) {
+      if (resolved) {
+        continue;
+      }
 
-            if (sys_modules->m_name == template_->m_name)
-            {
-                // Already installed
-                std::pair<TemplatesStates, std::shared_ptr<TemplateInterface>> module_to_add;
-                module_to_add.second = template_;
-                module_to_add.first = TemplatesStates::SAME_NAME_DETECTED;
-                all_templates_to_add.push_back(module_to_add);
-                resolved = true;
-            }
-        }
-
-        if (!resolved)
-        {
-            // Already installed, but not this version
-            std::pair<TemplatesStates, std::shared_ptr<TemplateInterface>> module_to_add;
-            module_to_add.second = template_;
-            module_to_add.first = TemplatesStates::NOT_INSTALLED;
-            all_templates_to_add.push_back(module_to_add);
-            resolved = true;
-        }
+      if (sys_modules->m_name == template_->m_name) {
+        // Already installed
+        std::pair<TemplatesStates, std::shared_ptr<TemplateInterface>> module_to_add;
+        module_to_add.second = template_;
+        module_to_add.first = TemplatesStates::SAME_NAME_DETECTED;
+        all_templates_to_add.push_back(module_to_add);
+        resolved = true;
+      }
     }
+
+    if (!resolved) {
+      // Already installed, but not this version
+      std::pair<TemplatesStates, std::shared_ptr<TemplateInterface>> module_to_add;
+      module_to_add.second = template_;
+      module_to_add.first = TemplatesStates::NOT_INSTALLED;
+      all_templates_to_add.push_back(module_to_add);
+      resolved = true;
+    }
+  }
 }
 
-static void InsertModule(std::pair<ModulesStates, std::shared_ptr<ModuleInterface>> module_to_add)
-{
-    VxContext *ctx = VortexMaker::GetCurrentContext();
+static void InsertModule(std::pair<ModulesStates, std::shared_ptr<ModuleInterface>> module_to_add) {
+  VxContext *ctx = VortexMaker::GetCurrentContext();
 
-    std::string tag = module_to_add.second->m_name + module_to_add.second->m_version;
+  std::string tag = module_to_add.second->m_name + module_to_add.second->m_version;
 
-    bool finded = false;
+  bool finded = false;
 
-    for (auto sys_modules : ctx->IO.sys_em)
-    {
-        if (finded)
-            continue;
+  for (auto sys_modules : ctx->IO.sys_em) {
+    if (finded)
+      continue;
 
-        if (sys_modules->m_name == module_to_add.second->m_name && sys_modules->m_version == module_to_add.second->m_version)
-        {
-            module_to_add.first = ModulesStates::ALREADY_INSTALLED_WITH_CORRECT_VERSION;
-            finded = true;
-        }
-
-        if (sys_modules->m_name == module_to_add.second->m_name && !finded)
-        {
-            module_to_add.first = ModulesStates::ALREADY_INSTALLED_WITH_ANOTHER_VERSION;
-        }
+    if (sys_modules->m_name == module_to_add.second->m_name && sys_modules->m_version == module_to_add.second->m_version) {
+      module_to_add.first = ModulesStates::ALREADY_INSTALLED_WITH_CORRECT_VERSION;
+      finded = true;
     }
 
-    for (auto it = all_modules_to_add.begin(); it != all_modules_to_add.end(); it++)
-    {
-        if (it->second.second->m_name == module_to_add.second->m_name && it->second.second->m_version == module_to_add.second->m_version)
-        {
-            it->second.first = ModulesStates::ALREADY_INSTALLED_WITH_CORRECT_VERSION;
-        }
+    if (sys_modules->m_name == module_to_add.second->m_name && !finded) {
+      module_to_add.first = ModulesStates::ALREADY_INSTALLED_WITH_ANOTHER_VERSION;
     }
+  }
 
-    all_modules_to_add.insert({tag, module_to_add});
+  for (auto it = all_modules_to_add.begin(); it != all_modules_to_add.end(); it++) {
+    if (it->second.second->m_name == module_to_add.second->m_name &&
+        it->second.second->m_version == module_to_add.second->m_version) {
+      it->second.first = ModulesStates::ALREADY_INSTALLED_WITH_CORRECT_VERSION;
+    }
+  }
+
+  all_modules_to_add.insert({ tag, module_to_add });
 }
 
-static void CheckAllModulesStates(std::vector<std::shared_ptr<ModuleInterface>> finded_modules)
-{
-    VxContext *ctx = VortexMaker::GetCurrentContext();
+static void CheckAllModulesStates(std::vector<std::shared_ptr<ModuleInterface>> finded_modules) {
+  VxContext *ctx = VortexMaker::GetCurrentContext();
 
-    all_modules_to_add.clear();
+  all_modules_to_add.clear();
 
-    for (auto module_ : finded_modules)
-    {
-        std::pair<ModulesStates, std::shared_ptr<ModuleInterface>> module_to_add;
-        module_to_add.second = module_;
-        module_to_add.first = ModulesStates::NOT_INSTALLED;
-        InsertModule(module_to_add);
-    }
+  for (auto module_ : finded_modules) {
+    std::pair<ModulesStates, std::shared_ptr<ModuleInterface>> module_to_add;
+    module_to_add.second = module_;
+    module_to_add.first = ModulesStates::NOT_INSTALLED;
+    InsertModule(module_to_add);
+  }
 }
 
-static void MyButton(const std::string &name, int w, int h)
-{
-    ImVec2 squareSize(w, h);
-    ImVec2 totalSize(squareSize.x, squareSize.y + 5);
-    ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+static void MyButton(const std::string &name, int w, int h) {
+  ImVec2 squareSize(w, h);
+  ImVec2 totalSize(squareSize.x, squareSize.y + 5);
+  ImVec2 cursorPos = ImGui::GetCursorScreenPos();
 
-    std::string button_id = name + "squareButtonWithText";
-    if (ImGui::InvisibleButton(button_id.c_str(), totalSize))
-    {
-    }
+  std::string button_id = name + "squareButtonWithText";
+  if (ImGui::InvisibleButton(button_id.c_str(), totalSize)) {
+  }
 
-    if (ImGui::IsItemHovered())
-    {
-        ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-    }
+  if (ImGui::IsItemHovered()) {
+    ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+  }
 
-    ImDrawList *drawList = ImGui::GetWindowDrawList();
+  ImDrawList *drawList = ImGui::GetWindowDrawList();
 
-    // addTexture(name, default_project_avatar);
-    // getTexture(name, drawList, cursorPos, squareSize);
+  // addTexture(name, default_project_avatar);
+  // getTexture(name, drawList, cursorPos, squareSize);
 
-    ImVec2 smallRectSize(40, 20);
-    ImVec2 smallRectPos(cursorPos.x + squareSize.x - smallRectSize.x - 5, cursorPos.y + squareSize.y - smallRectSize.y - 5);
+  ImVec2 smallRectSize(40, 20);
+  ImVec2 smallRectPos(cursorPos.x + squareSize.x - smallRectSize.x - 5, cursorPos.y + squareSize.y - smallRectSize.y - 5);
 
-    drawList->AddRectFilled(smallRectPos, ImVec2(smallRectPos.x + smallRectSize.x, smallRectPos.y + smallRectSize.y), IM_COL32(0, 0, 0, 255));
+  drawList->AddRectFilled(
+      smallRectPos, ImVec2(smallRectPos.x + smallRectSize.x, smallRectPos.y + smallRectSize.y), IM_COL32(0, 0, 0, 255));
 
-    float windowVisibleX2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
-    if (cursorPos.x + totalSize.x < windowVisibleX2)
-        ImGui::SameLine();
+  float windowVisibleX2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
+  if (cursorPos.x + totalSize.x < windowVisibleX2)
+    ImGui::SameLine();
 }
 
-SystemSettings::SystemSettings(const std::string &name)
-{
-    this->ctx = VortexMaker::GetCurrentContext();
+SystemSettings::SystemSettings(const std::string &name) {
+  this->ctx = VortexMaker::GetCurrentContext();
 
-    m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
-    m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/icons/misc/icon_settings.png"));
-    m_AppWindow->SetDefaultBehavior(Cherry::DefaultAppWindowBehaviors::DefaultDocking, "full");
+  m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
+  m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/icons/misc/icon_settings.png"));
+  m_AppWindow->SetDefaultBehavior(Cherry::DefaultAppWindowBehaviors::DefaultDocking, "full");
 
-    m_AppWindow->SetVisibility(false);
-    m_AppWindow->SetCloseCallback([this]()
-                                  { m_AppWindow->SetVisibility(false); });
+  m_AppWindow->SetClosable(true);
+  m_AppWindow->m_CloseCallback = [=]() { m_AppWindow->SetVisibility(false); };
 
-    m_AppWindow->SetInternalPaddingY(8.0f);
+  m_AppWindow->SetVisibility(false);
+  m_AppWindow->SetCloseCallback([this]() { m_AppWindow->SetVisibility(false); });
 
-    m_AppWindow->SetLeftMenubarCallback([this]()
-                                        { this->menubar(); });
+  m_AppWindow->SetInternalPaddingY(8.0f);
 
-    this->Refresh();
+  m_AppWindow->SetLeftMenubarCallback([this]() { this->menubar(); });
 
-    RegisterAvailableVersions();
+  this->Refresh();
+
+  RegisterAvailableVersions();
 }
 
-bool MyParamBanner(const std::string &path)
-{
-    bool pressed = false;
-    // addTexture(path, path);
-    ImVec2 squareSize(300, 51);
+bool MyParamBanner(const std::string &path) {
+  bool pressed = false;
+  // addTexture(path, path);
+  ImVec2 squareSize(300, 51);
 
-    ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+  ImVec2 cursorPos = ImGui::GetCursorScreenPos();
 
-    std::string id = "## " + path;
-    if (ImGui::InvisibleButton(id.c_str(), squareSize))
-    {
-        pressed = true;
-    }
+  std::string id = "## " + path;
+  if (ImGui::InvisibleButton(id.c_str(), squareSize)) {
+    pressed = true;
+  }
 
-    if (ImGui::IsItemHovered())
-    {
-        ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-    }
+  if (ImGui::IsItemHovered()) {
+    ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+  }
 
-    ImDrawList *drawList = ImGui::GetWindowDrawList();
+  ImDrawList *drawList = ImGui::GetWindowDrawList();
 
-    // getTexture(path, drawList, cursorPos, squareSize);
+  // getTexture(path, drawList, cursorPos, squareSize);
 
-    ImVec2 smallRectSize(40, 20);
-    ImVec2 smallRectPos(cursorPos.x + squareSize.x - smallRectSize.x - 5, cursorPos.y + squareSize.y - smallRectSize.y - 5);
-    return pressed;
+  ImVec2 smallRectSize(40, 20);
+  ImVec2 smallRectPos(cursorPos.x + squareSize.x - smallRectSize.x - 5, cursorPos.y + squareSize.y - smallRectSize.y - 5);
+  return pressed;
 }
 
-void SystemSettings::Render()
-{
-    float columnWidths[3] = {100.0f, 250.0f, 150.0f};
+void SystemSettings::Render() {
+  float columnWidths[3] = { 100.0f, 250.0f, 150.0f };
 
-    ImVec2 windowSize = ImGui::GetWindowSize();
+  ImVec2 windowSize = ImGui::GetWindowSize();
 
-    float availableWidth = windowSize.x - ImGui::GetStyle().ItemSpacing.x * 2;
+  float availableWidth = windowSize.x - ImGui::GetStyle().ItemSpacing.x * 2;
 
-    float totalColumnWidths = 0.0f;
-    for (int i = 0; i < 3; ++i)
-        totalColumnWidths += columnWidths[i];
+  float totalColumnWidths = 0.0f;
+  for (int i = 0; i < 3; ++i)
+    totalColumnWidths += columnWidths[i];
 
-    float columnProportions[3];
-    for (int i = 0; i < 3; ++i)
-        columnProportions[i] = columnWidths[i] / totalColumnWidths;
+  float columnProportions[3];
+  for (int i = 0; i < 3; ++i)
+    columnProportions[i] = columnWidths[i] / totalColumnWidths;
 
-    ImGui::Columns(3, nullptr, false);
+  ImGui::Columns(3, nullptr, false);
 
-    ImVec4 columnColors[3] = {ImVec4(1.0f, 0.0f, 0.0f, 0.0f),
-                              ImVec4(0.0f, 0.0f, 1.0f, 0.0f),
-                              ImVec4(0.0f, 1.0f, 0.0f, 0.0f)};
+  ImVec4 columnColors[3] = { ImVec4(1.0f, 0.0f, 0.0f, 0.0f),
+                             ImVec4(0.0f, 0.0f, 1.0f, 0.0f),
+                             ImVec4(0.0f, 1.0f, 0.0f, 0.0f) };
 
-    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
-    ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 0.0f);
-    for (int i = 0; i < 3; ++i)
-    {
-        float columnWidth = availableWidth * columnProportions[i];
-        ImGui::SetColumnWidth(i, columnWidth);
-        ImGui::PushStyleColor(ImGuiCol_ChildBg, columnColors[i]);
-        ImGui::BeginChild(ImGui::GetID((void *)(intptr_t)i), ImVec2(columnWidth, 0), true);
-        if (i == 0)
-        {
-            if (MyParamBanner("/usr/local/include/Vortex/1.1/imgs/b_modules_managment.png"))
-            {
-                current_section = "mm";
-            }
+  ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
+  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+  ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
+  ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 0.0f);
+  for (int i = 0; i < 3; ++i) {
+    float columnWidth = availableWidth * columnProportions[i];
+    ImGui::SetColumnWidth(i, columnWidth);
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, columnColors[i]);
+    ImGui::BeginChild(ImGui::GetID((void *)(intptr_t)i), ImVec2(columnWidth, 0), true);
+    if (i == 0) {
+      if (MyParamBanner("/usr/local/include/Vortex/1.1/imgs/b_modules_managment.png")) {
+        current_section = "mm";
+      }
 
-            if (MyParamBanner("/usr/local/include/Vortex/1.1/imgs/b_plugins_managment.png"))
-            {
-                current_section = "pm";
-            }
+      if (MyParamBanner("/usr/local/include/Vortex/1.1/imgs/b_plugins_managment.png")) {
+        current_section = "pm";
+      }
 
-            if (MyParamBanner("/usr/local/include/Vortex/1.1/imgs/b_templates_managment.png"))
-            {
-                current_section = "tm";
-            }
+      if (MyParamBanner("/usr/local/include/Vortex/1.1/imgs/b_templates_managment.png")) {
+        current_section = "tm";
+      }
 
-            if (MyParamBanner("/usr/local/include/Vortex/1.1/imgs/b_core_versions.png"))
-            {
-                current_section = "cv";
-            }
-        }
-        else if (i == 1)
-        {
-            if (current_section == "mm")
-            {
-                static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
+      if (MyParamBanner("/usr/local/include/Vortex/1.1/imgs/b_core_versions.png")) {
+        current_section = "cv";
+      }
+    } else if (i == 1) {
+      if (current_section == "mm") {
+        static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders |
+                                       ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
 
-                // Advanced mode : (Make a boolean with a simple mod (only, name, state & progress))
+        // Advanced mode : (Make a boolean with a simple mod (only, name, state & progress))
 
-                if (ImGui::BeginTable("tablhjke_", 6, flags))
-                {
+        if (ImGui::BeginTable("tablhjke_", 6, flags)) {
+          ImGui::TableSetupColumn("Select", ImGuiTableColumnFlags_WidthFixed);
+          ImGui::TableSetupColumn("Proper Name", ImGuiTableColumnFlags_WidthFixed);
+          ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed);
+          ImGui::TableSetupColumn("Version", ImGuiTableColumnFlags_WidthFixed);
+          ImGui::TableSetupColumn("Path", ImGuiTableColumnFlags_WidthFixed);
+          ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed);
+          ImGui::TableHeadersRow();
 
-                    ImGui::TableSetupColumn("Select", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableSetupColumn("Proper Name", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableSetupColumn("Version", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableSetupColumn("Path", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableHeadersRow();
+          ImGui::PopStyleVar(4);
 
-                    ImGui::PopStyleVar(4);
+          for (int row = 0; row < ctx->IO.sys_em.size(); row++) {
+            static std::pair<char[128], char[128]> newItem;
+            static char label[128];
 
-                    for (int row = 0; row < ctx->IO.sys_em.size(); row++)
-                    {
-                        static std::pair<char[128], char[128]> newItem;
-                        static char label[128];
+            ImGui::TableNextRow();
+            for (int column = 0; column < 6; column++) {
+              ImGui::TableSetColumnIndex(column);
 
-                        ImGui::TableNextRow();
-                        for (int column = 0; column < 6; column++)
-                        {
-                            ImGui::TableSetColumnIndex(column);
-
-                            if (column == 0)
-                            {
-                                if(CherryKit::ButtonImageText("create_project_button", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") == "true")
-                                {
-                                    selected_module = ctx->IO.sys_em[row];
-                                }
-                            }
-                            else if (column == 1)
-                            {
-                                ImGui::Text(ctx->IO.sys_em[row]->m_proper_name.c_str());
-                            }
-                            else if (column == 2)
-                            {
-                                ImGui::Text(ctx->IO.sys_em[row]->m_name.c_str());
-                            }
-                            else if (column == 3)
-                            {
-                                ImGui::Text(ctx->IO.sys_em[row]->m_version.c_str());
-                            }
-                            else if (column == 4)
-                            {
-                                ImGui::Text(ctx->IO.sys_em[row]->m_path.c_str());
-                            }
-                            else if (column == 5)
-                            {
-                                ImGui::Text(ctx->IO.sys_em[row]->m_type.c_str());
-                            }
-                        }
-                    }
-                    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
-                    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-                    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
-                    ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 0.0f);
-
-                    ImGui::EndTable();
+              if (column == 0) {
+                if (CherryKit::ButtonImageText("create_project_button", Cherry::GetPath("resources/base/undefined"))
+                        ->GetData("isClicked") == "true") {
+                  selected_module = ctx->IO.sys_em[row];
                 }
+              } else if (column == 1) {
+                ImGui::Text(ctx->IO.sys_em[row]->m_proper_name.c_str());
+              } else if (column == 2) {
+                ImGui::Text(ctx->IO.sys_em[row]->m_name.c_str());
+              } else if (column == 3) {
+                ImGui::Text(ctx->IO.sys_em[row]->m_version.c_str());
+              } else if (column == 4) {
+                ImGui::Text(ctx->IO.sys_em[row]->m_path.c_str());
+              } else if (column == 5) {
+                ImGui::Text(ctx->IO.sys_em[row]->m_type.c_str());
+              }
             }
-            else if (current_section == "tm")
-            {
+          }
+          ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
+          ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+          ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
+          ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 0.0f);
 
-                static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
-
-                // Advanced mode : (Make a boolean with a simple mod (only, name, state & progress))
-
-                if (ImGui::BeginTable("tablhjke_", 5, flags))
-                {
-
-                    ImGui::TableSetupColumn("Select", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableSetupColumn("Proper Name", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableSetupColumn("Path", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableHeadersRow();
-
-                    ImGui::PopStyleVar(4);
-
-                    for (int row = 0; row < ctx->IO.sys_templates.size(); row++)
-                    {
-                        static std::pair<char[128], char[128]> newItem;
-                        static char label[128];
-
-                        ImGui::TableNextRow();
-                        for (int column = 0; column < 5; column++)
-                        {
-                            ImGui::TableSetColumnIndex(column);
-
-                            if (column == 0)
-                            {
-                                if(CherryKit::ButtonImageText("delete_button", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") == "true")
-                                {
-                                    selected_template = ctx->IO.sys_templates[row];
-                                }
-                            }
-                            else if (column == 1)
-                            {
-                                ImGui::Text(ctx->IO.sys_templates[row]->m_proper_name.c_str());
-                            }
-                            else if (column == 2)
-                            {
-                                ImGui::Text(ctx->IO.sys_templates[row]->m_name.c_str());
-                            }
-                            else if (column == 3)
-                            {
-                                ImGui::Text(ctx->IO.sys_templates[row]->m_path.c_str());
-                            }
-                            else if (column == 4)
-                            {
-                                ImGui::Text(ctx->IO.sys_templates[row]->m_type.c_str());
-                            }
-                        }
-                    }
-                    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
-                    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-                    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
-                    ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 0.0f);
-
-                    ImGui::EndTable();
-                }
-            }
-            else if (current_section == "cv")
-            {
-                static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
-
-                // Advanced mode : (Make a boolean with a simple mod (only, name, state & progress))
-
-                if (ImGui::BeginTable("tablhjke_", 2, flags))
-                {
-
-                    ImGui::TableSetupColumn("Version", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableSetupColumn("Prop", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableHeadersRow();
-
-                    ImGui::PopStyleVar(4);
-
-                    for (int row = 0; row < available_versions.size(); row++)
-                    {
-                        ImGui::TableNextRow();
-                        for (int column = 0; column < 1; column++)
-                        {
-                            ImGui::TableSetColumnIndex(column);
-
-                            if (column == 0)
-                            {
-                                std::string label = "Vortex version " + available_versions[row];
-                                ImGui::Text(label.c_str());
-                            }
-                            else if (column == 1)
-                            {
-                                ImGui::Text(available_versions[row].c_str());
-                            }
-                        }
-                    }
-                    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
-                    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-                    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
-                    ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 0.0f);
-
-                    ImGui::EndTable();
-                }
-            }
+          ImGui::EndTable();
         }
-        else if (i == 2)
-        {
-            if (current_section == "mm")
-            {
-                if (!selected_module)
-                {
-                    ImGui::Text("Select a module");
+      } else if (current_section == "tm") {
+        static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders |
+                                       ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
+
+        // Advanced mode : (Make a boolean with a simple mod (only, name, state & progress))
+
+        if (ImGui::BeginTable("tablhjke_", 5, flags)) {
+          ImGui::TableSetupColumn("Select", ImGuiTableColumnFlags_WidthFixed);
+          ImGui::TableSetupColumn("Proper Name", ImGuiTableColumnFlags_WidthFixed);
+          ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed);
+          ImGui::TableSetupColumn("Path", ImGuiTableColumnFlags_WidthFixed);
+          ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed);
+          ImGui::TableHeadersRow();
+
+          ImGui::PopStyleVar(4);
+
+          for (int row = 0; row < ctx->IO.sys_templates.size(); row++) {
+            static std::pair<char[128], char[128]> newItem;
+            static char label[128];
+
+            ImGui::TableNextRow();
+            for (int column = 0; column < 5; column++) {
+              ImGui::TableSetColumnIndex(column);
+
+              if (column == 0) {
+                if (CherryKit::ButtonImageText("delete_button", Cherry::GetPath("resources/base/undefined"))
+                        ->GetData("isClicked") == "true") {
+                  selected_template = ctx->IO.sys_templates[row];
                 }
-                else
-                {
-                    ImVec2 windowSize = ImGui::GetWindowSize();
-                    ImVec2 contentSize = ImGui::GetContentRegionAvail();
-                    ImVec2 buttonSize = ImVec2(100, 30);
-                    ImVec2 bitButtonSize = ImVec2(150, 30);
-                    {
-                        ImGui::BeginChild("LOGO_", ImVec2(70, 70), true);
-
-                        MyButton("tezt", 60, 60);
-
-                        ImGui::EndChild();
-                        ImGui::SameLine();
-                    }
-
-                    {
-                        ImGui::BeginChild("TEXT_", ImVec2(0, 68), true);
-                        float oldsize = ImGui::GetFont()->Scale;
-                        ImGui::GetFont()->Scale *= 1.3;
-                        ImGui::PushFont(ImGui::GetFont());
-
-                        ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.8f), selected_module->m_proper_name.c_str());
-
-                        ImGui::GetFont()->Scale = oldsize;
-                        ImGui::PopFont();
-                        ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.8f), selected_module->m_name.c_str());
-                        ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.8f), selected_module->m_version.c_str());
-                        ImGui::EndChild();
-                    }
-
-                    float ysection = windowSize.y - 280;
-                    ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX(), ysection));
-
-                    float firstButtonPosX = windowSize.x - buttonSize.x - bitButtonSize.y - 75 * 2 - ImGui::GetStyle().ItemSpacing.x * 3;
-
-                    float buttonPosY = windowSize.y - buttonSize.y - ImGui::GetStyle().ItemSpacing.y * 2 - bitButtonSize.y;
-
-                    ImGui::SetCursorPos(ImVec2(firstButtonPosX, buttonPosY));
-
-                    if (ImGui::Button("Rebuild", buttonSize))
-                    {
-                    }
-
-                    ImGui::SameLine();
-
-                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.9f, 0.2f, 0.2f, 0.8f));
-                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.2f, 0.2f, 1.0f));
-                    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.9f, 0.2f, 0.2f, 1.8f));
-                    if (ImGui::Button("Delete module", bitButtonSize))
-                    {
-                        open_module_deletion_modal = true;
-                    }
-                    ImGui::PopStyleColor(3);
-                }
+              } else if (column == 1) {
+                ImGui::Text(ctx->IO.sys_templates[row]->m_proper_name.c_str());
+              } else if (column == 2) {
+                ImGui::Text(ctx->IO.sys_templates[row]->m_name.c_str());
+              } else if (column == 3) {
+                ImGui::Text(ctx->IO.sys_templates[row]->m_path.c_str());
+              } else if (column == 4) {
+                ImGui::Text(ctx->IO.sys_templates[row]->m_type.c_str());
+              }
             }
+          }
+          ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
+          ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+          ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
+          ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 0.0f);
 
-            if (current_section == "tm")
-            {
-                if (!selected_template)
-                {
-                    ImGui::Text("Select a template");
-                }
-                else
-                {
-                    ImVec2 windowSize = ImGui::GetWindowSize();
-                    ImVec2 contentSize = ImGui::GetContentRegionAvail();
-                    ImVec2 buttonSize = ImVec2(100, 30);
-                    ImVec2 bitButtonSize = ImVec2(150, 30);
-                    {
-                        ImGui::BeginChild("LOGO_", ImVec2(70, 70), true);
-
-                        MyButton("tezt", 60, 60);
-
-                        ImGui::EndChild();
-                        ImGui::SameLine();
-                    }
-
-                    {
-                        ImGui::BeginChild("TEXT_", ImVec2(0, 68), true);
-                        float oldsize = ImGui::GetFont()->Scale;
-                        ImGui::GetFont()->Scale *= 1.3;
-                        ImGui::PushFont(ImGui::GetFont());
-
-                        ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.8f), selected_template->m_proper_name.c_str());
-
-                        ImGui::GetFont()->Scale = oldsize;
-                        ImGui::PopFont();
-                        ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.8f), selected_template->m_name.c_str());
-                        ImGui::EndChild();
-                    }
-
-                    float ysection = windowSize.y - 280;
-                    ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX(), ysection));
-
-                    float firstButtonPosX = windowSize.x - buttonSize.x - bitButtonSize.y - 75 * 2 - ImGui::GetStyle().ItemSpacing.x * 3;
-
-                    float buttonPosY = windowSize.y - buttonSize.y - ImGui::GetStyle().ItemSpacing.y * 2 - bitButtonSize.y;
-
-                    ImGui::SetCursorPos(ImVec2(firstButtonPosX, buttonPosY));
-
-                    if (ImGui::Button("Rebuild", buttonSize))
-                    {
-                    }
-
-                    ImGui::SameLine();
-
-                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.9f, 0.2f, 0.2f, 0.8f));
-                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.2f, 0.2f, 1.0f));
-                    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.9f, 0.2f, 0.2f, 1.8f));
-                    if (ImGui::Button("Delete template", bitButtonSize))
-                    {
-                        open_template_deletion_modal = true;
-                    }
-                    ImGui::PopStyleColor(3);
-                }
-            }
+          ImGui::EndTable();
         }
-        ImGui::EndChild();
-        ImGui::PopStyleColor();
+      } else if (current_section == "cv") {
+        static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders |
+                                       ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
 
-        if (i < 2)
-            ImGui::NextColumn();
+        // Advanced mode : (Make a boolean with a simple mod (only, name, state & progress))
+
+        if (ImGui::BeginTable("tablhjke_", 2, flags)) {
+          ImGui::TableSetupColumn("Version", ImGuiTableColumnFlags_WidthFixed);
+          ImGui::TableSetupColumn("Prop", ImGuiTableColumnFlags_WidthFixed);
+          ImGui::TableHeadersRow();
+
+          ImGui::PopStyleVar(4);
+
+          for (int row = 0; row < available_versions.size(); row++) {
+            ImGui::TableNextRow();
+            for (int column = 0; column < 1; column++) {
+              ImGui::TableSetColumnIndex(column);
+
+              if (column == 0) {
+                std::string label = "Vortex version " + available_versions[row];
+                ImGui::Text(label.c_str());
+              } else if (column == 1) {
+                ImGui::Text(available_versions[row].c_str());
+              }
+            }
+          }
+          ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
+          ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+          ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
+          ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 0.0f);
+
+          ImGui::EndTable();
+        }
+      }
+    } else if (i == 2) {
+      if (current_section == "mm") {
+        if (!selected_module) {
+          ImGui::Text("Select a module");
+        } else {
+          ImVec2 windowSize = ImGui::GetWindowSize();
+          ImVec2 contentSize = ImGui::GetContentRegionAvail();
+          ImVec2 buttonSize = ImVec2(100, 30);
+          ImVec2 bitButtonSize = ImVec2(150, 30);
+          {
+            ImGui::BeginChild("LOGO_", ImVec2(70, 70), true);
+
+            MyButton("tezt", 60, 60);
+
+            ImGui::EndChild();
+            ImGui::SameLine();
+          }
+
+          {
+            ImGui::BeginChild("TEXT_", ImVec2(0, 68), true);
+            float oldsize = ImGui::GetFont()->Scale;
+            ImGui::GetFont()->Scale *= 1.3;
+            ImGui::PushFont(ImGui::GetFont());
+
+            ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.8f), selected_module->m_proper_name.c_str());
+
+            ImGui::GetFont()->Scale = oldsize;
+            ImGui::PopFont();
+            ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.8f), selected_module->m_name.c_str());
+            ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.8f), selected_module->m_version.c_str());
+            ImGui::EndChild();
+          }
+
+          float ysection = windowSize.y - 280;
+          ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX(), ysection));
+
+          float firstButtonPosX =
+              windowSize.x - buttonSize.x - bitButtonSize.y - 75 * 2 - ImGui::GetStyle().ItemSpacing.x * 3;
+
+          float buttonPosY = windowSize.y - buttonSize.y - ImGui::GetStyle().ItemSpacing.y * 2 - bitButtonSize.y;
+
+          ImGui::SetCursorPos(ImVec2(firstButtonPosX, buttonPosY));
+
+          if (ImGui::Button("Rebuild", buttonSize)) {
+          }
+
+          ImGui::SameLine();
+
+          ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.9f, 0.2f, 0.2f, 0.8f));
+          ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.2f, 0.2f, 1.0f));
+          ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.9f, 0.2f, 0.2f, 1.8f));
+          if (ImGui::Button("Delete module", bitButtonSize)) {
+            open_module_deletion_modal = true;
+          }
+          ImGui::PopStyleColor(3);
+        }
+      }
+
+      if (current_section == "tm") {
+        if (!selected_template) {
+          ImGui::Text("Select a template");
+        } else {
+          ImVec2 windowSize = ImGui::GetWindowSize();
+          ImVec2 contentSize = ImGui::GetContentRegionAvail();
+          ImVec2 buttonSize = ImVec2(100, 30);
+          ImVec2 bitButtonSize = ImVec2(150, 30);
+          {
+            ImGui::BeginChild("LOGO_", ImVec2(70, 70), true);
+
+            MyButton("tezt", 60, 60);
+
+            ImGui::EndChild();
+            ImGui::SameLine();
+          }
+
+          {
+            ImGui::BeginChild("TEXT_", ImVec2(0, 68), true);
+            float oldsize = ImGui::GetFont()->Scale;
+            ImGui::GetFont()->Scale *= 1.3;
+            ImGui::PushFont(ImGui::GetFont());
+
+            ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.8f), selected_template->m_proper_name.c_str());
+
+            ImGui::GetFont()->Scale = oldsize;
+            ImGui::PopFont();
+            ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.8f), selected_template->m_name.c_str());
+            ImGui::EndChild();
+          }
+
+          float ysection = windowSize.y - 280;
+          ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX(), ysection));
+
+          float firstButtonPosX =
+              windowSize.x - buttonSize.x - bitButtonSize.y - 75 * 2 - ImGui::GetStyle().ItemSpacing.x * 3;
+
+          float buttonPosY = windowSize.y - buttonSize.y - ImGui::GetStyle().ItemSpacing.y * 2 - bitButtonSize.y;
+
+          ImGui::SetCursorPos(ImVec2(firstButtonPosX, buttonPosY));
+
+          if (ImGui::Button("Rebuild", buttonSize)) {
+          }
+
+          ImGui::SameLine();
+
+          ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.9f, 0.2f, 0.2f, 0.8f));
+          ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.2f, 0.2f, 1.0f));
+          ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.9f, 0.2f, 0.2f, 1.8f));
+          if (ImGui::Button("Delete template", bitButtonSize)) {
+            open_template_deletion_modal = true;
+          }
+          ImGui::PopStyleColor(3);
+        }
+      }
     }
-    ImGui::PopStyleVar(4);
+    ImGui::EndChild();
+    ImGui::PopStyleColor();
+
+    if (i < 2)
+      ImGui::NextColumn();
+  }
+  ImGui::PopStyleVar(4);
 }
 
-std::shared_ptr<Cherry::AppWindow> &SystemSettings::GetAppWindow()
-{
-    return m_AppWindow;
+std::shared_ptr<Cherry::AppWindow> &SystemSettings::GetAppWindow() {
+  return m_AppWindow;
 }
 
-std::shared_ptr<SystemSettings> SystemSettings::Create(const std::string &name)
-{
-    auto instance = std::shared_ptr<SystemSettings>(new SystemSettings(name));
-    instance->SetupRenderCallback();
-    return instance;
+std::shared_ptr<SystemSettings> SystemSettings::Create(const std::string &name) {
+  auto instance = std::shared_ptr<SystemSettings>(new SystemSettings(name));
+  instance->SetupRenderCallback();
+  return instance;
 }
 
-void SystemSettings::SetupRenderCallback()
-{
-    auto self = shared_from_this();
-    m_AppWindow->SetRenderCallback([self]()
-                                   {
-            if (self) {
-                self->Render();
-            } });
+void SystemSettings::SetupRenderCallback() {
+  auto self = shared_from_this();
+  m_AppWindow->SetRenderCallback([self]() {
+    if (self) {
+      self->Render();
+    }
+  });
 }
 
 // Helper functions for menu items
 
-static void handleRefresh()
-{
-    // Behavior
+static void handleRefresh() {
+  // Behavior
 }
 
-static void handleAddToProject(const std::string &name, const std::string &version)
-{
-    // Behavior
+static void handleAddToProject(const std::string &name, const std::string &version) {
+  // Behavior
 }
 
-static void handleFilterBuildRebuild()
-{
-    // Behavior
+static void handleFilterBuildRebuild() {
+  // Behavior
 }
 
-static void handleGlobalBuild()
-{
-    // Behavior
+static void handleGlobalBuild() {
+  // Behavior
 }
 
-static void handleCreateModule()
-{
-    // Behavior
+static void handleCreateModule() {
+  // Behavior
 }
 
-static void handleSearch()
-{
-    // Behavior
+static void handleSearch() {
+  // Behavior
 }
 
-void SystemSettings::addModuleModal()
-{
+void SystemSettings::addModuleModal() {
 }
 
-void SystemSettings::mainButtonsMenuItem()
-{
+void SystemSettings::mainButtonsMenuItem() {
 }
 
-void SystemSettings::filterMenuItem()
-{
-    ImGui::Separator();
-    if (ImGui::BeginMenu("Filters"))
-    {
-        if (ImGui::MenuItem("Build/Rebuild single parts"))
-        {
-            handleFilterBuildRebuild();
-        }
-        if (ImGui::MenuItem("Global build"))
-        {
-            handleGlobalBuild();
-        }
-        ImGui::EndMenu();
+void SystemSettings::filterMenuItem() {
+  ImGui::Separator();
+  if (ImGui::BeginMenu("Filters")) {
+    if (ImGui::MenuItem("Build/Rebuild single parts")) {
+      handleFilterBuildRebuild();
     }
-}
-
-void SystemSettings::createMenuItem()
-{
-    if (ImGui::BeginMenu("Create a module"))
-    {
-        if (ImGui::MenuItem("Build/Rebuild single parts"))
-        {
-            handleCreateModule();
-        }
-        if (ImGui::MenuItem("Global build"))
-        {
-            handleGlobalBuild();
-        }
-        ImGui::EndMenu();
+    if (ImGui::MenuItem("Global build")) {
+      handleGlobalBuild();
     }
+    ImGui::EndMenu();
+  }
 }
 
-void SystemSettings::searchMenuItem()
-{
-    if (ImGui::BeginMenu("Search"))
-    {
-        if (ImGui::MenuItem("Build/Rebuild single parts"))
-        {
-            handleSearch();
-        }
-        if (ImGui::MenuItem("Global build"))
-        {
-            handleGlobalBuild();
-        }
-        ImGui::EndMenu();
+void SystemSettings::createMenuItem() {
+  if (ImGui::BeginMenu("Create a module")) {
+    if (ImGui::MenuItem("Build/Rebuild single parts")) {
+      handleCreateModule();
     }
+    if (ImGui::MenuItem("Global build")) {
+      handleGlobalBuild();
+    }
+    ImGui::EndMenu();
+  }
 }
 
-void SystemSettings::menubar()
-{
-    if (open_import_all_templates)
-    {
-        static ImGuiTableFlags window_flags = ImGuiWindowFlags_MenuBar;
-        if (ImGui::BeginPopupModal("Search templates in folder", NULL, window_flags))
-        {
-            static char path_input_template_all[512];
+void SystemSettings::searchMenuItem() {
+  if (ImGui::BeginMenu("Search")) {
+    if (ImGui::MenuItem("Build/Rebuild single parts")) {
+      handleSearch();
+    }
+    if (ImGui::MenuItem("Global build")) {
+      handleGlobalBuild();
+    }
+    ImGui::EndMenu();
+  }
+}
 
-            if (ImGui::BeginMenuBar())
-            {
-                ImGui::Text("Please chose a folder");
+void SystemSettings::menubar() {
+  if (open_import_all_templates) {
+    static ImGuiTableFlags window_flags = ImGuiWindowFlags_MenuBar;
+    if (ImGui::BeginPopupModal("Search templates in folder", NULL, window_flags)) {
+      static char path_input_template_all[512];
 
-                if(CherryKit::ButtonImageText("refresh_project_button", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") == "true")
-                {
-                    //
-                }
+      if (ImGui::BeginMenuBar()) {
+        ImGui::Text("Please chose a folder");
 
-                ImGui::InputText("###Path", path_input_template_all, IM_ARRAYSIZE(path_input_template_all));
-                std::string label = "Find###templates";
-                if (ImGui::Button(label.c_str()))
-                {
-                    CheckAllTemplatesStates(VortexMaker::FindTemplatesInDirectory(path_input_template_all));
-                }
-                ImGui::EndMenuBar();
-            }
+        if (CherryKit::ButtonImageText("refresh_project_button", Cherry::GetPath("resources/base/undefined"))
+                ->GetData("isClicked") == "true") {
+          //
+        }
 
-            if (!all_templates_to_add.empty())
-            {
-                static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
+        ImGui::InputText("###Path", path_input_template_all, IM_ARRAYSIZE(path_input_template_all));
+        std::string label = "Find###templates";
+        if (ImGui::Button(label.c_str())) {
+          CheckAllTemplatesStates(VortexMaker::FindTemplatesInDirectory(path_input_template_all));
+        }
+        ImGui::EndMenuBar();
+      }
 
-                // Advanced mode : (Make a boolean with a simple mod (only, name, state & progress))
+      if (!all_templates_to_add.empty()) {
+        static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders |
+                                       ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
 
-                if (ImGui::BeginTable("ModulesToAddTable", 4, flags))
-                {
+        // Advanced mode : (Make a boolean with a simple mod (only, name, state & progress))
 
-                    ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableSetupColumn("Proper Name", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableSetupColumn("Version", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableHeadersRow();
+        if (ImGui::BeginTable("ModulesToAddTable", 4, flags)) {
+          ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed);
+          ImGui::TableSetupColumn("Proper Name", ImGuiTableColumnFlags_WidthFixed);
+          ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed);
+          ImGui::TableSetupColumn("Version", ImGuiTableColumnFlags_WidthFixed);
+          ImGui::TableHeadersRow();
 
-                    for (int row = 0; row < all_templates_to_add.size(); row++)
-                    {
-                        static std::pair<char[128], char[128]> newItem;
-                        static char label[128];
+          for (int row = 0; row < all_templates_to_add.size(); row++) {
+            static std::pair<char[128], char[128]> newItem;
+            static char label[128];
 
-                        ImGui::TableNextRow();
-                        for (int column = 0; column < 3; column++)
-                        {
-                            ImGui::TableSetColumnIndex(column);
+            ImGui::TableNextRow();
+            for (int column = 0; column < 3; column++) {
+              ImGui::TableSetColumnIndex(column);
 
-                            if (column == 0)
-                            {
-                                if (all_templates_to_add[row].first == TemplatesStates::SAME_NAME_DETECTED)
-                                {
-                                    ImGui::Text("Handle versions !!! But already here");
-                                }
-                                else if (all_templates_to_add[row].first == TemplatesStates::NOT_INSTALLED)
-                                {
-                                    std::string label = "Install###" + row;
-                                    if (ImGui::Button(label.c_str()))
-                                    {
+              if (column == 0) {
+                if (all_templates_to_add[row].first == TemplatesStates::SAME_NAME_DETECTED) {
+                  ImGui::Text("Handle versions !!! But already here");
+                } else if (all_templates_to_add[row].first == TemplatesStates::NOT_INSTALLED) {
+                  std::string label = "Install###" + row;
+                  if (ImGui::Button(label.c_str())) {
                                       /*
                                         VxContext *ctx = VortexMaker::GetCurrentContext();
                                         VortexMaker::InstallTemplateOnSystem(all_templates_to_add[row].second->m_path);
@@ -792,396 +668,337 @@ void SystemSettings::menubar()
                                         CheckAllTemplatesStates(VortexMaker::FindTemplatesInDirectory(path_input_template_all));
                                    
                                    */ }
-                                }
-                            }
-                            else if (column == 1)
-                            {
-                                ImGui::Text(all_templates_to_add[row].second->m_proper_name.c_str());
-                            }
-                            else if (column == 2)
-                            {
-                                ImGui::Text(all_templates_to_add[row].second->m_name.c_str());
-                            }
-                            else if (column == 3)
-                            {
-                                ImGui::Text(all_templates_to_add[row].second->m_version.c_str());
-                            }
-                        }
-                    }
-
-                    ImGui::EndTable();
                 }
+              } else if (column == 1) {
+                ImGui::Text(all_templates_to_add[row].second->m_proper_name.c_str());
+              } else if (column == 2) {
+                ImGui::Text(all_templates_to_add[row].second->m_name.c_str());
+              } else if (column == 3) {
+                ImGui::Text(all_templates_to_add[row].second->m_version.c_str());
+              }
             }
+          }
 
-            // static int unused_i = 0;
-            // ImGui::Combo("Combo", &unused_i, "Delete\0Delete harder\0");
-            ImVec2 windowSize = ImGui::GetWindowSize();
-            ImVec2 buttonSize = ImVec2(100, 30);
-            ImVec2 bitButtonSize = ImVec2(150, 30);
-            float ysection = windowSize.y - 280;
-            ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX(), ysection));
-
-            float firstButtonPosX = windowSize.x - buttonSize.x - 75 * 2 - ImGui::GetStyle().ItemSpacing.x * 3;
-
-            float buttonPosY = windowSize.y - buttonSize.y - ImGui::GetStyle().ItemSpacing.y * 2 - 10;
-
-            ImGui::SetCursorPos(ImVec2(firstButtonPosX, buttonPosY));
-
-            if (ImGui::Button("Done", ImVec2(120, 0)))
-            {
-                ImGui::CloseCurrentPopup();
-            }
-            ImGui::SetItemDefaultFocus();
-            ImGui::SameLine();
-            if (ImGui::Button("Cancel", ImVec2(120, 0)))
-            {
-                open_import_all_templates = false;
-                ImGui::CloseCurrentPopup();
-            }
-            ImGui::EndPopup();
+          ImGui::EndTable();
         }
+      }
+
+      // static int unused_i = 0;
+      // ImGui::Combo("Combo", &unused_i, "Delete\0Delete harder\0");
+      ImVec2 windowSize = ImGui::GetWindowSize();
+      ImVec2 buttonSize = ImVec2(100, 30);
+      ImVec2 bitButtonSize = ImVec2(150, 30);
+      float ysection = windowSize.y - 280;
+      ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX(), ysection));
+
+      float firstButtonPosX = windowSize.x - buttonSize.x - 75 * 2 - ImGui::GetStyle().ItemSpacing.x * 3;
+
+      float buttonPosY = windowSize.y - buttonSize.y - ImGui::GetStyle().ItemSpacing.y * 2 - 10;
+
+      ImGui::SetCursorPos(ImVec2(firstButtonPosX, buttonPosY));
+
+      if (ImGui::Button("Done", ImVec2(120, 0))) {
+        ImGui::CloseCurrentPopup();
+      }
+      ImGui::SetItemDefaultFocus();
+      ImGui::SameLine();
+      if (ImGui::Button("Cancel", ImVec2(120, 0))) {
+        open_import_all_templates = false;
+        ImGui::CloseCurrentPopup();
+      }
+      ImGui::EndPopup();
+    }
+  }
+
+  if (open_template_deletion_modal) {
+    ImGui::SetNextWindowSize(ImVec2(300, 200));
+
+    static ImGuiTableFlags window_flags = ImGuiWindowFlags_NoResize;
+    if (ImGui::BeginPopupModal("Delete a system template", NULL, window_flags)) {
+      // Set the size of the modal to 200x75 pixels the first time it is created
+
+      // 3 text inputs
+      static char path_input_all[512];
+      // inputs widget
+      ImGui::TextWrapped("WARNING, if you click on the Delete button, the project will be erase forever.");
+      ImGui::SetItemDefaultFocus();
+
+      if (ImGui::Button("Cancel", ImVec2(120, 0))) {
+        open_template_deletion_modal = false;
+        ImGui::CloseCurrentPopup();
+      }
+      ImGui::SameLine();
+      ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 0.2f, 0.2f, 0.9f));
+      ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.2f, 0.2f, 1.0f));
+      ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 0.2f, 0.2f, 1.8f));
+      if (ImGui::Button("Delete", ImVec2(120, 0))) {
+        // Delete
+        VortexMaker::DeleteSystemTemplate(selected_template->m_name, selected_template->m_version);
+        VortexMaker::LoadSystemTemplates(this->ctx->IO.sys_templates);
+
+        open_template_deletion_modal = false;
+        ImGui::CloseCurrentPopup();
+      }
+      ImGui::PopStyleColor(3);
+      ImGui::EndPopup();
+    }
+  }
+
+  if (open_module_deletion_modal) {
+    ImGui::SetNextWindowSize(ImVec2(300, 200));
+
+    static ImGuiTableFlags window_flags = ImGuiWindowFlags_NoResize;
+    if (ImGui::BeginPopupModal("Delete a system module", NULL, window_flags)) {
+      // Set the size of the modal to 200x75 pixels the first time it is created
+
+      // 3 text inputs
+      static char path_input_all[512];
+      // inputs widget
+      ImGui::TextWrapped("WARNING, if you click on the Delete button, the project will be erase forever.");
+      ImGui::SetItemDefaultFocus();
+
+      if (ImGui::Button("Cancel", ImVec2(120, 0))) {
+        open_module_deletion_modal = false;
+        ImGui::CloseCurrentPopup();
+      }
+      ImGui::SameLine();
+      ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 0.2f, 0.2f, 0.9f));
+      ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.2f, 0.2f, 1.0f));
+      ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 0.2f, 0.2f, 1.8f));
+      if (ImGui::Button("Delete", ImVec2(120, 0))) {
+        // Delete
+        VortexMaker::DeleteSystemModule(selected_module->m_name, selected_module->m_version);
+        VortexMaker::LoadSystemModules(this->ctx->IO.sys_em);
+
+        open_module_deletion_modal = false;
+        ImGui::CloseCurrentPopup();
+      }
+      ImGui::PopStyleColor(3);
+      ImGui::EndPopup();
+    }
+  }
+
+  if (open_import_all_module) {
+    static ImGuiTableFlags window_flags = ImGuiWindowFlags_MenuBar;
+    static bool first_time = true;
+
+    if (first_time) {
+      ImGui::SetNextWindowSize(ImVec2(820, 420));
     }
 
-    if (open_template_deletion_modal)
-    {
-        ImGui::SetNextWindowSize(ImVec2(300, 200));
+    if (ImGui::BeginPopupModal("Search modules in folder", NULL, window_flags)) {
+      if (first_time) {
+        first_time = false;
+      }
 
-        static ImGuiTableFlags window_flags = ImGuiWindowFlags_NoResize;
-        if (ImGui::BeginPopupModal("Delete a system template", NULL, window_flags))
-        {
-            // Set the size of the modal to 200x75 pixels the first time it is created
+      static char path_input_all[512];
 
-            // 3 text inputs
-            static char path_input_all[512];
-            // inputs widget
-            ImGui::TextWrapped("WARNING, if you click on the Delete button, the project will be erase forever.");
-            ImGui::SetItemDefaultFocus();
+      if (ImGui::BeginMenuBar()) {
+        ImGui::Text("Please chose a folder");
 
-            if (ImGui::Button("Cancel", ImVec2(120, 0)))
-            {
-                open_template_deletion_modal = false;
-                ImGui::CloseCurrentPopup();
-            }
-            ImGui::SameLine();
-            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 0.2f, 0.2f, 0.9f));
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.2f, 0.2f, 1.0f));
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 0.2f, 0.2f, 1.8f));
-            if (ImGui::Button("Delete", ImVec2(120, 0)))
-            {
-                // Delete
-                VortexMaker::DeleteSystemTemplate(selected_template->m_name, selected_template->m_version);
-                VortexMaker::LoadSystemTemplates(this->ctx->IO.sys_templates);
-
-                open_template_deletion_modal = false;
-                ImGui::CloseCurrentPopup();
-            }
-            ImGui::PopStyleColor(3);
-            ImGui::EndPopup();
-        }
-    }
-
-    if (open_module_deletion_modal)
-    {
-        ImGui::SetNextWindowSize(ImVec2(300, 200));
-
-        static ImGuiTableFlags window_flags = ImGuiWindowFlags_NoResize;
-        if (ImGui::BeginPopupModal("Delete a system module", NULL, window_flags))
-        {
-            // Set the size of the modal to 200x75 pixels the first time it is created
-
-            // 3 text inputs
-            static char path_input_all[512];
-            // inputs widget
-            ImGui::TextWrapped("WARNING, if you click on the Delete button, the project will be erase forever.");
-            ImGui::SetItemDefaultFocus();
-
-            if (ImGui::Button("Cancel", ImVec2(120, 0)))
-            {
-                open_module_deletion_modal = false;
-                ImGui::CloseCurrentPopup();
-            }
-            ImGui::SameLine();
-            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 0.2f, 0.2f, 0.9f));
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.2f, 0.2f, 1.0f));
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 0.2f, 0.2f, 1.8f));
-            if (ImGui::Button("Delete", ImVec2(120, 0)))
-            {
-                // Delete
-                VortexMaker::DeleteSystemModule(selected_module->m_name, selected_module->m_version);
-                VortexMaker::LoadSystemModules(this->ctx->IO.sys_em);
-
-                open_module_deletion_modal = false;
-                ImGui::CloseCurrentPopup();
-            }
-            ImGui::PopStyleColor(3);
-            ImGui::EndPopup();
-        }
-    }
-
-    if (open_import_all_module)
-    {
-        static ImGuiTableFlags window_flags = ImGuiWindowFlags_MenuBar;
-        static bool first_time = true;
-
-        if (first_time)
-        {
-            ImGui::SetNextWindowSize(ImVec2(820, 420));
+        if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") == "true") {
         }
 
-        if (ImGui::BeginPopupModal("Search modules in folder", NULL, window_flags))
-        {
-            if (first_time)
-            {
-                first_time = false;
-            }
-
-            static char path_input_all[512];
-
-            if (ImGui::BeginMenuBar())
-            {
-                ImGui::Text("Please chose a folder");
-
-                if(CherryKit::ButtonImageText("", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") == "true")
-                {
-
-                }
-                
-                ImGui::InputText("###Path", path_input_all, IM_ARRAYSIZE(path_input_all));
-                std::string label = "Find###templates";
-                if (ImGui::Button(label.c_str()))
-                {
-                    CheckAllModulesStates(VortexMaker::FindModulesInDirectory(path_input_all));
-                }
-                ImGui::EndMenuBar();
-            }
-
-            if (!all_modules_to_add.empty())
-            {
-                static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
-
-                // Advanced mode : (Make a boolean with a simple mod (only, name, state & progress))
-
-                if (ImGui::BeginTable("ModulesToAddTable", 4, flags))
-                {
-
-                    ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableSetupColumn("Proper Name", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableSetupColumn("Version", ImGuiTableColumnFlags_WidthFixed);
-                    ImGui::TableHeadersRow();
-
-                    for (auto it = all_modules_to_add.begin(); it != all_modules_to_add.end(); it++)
-                    {
-                        static std::pair<char[128], char[128]> newItem;
-                        static char label[128];
-
-                        ImGui::TableNextRow();
-                        for (int column = 0; column < 4; column++)
-                        {
-                            ImGui::TableSetColumnIndex(column);
-
-                            if (column == 0)
-                            {
-                                if (it->second.first == ModulesStates::ALREADY_INSTALLED_WITH_CORRECT_VERSION)
-                                {
-                                    ImGui::Text("Already installed");
-                                }
-                                else if (it->second.first == ModulesStates::ALREADY_INSTALLED_WITH_ANOTHER_VERSION)
-                                {
-                                    std::string label = "Install v" + it->second.second->m_version;
-                                    if (ImGui::Button(label.c_str()))
-                                    {
-                                        VxContext *ctx = VortexMaker::GetCurrentContext();
-                                        // VortexMaker::InstallModuleToSystem(it->second.second->m_path);
-                                        VortexMaker::LoadSystemModules(ctx->IO.sys_em);
-                                        CheckAllModulesStates(VortexMaker::FindModulesInDirectory(path_input_all));
-                                    }
-                                }
-                                else if (it->second.first == ModulesStates::NOT_INSTALLED)
-                                {
-                                    if (ImGui::Button("Install"))
-                                    {
-                                        VxContext *ctx = VortexMaker::GetCurrentContext();
-                                        // VortexMaker::InstallModuleToSystem(it->second.second->m_path);
-                                        VortexMaker::LoadSystemModules(ctx->IO.sys_em);
-                                        CheckAllModulesStates(VortexMaker::FindModulesInDirectory(path_input_all));
-                                    }
-                                }
-                            }
-                            else if (column == 1)
-                            {
-                                ImGui::Text(it->second.second->m_proper_name.c_str());
-                            }
-                            else if (column == 2)
-                            {
-                                ImGui::Text(it->second.second->m_name.c_str());
-                            }
-                            else if (column == 3)
-                            {
-                                ImGui::Text(it->second.second->m_version.c_str());
-                            }
-                        }
-                    }
-
-                    ImGui::EndTable();
-                }
-            }
-
-            ImVec2 windowSize = ImGui::GetWindowSize();
-            ImVec2 buttonSize = ImVec2(100, 30);
-            ImVec2 bitButtonSize = ImVec2(150, 30);
-            float ysection = windowSize.y - 280;
-            ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX(), ysection));
-
-            float firstButtonPosX = windowSize.x - buttonSize.x - 75 * 2 - ImGui::GetStyle().ItemSpacing.x * 3;
-
-            float buttonPosY = windowSize.y - buttonSize.y - ImGui::GetStyle().ItemSpacing.y * 2 - 10;
-
-            ImGui::SetCursorPos(ImVec2(firstButtonPosX, buttonPosY));
-
-            if (ImGui::Button("Done", ImVec2(120, 0)))
-            {
-
-                ImGui::CloseCurrentPopup();
-            }
-            ImGui::SetItemDefaultFocus();
-            ImGui::SameLine();
-            if (ImGui::Button("Cancel", ImVec2(120, 0)))
-            {
-                open_import_all_module = false;
-                ImGui::CloseCurrentPopup();
-            }
-            ImGui::EndPopup();
-        }
-    }
-
-    if (open_import_module)
-    {
-
-        if (ImGui::BeginPopupModal("Import a module", NULL, NULL))
-        {
-            // Set the size of the modal to 200x75 pixels the first time it is created
-
-            // 3 text inputs
-            static char path_input[512];
-            // inputs widget
-            ImGui::TextWrapped("Please provide the path of your module, you need to include the module folder like \"/path/to/your/module/ModuleFolder\"");
-            ImGui::InputText("Module path", path_input, IM_ARRAYSIZE(path_input));
-            if (ImGui::Button("Find"))
-            {
-                single_module_to_add = VortexMaker::FindModuleInDirectory(path_input);
-            }
-
-            if (single_module_to_add)
-            {
-                ImGui::Text(single_module_to_add->m_name.c_str());
-            }
-
-            ImVec2 windowSize = ImGui::GetWindowSize();
-            ImVec2 buttonSize = ImVec2(100, 30);
-            ImVec2 bitButtonSize = ImVec2(150, 30);
-            float ysection = windowSize.y - 280;
-            ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX(), ysection));
-
-            float firstButtonPosX = windowSize.x - buttonSize.x - 75 * 2 - ImGui::GetStyle().ItemSpacing.x * 3;
-
-            float buttonPosY = windowSize.y - buttonSize.y - ImGui::GetStyle().ItemSpacing.y * 2 - 10;
-
-            ImGui::SetCursorPos(ImVec2(firstButtonPosX, buttonPosY));
-
-            if (ImGui::Button("Done", ImVec2(120, 0)))
-            {
-
-                ImGui::CloseCurrentPopup();
-            }
-            ImGui::SetItemDefaultFocus();
-            ImGui::SameLine();
-            if (ImGui::Button("Cancel", ImVec2(120, 0)))
-            {
-                open_import_module = false;
-                ImGui::CloseCurrentPopup();
-            }
-            ImGui::EndPopup();
-        }
-    }
-
-    if (open_import_module)
-        ImGui::OpenPopup("Import a module");
-
-    if (open_import_all_module)
-        ImGui::OpenPopup("Search modules in folder");
-
-    if (open_import_all_templates)
-        ImGui::OpenPopup("Search templates in folder");
-
-    if (open_module_deletion_modal)
-        ImGui::OpenPopup("Delete a system module");
-
-    if (open_template_deletion_modal)
-        ImGui::OpenPopup("Delete a system template");
-
-    if (ImGui::BeginMenuBar())
-    {
-        if (current_section == "mm")
-        {
-            if(CherryKit::ButtonImageText("Import a module", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") == "true")
-            {
-                open_import_module = true;
-            }
-
-            if(CherryKit::ButtonImageText("Search modules in a folder", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") == "true")
-            {
-                open_import_all_module = true;
-            }
-        }
-        if (current_section == "tm")
-        {
-            if(CherryKit::ButtonImageText("Search modules in a folder", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") == "true")
-            {
-                open_import_all_templates = true;
-            }
-        }
-        if (current_section == "pm")
-        {
-            if(CherryKit::ButtonImageText("Install a plugin", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") == "true")
-            {
-                //
-            }
-        }
-        if (current_section == "cv")
-        {
-            if(CherryKit::ButtonImageText("Refresh versions", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") == "true")
-            {
-                RegisterAvailableVersions();
-            }
-
-            if(CherryKit::ButtonImageText("Download a newer version", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") == "true")
-            {
-                //
-            }
-
-            if(CherryKit::ButtonImageText("Upgrade a project", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") == "true")
-            {
-                //
-            }
-
-            if(CherryKit::ButtonImageText("Upgrade a module", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") == "true")
-            {
-                //
-            }
+        ImGui::InputText("###Path", path_input_all, IM_ARRAYSIZE(path_input_all));
+        std::string label = "Find###templates";
+        if (ImGui::Button(label.c_str())) {
+          CheckAllModulesStates(VortexMaker::FindModulesInDirectory(path_input_all));
         }
         ImGui::EndMenuBar();
+      }
+
+      if (!all_modules_to_add.empty()) {
+        static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders |
+                                       ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
+
+        // Advanced mode : (Make a boolean with a simple mod (only, name, state & progress))
+
+        if (ImGui::BeginTable("ModulesToAddTable", 4, flags)) {
+          ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed);
+          ImGui::TableSetupColumn("Proper Name", ImGuiTableColumnFlags_WidthFixed);
+          ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed);
+          ImGui::TableSetupColumn("Version", ImGuiTableColumnFlags_WidthFixed);
+          ImGui::TableHeadersRow();
+
+          for (auto it = all_modules_to_add.begin(); it != all_modules_to_add.end(); it++) {
+            static std::pair<char[128], char[128]> newItem;
+            static char label[128];
+
+            ImGui::TableNextRow();
+            for (int column = 0; column < 4; column++) {
+              ImGui::TableSetColumnIndex(column);
+
+              if (column == 0) {
+                if (it->second.first == ModulesStates::ALREADY_INSTALLED_WITH_CORRECT_VERSION) {
+                  ImGui::Text("Already installed");
+                } else if (it->second.first == ModulesStates::ALREADY_INSTALLED_WITH_ANOTHER_VERSION) {
+                  std::string label = "Install v" + it->second.second->m_version;
+                  if (ImGui::Button(label.c_str())) {
+                    VxContext *ctx = VortexMaker::GetCurrentContext();
+                    // VortexMaker::InstallModuleToSystem(it->second.second->m_path);
+                    VortexMaker::LoadSystemModules(ctx->IO.sys_em);
+                    CheckAllModulesStates(VortexMaker::FindModulesInDirectory(path_input_all));
+                  }
+                } else if (it->second.first == ModulesStates::NOT_INSTALLED) {
+                  if (ImGui::Button("Install")) {
+                    VxContext *ctx = VortexMaker::GetCurrentContext();
+                    // VortexMaker::InstallModuleToSystem(it->second.second->m_path);
+                    VortexMaker::LoadSystemModules(ctx->IO.sys_em);
+                    CheckAllModulesStates(VortexMaker::FindModulesInDirectory(path_input_all));
+                  }
+                }
+              } else if (column == 1) {
+                ImGui::Text(it->second.second->m_proper_name.c_str());
+              } else if (column == 2) {
+                ImGui::Text(it->second.second->m_name.c_str());
+              } else if (column == 3) {
+                ImGui::Text(it->second.second->m_version.c_str());
+              }
+            }
+          }
+
+          ImGui::EndTable();
+        }
+      }
+
+      ImVec2 windowSize = ImGui::GetWindowSize();
+      ImVec2 buttonSize = ImVec2(100, 30);
+      ImVec2 bitButtonSize = ImVec2(150, 30);
+      float ysection = windowSize.y - 280;
+      ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX(), ysection));
+
+      float firstButtonPosX = windowSize.x - buttonSize.x - 75 * 2 - ImGui::GetStyle().ItemSpacing.x * 3;
+
+      float buttonPosY = windowSize.y - buttonSize.y - ImGui::GetStyle().ItemSpacing.y * 2 - 10;
+
+      ImGui::SetCursorPos(ImVec2(firstButtonPosX, buttonPosY));
+
+      if (ImGui::Button("Done", ImVec2(120, 0))) {
+        ImGui::CloseCurrentPopup();
+      }
+      ImGui::SetItemDefaultFocus();
+      ImGui::SameLine();
+      if (ImGui::Button("Cancel", ImVec2(120, 0))) {
+        open_import_all_module = false;
+        ImGui::CloseCurrentPopup();
+      }
+      ImGui::EndPopup();
     }
+  }
+
+  if (open_import_module) {
+    if (ImGui::BeginPopupModal("Import a module", NULL, NULL)) {
+      // Set the size of the modal to 200x75 pixels the first time it is created
+
+      // 3 text inputs
+      static char path_input[512];
+      // inputs widget
+      ImGui::TextWrapped(
+          "Please provide the path of your module, you need to include the module folder like "
+          "\"/path/to/your/module/ModuleFolder\"");
+      ImGui::InputText("Module path", path_input, IM_ARRAYSIZE(path_input));
+      if (ImGui::Button("Find")) {
+        single_module_to_add = VortexMaker::FindModuleInDirectory(path_input);
+      }
+
+      if (single_module_to_add) {
+        ImGui::Text(single_module_to_add->m_name.c_str());
+      }
+
+      ImVec2 windowSize = ImGui::GetWindowSize();
+      ImVec2 buttonSize = ImVec2(100, 30);
+      ImVec2 bitButtonSize = ImVec2(150, 30);
+      float ysection = windowSize.y - 280;
+      ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX(), ysection));
+
+      float firstButtonPosX = windowSize.x - buttonSize.x - 75 * 2 - ImGui::GetStyle().ItemSpacing.x * 3;
+
+      float buttonPosY = windowSize.y - buttonSize.y - ImGui::GetStyle().ItemSpacing.y * 2 - 10;
+
+      ImGui::SetCursorPos(ImVec2(firstButtonPosX, buttonPosY));
+
+      if (ImGui::Button("Done", ImVec2(120, 0))) {
+        ImGui::CloseCurrentPopup();
+      }
+      ImGui::SetItemDefaultFocus();
+      ImGui::SameLine();
+      if (ImGui::Button("Cancel", ImVec2(120, 0))) {
+        open_import_module = false;
+        ImGui::CloseCurrentPopup();
+      }
+      ImGui::EndPopup();
+    }
+  }
+
+  if (open_import_module)
+    ImGui::OpenPopup("Import a module");
+
+  if (open_import_all_module)
+    ImGui::OpenPopup("Search modules in folder");
+
+  if (open_import_all_templates)
+    ImGui::OpenPopup("Search templates in folder");
+
+  if (open_module_deletion_modal)
+    ImGui::OpenPopup("Delete a system module");
+
+  if (open_template_deletion_modal)
+    ImGui::OpenPopup("Delete a system template");
+
+  if (ImGui::BeginMenuBar()) {
+    if (current_section == "mm") {
+      if (CherryKit::ButtonImageText("Import a module", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") ==
+          "true") {
+        open_import_module = true;
+      }
+
+      if (CherryKit::ButtonImageText("Search modules in a folder", Cherry::GetPath("resources/base/undefined"))
+              ->GetData("isClicked") == "true") {
+        open_import_all_module = true;
+      }
+    }
+    if (current_section == "tm") {
+      if (CherryKit::ButtonImageText("Search modules in a folder", Cherry::GetPath("resources/base/undefined"))
+              ->GetData("isClicked") == "true") {
+        open_import_all_templates = true;
+      }
+    }
+    if (current_section == "pm") {
+      if (CherryKit::ButtonImageText("Install a plugin", Cherry::GetPath("resources/base/undefined"))
+              ->GetData("isClicked") == "true") {
+        //
+      }
+    }
+    if (current_section == "cv") {
+      if (CherryKit::ButtonImageText("Refresh versions", Cherry::GetPath("resources/base/undefined"))
+              ->GetData("isClicked") == "true") {
+        RegisterAvailableVersions();
+      }
+
+      if (CherryKit::ButtonImageText("Download a newer version", Cherry::GetPath("resources/base/undefined"))
+              ->GetData("isClicked") == "true") {
+        //
+      }
+
+      if (CherryKit::ButtonImageText("Upgrade a project", Cherry::GetPath("resources/base/undefined"))
+              ->GetData("isClicked") == "true") {
+        //
+      }
+
+      if (CherryKit::ButtonImageText("Upgrade a module", Cherry::GetPath("resources/base/undefined"))
+              ->GetData("isClicked") == "true") {
+        //
+      }
+    }
+    ImGui::EndMenuBar();
+  }
 }
 
-void SystemSettings::Refresh()
-{
-    project_templates.clear();
-    for (auto tem : this->ctx->IO.sys_templates)
-    {
-        if (tem->m_type == "project")
-        {
-            project_templates.push_back(tem);
-        }
+void SystemSettings::Refresh() {
+  project_templates.clear();
+  for (auto tem : this->ctx->IO.sys_templates) {
+    if (tem->m_type == "project") {
+      project_templates.push_back(tem);
     }
+  }
 };

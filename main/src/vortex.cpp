@@ -426,6 +426,7 @@ std::string convertPathToWindowsStyle(const std::string &path) {
   return windowsPath;
 }
 
+// TODO: Open by Vortex version shared_ptr, not by version (avoid version collision)
 VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::string &version) {
   std::string session_id = generateSessionID();
   addSessionToJson(session_id, version, "user", path);

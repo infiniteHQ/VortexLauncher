@@ -61,6 +61,8 @@ namespace VortexLauncher {
     bool m_SearchStarted = false;
     std::string m_SearchElapsedTime;
 
+    bool m_WipNotification = false;
+
     std::function<void()> m_CreateProjectCallback;
     std::function<void()> m_OpenProjectCallback;
     std::function<void()> m_SettingsCallback;

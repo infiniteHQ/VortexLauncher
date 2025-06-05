@@ -128,6 +128,7 @@ ProjectManager::ProjectManager(const std::string &name) {
   m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
   m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/icons/misc/icon_collection.png"));
   m_AppWindow->SetDefaultBehavior(Cherry::DefaultAppWindowBehaviors::DefaultDocking, "full");
+
   m_AppWindow->SetClosable(false);
 
   project_pools = VortexMaker::GetCurrentContext()->IO.sys_projects_pools;
@@ -189,6 +190,7 @@ ProjectManager::ProjectManager(const std::string &name) {
 }
 
 void ProjectManager::Render() {
+  std::cout << "ProjectManager<b" << std::endl;
   static bool open_deletion_modal = false;
   static bool user_string_validation = false;
   static char string_validation[256] = "";
@@ -219,9 +221,9 @@ void ProjectManager::Render() {
         ImGui::BeginDisabled();
       }
 
-      ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 0.2f, 0.2f, 0.9f));
-      ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.2f, 0.2f, 1.0f));
-      ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 0.2f, 0.2f, 1.8f));
+      CherryGUI::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 0.2f, 0.2f, 0.9f));
+      CherryGUI::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.2f, 0.2f, 1.0f));
+      CherryGUI::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 0.2f, 0.2f, 1.8f));
       if (ImGui::Button("Delete", ImVec2(120, 0))) {
         // Delete
         VortexMaker::DeleteProject(m_SelectedEnvprojectToRemove->path, m_SelectedEnvprojectToRemove->name);
@@ -232,7 +234,7 @@ void ProjectManager::Render() {
         open_deletion_modal = false;
         ImGui::CloseCurrentPopup();
       }
-      ImGui::PopStyleColor(3);
+      CherryGUI::PopStyleColor(3);
       if (strcmp(string_validation, m_SelectedEnvprojectToRemove->name.c_str()) != 0) {
         ImGui::EndDisabled();
       }
@@ -338,10 +340,10 @@ void ProjectManager::Render() {
       }
       if (no_installed_version_available.version != "") {
         ImGui::SameLine();
-        ImGui::PushStyleColor(ImGuiCol_Text, Cherry::HexToRGBA("#232323FF"));
-        ImGui::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#B1FF31FF"));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#FFFFFFFF"));
-        ImGui::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#FFFFFFFF"));
+        CherryGUI::PushStyleColor(ImGuiCol_Text, Cherry::HexToRGBA("#232323FF"));
+        CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#B1FF31FF"));
+        CherryGUI::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#FFFFFFFF"));
+        CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#FFFFFFFF"));
         if (ImGui::Button("Install and Open")) {
           std::thread([this]() {
             VortexMaker::OpenVortexInstaller(
@@ -351,7 +353,7 @@ void ProjectManager::Render() {
                 no_installed_version_available.plat);
           }).detach();
         }
-        ImGui::PopStyleColor(4);
+        CherryGUI::PopStyleColor(4);
       }
 
       ImGui::EndPopup();
@@ -527,7 +529,7 @@ void ProjectManager::Render() {
 
     ImGui::SameLine();
 
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
+    CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
     ImGui::BeginChild("###rightpan");
     if (!m_SelectedEnvproject) {
       auto texture = Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/frame_selectproject.png"));
@@ -541,7 +543,7 @@ void ProjectManager::Render() {
 
       ImGui::Image(texture, texture_size);
     } else {
-      ImGui::PushStyleColor(ImGuiCol_Separator, Cherry::HexToRGBA("#44444466"));
+      CherryGUI::PushStyleColor(ImGuiCol_Separator, Cherry::HexToRGBA("#44444466"));
 
       ImVec2 child_size = ImGui::GetContentRegionAvail();
       float imagex = child_size.x;
@@ -630,9 +632,9 @@ void ProjectManager::Render() {
 
       ImGui::SameLine();
 
-      ImGui::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#006FFFFF"));
-      ImGui::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#689DFFFF"));
-      ImGui::PushStyleColor(ImGuiCol_ButtonActive, Cherry::HexToRGBA("#9DBFFFFF"));
+      CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#006FFFFF"));
+      CherryGUI::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#689DFFFF"));
+      CherryGUI::PushStyleColor(ImGuiCol_ButtonActive, Cherry::HexToRGBA("#9DBFFFFF"));
 
       if (ImGui::Button("Open Project", buttonSize)) {
         std::string versionpath;
@@ -678,12 +680,12 @@ void ProjectManager::Render() {
         ImGui::EndPopup();
       }
 
-      ImGui::PopStyleColor(3);
-      ImGui::PopStyleColor();
+      CherryGUI::PopStyleColor(3);
+      CherryGUI::PopStyleColor();
     }
 
     ImGui::EndChild();
-    ImGui::PopStyleColor();
+    CherryGUI::PopStyleColor();
   } else {
     float columnWidths[3] = { 140.0f, 250.0f, 150.0f };
 
@@ -774,14 +776,14 @@ void ProjectManager::Render() {
     float total_x = ImGui::GetContentRegionAvail().x;
 
     CherryStyle::AddMarginY(2.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, ImVec2(0, 0));
-    ImGui::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#00000000"));
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#101010"));
+    CherryGUI::PushStyleVar(ImGuiStyleVar_ChildRounding, ImVec2(0, 0));
+    CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#00000000"));
+    CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#101010"));
     ImGui::BeginChild("left", ImVec2(290, 0), true);
     CherryKit::GridSimple(CherryID("banner"), 290, 290, &pt_blocks);
     ImGui::EndChild();
-    ImGui::PopStyleColor(2);
-    ImGui::PopStyleVar();
+    CherryGUI::PopStyleColor(2);
+    CherryGUI::PopStyleVar();
 
     ImGui::SameLine();
 
@@ -796,7 +798,7 @@ void ProjectManager::Render() {
 
     ImGui::SameLine();
 
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
+    CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
     ImGui::BeginChild("right", ImVec2(330, 0));
 
     if (!selected_template_object) {
@@ -811,7 +813,7 @@ void ProjectManager::Render() {
 
       ImGui::Image(texture, texture_size);
     } else {
-      ImGui::PushStyleColor(ImGuiCol_Separator, Cherry::HexToRGBA("#44444466"));
+      CherryGUI::PushStyleColor(ImGuiCol_Separator, Cherry::HexToRGBA("#44444466"));
 
       ImVec2 child_size = ImGui::GetContentRegionAvail();
       float imagex = child_size.x;
@@ -952,10 +954,10 @@ void ProjectManager::Render() {
       }
 
       ImGui::SameLine();
-      ImGui::PopStyleColor();
+      CherryGUI::PopStyleColor();
     }
     ImGui::EndChild();
-    ImGui::PopStyleColor();
+    CherryGUI::PopStyleColor();
   }
 
   static std::vector<std::string> projectPaths;
@@ -977,9 +979,9 @@ void ProjectManager::Render() {
       ImGui::Text("Path where Vortex search projects:");
       ImGui::Separator();
 
-      ImGui::PushStyleColor(ImGuiCol_TableRowBg, Cherry::HexToRGBA("#151515FF"));
+      CherryGUI::PushStyleColor(ImGuiCol_TableRowBg, Cherry::HexToRGBA("#151515FF"));
       if (ImGui::BeginTable("##project_paths", 2)) {
-        ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(8.0f, 8.0f));
+        CherryGUI::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(8.0f, 8.0f));
 
         ImGui::TableSetupColumn("Path");
         ImGui::TableSetupColumn("Action");
@@ -989,11 +991,11 @@ void ProjectManager::Render() {
           ImGui::TableNextRow();
 
           ImGui::TableSetColumnIndex(0);
-          ImGui::PushStyleColor(ImGuiCol_TableRowBg, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
+          CherryGUI::PushStyleColor(ImGuiCol_TableRowBg, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
 
           ImGui::Text("%s", projectPaths[i].c_str());
 
-          ImGui::PopStyleColor();
+          CherryGUI::PopStyleColor();
 
           /*static std::shared_ptr<Cherry::ImageTextButtonSimple> import_btn =
           std::make_shared<Cherry::ImageTextButtonSimple>("delete_project_pool_button", ""); import_btn->SetScale(0.85f);
@@ -1013,11 +1015,11 @@ void ProjectManager::Render() {
           }
         }
 
-        ImGui::PopStyleVar();
+        CherryGUI::PopStyleVar();
         ImGui::EndTable();
       }
 
-      ImGui::PopStyleColor();
+      CherryGUI::PopStyleColor();
 
       /*static std::shared_ptr<Cherry::ImageTextButtonSimple> add_btn =
       std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "####add"); add_btn->SetScale(0.85f);
@@ -1066,6 +1068,8 @@ void ProjectManager::Render() {
       ImGui::EndPopup();
     }
   }
+
+  std::cout << "ProjectManager<E" << std::endl;
 }
 
 std::shared_ptr<Cherry::AppWindow> &ProjectManager::GetAppWindow() {
@@ -1156,18 +1160,18 @@ void ProjectManager::mainButtonsMenuItem() {
       m_ProjectCreation = true;
     }
 
-    ImGui::PushStyleColor(ImGuiCol_Separator, Cherry::HexToRGBA("#45454545")), ImGui::Separator();
-    ImGui::PopStyleColor();
+    CherryGUI::PushStyleColor(ImGuiCol_Separator, Cherry::HexToRGBA("#45454545")), ImGui::Separator();
+    CherryGUI::PopStyleColor();
 
     ImGui::PushItemWidth(200);
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.0f, 6.0f));  // Largeur x Hauteur padding
-    ImGui::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#353535FF"));
+    CherryGUI::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.0f, 6.0f));  // Largeur x Hauteur padding
+    CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#353535FF"));
 
     // input_search->Render("_");
     CherryKit::InputString("", &v_SearchString);
 
-    ImGui::PopStyleVar();
-    ImGui::PopStyleColor();
+    CherryGUI::PopStyleVar();
+    CherryGUI::PopStyleColor();
     ImGui::PopItemWidth();
 
     CherryStyle::PopFontSize();

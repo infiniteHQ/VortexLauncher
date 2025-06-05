@@ -42,6 +42,8 @@ namespace VortexLauncher {
     std::function<void()> m_SettingsCallback;
     std::function<void(const std::shared_ptr<EnvProject> &)> m_ProjectCallback;
 
+    bool m_WipNotification = false;
+
     std::vector<std::shared_ptr<EnvProject>> GetMostRecentProjects(
         const std::vector<std::shared_ptr<EnvProject>> &projects,
         size_t maxCount);

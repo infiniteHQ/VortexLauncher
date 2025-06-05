@@ -198,7 +198,7 @@ namespace VortexLauncher {
 
     CherryKit::GridSimple(400.0f, 400.0f, &news_blocks);
 
-    CherryKit::Space(20.0f);
+    /*CherryKit::Space(20.0f);
     Cherry::PushFont("ClashBold");
     CherryNextProp("color_text", "#797979");
     CherryKit::TitleThree("Latest Vortex versions");
@@ -229,16 +229,17 @@ namespace VortexLauncher {
                       CherryStyle::PushFontSize(0.70f);
                       CherryKit::TextSimple(version.already_installed);
                       CherryStyle::PopFontSize();
-                  ),*/
-              });
-          last_versions_blocks.push_back(block);
+                  ),
+  });
+  last_versions_blocks.push_back(block);
 
-          version_index++;
-        }
-      }
-    }
+  version_index++;
+}
+}
+}
 
-    CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
+CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
+*/
   }
 
   WelcomeWindow::WelcomeWindow(const std::string &name) {
@@ -344,17 +345,17 @@ namespace VortexLauncher {
     const float splitterWidth = 1.5f;
 
     std::string label = "left_pane" + m_AppWindow->m_Name;
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
-    ImGui::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#00000000"));
-    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, ImVec2(0.0f, 0.0f));
-    ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0.0f, 0.0f));
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
-    ImGui::BeginChild(label.c_str(), ImVec2(leftPaneWidth, 0), true, NULL);
+    CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
+    CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#00000000"));
+    CherryGUI::PushStyleVar(ImGuiStyleVar_ChildRounding, ImVec2(0.0f, 0.0f));
+    CherryGUI::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0.0f, 0.0f));
+    CherryGUI::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+    CherryGUI::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
+    CherryGUI::BeginChild(label.c_str(), ImVec2(leftPaneWidth, 0), true, NULL);
 
-    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
-    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 5.0f);
-    ImGui::Image(Cherry::GetTexture(Cherry::GetPath("resources/imgs/vortexbanner.png")), ImVec2(280, 142));
+    CherryGUI::SetCursorPosY(CherryGUI::GetCursorPosY() + 5.0f);
+    CherryGUI::SetCursorPosX(CherryGUI::GetCursorPosX() + 5.0f);
+    CherryGUI::Image(Cherry::GetTexture(Cherry::GetPath("resources/imgs/vortexbanner.png")), ImVec2(280, 142));
 
     // CherryStyle::SetPadding(7.0f);
 
@@ -380,7 +381,7 @@ namespace VortexLauncher {
         CherryNextProp("padding_y", "2");
         CherryNextProp("size_x", "20");
         CherryNextProp("size_y", "20");
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7.5f);
+        CherryGUI::SetCursorPosX(CherryGUI::GetCursorPosX() + 7.5f);
         CherryKit::ButtonImageText(CherryID(child_name), child_name.c_str(), child.second.LogoPath);
         // Open other tabs...
       } else {
@@ -390,7 +391,7 @@ namespace VortexLauncher {
         CherryNextProp("padding_y", "2");
         CherryNextProp("size_x", "20");
         CherryNextProp("size_y", "20");
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7.5f);
+        CherryGUI::SetCursorPosX(CherryGUI::GetCursorPosX() + 7.5f);
         if (CherryKit::ButtonImageTextImage(
                 CherryID(child_name),
                 child_name.c_str(),
@@ -404,20 +405,20 @@ namespace VortexLauncher {
       // if (Cherry::TextButtonUnderline(child_name.c_str(), true, opt))
     }
 
-    ImGui::EndChild();
-    ImGui::PopStyleColor(2);
-    ImGui::PopStyleVar(4);
+    CherryGUI::EndChild();
+    CherryGUI::PopStyleColor(2);
+    CherryGUI::PopStyleVar(4);
 
-    ImGui::SameLine();
-    ImGui::BeginGroup();
+    CherryGUI::SameLine();
+    CherryGUI::BeginGroup();
 
-    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.0f);
+    CherryGUI::SetCursorPosX(CherryGUI::GetCursorPosX() + 20.0f);
 
     if (!m_SelectedChildName.empty()) {
-      ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20.0f, 20.0f));
-      ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(20.0f, 20.0f));
+      CherryGUI::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20.0f, 20.0f));
+      CherryGUI::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(20.0f, 20.0f));
 
-      if (ImGui::BeginChild(
+      if (CherryGUI::BeginChild(
               "ChildPanel", ImVec2(0, 0), false, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_AlwaysVerticalScrollbar)) {
         auto child = GetChild(m_SelectedChildName);
 
@@ -428,11 +429,11 @@ namespace VortexLauncher {
           }
         }
       }
-      ImGui::EndChild();
+      CherryGUI::EndChild();
 
-      ImGui::PopStyleVar(2);
+      CherryGUI::PopStyleVar(2);
     }
 
-    ImGui::EndGroup();
+    CherryGUI::EndGroup();
   }
 }  // namespace VortexLauncher

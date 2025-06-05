@@ -84,14 +84,13 @@ namespace VortexLauncher {
     ImVec4 darkBackgroundColor = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
     ImVec4 lightBorderColor = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
 
-    ImGui::PushStyleColor(ImGuiCol_PopupBg, darkBackgroundColor);
+    CherryGUI::PushStyleColor(ImGuiCol_PopupBg, darkBackgroundColor);
+    CherryGUI::PushStyleColor(ImGuiCol_Border, lightBorderColor);
 
-    ImGui::PushStyleColor(ImGuiCol_Border, lightBorderColor);
+    CherryGUI::PushStyleVar(ImGuiStyleVar_PopupRounding, 3.0f);
 
-    ImGui::PushStyleVar(ImGuiStyleVar_PopupRounding, 3.0f);
-
-    ImGui::PopStyleVar();
-    ImGui::PopStyleColor(2);
+    CherryGUI::PopStyleVar();
+    CherryGUI::PopStyleColor(2);
 
     ImDrawList *drawList = ImGui::GetWindowDrawList();
 
@@ -115,11 +114,11 @@ namespace VortexLauncher {
 
     ImGui::GetFont()->Scale = 0.7;
     ImGui::PushFont(ImGui::GetFont());
-    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+    CherryGUI::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
     ImGui::PushItemWidth(maxTextWidth);
     ImGui::TextWrapped(size.c_str());
     ImGui::PopItemWidth();
-    ImGui::PopStyleColor();
+    CherryGUI::PopStyleColor();
 
     ImGui::GetFont()->Scale = oldfontsize;
     ImGui::PopFont();
@@ -148,11 +147,11 @@ namespace VortexLauncher {
 
     ImGui::GetFont()->Scale = 0.7;
     ImGui::PushFont(ImGui::GetFont());
-    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+    CherryGUI::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
     ImGui::PushItemWidth(maxTextWidth);
     ImGui::TextWrapped(description.c_str());
     ImGui::PopItemWidth();
-    ImGui::PopStyleColor();
+    CherryGUI::PopStyleColor();
 
     ImGui::GetFont()->Scale = oldfontsize;
     ImGui::PopFont();
@@ -205,8 +204,10 @@ namespace VortexLauncher {
 
   ContentManager::ContentManager(const std::string &name) {
     m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
-    m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/icons/misc/icon_home.png"));
-    m_AppWindow->SetClosable(false);
+    m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/icons/misc/icon_stack.png"));
+
+    m_AppWindow->SetClosable(true);
+    m_AppWindow->m_CloseCallback = [=]() { m_AppWindow->SetVisibility(false); };
 
     m_AppWindow->m_TabMenuCallback = []() {
       ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
@@ -218,7 +219,7 @@ namespace VortexLauncher {
     m_AppWindow->SetInternalPaddingX(0.0f);
     m_AppWindow->SetInternalPaddingY(0.0f);
 
-    m_SelectedChildName = "Plugins";
+    m_SelectedChildName = "Templates";
     m_RecentProjects = GetMostRecentProjects(VortexMaker::GetCurrentContext()->IO.sys_projects, 4);
 
     this->AddChild(
@@ -234,9 +235,17 @@ namespace VortexLauncher {
               CherryKit::Separator();
               CherryNextProp("color_text", "#999999");
               CherryKit::TextWrapped(
-                  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
-                  "dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip "
-                  "ex ea commodo consequat.");
+                  "Vortex allows you to install contents directly onto your system, making them accessible in your projects "
+                  "or at the project creation. Static content consists of elements you can create, import, and export—often "
+                  "with the help of modules or plugins. These contents are frequently interactive within the content "
+                  "browser.");
+              if (CherryKit::ButtonImageTextImage(
+                      "Learn and Documentation",
+                      Cherry::GetPath("resources/imgs/icons/launcher/docs.png"),
+                      Cherry::GetPath("resources/imgs/weblink.png"))
+                      ->GetData("isClicked") == "true") {
+                VortexMaker::OpenURL("https://vortex.infinite.si/learn");
+              }
             },
             Cherry::GetPath("resources/imgs/help.png")));
     this->AddChild(
@@ -302,7 +311,10 @@ namespace VortexLauncher {
               ImGui::SameLine();
               Cherry::SetNextComponentProperty("padding_x", "8");
               Cherry::SetNextComponentProperty("padding_y", "4");
-              CherryKit::ButtonImageText("Browse", Cherry::GetPath("resources/imgs/icons/misc/icon_net.png"));
+              if (CherryKit::ButtonImageText("Browse", Cherry::GetPath("resources/imgs/icons/misc/icon_net.png"))
+                      ->GetData("isClicked") == "true") {
+                m_WipNotification = true;
+              }
 
               CherryNextProp("color", "#252525");
               CherryKit::Separator();
@@ -469,7 +481,11 @@ namespace VortexLauncher {
               ImGui::SameLine();
               Cherry::SetNextComponentProperty("padding_x", "8");
               Cherry::SetNextComponentProperty("padding_y", "4");
-              CherryKit::ButtonImageText("Browse", Cherry::GetPath("resources/imgs/icons/misc/icon_net.png"));
+
+              if (CherryKit::ButtonImageText("Browse", Cherry::GetPath("resources/imgs/icons/misc/icon_net.png"))
+                      ->GetData("isClicked") == "true") {
+                m_WipNotification = true;
+              }
 
               CherryNextProp("color", "#252525");
               CherryKit::Separator();
@@ -674,17 +690,22 @@ namespace VortexLauncher {
   }
 
   void ContentManager::Render() {
-    const float minPaneWidth = 50.0f;
-    const float splitterWidth = 1.5f;
+    CherryKit::NotificationButton(
+        &m_WipNotification,
+        4,
+        "info",
+        "Work in progress",
+        "This feature is not available yet. Thanks for your patience.",
+        []() { });
 
     std::string label = "left_pane" + m_AppWindow->m_Name;
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
-    ImGui::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#00000000"));
-    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, ImVec2(0.0f, 0.0f));
-    ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0.0f, 0.0f));
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
-    ImGui::BeginChild(label.c_str(), ImVec2(leftPaneWidth, 0), true, NULL);
+    CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
+    CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#00000000"));
+    CherryGUI::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
+    CherryGUI::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0.0f, 0.0f));
+    CherryGUI::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+    CherryGUI::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
+    ImGui::BeginChild(label.c_str(), ImVec2(leftPaneWidth, 0), true);
 
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 5.0f);
@@ -740,8 +761,8 @@ namespace VortexLauncher {
     }
 
     ImGui::EndChild();
-    ImGui::PopStyleColor(2);
-    ImGui::PopStyleVar(4);
+    CherryGUI::PopStyleColor(2);
+    CherryGUI::PopStyleVar(4);
 
     ImGui::SameLine();
     ImGui::BeginGroup();
@@ -749,8 +770,8 @@ namespace VortexLauncher {
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.0f);
 
     if (!m_SelectedChildName.empty()) {
-      ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20.0f, 20.0f));
-      ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(20.0f, 20.0f));
+      CherryGUI::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20.0f, 20.0f));
+      CherryGUI::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(20.0f, 20.0f));
 
       if (ImGui::BeginChild(
               "ChildPanel", ImVec2(0, 0), false, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_AlwaysVerticalScrollbar)) {
@@ -765,9 +786,10 @@ namespace VortexLauncher {
       }
       ImGui::EndChild();
 
-      ImGui::PopStyleVar(2);
+      CherryGUI::PopStyleVar(2);
     }
 
     ImGui::EndGroup();
   }
+
 }  // namespace VortexLauncher

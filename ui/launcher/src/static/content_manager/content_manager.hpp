@@ -60,6 +60,8 @@ namespace VortexLauncher {
 
     std::shared_ptr<AssetFinder> m_AssetFinder;
 
+    bool m_WipNotification = false;
+
     std::vector<std::shared_ptr<TemplateInterface>> m_FindedTemplates;
     std::vector<std::shared_ptr<TemplateInterface>> m_SelectedTemplates;
     std::vector<std::shared_ptr<TemplateInterface>> m_TemplatesToSuppr;
