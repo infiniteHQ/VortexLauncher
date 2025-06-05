@@ -160,7 +160,7 @@ VORTEX_API void VortexMaker::InitEnvironment() {
     std::string file = path + "dists.json";
 
     nlohmann::json default_data = { { "vortexlauncher_dist", "stable" },
-                                    { "vortex_dists", nlohmann::json::array({ "stable" }) } };
+                                    { "vortex_dists", nlohmann::json::array({ "stable", "demo" }) } };
 
     VortexMaker::createJsonFileIfNotExists(file, default_data);
   }
