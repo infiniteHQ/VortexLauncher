@@ -5,7 +5,6 @@
 #include <thread>
 
 // UI instances
-#include "./lib/restcpp/include/restclient-cpp/restclient.h"
 #include "./main/include/modules/load.h"
 #include "./main/include/plugins/load.h"
 #include "./main/include/templates/load.h"

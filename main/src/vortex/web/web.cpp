@@ -1,4 +1,3 @@
-#include "../../../../lib/restcpp/include/restclient-cpp/restclient.h"
 #include "../../../include/vortex.h"
 #include "../../../include/vortex_internals.h"
 
