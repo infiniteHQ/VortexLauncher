@@ -902,7 +902,6 @@ VortexNet::VortexNet() {
 }
 
 VortexNet::~VortexNet() {
-  // Pas de cleanup global requis pour naett
 }
 
 bool VortexNet::CheckNet() {
