@@ -260,6 +260,8 @@ struct VxContext {  // Master flags
   std::shared_ptr<spdlog::logger> console_logger;
   std::vector<std::pair<std::string, std::shared_ptr<spdlog::logger>>> pool_loggers;
 
+  VortexNet net;
+
   // Vendor
   PlatformVendor m_PlatformVendor;
   // Paths

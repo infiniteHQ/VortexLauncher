@@ -30,15 +30,13 @@ else()
 endif()
 
 target_include_directories(launcher PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../main/include" )
-target_link_libraries(launcher PRIVATE cherry)
+target_link_libraries(launcher PRIVATE cherry crypto)
 
-# Step 1: Gather all files from assets directory
 file(GLOB_RECURSE ASSET_FILES
     CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/assets/*"
 )
 
-# Step 2: Add a custom target to synchronize assets
 add_custom_target(sync_assets ALL
     COMMAND ${CMAKE_COMMAND} -E echo "Synchronizing assets..."
     COMMAND ${CMAKE_COMMAND} -E rm -r -f ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources
@@ -49,5 +47,4 @@ add_custom_target(sync_assets ALL
     DEPENDS ${ASSET_FILES}
 )
 
-# Step 3: Ensure the launcher target depends on asset synchronization
 add_dependencies(launcher sync_assets)

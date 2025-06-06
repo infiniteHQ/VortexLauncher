@@ -22,6 +22,7 @@
 #ifdef VORTEX_USER_CONFIG
 #include VORTEX_USER_CONFIG
 #endif
+#include "../../lib/httpcl/httpcl.h"
 #include "../../lib/json/single_include/nlohmann/json.hpp"
 #include "../../lib/spdlog/include/spdlog/sinks/basic_file_sink.h"
 #include "../../lib/spdlog/include/spdlog/sinks/daily_file_sink.h"
@@ -1015,5 +1016,22 @@ class hArgs {
   hMap<hString, ArgumentBase *> arguments;
 };
 //=============================================================================
+
+class VortexNet {
+ public:
+  VortexNet();
+  ~VortexNet();
+
+  bool CheckNet();
+  std::string GET(const std::string &url);
+  std::string POST(const std::string &url, const std::string &body, const std::string &contentType = "application/json");
+
+ private:
+  std::string Request(
+      const std::string &url,
+      const std::string &method,
+      const std::string &body = "",
+      const std::string &contentType = "");
+};
 
 #endif  // #ifndef VORTEX_DISABLE

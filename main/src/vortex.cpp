@@ -897,4 +897,66 @@ bool VortexMaker::DebugCheckVersionAndDataLayout(const char *version) {
   return !error;  // Return true if no error occurred
 }
 
+VortexNet::VortexNet() {
+  naettInit(nullptr);
+}
+
+VortexNet::~VortexNet() {
+  // Pas de cleanup global requis pour naett
+}
+
+bool VortexNet::CheckNet() {
+  std::string res = GET("http://api.infinite.si:8000/");
+  return !res.empty();
+}
+
+std::string VortexNet::GET(const std::string &url) {
+  return Request(url, "GET");
+}
+
+std::string VortexNet::POST(const std::string &url, const std::string &body, const std::string &contentType) {
+  return Request(url, "POST", body, contentType);
+}
+
+std::string VortexNet::Request(
+    const std::string &url,
+    const std::string &method,
+    const std::string &body,
+    const std::string &contentType) {
+  naettReq *req = nullptr;
+
+  if (method == "GET") {
+    req = naettRequest(url.c_str(), naettMethod("GET"), naettHeader("accept", "*/*"));
+  } else if (method == "POST") {
+    req = naettRequest(
+        url.c_str(),
+        naettMethod("POST"),
+        naettHeader("Content-Type", contentType.c_str()),
+        naettBody(body.data(), body.size()));
+  } else {
+    std::cerr << "Unsupported HTTP method: " << method << std::endl;
+    return "";
+  }
+
+  naettRes *res = naettMake(req);
+  while (!naettComplete(res)) {
+    usleep(100 * 1000);  // 100 ms
+  }
+
+  int status = naettGetStatus(res);
+  std::string response;
+
+  if (status == 200) {
+    int len = 0;
+    const void *bodyData = naettGetBody(res, &len);
+    if (bodyData && len > 0) {
+      response.assign(static_cast<const char *>(bodyData), len);
+    }
+  }
+
+  naettClose(res);
+  naettFree(req);
+  return response;
+}
+
 #endif  // VORTEX_DISABLE

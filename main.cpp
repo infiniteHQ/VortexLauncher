@@ -181,8 +181,7 @@ int main(int argc, char *argv[]) {
   VxContext *ctx = InitBlankRuntime(true);
 
   // Checking connexion
-  RestClient::Response r = RestClient::get("http://api.infinite.si:8000/");
-  if (r.code != 200) {
+  if (!VortexMaker::GetCurrentContext()->net.CheckNet()) {
     ctx->disconnected = true;
   }
 
@@ -191,8 +190,6 @@ int main(int argc, char *argv[]) {
   std::thread mainthread;
   std::thread Thread([&]() { Cherry::Main(argc, argv); });
   mainthread.swap(Thread);
-
-  std::cout << r.body << std::endl;
 
   mainthread.join();
 

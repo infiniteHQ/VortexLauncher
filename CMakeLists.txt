@@ -8,7 +8,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fPIC")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(VORTEX_VERSION "1.4.0")
 set(VORTEX_DIST "beta")
-set(VORTEX_BUILD "prod")
+set(VORTEX_BUILD "dev")
 
 set(CHERRY_CEF OFF)
 set(CHERRY_ENABLE_NET ON)
@@ -67,15 +67,17 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/lib/spdlog/include")
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ui/launcher ui_launcher_build)
 target_link_libraries(vortex_launcher_shared PUBLIC launcher)
 
-if (NOT TARGET restclient-cpp)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/lib/restcpp restcpp_build)
-endif()
-target_link_libraries(vortex_launcher_shared PUBLIC restclient-cpp)
+target_link_libraries(vortex_launcher_shared PUBLIC httpcl)
 
 file(GLOB_RECURSE VORTEX_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/main/src/*.cpp")
 
 add_executable(vortex_launcher ${VORTEX_SOURCES} main.cpp)
 target_link_libraries(vortex_launcher PRIVATE vortex_launcher_shared)
+
+if(UNIX AND NOT APPLE)
+    find_package(CURL REQUIRED)
+    target_link_libraries(vortex_launcher PRIVATE CURL::libcurl)
+endif()
 
 #TODO : Do only in cherry
 target_link_libraries(vortex_launcher PRIVATE cherry SDL2)

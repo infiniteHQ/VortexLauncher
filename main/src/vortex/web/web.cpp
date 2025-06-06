@@ -14,72 +14,73 @@ VORTEX_API void VortexMaker::UpdateVortexLauncherWebData() {
   std::string url = "http://api.infinite.si:9000/api/vortexupdates/get_vl_versions?dist=" + dist + "&arch=" + arch;
   VortexMaker::LogWarn("URL", url);
 
-  RestClient::Response r = RestClient::get(url);
+  std::string body = ctx.net.GET(url);
 
-  if (r.code != 200) {
+  if (body.empty()) {
     return;
   }
 
-  nlohmann::json jsonData = nlohmann::json::parse(r.body);
+  try {
+    nlohmann::json jsonData = nlohmann::json::parse(body);
 
-  for (const auto &item : jsonData) {
-    VortexLauncherVersion version;
-    version.dist = item["dist"].get<std::string>();
-    version.arch = item["arch"].get<std::string>();
-    version.created_at = item["created_at"].get<std::string>();
+    for (const auto &item : jsonData) {
+      VortexLauncherVersion version;
+      version.dist = item["dist"].get<std::string>();
+      version.arch = item["arch"].get<std::string>();
+      version.created_at = item["created_at"].get<std::string>();
 
-    std::string values_str = item["values"];
-    nlohmann::json jsonValues = nlohmann::json::parse(values_str);
+      std::string values_str = item["values"];
+      nlohmann::json jsonValues = nlohmann::json::parse(values_str);
 
-    version.sum = jsonValues["sum"].get<std::string>();
-    version.path = jsonValues["path"].get<std::string>();
-    version.version = jsonValues["version"].get<std::string>();
+      version.sum = jsonValues["sum"].get<std::string>();
+      version.path = jsonValues["path"].get<std::string>();
+      version.version = jsonValues["version"].get<std::string>();
 
-    ctx.latest_launcher_version = version;
+      ctx.latest_launcher_version = version;
+    }
+
+    std::cout << "________________ LATEST LAUNCHER ______________________" << std::endl;
+    std::cout << ctx.latest_launcher_version.version << " /// " << ctx.latest_launcher_version.path << " /// "
+              << ctx.latest_launcher_version.created_at << std::endl;
+    std::cout << "______________________________________" << std::endl;
+
+  } catch (const std::exception &e) {
+    std::cerr << "Failed to parse JSON response: " << e.what() << std::endl;
   }
-
-  std::cout << "________________ LATEST LAUNCHER ______________________" << std::endl;
-  std::cout << ctx.latest_launcher_version.version << " /// " << ctx.latest_launcher_version.path << " /// "
-            << ctx.latest_launcher_version.created_at << std::endl;
-  std::cout << "______________________________________" << std::endl;
 }
 
 VORTEX_API void VortexMaker::UpdateVortexNews(const std::vector<std::string> &topics) {
+  auto *ctx = VortexMaker::GetCurrentContext();
+  if (!ctx) {
+    return;
+  }
+
   for (const auto &topic : topics) {
     std::string url = "http://api.infinite.si:9000/api/vortexupdates/get_news?topic=" + topic;
 
     std::cout << "Fetching URL: " << url << std::endl;
 
-    RestClient::Response r = RestClient::get(url);
-
-    if (r.code != 200) {
+    std::string responseBody = ctx->net.GET(url);
+    if (responseBody.empty()) {
       std::cerr << "Failed to fetch news for topic: " << topic << std::endl;
       continue;
     }
 
     try {
-      std::string responseBody = r.body;
-      std::cout << "Response body: " << responseBody << std::endl;
+      responseBody = responseBody.substr(1, responseBody.length() - 2);
 
-      // Déséchapper la chaîne JSON pour pouvoir la parser
-      responseBody = responseBody.substr(1, responseBody.length() - 2);  // Enlever les guillemets supplémentaires
-
-      // Déséchapper les guillemets et autres caractères échappés
       std::string unescapedResponse = nlohmann::json::parse("\"" + responseBody + "\"").get<std::string>();
 
-      // Maintenant, parser la chaîne déséchappée
       nlohmann::json jsonData = nlohmann::json::parse(unescapedResponse);
 
-      // Créer et remplir un article
       VortexNews article;
       article.topic = topic;
-      article.title = jsonData.value("title", "");              // Utilise une valeur par défaut si manquant
-      article.description = jsonData.value("description", "");  // Utilise une valeur par défaut si manquant
-      article.image_link = jsonData.value("image_link", "");    // Utilise une valeur par défaut si manquant
-      article.news_link = jsonData.value("news_link", "");      // Utilise une valeur par défaut si manquant
+      article.title = jsonData.value("title", "");
+      article.description = jsonData.value("description", "");
+      article.image_link = jsonData.value("image_link", "");
+      article.news_link = jsonData.value("news_link", "");
 
-      // Ajouter l'article au contexte
-      VortexMaker::GetCurrentContext()->IO.news.push_back(article);
+      ctx->IO.news.push_back(article);
     } catch (const nlohmann::json::exception &e) {
       std::cerr << "JSON parsing error for topic " << topic << ": " << e.what() << std::endl;
       continue;
@@ -100,20 +101,25 @@ VORTEX_API void VortexMaker::UpdateVortexWebData() {
                       "&dist=" + dist + "&arch=" + arch;
     VortexMaker::LogWarn("URL", url);
 
-    RestClient::Response r = RestClient::get(url);
+    std::string body = ctx.net.GET(url);
 
-    if (r.code != 200) {
+    if (body.empty()) {
       VortexMaker::LogWarn("Failed to fetch data for dist", dist);
       continue;
     }
 
-    nlohmann::json jsonData = nlohmann::json::parse(r.body);
+    try {
+      nlohmann::json jsonData = nlohmann::json::parse(body);
 
-    for (auto &item : jsonData) {
-      item["dist"] = dist;
+      for (auto &item : jsonData) {
+        item["dist"] = dist;
+      }
+
+      aggregatedJsonData.insert(aggregatedJsonData.end(), jsonData.begin(), jsonData.end());
+    } catch (const std::exception &e) {
+      VortexMaker::LogWarn("JSON parse error for dist " + dist, e.what());
+      continue;
     }
-
-    aggregatedJsonData.insert(aggregatedJsonData.end(), jsonData.begin(), jsonData.end());
   }
 
   std::shared_ptr<VortexVersion> latest_vortex_version;
