@@ -16,3 +16,6 @@
 [submodule "ui/launcher/assets/resources/templates/blank_project"]
 	path = ui/launcher/assets/resources/templates/blank_project
 	url = https://github.com/infiniteHQ/VortexBlankProject.git
+[submodule "lib/httpcl"]
+	path = lib/httpcl
+	url = https://github.com/infiniteHQ/httpcl.git
