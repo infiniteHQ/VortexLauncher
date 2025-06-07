@@ -97,14 +97,11 @@ VORTEX_API void VortexMaker::UpdateVortexWebData() {
 
   for (auto &dist : ctx.IO.sys_vortex_dists) {
     
-std::cout << "Qffff" << std::endl;
     std::string url = "http://api.infinite.si:9000/api/vortexupdates/get_filtered_v_versions?platform=" + plat +
                       "&dist=" + dist + "&arch=" + arch;
     VortexMaker::LogWarn("URL", url);
-std::cout << "sdg" << std::endl;
 
     std::string body = ctx.net.GET(url);
-std::cout << "hhh" << std::endl;
 
     if (body.empty()) {
       VortexMaker::LogWarn("Failed to fetch data for dist", dist);

@@ -34,10 +34,10 @@ static float threshold = 0.4;
 static void OpenFolderInFileManager(std::string path) {
 #if defined(_WIN32) || defined(_WIN64)
   std::string command = "explorer \"" + path + "\"";
-  std::system(command.c_str());
+  VortexMaker::RunCommand(command.c_str());
 #elif defined(__APPLE__)
   std::string command = "open \"" + path + "\"";
-  std::system(command.c_str());
+  VortexMaker::RunCommand(command.c_str());
 #elif defined(__linux__)
   std::string command =
       "dbus-send --session "
@@ -48,11 +48,11 @@ static void OpenFolderInFileManager(std::string path) {
       "array:string:\"" +
       path + "\" string:\"\"";
 
-  int retCode = std::system(command.c_str());
+  int retCode = VortexMaker::RunCommand(command.c_str());
   if (retCode != 0) {
     std::cerr << "D-Bus method failed, trying xdg-open...\n";
     command = "xdg-open \"" + path + "\"";
-    std::system(command.c_str());
+    VortexMaker::RunCommand(command.c_str());
   }
 #else
 #error "OS not supported!"

@@ -309,11 +309,18 @@ namespace VortexMaker {
   VORTEX_API bool CheckIfProjectRunning(const std::string &path);
   VORTEX_API void OpenProject(const std::string &path, const std::string &version);
 
+#ifdef _WIN32
+VORTEX_API int RunCommand(const std::string& command);
+#else
+VORTEX_API int RunCommand(const std::string& command);
+#endif
+
   VORTEX_API void CreateProject(const std::string &name, const std::string &path);
   VORTEX_API void CreateProject(
       const std::string &name,
       const std::string &author,
       const std::string &version,
+      const std::string &project_version,
       const std::string &description,
       const std::string &path,
       const std::string &logo_path,

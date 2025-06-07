@@ -7,7 +7,7 @@ VORTEX_API void VortexMaker::DeleteSessionTopic(const std::string &post_topic)
 
     {
         std::string cmd = "rm -rf " + topic_path;
-        if (std::system(cmd.c_str()) == 0)
+        if (VortexMaker::RunCommand(cmd.c_str()) == 0)
         {
             VortexMaker::LogInfo("Core", "Session \"" + post_topic + "\" deleted with success !");
         }

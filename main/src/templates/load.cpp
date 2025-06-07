@@ -25,17 +25,21 @@ namespace VortexMaker
             }
 
             // Search for module files recursively in the directory
-            auto module_files = VortexMaker::SearchSystemFiles(pool_path, "template.json");
+            auto template_files = VortexMaker::SearchSystemFiles(pool_path, "template.json");
 
             // Iterate through each found module file
-            for (const auto &file : module_files)
+            for (const auto &file : template_files)
             {
                 try
                 {
                     // Load JSON data from the module configuration file
                     auto json_data = VortexMaker::DumpJSON(file);
-
-                    std::string module_path = file.substr(0, file.find_last_of("/"));
+                    
+#ifdef _WIN32
+                    std::string template_path = file.substr(0, file.find_last_of("\\"));
+#else
+                    std::string template_path = file.substr(0, file.find_last_of("/"));
+#endif
 
                     std::shared_ptr<TemplateInterface> new_template = std::make_shared<TemplateInterface>();
 
@@ -47,8 +51,19 @@ namespace VortexMaker
                         new_template->m_type = json_data["type"].get<std::string>();
                         new_template->m_description = json_data["description"].get<std::string>();
                         new_template->m_picture = json_data["picture"].get<std::string>();
-                        new_template->m_logo_path = module_path + "/" + new_template->m_picture;
-                        new_template->m_path = module_path + "/";
+                        
+#ifdef _WIN32
+                        new_template->m_logo_path = template_path + "\\" + new_template->m_picture;
+#else
+                        new_template->m_logo_path = template_path + "/" + new_template->m_picture;
+#endif
+
+#ifdef _WIN32
+                        new_template->m_path = template_path + "\\";
+#else
+                        new_template->m_path = template_path + "/";
+#endif
+
                         new_template->m_author = json_data["author"].get<std::string>();
                         new_template->m_group = json_data["group"].get<std::string>();
                         new_template->m_tarball = json_data["tarball"].get<std::string>();

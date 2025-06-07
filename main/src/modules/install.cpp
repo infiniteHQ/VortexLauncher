@@ -41,7 +41,7 @@ VORTEX_API void InstallModule(const std::string &module_name, const std::string 
                         "\\.vx\\contents\\modules\\\""
                   : "cp -r " + module_path + " " + std::string(ctx.projectPath.string()) + "/.vx/contents/modules/";
 
-          std::system(cmd.c_str());
+          VortexMaker::RunCommand(cmd.c_str());
         }
 
         // If restart_modules == true, restart all modules

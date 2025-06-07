@@ -41,7 +41,7 @@ VORTEX_API void InstallPlugin(const std::string &plugin_name, const std::string 
                         "\\.vx\\contents\\plugins\\\""
                   : "cp -r " + plugin_path + " " + std::string(ctx.projectPath.string()) + "/.vx/contents/plugins/";
 
-          std::system(cmd.c_str());
+          VortexMaker::RunCommand(cmd.c_str());
         }
 
         // If restart_plugins == true, restart all plugins

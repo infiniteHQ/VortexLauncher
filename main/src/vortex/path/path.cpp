@@ -6,7 +6,7 @@ void VortexMaker::createFolderIfNotExists(const std::string &path)
     {
         try
         {
-            std::string cmd = "mkdir " + path;
+            std::string cmd = "mkdir \"" + path + "\"";
             system(cmd.c_str());
             VortexMaker::LogInfo("Core", "Path '" + path + "' created with success.");
         }

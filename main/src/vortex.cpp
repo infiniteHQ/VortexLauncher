@@ -649,6 +649,50 @@ std::string VortexMaker::GetPath(const std::string &path) {
 #endif
 }
 
+
+#ifdef _WIN32
+#include <windows.h>
+#include <string>
+
+int VortexMaker::RunCommand(const std::string& command) {
+    STARTUPINFOA si = { sizeof(si) };
+    PROCESS_INFORMATION pi;
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    std::string cmdLine = "cmd.exe /C " + command;
+
+    BOOL success = CreateProcessA(
+        NULL,
+        cmdLine.data(),
+        NULL, NULL, FALSE,
+        CREATE_NO_WINDOW,
+        NULL, NULL,
+        &si, &pi
+    );
+
+    if (!success) {
+        return 1; 
+    }
+
+    WaitForSingleObject(pi.hProcess, INFINITE);
+
+    DWORD exitCode = 1;
+    GetExitCodeProcess(pi.hProcess, &exitCode);
+
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+
+    return static_cast<int>(exitCode);
+}
+#else
+#include <cstdlib>
+
+int VortexMaker::RunCommand(const std::string& command) {
+    return std::system(command.c_str());
+}
+#endif
+
 VORTEX_API void VortexMaker::InstallPluginToSystem(const std::string &path, const std::string &pool_path) {
   std::string plugins_path = pool_path;
   std::string json_file = path + "/plugin.json";

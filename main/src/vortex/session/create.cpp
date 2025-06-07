@@ -7,7 +7,7 @@ VORTEX_API void VortexMaker::CreateSessionTopic(const std::string &post_topic)
 
     {
         std::string cmd = "mkdir " + topic_path;
-        if (std::system(cmd.c_str()) == 0)
+        if (VortexMaker::RunCommand(cmd.c_str()) == 0)
         {
             VortexMaker::LogInfo("Core", "Session \"" + post_topic + "\" is created with success !");
         }
@@ -21,7 +21,7 @@ VORTEX_API void VortexMaker::CreateSessionTopic(const std::string &post_topic)
 
     {
         std::string cmd = "mkdir " + crash_path;
-        if (std::system(cmd.c_str()) == 0)
+        if (VortexMaker::RunCommand(cmd.c_str()) == 0)
         {
             VortexMaker::LogInfo("Core", "Session crash folder of \"" + post_topic + "\" is created with success !");
         }
@@ -35,7 +35,7 @@ VORTEX_API void VortexMaker::CreateSessionTopic(const std::string &post_topic)
 
     {
         std::string cmd = "mkdir " + log_path;
-        if (std::system(cmd.c_str()) == 0)
+        if (VortexMaker::RunCommand(cmd.c_str()) == 0)
         {
             VortexMaker::LogInfo("Core", "Session logs folder of \"" + post_topic + "\" is created with success !");
         }
@@ -47,7 +47,7 @@ VORTEX_API void VortexMaker::CreateSessionTopic(const std::string &post_topic)
 
     {
         std::string cmd = "touch " + crash_path + "/core_dump.txt";
-        if (std::system(cmd.c_str()) == 0)
+        if (VortexMaker::RunCommand(cmd.c_str()) == 0)
         {
             VortexMaker::LogInfo("Core", "Session crash folder of \"" + post_topic + "\" is created with success !");
         }
@@ -59,7 +59,7 @@ VORTEX_API void VortexMaker::CreateSessionTopic(const std::string &post_topic)
 
     {
         std::string cmd = "touch " + crash_path + "/log_dump.txt";
-        if (std::system(cmd.c_str()) == 0)
+        if (VortexMaker::RunCommand(cmd.c_str()) == 0)
         {
             VortexMaker::LogInfo("Core", "Session crash folder of \"" + post_topic + "\" is created with success !");
         }
@@ -71,7 +71,7 @@ VORTEX_API void VortexMaker::CreateSessionTopic(const std::string &post_topic)
 
     {
         std::string cmd = "touch " + topic_path + "/vortex.json";
-        if (std::system(cmd.c_str()) == 0)
+        if (VortexMaker::RunCommand(cmd.c_str()) == 0)
         {
             VortexMaker::LogInfo("Core", "Session topic files of \"" + post_topic + "\" is created with success !");
         }

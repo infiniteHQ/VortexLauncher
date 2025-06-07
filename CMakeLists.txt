@@ -84,7 +84,11 @@ endif()
 
 file(GLOB_RECURSE VORTEX_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/main/src/*.cpp")
 
+if(WIN32)
+add_executable(vortex_launcher WIN32 main.cpp)
+else()
 add_executable(vortex_launcher main.cpp)
+endif()
 target_link_libraries(vortex_launcher PRIVATE vortex_launcher_shared)
 
 if(UNIX AND NOT APPLE)

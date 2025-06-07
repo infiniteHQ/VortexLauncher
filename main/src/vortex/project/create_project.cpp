@@ -98,6 +98,7 @@ VORTEX_API void VortexMaker::CreateProject(
     const std::string &name,
     const std::string &author,
     const std::string &version,
+    const std::string &project_version,
     const std::string &description,
     const std::string &path,
     const std::string &logo_path,
@@ -116,10 +117,9 @@ VORTEX_API void VortexMaker::CreateProject(
 
   VortexMaker::createFolderIfNotExists(path);
   VortexMaker::InstallTemplate(template_name, path);
+  
 
-  std::string project_version = "No specified";
-
-  std::string config_file = path + "/vortex.config";
+  std::string config_file = path + "vortex.config";
 
   // Load JSON data from the project configuration file
   auto config_data = VortexMaker::DumpJSON(config_file);
@@ -127,7 +127,14 @@ VORTEX_API void VortexMaker::CreateProject(
   // Project with the old name exists, update its information
   config_data["project"]["name"] = name;
   config_data["project"]["compatibleWith"] = version;
-  config_data["project"]["version"] = project_version;
+  if(project_version.empty())
+  {
+    config_data["project"]["version"] = "No specified";
+  }
+  else
+  {
+    config_data["project"]["version"] = project_version;
+  }
   config_data["project"]["author"] = author;
   config_data["project"]["description"] = description;
 

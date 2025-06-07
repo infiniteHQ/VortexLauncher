@@ -26,34 +26,34 @@ VORTEX_API std::vector<std::shared_ptr<EnvProject>> VortexMaker::GetRecentProjec
  * @param path The path where the project will be created.
  */
 VORTEX_API void VortexMaker::DeleteProject(const std::string &path, const std::string &project_name) {
-  if (!std::filesystem::exists(path + "/vortex.config")) {
-    VortexMaker::LogError("Core", "Project not found (File not found: " + path + "/vortex.config)");
+  const std::filesystem::path config_path = path + "/vortex.config";
+
+  if (!std::filesystem::exists(config_path)) {
+    VortexMaker::LogError("Core", "Project not found (File not found: " + config_path.string() + ")");
     VortexMaker::LogWarn("Core", "Delete the project entry of environment.");
     VortexMaker::RemoveSystemProjectEntry(project_name);
     return;
   }
 
-  auto json_data = VortexMaker::DumpJSON(path + "/vortex.config");
+  auto json_data = VortexMaker::DumpJSON(config_path.string());
 
   if (!json_data.empty() || json_data == "{}") {
     if (!json_data["project"]["name"].get<std::string>().empty()) {
       if (json_data["project"]["name"].get<std::string>() == project_name) {
-        std::string project_path = path;
+        std::filesystem::path project_path = path;
 
-        {
-          std::string cmd = "rm -rf " + project_path;
-          if (std::system(cmd.c_str()) == 0) {
-            VortexMaker::LogInfo(
-                "Core", "The project \"" + json_data["project"]["name"].get<std::string>() + "\" is succefully deleted !");
-            VortexMaker::RemoveSystemProjectEntry(project_name);
-            return;
-          } else {
-            VortexMaker::LogError(
-                "Core",
-                "Failed to delete the project \"" + json_data["project"]["name"].get<std::string>() + "\" at path \"" +
-                    json_data["path"].get<std::string>() + "\"");
-            return;
-          }
+        std::error_code ec;
+        std::uintmax_t count = std::filesystem::remove_all(project_path, ec);
+        if (!ec && count > 0) {
+          VortexMaker::LogInfo("Core", "The project \"" + json_data["project"]["name"].get<std::string>() +
+                                           "\" is successfully deleted!");
+          VortexMaker::RemoveSystemProjectEntry(project_name);
+          return;
+        } else {
+          VortexMaker::LogError("Core", "Failed to delete the project \"" + json_data["project"]["name"].get<std::string>() +
+                                           "\" at path \"" + json_data["path"].get<std::string>() +
+                                           "\" (Error: " + ec.message() + ")");
+          return;
         }
       }
     }
@@ -61,6 +61,7 @@ VORTEX_API void VortexMaker::DeleteProject(const std::string &path, const std::s
 
   VortexMaker::LogError("Core", "No project to delete at \"" + path + "\"");
 }
+
 
 VORTEX_API void VortexMaker::RemoveSystemProjectEntry(const std::string &project_name) {
   std::string dataPath = VortexMaker::getHomeDirectory() + "/.vx/data/";

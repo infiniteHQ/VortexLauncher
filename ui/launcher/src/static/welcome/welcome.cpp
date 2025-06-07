@@ -26,7 +26,6 @@ namespace VortexLauncher {
   void WelcomeWindow::WelcomeRender() {
     // CherryKit::TableSimple("", { CherryKit::KeyValString("Project name", &test) });
 
-  std::cout << "ggg2" << std::endl;
     // Cherry::SetNextComponentProperty("color_text", "#B1FF31"); // Todo remplace
     Cherry::PushFont("ClashBold");
     CherryNextProp("color_text", "#BBBBBB");
@@ -35,12 +34,10 @@ namespace VortexLauncher {
     CherryNextProp("color", "#252525");
     CherryKit::Separator();
 
-  std::cout << "3" << std::endl;
     CherryKit::Space(5.0f);
 
     CherryNextProp("color_text", "#797979");
     CherryKit::TitleSix("Fast actions");
-  std::cout << "3" << std::endl;
 
     static std::vector<std::shared_ptr<Cherry::Component>> actions_blocks;
 
@@ -82,17 +79,14 @@ namespace VortexLauncher {
           }));
     }
 
-  std::cout << "GridSimple223" << std::endl;
     // Draw grid with blocks
     CherryKit::GridSimple(270.0f, 270.0f, &actions_blocks);
 
-  std::cout << "GridSimple" << std::endl;
     CherryKit::Space(5.0f);
 
     CherryNextProp("color_text", "#797979");
     CherryKit::TitleSix("Latest projects & tools");
 
-  std::cout << "GridSimple" << std::endl;
     static std::vector<std::shared_ptr<Cherry::Component>> blocks;
 
     if (blocks.empty()) {
@@ -160,7 +154,6 @@ namespace VortexLauncher {
     }
     CherryKit::GridSimple(200.0f, 200.0f, &blocks);
 
-  std::cout << "dsgg" << std::endl;
     CherryKit::Space(20.0f);
     CherryNextProp("color", "#222222");
 
@@ -170,10 +163,8 @@ namespace VortexLauncher {
     Cherry::PopFont();
     CherryKit::Separator();
 
-  std::cout << "132" << std::endl;
     static std::vector<std::shared_ptr<Cherry::Component>> news_blocks;
 
-  std::cout << "13ff2" << std::endl;
     if (VortexMaker::GetCurrentContext()->IO.offline) {
       if (news_blocks.empty()) {
         auto block = CherryKit::BannerImageContext(
@@ -188,16 +179,11 @@ namespace VortexLauncher {
       }
     } else {
       if (news_blocks.empty()) {
-  std::cout << "13fd2" << std::endl;
         for (const auto &article : VortexMaker::GetCurrentContext()->IO.news) {
-  std::cout << "GetCurrentContext" << std::endl;
           if (!article.image_link.empty() &&
               (EndsWith(article.image_link, ".png") || EndsWith(article.image_link, ".jpg")) &&
               (article.image_link.find("http://") == 0 || article.image_link.find("https://") == 0)) {
             
-  std::cout << "gqg" << std::endl;
-  Cherry::GetHttpPath(article.image_link);
-  std::cout << "OKK" << std::endl;
                 auto block = CherryKit::BannerImageContext(
                 Cherry::IdentifierProperty::CreateOnly,
                 402.0f,
@@ -205,15 +191,11 @@ namespace VortexLauncher {
                 Cherry::GetHttpPath(article.image_link),
                 article.title,
                 article.description);
-  std::cout << "gqg" << std::endl;
             news_blocks.push_back(block);
-  std::cout << "gqg" << std::endl;
           }
         }
-  std::cout << "13gg2" << std::endl;
       }
     }
-  std::cout << "sdgsdgg" << std::endl;
 
     CherryKit::GridSimple(400.0f, 400.0f, &news_blocks);
 

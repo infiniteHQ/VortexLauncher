@@ -27,7 +27,7 @@ class Layer : public Cherry::Layer {
 class Launcher {
  public:
   Launcher() {
-    if (!VortexMaker::GetCurrentContext()->blankproject_exist) {
+    /*if (!VortexMaker::GetCurrentContext()->blankproject_exist) {
       std::string cmd;
 
 #ifdef _WIN32
@@ -49,7 +49,7 @@ class Launcher {
 
       std::cout << "CPUY <" << cmd << std::endl;
       system(cmd.c_str());
-    }
+    }*/
 
     //
     // Static app windows

@@ -263,31 +263,37 @@ VORTEX_API void VortexMaker::InitEnvironment() {
     VortexMaker::createJsonFileIfNotExists(file, default_data);
   }
 
-  {
+{
     std::string path = vxBasePath + "contents/templates";
     std::string blank_template_path = path + "/blank_project";
 
 #if defined(_WIN32) || defined(_WIN64)
-   path = VortexMaker::convertPathToWindowsStyle(path);
-   blank_template_path = VortexMaker::convertPathToWindowsStyle(blank_template_path);
+    path = VortexMaker::convertPathToWindowsStyle(path);
+    blank_template_path = VortexMaker::convertPathToWindowsStyle(blank_template_path);
 #endif
-  std::string cmd;
+
     if (!fs::exists(blank_template_path)) {
-      try {
-        
+        try {
+            std::string cmd;
+
 #ifdef _WIN32
-  cmd = "xcopy \"" + VortexMaker::GetPath("resources/templates/blank_project") + "\\\" \"" + path + "\" /E /I /Y /Q";
+            cmd = "xcopy \"" + VortexMaker::GetPath("resources/templates") + "\\blank_project\" \"" + path + "\\blank_project\\\" /E /I /Y /Q";
 #else
-  cmd = "cp -r " + VortexMaker::GetPath("resources/templates/blank_project") + " " + path
+            cmd = "cp -r \"" + VortexMaker::GetPath("resources/templates/blank_project") + "\" \"" + path + "\"";
 #endif
-        system(cmd.c_str());
-        VortexMaker::LogInfo("Core", "Path '" + path + "' created with success.");
-      } catch (const std::exception &ex) {
-        VortexMaker::LogError("Core", "Error while creating folder '" + path + "'");
-        VortexMaker::LogError("Core", ex.what());
-      }
+
+            int res = VortexMaker::RunCommand(cmd.c_str());
+            if (res != 0) {
+                throw std::runtime_error("Copy command failed with exit code " + std::to_string(res));
+            }
+            VortexMaker::LogInfo("Core", "Path '" + blank_template_path + "' created with success.");
+        } catch (const std::exception &ex) {
+            VortexMaker::LogError("Core", "Error while creating folder '" + blank_template_path + "'");
+            VortexMaker::LogError("Core", ex.what());
+        }
     }
-  }
+}
+
 
   {
     std::string path = vxBasePath + "data/";
@@ -879,10 +885,10 @@ void VortexMaker::RefreshEnvironmentProjects() {
 VORTEX_API void VortexMaker::OpenFolderInFileManager(const std::string &path) {
 #if defined(_WIN32) || defined(_WIN64)
   std::string command = "explorer \"" + path + "\"";
-  std::system(command.c_str());
+  VortexMaker::RunCommand(command.c_str());
 #elif defined(__APPLE__)
   std::string command = "open \"" + path + "\"";
-  std::system(command.c_str());
+  VortexMaker::RunCommand(command.c_str());
 #elif defined(__linux__)
   std::string command =
       "dbus-send --session "
@@ -893,11 +899,11 @@ VORTEX_API void VortexMaker::OpenFolderInFileManager(const std::string &path) {
       "array:string:\"" +
       path + "\" string:\"\"";
 
-  int retCode = std::system(command.c_str());
+  int retCode = VortexMaker::RunCommand(command.c_str());
   if (retCode != 0) {
     std::cerr << "D-Bus method failed, trying xdg-open...\n";
     command = "xdg-open \"" + path + "\"";
-    std::system(command.c_str());
+    VortexMaker::RunCommand(command.c_str());
   }
 #else
 #error "OS not supported!"
