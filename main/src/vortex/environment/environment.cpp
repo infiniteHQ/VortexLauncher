@@ -266,9 +266,20 @@ VORTEX_API void VortexMaker::InitEnvironment() {
   {
     std::string path = vxBasePath + "contents/templates";
     std::string blank_template_path = path + "/blank_project";
+
+#if defined(_WIN32) || defined(_WIN64)
+   path = VortexMaker::convertPathToWindowsStyle(path);
+   blank_template_path = VortexMaker::convertPathToWindowsStyle(blank_template_path);
+#endif
+  std::string cmd;
     if (!fs::exists(blank_template_path)) {
       try {
-        std::string cmd = "cp -r " + VortexMaker::GetPath("resources/templates/blank_project") + " " + path;
+        
+#ifdef _WIN32
+  cmd = "xcopy \"" + VortexMaker::GetPath("resources/templates/blank_project") + "\\\" \"" + path + "\" /E /I /Y /Q";
+#else
+  cmd = "cp -r " + VortexMaker::GetPath("resources/templates/blank_project") + " " + path
+#endif
         system(cmd.c_str());
         VortexMaker::LogInfo("Core", "Path '" + path + "' created with success.");
       } catch (const std::exception &ex) {
