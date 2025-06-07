@@ -190,7 +190,9 @@ ProjectManager::ProjectManager(const std::string &name) {
 }
 
 void ProjectManager::Render() {
-    std::cout << "ProjectManagerProjectManagerProjectManagerProjectManager::RendercomeWindow::RendercomeWindow::RendercomeWindow::Render" << std::endl;
+  std::cout << "ProjectManagerProjectManagerProjectManagerProjectManager::RendercomeWindow::RendercomeWindow::"
+               "RendercomeWindow::Render"
+            << std::endl;
 
   std::cout << "ProjectManager<b" << std::endl;
   static bool open_deletion_modal = false;
@@ -275,7 +277,8 @@ void ProjectManager::Render() {
 
         {
           // LOGO Section
-          CherryGUI::BeginChild("LOGO_", ImVec2(160, 40), false, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoScrollbar);
+          CherryGUI::BeginChild(
+              "LOGO_", ImVec2(160, 40), false, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoScrollbar);
           MyButton(Cherry::GetHttpPath(no_installed_version_available.banner), 120, 40);
           CherryGUI::EndChild();
           CherryGUI::SameLine();
@@ -473,7 +476,7 @@ void ProjectManager::Render() {
                   CherryStyle::AddMarginX(10.0f);
                   std::string imgpath = element->logoPath;
 #ifdef _WIN32
-imgpath = VortexMaker::convertPathToWindowsStyle(imgpath);
+                  imgpath = VortexMaker::convertPathToWindowsStyle(imgpath);
 #endif
                   CherryKit::ImageLocal(imgpath, 40.0f, 40.0f);
                 },
@@ -642,7 +645,7 @@ imgpath = VortexMaker::convertPathToWindowsStyle(imgpath);
       CherryGUI::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#689DFFFF"));
       CherryGUI::PushStyleColor(ImGuiCol_ButtonActive, Cherry::HexToRGBA("#9DBFFFFF"));
 
-        std::cout << "dqs" << std::endl;
+      std::cout << "dqs" << std::endl;
       if (CherryGUI::Button("Open Project", buttonSize)) {
         std::string versionpath;
         bool version_exist =
@@ -667,7 +670,7 @@ imgpath = VortexMaker::convertPathToWindowsStyle(imgpath);
           }
         }
       }
-        std::cout << "dqssdg" << std::endl;
+      std::cout << "dqssdg" << std::endl;
 
       if (CherryGUI::BeginPopupModal("Project Already Running", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
         CherryGUI::Text("The project seems to have already been launched. Would you like to relaunch a new instance?");
@@ -899,7 +902,10 @@ imgpath = VortexMaker::convertPathToWindowsStyle(imgpath);
                 CherryKit::KeyValString("Version", &v_ProjectVersion),
                 CherryKit::KeyValComboString(
                     CherryID("VersionSelector"), "Vortex version", &selected_template_object->m_compatible_versions),
-                CherryKit::KeyValComboString(CherryID("PathSelector"), "Project path", &projectPoolsPaths), // TODO : Take this by the index, not the cherry datas
+                CherryKit::KeyValComboString(
+                    CherryID("PathSelector"),
+                    "Project path",
+                    &projectPoolsPaths),  // TODO : Take this by the index, not the cherry datas
             });
       }
 
@@ -913,8 +919,8 @@ imgpath = VortexMaker::convertPathToWindowsStyle(imgpath);
       CherryGUI::SetCursorPosY(windowSize.y - footerHeight - 10.0f);
 
       CherryGUI::Separator();
-      
-std::cout << "v_ProjectName" << v_ProjectName << std::endl;
+
+      std::cout << "v_ProjectName" << v_ProjectName << std::endl;
 
       CherryStyle::AddMarginX(10.0f);
       Cherry::SetNextComponentProperty("padding_y", "6.5");
@@ -933,18 +939,17 @@ std::cout << "v_ProjectName" << v_ProjectName << std::endl;
           }
         }
         if (Cherry::GetData(CherryID("PathSelector"), "selected_string") != "undefined") {
-          #ifdef _WIN32
+#ifdef _WIN32
           std::string creation_path = Cherry::GetData(CherryID("PathSelector"), "selected_string") + "\\" + v_ProjectName;
           creation_path = VortexMaker::convertPathToWindowsStyle(creation_path);
 #else
           std::string creation_path = Cherry::GetData(CherryID("PathSelector"), "selected_string") + "/" + v_ProjectName;
-          creation_path = VortexMaker::convertPathToWindowsStyle(creation_path);
 #endif
 
-          #ifdef _WIN32
-std::string image_path = "\\icon.png";
+#ifdef _WIN32
+          std::string image_path = "\\icon.png";
 #else
-std::string image_path = "/icon.png";
+          std::string image_path = "/icon.png";
 #endif
 
           VortexMaker::CreateProject(
@@ -959,21 +964,18 @@ std::string image_path = "/icon.png";
           project_blocks.clear();
           VortexMaker::RefreshEnvironmentProjects();
         } else {
-          
-                    #ifdef _WIN32
-          std::string creation_path = projectPoolsPaths.back() + "\\" + v_ProjectName  + "\\";
+#ifdef _WIN32
+          std::string creation_path = projectPoolsPaths.back() + "\\" + v_ProjectName + "\\";
           creation_path = VortexMaker::convertPathToWindowsStyle(creation_path);
 #else
-          std::string creation_path = projectPoolsPaths.back() + "/" + v_ProjectName  + "/";
-          creation_path = VortexMaker::convertPathToWindowsStyle(creation_path);
+          std::string creation_path = projectPoolsPaths.back() + "/" + v_ProjectName + "/";
 #endif
 
-          #ifdef _WIN32
-std::string image_path = "\\icon.png";
+#ifdef _WIN32
+          std::string image_path = "\\icon.png";
 #else
-std::string image_path = "/icon.png";
+          std::string image_path = "/icon.png";
 #endif
-
 
           if (!projectPoolsPaths.empty()) {
             VortexMaker::CreateProject(

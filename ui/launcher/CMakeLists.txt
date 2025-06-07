@@ -21,6 +21,8 @@ file(
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h" 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp" 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../main/include/*.hpp" 
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../main/src/*.cpp"
 )
 
 message(STATUS "UI_LAUNCHER sources: ${UI_LAUNCHER}")

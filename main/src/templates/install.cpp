@@ -63,36 +63,48 @@ VORTEX_API void VortexMaker::InstallTemplate(const std::string &name, const std:
   // Search templates registered in project first
   /*...*/
 
-  auto sanitize_path = [](std::string s) -> std::string {
-  std::replace(s.begin(), s.end(), '\\', '/');  // Use forward slashes
-  if (!s.empty() && s.front() == '"') s.erase(0, 1);
-  if (!s.empty() && s.back() == '"') s.pop_back();
-  return s;
-};
-
-
-for (auto tem : ctx.IO.sys_templates) {
-  if (tem->m_name == name) {
-    VortexMaker::LogInfo("Core", "Installing the template \"" + name + "\" ...");
-
-fs::create_directories(path);
+  for (auto tem : ctx.IO.sys_templates) {
+    if (tem->m_name == name) {
+      VortexMaker::LogInfo("Core", "Installing the template \"" + name + "\" ...");
 
 #ifdef _WIN32
-std::string archive = sanitize_path(tem->m_path + tem->m_tarball);
-std::string dest = sanitize_path(path);
-
-std::string cmd = "tar -xf \"" + archive + "\" --strip-components=1 -C \"" + dest + "\"";
+      fs::create_directories(path);
 #else
- std::string cmd =  "tar -xvf \"" + archive + "\" --strip-components=1 -C \"" + dest + "\"";
+      {
+        std::string cmd = "mkdir \"" + path + "\"";
+        system(cmd.c_str());
+      }
 #endif
 
-    int result = VortexMaker::RunCommand(cmd.c_str());
-    if (result != 0) {
-      VortexMaker::LogError("Core", "Extraction failed with exit code: " + std::to_string(result));
+#ifdef _WIN32
+
+      auto sanitize_path = [](std::string s) -> std::string {
+        std::replace(s.begin(), s.end(), '\\', '/');
+        if (!s.empty() && s.front() == '"')
+          s.erase(0, 1);
+        if (!s.empty() && s.back() == '"')
+          s.pop_back();
+        return s;
+      };
+
+      std::string archive = sanitize_path(tem->m_path + tem->m_tarball);
+      std::string dest = sanitize_path(path);
+
+      std::string cmd = "tar -xf \"" + archive + "\" --strip-components=1 -C \"" + dest + "\"";
+
+      int result = VortexMaker::RunCommand(cmd.c_str());
+
+      if (result != 0) {
+        VortexMaker::LogError("Core", "Extraction failed with exit code: " + std::to_string(result));
+      }
+#else
+      {
+        std::string cmd = "tar -xvf \"" + tem->m_path + tem->m_tarball + "\" --strip-components=1 -C \"" + path + "\"";
+        system(cmd.c_str());
+      }
+#endif
     }
   }
-}
-
 
   /*// Search the template registered in the system environment (if not findeed in the system and if the project can see env
   template) if (!finded && ctx.include_system_templates)
