@@ -28,8 +28,60 @@ static std::string vxl_exehash = "";
 static std::string system_desktop = "";
 
 #ifdef _WIN32
+#include <windows.h>
+#include <wincrypt.h>
+#include <fstream>
+#include <sstream>
+#include <iomanip>
+#include <vector>
+#include <string>
+
+#pragma comment(lib, "advapi32.lib")
+
 std::string computeSHA256Short(const std::string &filepath, size_t length = 10) {
-return "wip...";
+    std::ifstream file(filepath, std::ios::binary);
+    if (!file)
+        return "";
+
+    std::vector<char> buffer(8192);
+    HCRYPTPROV hProv = 0;
+    HCRYPTHASH hHash = 0;
+    BYTE hash[32]; // SHA-256 produces 32-byte hash
+    DWORD hashLen = sizeof(hash);
+
+    if (!CryptAcquireContext(&hProv, nullptr, nullptr, PROV_RSA_AES, CRYPT_VERIFYCONTEXT)) {
+        return "";
+    }
+
+    if (!CryptCreateHash(hProv, CALG_SHA_256, 0, 0, &hHash)) {
+        CryptReleaseContext(hProv, 0);
+        return "";
+    }
+
+    while (file.read(buffer.data(), buffer.size()) || file.gcount()) {
+        if (!CryptHashData(hHash, reinterpret_cast<BYTE*>(buffer.data()), static_cast<DWORD>(file.gcount()), 0)) {
+            CryptDestroyHash(hHash);
+            CryptReleaseContext(hProv, 0);
+            return "";
+        }
+    }
+
+    if (!CryptGetHashParam(hHash, HP_HASHVAL, hash, &hashLen, 0)) {
+        CryptDestroyHash(hHash);
+        CryptReleaseContext(hProv, 0);
+        return "";
+    }
+
+    CryptDestroyHash(hHash);
+    CryptReleaseContext(hProv, 0);
+
+    std::ostringstream oss;
+    for (DWORD i = 0; i < hashLen && oss.tellp() < (std::streampos)length * 2; ++i) {
+        oss << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];
+    }
+
+    std::string result = oss.str();
+    return result.substr(0, length);
 }
 #else
 std::string computeSHA256Short(const std::string &filepath, size_t length = 10) {
