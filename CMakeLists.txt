@@ -4,7 +4,10 @@ project(vortex_launcher)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fPIC")
+
+if(NOT MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -O3")
+endif()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(VORTEX_VERSION "1.4.0")
 set(VORTEX_DIST "beta")
@@ -13,6 +16,10 @@ set(VORTEX_BUILD "dev")
 set(CHERRY_CEF OFF)
 set(CHERRY_ENABLE_NET ON)
 set(CHERRY_ENABLE_AUDIO ON)
+
+if (MSVC)
+    add_compile_options(/utf-8)
+endif()
 
 if(VORTEX_BUILD STREQUAL "prod")
     string(TIMESTAMP BUILD_DATE "%b %d, %Y - %H:%M" UTC)
@@ -36,7 +43,7 @@ endif()
 
 file(GLOB_RECURSE vortex_launcher_SHARED_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/main/src/*.cpp")
 
-add_library(vortex_launcher_shared SHARED ${vortex_launcher_SHARED_SOURCES})
+add_library(vortex_launcher_shared STATIC ${vortex_launcher_SHARED_SOURCES})
 
 if(UNIX AND NOT APPLE)
     set(INSTALL_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build/dist/)
@@ -69,9 +76,15 @@ target_link_libraries(vortex_launcher_shared PUBLIC launcher)
 
 target_link_libraries(vortex_launcher_shared PUBLIC httpcl)
 
+if(WIN32)
+    target_link_libraries(vortex_launcher_shared PRIVATE Shell32)
+endif()
+
+
+
 file(GLOB_RECURSE VORTEX_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/main/src/*.cpp")
 
-add_executable(vortex_launcher ${VORTEX_SOURCES} main.cpp)
+add_executable(vortex_launcher main.cpp)
 target_link_libraries(vortex_launcher PRIVATE vortex_launcher_shared)
 
 if(UNIX AND NOT APPLE)

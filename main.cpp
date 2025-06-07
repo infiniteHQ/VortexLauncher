@@ -187,7 +187,7 @@ int main(int argc, char *argv[]) {
   VortexMaker::LogInfo("Bootstrapp", "Opening the graphical interface...");
 
   std::thread mainthread;
-  std::thread Thread([&]() { Cherry::Main(argc, argv); });
+  std::thread Thread([=]() { Cherry::Main(argc, argv); });
   mainthread.swap(Thread);
 
   mainthread.join();

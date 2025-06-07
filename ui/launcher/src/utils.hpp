@@ -209,17 +209,17 @@ static bool areStringsSimilar(const std::string &s1, const std::string &s2, doub
 static void MyButton(const std::string &name, int w, int h) {
   ImVec2 squareSize(w, h);
   ImVec2 totalSize(squareSize.x, squareSize.y + 5);
-  ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+  ImVec2 cursorPos = CherryGUI::GetCursorScreenPos();
 
   std::string button_id = name + "squareButtonWithText";
-  if (ImGui::InvisibleButton(button_id.c_str(), totalSize)) {
+  if (CherryGUI::InvisibleButton(button_id.c_str(), totalSize)) {
   }
 
-  if (ImGui::IsItemHovered()) {
-    ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+  if (CherryGUI::IsItemHovered()) {
+    CherryGUI::SetMouseCursor(ImGuiMouseCursor_Hand);
   }
 
-  ImDrawList *drawList = ImGui::GetWindowDrawList();
+  ImDrawList *drawList = CherryGUI::GetWindowDrawList();
 
   if (!name.empty()) {
     drawList->AddImage(Cherry::GetTexture(name), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
@@ -233,9 +233,9 @@ static void MyButton(const std::string &name, int w, int h) {
   ImVec2 smallRectSize(40, 20);
   ImVec2 smallRectPos(cursorPos.x + squareSize.x - smallRectSize.x - 5, cursorPos.y + squareSize.y - smallRectSize.y - 5);
 
-  float windowVisibleX2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
+  float windowVisibleX2 = CherryGUI::GetWindowPos().x + CherryGUI::GetWindowContentRegionMax().x;
   if (cursorPos.x + totalSize.x < windowVisibleX2)
-    ImGui::SameLine();
+    CherryGUI::SameLine();
 }
 
 static void DrawHighlightedText(
@@ -257,11 +257,11 @@ static void DrawHighlightedText(
     if (found > start) {
       std::string preText(start, found);
       drawList->AddText(textPos, textColor, preText.c_str());
-      textPos.x += ImGui::CalcTextSize(preText.c_str()).x;
+      textPos.x += CherryGUI::CalcTextSize(preText.c_str()).x;
     }
 
     ImVec2 highlightPos = textPos;
-    ImVec2 highlightSize = ImGui::CalcTextSize(search);
+    ImVec2 highlightSize = CherryGUI::CalcTextSize(search);
     drawList->AddRectFilled(
         highlightPos, ImVec2(highlightPos.x + highlightSize.x, highlightPos.y + highlightSize.y), highlightColor);
     drawList->AddText(textPos, highlightTextColor, search);
@@ -297,24 +297,24 @@ static void VersionButton(
     strcpy(truncatedText, originalText);
   }
 
-  ImVec2 textSize = ImGui::CalcTextSize(truncatedText);
+  ImVec2 textSize = CherryGUI::CalcTextSize(truncatedText);
   ImVec2 totalSize(squareSize.x, squareSize.y + textSize.y + 5);
 
-  ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+  ImVec2 cursorPos = CherryGUI::GetCursorScreenPos();
 
   std::string button_id = envproject + "squareButtonWithText" + envproject;
-  if (ImGui::InvisibleButton(button_id.c_str(), totalSize)) {
+  if (CherryGUI::InvisibleButton(button_id.c_str(), totalSize)) {
     if (callback) {
       callback();
     }
     // selected_envproject = envproject;
   }
 
-  if (ImGui::IsItemHovered()) {
-    ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+  if (CherryGUI::IsItemHovered()) {
+    CherryGUI::SetMouseCursor(ImGuiMouseCursor_Hand);
   }
 
-  ImDrawList *drawList = ImGui::GetWindowDrawList();
+  ImDrawList *drawList = CherryGUI::GetWindowDrawList();
 
   if (!envproject.empty() && std::filesystem::exists(envproject)) {
     drawList->AddImage(
@@ -340,8 +340,8 @@ static void VersionButton(
     drawList->AddRectFilled(
         smallRectPos, ImVec2(smallRectPos.x + smallRectSize.x, smallRectPos.y + smallRectSize.y), IM_COL32(0, 0, 0, 255));
     ImVec2 versionTextPos = ImVec2(
-        smallRectPos.x + (smallRectSize.x - ImGui::CalcTextSize(versionText).x) / 2,
-        smallRectPos.y + (smallRectSize.y - ImGui::CalcTextSize("version").y) / 2);
+        smallRectPos.x + (smallRectSize.x - CherryGUI::CalcTextSize(versionText).x) / 2,
+        smallRectPos.y + (smallRectSize.y - CherryGUI::CalcTextSize("version").y) / 2);
     drawList->AddText(versionTextPos, IM_COL32(255, 255, 255, 255), versionText);
   }
 
@@ -351,8 +351,8 @@ static void VersionButton(
   ImU32 highlightColor = IM_COL32(255, 255, 0, 255);
   ImU32 highlightTextColor = IM_COL32(0, 0, 0, 255);
 
-  if (ImGui::IsItemHovered()) {
-    ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+  if (CherryGUI::IsItemHovered()) {
+    CherryGUI::SetMouseCursor(ImGuiMouseCursor_Hand);
 
     drawList->AddRect(
         cursorPos,
@@ -365,9 +365,9 @@ static void VersionButton(
 
   DrawHighlightedText(drawList, textPos, truncatedText, ProjectSearch, highlightColor, textColor, highlightTextColor);
 
-  float windowVisibleX2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
+  float windowVisibleX2 = CherryGUI::GetWindowPos().x + CherryGUI::GetWindowContentRegionMax().x;
   if (cursorPos.x + totalSize.x < windowVisibleX2)
-    ImGui::SameLine();
+    CherryGUI::SameLine();
 }
 
 static void DownloadableVersionButton(
@@ -393,19 +393,19 @@ static void DownloadableVersionButton(
     strcpy(truncatedText, originalText);
   }
 
-  ImVec2 textSize = ImGui::CalcTextSize(truncatedText);
+  ImVec2 textSize = CherryGUI::CalcTextSize(truncatedText);
   ImVec2 totalSize(squareSize.x, squareSize.y + textSize.y + 5);
 
   float spacingX = 15.0f;
-  float windowVisibleX2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
+  float windowVisibleX2 = CherryGUI::GetWindowPos().x + CherryGUI::GetWindowContentRegionMax().x;
 
-  ImGui::BeginGroup();
-  ImVec2 cursorPos = ImGui::GetCursorScreenPos();
-  ImDrawList *drawList = ImGui::GetWindowDrawList();
+  CherryGUI::BeginGroup();
+  ImVec2 cursorPos = CherryGUI::GetCursorScreenPos();
+  ImDrawList *drawList = CherryGUI::GetWindowDrawList();
 
   if (cursorPos.x + totalSize.x > windowVisibleX2) {
-    ImGui::NewLine();
-    cursorPos = ImGui::GetCursorScreenPos();
+    CherryGUI::NewLine();
+    cursorPos = CherryGUI::GetCursorScreenPos();
   }
 
   if (!envproject.empty() && std::filesystem::exists(envproject)) {
@@ -468,16 +468,16 @@ static void DownloadableVersionButton(
       smallRectPos, ImVec2(smallRectPos.x + smallRectSize.x, smallRectPos.y + smallRectSize.y), IM_COL32(0, 0, 0, 255));
 
   ImVec2 versionTextPos =
-      ImVec2(smallRectPos.x + 6, smallRectPos.y + (smallRectSize.y - ImGui::CalcTextSize(versionText).y) / 2);
+      ImVec2(smallRectPos.x + 6, smallRectPos.y + (smallRectSize.y - CherryGUI::CalcTextSize(versionText).y) / 2);
   drawList->AddText(versionTextPos, IM_COL32(255, 255, 255, 255), versionText);
 
   ImVec2 dotButtonPos = ImVec2(smallRectPos.x + smallRectSize.x + 15, smallRectPos.y);
-  ImGui::SetCursorScreenPos(dotButtonPos);
+  CherryGUI::SetCursorScreenPos(dotButtonPos);
 
   VxContext *ctx = VortexMaker::GetCurrentContext();
   if (exist) {
     {
-      ImGui::BeginDisabled();
+      CherryGUI::BeginDisabled();
       /*auto btn = std::make_shared<Cherry::ImageTextButtonSimple>("create_project_button", "Already installed");
       btn->SetScale(0.85f);
       btn->SetInternalMarginX(10.0f);
@@ -491,9 +491,9 @@ static void DownloadableVersionButton(
               ->GetData("isClicked") == "true") {
         //
       }
-      ImGui::EndDisabled();
+      CherryGUI::EndDisabled();
     }
-    ImGui::SameLine();
+    CherryGUI::SameLine();
 
     {
       /*auto btn = std::make_shared<Cherry::ImageButtonSimple>("create_project_button",
@@ -505,13 +505,13 @@ static void DownloadableVersionButton(
 
       if (CherryKit::ButtonImageText("Already installed", Cherry::GetPath("resources/imgs/icons/misc/icon_more.png"))
               ->GetData("isClicked") == "true") {
-        ImGui::OpenPopup(("OptionsMenu_" + envproject).c_str());
+        CherryGUI::OpenPopup(("OptionsMenu_" + envproject).c_str());
       }
 
-      if (ImGui::BeginPopup(("OptionsMenu_" + envproject).c_str())) {
-        ImVec4 originalColor = ImGui::GetStyle().Colors[ImGuiCol_Text];
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
-        if (ImGui::MenuItem("Reinstall")) {
+      if (CherryGUI::BeginPopup(("OptionsMenu_" + envproject).c_str())) {
+        ImVec4 originalColor = CherryGUI::GetStyle().Colors[ImGuiCol_Text];
+        CherryGUI::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+        if (CherryGUI::MenuItem("Reinstall")) {
           std::thread([version, ctx, dist, installedpath, arch, plat]() {
             VortexMaker::OpenVortexUninstaller(installedpath);
             VortexMaker::OpenVortexInstaller(version, arch, dist, plat);
@@ -519,12 +519,12 @@ static void DownloadableVersionButton(
             VortexMaker::RefreshEnvironmentVortexVersion();
           }).detach();
         }
-        ImGui::PopStyleColor();
-        if (ImGui::MenuItem("Open Folder###Open1")) {
+        CherryGUI::PopStyleColor();
+        if (CherryGUI::MenuItem("Open Folder###Open1")) {
           OpenFolderInFileManager(installedpath);
         }
 
-        ImGui::EndPopup();
+        CherryGUI::EndPopup();
       }
     }
   } else {
@@ -549,12 +549,12 @@ static void DownloadableVersionButton(
   ImVec2 textPos = ImVec2(cursorPos.x + (squareSize.x - textSize.x) / 2, cursorPos.y + squareSize.y + 5);
   drawList->AddText(textPos, IM_COL32(255, 255, 255, 255), truncatedText);
 
-  ImGui::EndGroup();
+  CherryGUI::EndGroup();
 
-  ImGui::SetCursorScreenPos(ImVec2(cursorPos.x + totalSize.x + spacingX, cursorPos.y));
+  CherryGUI::SetCursorScreenPos(ImVec2(cursorPos.x + totalSize.x + spacingX, cursorPos.y));
 
   if (cursorPos.x + totalSize.x + spacingX > windowVisibleX2) {
-    ImGui::NewLine();
+    CherryGUI::NewLine();
   }
 }
 
@@ -577,19 +577,19 @@ static void InstalledVersionButton(
     strcpy(truncatedText, originalText);
   }
 
-  ImVec2 textSize = ImGui::CalcTextSize(truncatedText);
+  ImVec2 textSize = CherryGUI::CalcTextSize(truncatedText);
   ImVec2 totalSize(squareSize.x, squareSize.y + textSize.y + 5);
 
   float spacingX = 15.0f;
-  float windowVisibleX2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
+  float windowVisibleX2 = CherryGUI::GetWindowPos().x + CherryGUI::GetWindowContentRegionMax().x;
 
-  ImGui::BeginGroup();
-  ImVec2 cursorPos = ImGui::GetCursorScreenPos();
-  ImDrawList *drawList = ImGui::GetWindowDrawList();
+  CherryGUI::BeginGroup();
+  ImVec2 cursorPos = CherryGUI::GetCursorScreenPos();
+  ImDrawList *drawList = CherryGUI::GetWindowDrawList();
 
   if (cursorPos.x + totalSize.x > windowVisibleX2) {
-    ImGui::NewLine();
-    cursorPos = ImGui::GetCursorScreenPos();
+    CherryGUI::NewLine();
+    cursorPos = CherryGUI::GetCursorScreenPos();
   }
 
   if (!envproject.empty() && std::filesystem::exists(envproject)) {
@@ -606,11 +606,11 @@ static void InstalledVersionButton(
       smallRectPos, ImVec2(smallRectPos.x + smallRectSize.x, smallRectPos.y + smallRectSize.y), IM_COL32(0, 0, 0, 255));
 
   ImVec2 versionTextPos =
-      ImVec2(smallRectPos.x + 6, smallRectPos.y + (smallRectSize.y - ImGui::CalcTextSize(versionText).y) / 2);
+      ImVec2(smallRectPos.x + 6, smallRectPos.y + (smallRectSize.y - CherryGUI::CalcTextSize(versionText).y) / 2);
   drawList->AddText(versionTextPos, IM_COL32(255, 255, 255, 255), versionText);
 
   ImVec2 dotButtonPos = ImVec2(smallRectPos.x + smallRectSize.x + 15, smallRectPos.y);
-  ImGui::SetCursorScreenPos(dotButtonPos);
+  CherryGUI::SetCursorScreenPos(dotButtonPos);
 
   /*auto btn = std::make_shared<Cherry::ImageButtonSimple>("create_project_button",
   Cherry::GetPath("resources/imgs/icons/misc/icon_more.png")); btn->SetScale(0.20f); btn->SetInternalMarginX(1.0f);
@@ -621,34 +621,34 @@ static void InstalledVersionButton(
 
   if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_more.png"))->GetData("isClicked") ==
       "true") {
-    ImGui::OpenPopup(("OptionsMenu_" + bannerpath).c_str());
+    CherryGUI::OpenPopup(("OptionsMenu_" + bannerpath).c_str());
   }
 
-  if (ImGui::BeginPopup(("OptionsMenu_" + bannerpath).c_str())) {
-    ImVec4 originalColor = ImGui::GetStyle().Colors[ImGuiCol_Text];
-    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
-    if (ImGui::MenuItem("Delete Version")) {
+  if (CherryGUI::BeginPopup(("OptionsMenu_" + bannerpath).c_str())) {
+    ImVec4 originalColor = CherryGUI::GetStyle().Colors[ImGuiCol_Text];
+    CherryGUI::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+    if (CherryGUI::MenuItem("Delete Version")) {
       std::thread([path]() {
         VortexMaker::OpenVortexUninstaller(path);
         VortexMaker::RefreshEnvironmentVortexVersion();
       }).detach();
     }
-    ImGui::PopStyleColor();
-    if (ImGui::MenuItem("Open Folder###Open1")) {
+    CherryGUI::PopStyleColor();
+    if (CherryGUI::MenuItem("Open Folder###Open1")) {
       OpenFolderInFileManager(path);
     }
-    ImGui::EndPopup();
+    CherryGUI::EndPopup();
   }
 
   ImVec2 textPos = ImVec2(cursorPos.x + (squareSize.x - textSize.x) / 2, cursorPos.y + squareSize.y + 5);
   drawList->AddText(textPos, IM_COL32(255, 255, 255, 255), truncatedText);
 
-  ImGui::EndGroup();
+  CherryGUI::EndGroup();
 
-  ImGui::SetCursorScreenPos(ImVec2(cursorPos.x + totalSize.x + spacingX, cursorPos.y));
+  CherryGUI::SetCursorScreenPos(ImVec2(cursorPos.x + totalSize.x + spacingX, cursorPos.y));
 
   if (cursorPos.x + totalSize.x + spacingX > windowVisibleX2) {
-    ImGui::NewLine();
+    CherryGUI::NewLine();
   }
 }
 
@@ -666,21 +666,21 @@ static void ProjectImportButton(const std::shared_ptr<EnvProject> envproject, in
     strcpy(truncatedText, originalText);
   }
 
-  ImVec2 textSize = ImGui::CalcTextSize(truncatedText);
+  ImVec2 textSize = CherryGUI::CalcTextSize(truncatedText);
   ImVec2 totalSize(squareSize.x, squareSize.y + textSize.y + 5);
 
-  ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+  ImVec2 cursorPos = CherryGUI::GetCursorScreenPos();
 
   std::string button_id = envproject->name + "squareButtonWithText" + envproject->lastOpened;
-  if (ImGui::InvisibleButton(button_id.c_str(), totalSize)) {
+  if (CherryGUI::InvisibleButton(button_id.c_str(), totalSize)) {
     finded_projects_to_import.push_back(envproject);
   }
 
-  if (ImGui::IsItemHovered()) {
-    ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+  if (CherryGUI::IsItemHovered()) {
+    CherryGUI::SetMouseCursor(ImGuiMouseCursor_Hand);
   }
 
-  ImDrawList *drawList = ImGui::GetWindowDrawList();
+  ImDrawList *drawList = CherryGUI::GetWindowDrawList();
 
   if (!envproject->logoPath.empty()) {
     drawList->AddImage(
@@ -698,8 +698,8 @@ static void ProjectImportButton(const std::shared_ptr<EnvProject> envproject, in
   drawList->AddRectFilled(
       smallRectPos, ImVec2(smallRectPos.x + smallRectSize.x, smallRectPos.y + smallRectSize.y), IM_COL32(0, 0, 0, 255));
   ImVec2 versionTextPos = ImVec2(
-      smallRectPos.x + (smallRectSize.x - ImGui::CalcTextSize(versionText).x) / 2,
-      smallRectPos.y + (smallRectSize.y - ImGui::CalcTextSize("version").y) / 2);
+      smallRectPos.x + (smallRectSize.x - CherryGUI::CalcTextSize(versionText).x) / 2,
+      smallRectPos.y + (smallRectSize.y - CherryGUI::CalcTextSize("version").y) / 2);
 
   std::string versionpath;
 
@@ -715,8 +715,8 @@ static void ProjectImportButton(const std::shared_ptr<EnvProject> envproject, in
   ImU32 highlightColor = IM_COL32(255, 255, 0, 255);
   ImU32 highlightTextColor = IM_COL32(0, 0, 0, 255);
 
-  if (ImGui::IsItemHovered()) {
-    ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+  if (CherryGUI::IsItemHovered()) {
+    CherryGUI::SetMouseCursor(ImGuiMouseCursor_Hand);
 
     drawList->AddRect(
         cursorPos,
@@ -729,9 +729,9 @@ static void ProjectImportButton(const std::shared_ptr<EnvProject> envproject, in
 
   DrawHighlightedText(drawList, textPos, truncatedText, ProjectSearch, highlightColor, textColor, highlightTextColor);
 
-  float windowVisibleX2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
+  float windowVisibleX2 = CherryGUI::GetWindowPos().x + CherryGUI::GetWindowContentRegionMax().x;
   if (cursorPos.x + totalSize.x < windowVisibleX2)
-    ImGui::SameLine();
+    CherryGUI::SameLine();
 }
 
 static void TemplateButton(const std::shared_ptr<TemplateInterface> templateinterface) {
@@ -747,22 +747,22 @@ static void TemplateButton(const std::shared_ptr<TemplateInterface> templateinte
     strcpy(truncatedText, originalText);
   }
 
-  ImVec2 textSize = ImGui::CalcTextSize(truncatedText);
+  ImVec2 textSize = CherryGUI::CalcTextSize(truncatedText);
   ImVec2 totalSize(squareSize.x, squareSize.y + textSize.y + 5);
 
-  ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+  ImVec2 cursorPos = CherryGUI::GetCursorScreenPos();
 
   std::string button_id =
       templateinterface->m_name + "squareButtonWithText" + templateinterface->m_name + templateinterface->m_path;
-  if (ImGui::InvisibleButton(button_id.c_str(), totalSize)) {
+  if (CherryGUI::InvisibleButton(button_id.c_str(), totalSize)) {
     selected_template_object = templateinterface;
   }
 
-  if (ImGui::IsItemHovered()) {
-    ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+  if (CherryGUI::IsItemHovered()) {
+    CherryGUI::SetMouseCursor(ImGuiMouseCursor_Hand);
   }
 
-  ImDrawList *drawList = ImGui::GetWindowDrawList();
+  ImDrawList *drawList = CherryGUI::GetWindowDrawList();
 
   std::string logo_path = templateinterface->m_logo_path;
 
@@ -777,35 +777,35 @@ static void TemplateButton(const std::shared_ptr<TemplateInterface> templateinte
   drawList->AddRectFilled(
       smallRectPos, ImVec2(smallRectPos.x + smallRectSize.x, smallRectPos.y + smallRectSize.y), IM_COL32(0, 0, 0, 255));
   ImVec2 versionTextPos = ImVec2(
-      smallRectPos.x + (smallRectSize.x - ImGui::CalcTextSize(templateinterface->m_group.c_str()).x) / 2,
-      smallRectPos.y + (smallRectSize.y - ImGui::CalcTextSize("version").y) / 2);
+      smallRectPos.x + (smallRectSize.x - CherryGUI::CalcTextSize(templateinterface->m_group.c_str()).x) / 2,
+      smallRectPos.y + (smallRectSize.y - CherryGUI::CalcTextSize("version").y) / 2);
   drawList->AddText(versionTextPos, IM_COL32(255, 255, 255, 255), templateinterface->m_group.c_str());
 
   ImVec2 textPos = ImVec2(cursorPos.x + (squareSize.x - textSize.x) / 2, cursorPos.y + squareSize.y + 5);
   drawList->AddText(textPos, IM_COL32(255, 255, 255, 255), truncatedText);
 
-  float windowVisibleX2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
+  float windowVisibleX2 = CherryGUI::GetWindowPos().x + CherryGUI::GetWindowContentRegionMax().x;
   if (cursorPos.x + totalSize.x < windowVisibleX2)
-    ImGui::SameLine();
+    CherryGUI::SameLine();
 }
 
 static void MyBanner(const std::string &path) {
   // addTexture(path, path);
   ImVec2 squareSize(300, 70);
 
-  ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+  ImVec2 cursorPos = CherryGUI::GetCursorScreenPos();
 
-  if (ImGui::InvisibleButton("##squ5684areButtonWithText2", squareSize)) {
+  if (CherryGUI::InvisibleButton("##squ5684areButtonWithText2", squareSize)) {
   }
 
-  if (ImGui::IsItemHovered()) {
-    ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+  if (CherryGUI::IsItemHovered()) {
+    CherryGUI::SetMouseCursor(ImGuiMouseCursor_Hand);
   }
 
-  ImDrawList *drawList = ImGui::GetWindowDrawList();
+  ImDrawList *drawList = CherryGUI::GetWindowDrawList();
 
   // getTexture(path, drawList, cursorPos, squareSize);
-  // ImGui::Image(path, drawList, cursorPos, squareSize);
+  // CherryGUI::Image(path, drawList, cursorPos, squareSize);
   drawList->AddImage(Cherry::GetTexture(path), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
 
   ImVec2 smallRectSize(40, 20);

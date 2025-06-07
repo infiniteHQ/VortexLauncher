@@ -147,24 +147,24 @@ namespace VortexLauncher {
       return;
 
     CherryGUI::PushStyleColor(ImGuiCol_TableRowBg, Cherry::HexToRGBA("#151515FF"));
-    if (ImGui::BeginTable("##project_paths", 2)) {
+    if (CherryGUI::BeginTable("##project_paths", 2)) {
       CherryGUI::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(8.0f, 8.0f));
 
-      ImGui::TableSetupColumn("Path");
-      ImGui::TableSetupColumn("Action");
-      ImGui::TableHeadersRow();
+      CherryGUI::TableSetupColumn("Path");
+      CherryGUI::TableSetupColumn("Action");
+      CherryGUI::TableHeadersRow();
 
       for (size_t i = 0; i < list->size(); ++i) {
-        ImGui::TableNextRow();
+        CherryGUI::TableNextRow();
 
-        ImGui::TableSetColumnIndex(0);
+        CherryGUI::TableSetColumnIndex(0);
         CherryGUI::PushStyleColor(ImGuiCol_TableRowBg, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
 
-        ImGui::Text("%s", (*list)[i].c_str());
+        CherryGUI::Text("%s", (*list)[i].c_str());
 
         CherryGUI::PopStyleColor();
 
-        ImGui::TableSetColumnIndex(1);
+        CherryGUI::TableSetColumnIndex(1);
         if (CherryKit::ButtonImageText(CherryID("delete_entry" + type), "", Cherry::GetPath("resources/imgs/trash.png"))
                 ->GetData("isClicked") == "true") {
           list->erase(list->begin() + i);
@@ -172,8 +172,8 @@ namespace VortexLauncher {
         }
       }
 
-      ImGui::PopStyleVar();
-      ImGui::EndTable();
+      CherryGUI::PopStyleVar();
+      CherryGUI::EndTable();
     }
 
     CherryGUI::PopStyleColor();
@@ -187,7 +187,7 @@ namespace VortexLauncher {
       }
     }
 
-    ImGui::SameLine();
+    CherryGUI::SameLine();
 
     CherryKit::InputString("", newPath);
   }
@@ -326,7 +326,7 @@ namespace VortexLauncher {
               CherryNextProp("color_text", "#797979");
               CherryKit::TitleFive("System paths settings");
               Cherry::PopFont();
-              ImGui::SameLine();
+              CherryGUI::SameLine();
               CherryKit::TooltipTextCustom("(?)", []() {
                 CherryKit::TitleFour("em : Editor Modules");
                 CherryKit::TextWrapped("Lorem ipsum Lorem ipsumLorem ipsum");
@@ -335,7 +335,7 @@ namespace VortexLauncher {
                 CherryKit::TextWrapped("Lorem ipsum Lorem ipsumLorem ipsum");
               });
 
-              ImGui::SameLine();
+              CherryGUI::SameLine();
               CherryStyle::AddMarginX(10.0f);
               Cherry::SetNextComponentProperty("padding_x", "8");
               Cherry::SetNextComponentProperty("padding_y", "4");
@@ -344,7 +344,7 @@ namespace VortexLauncher {
                 RefreshConfig();
               }
 
-              ImGui::SameLine();
+              CherryGUI::SameLine();
               CherryStyle::AddMarginX(10.0f);
               Cherry::SetNextComponentProperty("padding_x", "8");
               Cherry::SetNextComponentProperty("padding_y", "4");
@@ -393,7 +393,7 @@ namespace VortexLauncher {
               CherryNextProp("color_text", "#797979");
               CherryKit::TitleFive("Updates & Distribution settings");
               Cherry::PopFont();
-              ImGui::SameLine();
+              CherryGUI::SameLine();
               CherryKit::TooltipTextCustom("(?)", []() {
                 CherryKit::TitleFour("em : Editor Modules");
                 CherryKit::TextWrapped("Lorem ipsum Lorem ipsumLorem ipsum");
@@ -402,7 +402,7 @@ namespace VortexLauncher {
                 CherryKit::TextWrapped("Lorem ipsum Lorem ipsumLorem ipsum");
               });
 
-              ImGui::SameLine();
+              CherryGUI::SameLine();
               CherryStyle::AddMarginX(10.0f);
               Cherry::SetNextComponentProperty("padding_x", "8");
               Cherry::SetNextComponentProperty("padding_y", "4");
@@ -411,7 +411,7 @@ namespace VortexLauncher {
                 RefreshConfig();
               }
 
-              ImGui::SameLine();
+              CherryGUI::SameLine();
               CherryStyle::AddMarginX(10.0f);
               Cherry::SetNextComponentProperty("padding_x", "8");
               Cherry::SetNextComponentProperty("padding_y", "4");
@@ -432,17 +432,17 @@ namespace VortexLauncher {
                       CherryKit::KeyValCustom(
                           "Vortex distributions",
                           [=]() {
-                            if (ImGui::BeginTable("##vortex_dists", 2)) {
-                              ImGui::TableSetupColumn("Path");
-                              ImGui::TableSetupColumn("Action");
-                              ImGui::TableHeadersRow();
+                            if (CherryGUI::BeginTable("##vortex_dists", 2)) {
+                              CherryGUI::TableSetupColumn("Path");
+                              CherryGUI::TableSetupColumn("Action");
+                              CherryGUI::TableHeadersRow();
                               std::cout << vortexDists.size() << std::endl;
                               for (size_t i = 0; i < vortexDists.size(); ++i) {
-                                ImGui::TableNextRow();
-                                ImGui::TableSetColumnIndex(0);
-                                ImGui::Text("%s", vortexDists[i].c_str());
+                                CherryGUI::TableNextRow();
+                                CherryGUI::TableSetColumnIndex(0);
+                                CherryGUI::Text("%s", vortexDists[i].c_str());
 
-                                ImGui::TableSetColumnIndex(1);
+                                CherryGUI::TableSetColumnIndex(1);
 
                                 if (CherryKit::ButtonImageText(
                                         CherryID("delete" + std::to_string(i)),
@@ -453,7 +453,7 @@ namespace VortexLauncher {
                                   --i;
                                 }
                               }
-                              ImGui::EndTable();
+                              CherryGUI::EndTable();
                             }
 
                             CherryKit::InputString("Add", &newDist);
@@ -537,11 +537,11 @@ namespace VortexLauncher {
     CherryGUI::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0.0f, 0.0f));
     CherryGUI::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     CherryGUI::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
-    ImGui::BeginChild(label.c_str(), ImVec2(leftPaneWidth, 0), true, NULL);
+    CherryGUI::BeginChild(label.c_str(), ImVec2(leftPaneWidth, 0), true, NULL);
 
-    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
-    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 5.0f);
-    ImGui::Image(Cherry::GetTexture(Cherry::GetPath("resources/imgs/settings2.png")), ImVec2(280, 142));
+    CherryGUI::SetCursorPosY(CherryGUI::GetCursorPosY() + 5.0f);
+    CherryGUI::SetCursorPosX(CherryGUI::GetCursorPosX() + 5.0f);
+    CherryGUI::Image(Cherry::GetTexture(Cherry::GetPath("resources/imgs/settings2.png")), ImVec2(280, 142));
 
     // CherryStyle::SetPadding(7.0f);
 
@@ -566,7 +566,7 @@ namespace VortexLauncher {
       CherryNextProp("padding_y", "2");
       CherryNextProp("size_x", "20");
       CherryNextProp("size_y", "20");
-      ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7.5f);
+      CherryGUI::SetCursorPosX(CherryGUI::GetCursorPosX() + 7.5f);
 
       if (CherryKit::ButtonImageText(CherryID(child_name), child_name.c_str(), child.second.LogoPath)
               ->GetData("isClicked") == "true") {
@@ -576,20 +576,20 @@ namespace VortexLauncher {
       // if (Cherry::TextButtonUnderline(child_name.c_str(), true, opt))
     }
 
-    ImGui::EndChild();
-    ImGui::PopStyleVar(4);
+    CherryGUI::EndChild();
+    CherryGUI::PopStyleVar(4);
     CherryGUI::PopStyleColor(2);
 
-    ImGui::SameLine();
-    ImGui::BeginGroup();
+    CherryGUI::SameLine();
+    CherryGUI::BeginGroup();
 
-    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.0f);
+    CherryGUI::SetCursorPosX(CherryGUI::GetCursorPosX() + 20.0f);
 
     if (!m_SelectedChildName.empty()) {
       CherryGUI::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20.0f, 20.0f));
       CherryGUI::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(20.0f, 20.0f));
 
-      if (ImGui::BeginChild(
+      if (CherryGUI::BeginChild(
               "ChildPanel", ImVec2(0, 0), false, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_AlwaysVerticalScrollbar)) {
         auto child = GetChild(m_SelectedChildName);
 
@@ -600,11 +600,11 @@ namespace VortexLauncher {
           }
         }
       }
-      ImGui::EndChild();
+      CherryGUI::EndChild();
 
-      ImGui::PopStyleVar(2);
+      CherryGUI::PopStyleVar(2);
     }
 
-    ImGui::EndGroup();
+    CherryGUI::EndGroup();
   }
 }  // namespace VortexLauncher

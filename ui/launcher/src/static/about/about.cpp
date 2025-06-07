@@ -1,6 +1,10 @@
 #include "./about.hpp"
 
+#ifdef _WIN32
+#else
 #include <openssl/sha.h>
+#endif
+
 
 std::string getBuildDate() {
   return BUILD_DATE_STR;
@@ -23,6 +27,11 @@ std::string getVortexLauncherDist() {
 static std::string vxl_exehash = "";
 static std::string system_desktop = "";
 
+#ifdef _WIN32
+std::string computeSHA256Short(const std::string &filepath, size_t length = 10) {
+return "wip...";
+}
+#else
 std::string computeSHA256Short(const std::string &filepath, size_t length = 10) {
   std::ifstream file(filepath, std::ios::binary);
   if (!file)
@@ -47,6 +56,7 @@ std::string computeSHA256Short(const std::string &filepath, size_t length = 10) 
   std::string result = oss.str();
   return result.substr(0, length);
 }
+#endif
 
 std::string getVortexLauncherHash() {
   if (vxl_exehash.empty()) {
@@ -60,7 +70,34 @@ std::string getVortexLauncherHash() {
 }
 
 #if defined(_WIN32)
-#define OS_NAME "Windows"
+std::string GetWindowsVersion() {
+    HKEY hKey;
+    LONG lRes = RegOpenKeyExA(HKEY_LOCAL_MACHINE,
+        "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", 0,
+        KEY_READ, &hKey);
+
+    if (lRes != ERROR_SUCCESS)
+        return "Unknown Windows version";
+
+    char productName[256];
+    DWORD size = sizeof(productName);
+    RegQueryValueExA(hKey, "ProductName", NULL, NULL, (LPBYTE)productName, &size);
+
+    DWORD buildNumber = 0;
+    size = sizeof(buildNumber);
+    RegQueryValueExA(hKey, "CurrentBuildNumber", NULL, NULL, (LPBYTE)&buildNumber, &size);
+
+    char releaseId[256] = {0};
+    size = sizeof(releaseId);
+    RegQueryValueExA(hKey, "DisplayVersion", NULL, NULL, (LPBYTE)releaseId, &size);
+
+    RegCloseKey(hKey);
+
+    std::string versionStr = std::string(productName) + " " + std::string(releaseId);
+    return versionStr;
+}
+
+#define OS_NAME GetWindowsVersion().c_str()
 #elif defined(__APPLE__) && defined(__MACH__)
 #define OS_NAME "macOS"
 #elif defined(__linux__)
@@ -159,19 +196,19 @@ namespace VortexLauncher {
   }
 
   void AboutAppWindow::Render() {
-    float window_width = ImGui::GetWindowSize().x;
+    float window_width = CherryGUI::GetWindowSize().x;
     float image_height = window_width / 3.435f;
 
-    ImGui::Image(
+    CherryGUI::Image(
         Cherry::GetTexture(Cherry::GetPath("resources/imgs/vortexbanner2.png")), ImVec2(window_width, image_height));
 
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(2, 2));  // CherryStyle::Padding
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));   // CherryStyle::Padding
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#00000000"));
-    ImGui::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#00000000"));
+    CherryGUI::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(2, 2));  // CherryStyle::Padding
+    CherryGUI::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));   // CherryStyle::Padding
+    CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#00000000"));
+    CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#00000000"));
     CherryStyle::AddMarginX(20.0f);
     CherryStyle::AddMarginY(5.0f);
-    ImGui::BeginChild("aboutchild", ImVec2(430, 0));  // cherry api
+    CherryGUI::BeginChild("aboutchild", ImVec2(430, 0));  // cherry api
 
     Cherry::SetNextComponentProperty("color_text", "#FFFFFF");
     CherryKit::TextSimple("Vortex Launcher");
@@ -199,10 +236,10 @@ namespace VortexLauncher {
     Cherry::SetNextComponentProperty("color_text", "#878787");
     CherryKit::TextSimple("System: " + os_name + " " + os_arch + system_desktop);
 
-    ImGui::EndChild();
+    CherryGUI::EndChild();
     CherryGUI::SameLine();
 
-    ImGui::BeginChild("link");  // cherry api
+    CherryGUI::BeginChild("link");  // cherry api
 
     CherryNextProp("color_bg", "#00000000");
     CherryNextProp("color_border", "#00000000");
@@ -255,10 +292,10 @@ namespace VortexLauncher {
     Cherry::SetNextComponentProperty("color_text", "#565656");
     CherryKit::TextSimple("Never stop hacking !");
 
-    ImGui::EndChild();
+    CherryGUI::EndChild();
 
-    ImGui::PopStyleColor(2);
-    ImGui::PopStyleVar(2);  // CherryStyle::Padding
+    CherryGUI::PopStyleColor(2);
+    CherryGUI::PopStyleVar(2);  // CherryStyle::Padding
   }
 
 }  // namespace VortexLauncher

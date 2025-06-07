@@ -1,4 +1,6 @@
-#include <cxxabi.h>
+#ifndef _WIN32
+    #include <cxxabi.h>
+#endif
 
 #include <cstddef>
 #include <cstdint>

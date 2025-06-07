@@ -40,7 +40,13 @@
 #include <stddef.h>  // NULL
 #include <stdio.h>   // NULL
 #include <sys/stat.h>
-#include <unistd.h>
+#ifdef _WIN32
+    #include <windows.h>
+    #include <shellapi.h>
+#else
+    #include <unistd.h>
+#endif
+
 
 #include <algorithm>
 #include <chrono>
@@ -62,7 +68,9 @@
 #include <dlfcn.h>
 #include <sys/wait.h>
 #endif
-#include <dirent.h>
+#ifndef _WIN32
+    #include <dirent.h>
+#endif
 
 #include <deque>
 

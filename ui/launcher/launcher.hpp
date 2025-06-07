@@ -64,21 +64,21 @@ class Launcher {
     welcome_window = WelcomeWindow::Create("?loc:loc.window_names.welcome");
     welcome_window->m_CreateProjectCallback = [this]() {
       project_manager->m_ProjectCreation = true;
-      ImGui::SetWindowFocus(project_manager->GetAppWindow()->m_IdName.c_str());
+      CherryGUI::SetWindowFocus(project_manager->GetAppWindow()->m_IdName.c_str());
     };
     welcome_window->m_OpenProjectCallback = [this]() {
       project_manager->m_ProjectCreation = false;
-      ImGui::SetWindowFocus(project_manager->GetAppWindow()->m_IdName.c_str());
+      CherryGUI::SetWindowFocus(project_manager->GetAppWindow()->m_IdName.c_str());
     };
     welcome_window->m_SettingsCallback = [this]() {
       SetMainSettingsVisibility(true);
-      ImGui::SetWindowFocus(system_settings->GetAppWindow()->m_IdName.c_str());
+      CherryGUI::SetWindowFocus(system_settings->GetAppWindow()->m_IdName.c_str());
     };
 
     welcome_window->m_ProjectCallback = [this](const std::shared_ptr<EnvProject> &project) {
       project_manager->m_ProjectCreation = false;
       project_manager->m_SelectedEnvproject = project;
-      ImGui::SetWindowFocus(project_manager->GetAppWindow()->m_IdName.c_str());
+      CherryGUI::SetWindowFocus(project_manager->GetAppWindow()->m_IdName.c_str());
     };
     Cherry::AddAppWindow(welcome_window->GetAppWindow());
 
@@ -270,6 +270,7 @@ class Launcher {
 static std::shared_ptr<Launcher> c_Launcher;
 
 Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
+  std::cout << "CreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplication" << std::endl;
   Cherry::ApplicationSpecification spec;
   std::shared_ptr<Layer> layer = std::make_shared<Layer>();
 
@@ -316,21 +317,30 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
   btn_close->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"));*/
 
   app->PushLayer(layer);
-  app->SetMenubarCallback([app, layer]() {
+  app->SetMenubarCallback([=]() {
+    std::cout << "SetMenubarCallback" << std::endl;
     ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
     ImVec4 graySeparatorColor = ImVec4(0.4f, 0.4f, 0.4f, 0.5f);
     ImVec4 darkBackgroundColor = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
     ImVec4 lightBorderColor = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
+    std::cout << "BEFORME" << std::endl;
 
-    ImGui::PushStyleColor(ImGuiCol_PopupBg, darkBackgroundColor);
+    CherryGUI::PushStyleColor(ImGuiCol_PopupBg, darkBackgroundColor);
 
-    ImGui::PushStyleColor(ImGuiCol_Border, lightBorderColor);
+    std::cout << "sdh" << std::endl;
+    CherryGUI::PushStyleColor(ImGuiCol_Border, lightBorderColor);
+    std::cout << "g" << std::endl;
 
-    ImGui::PushStyleVar(ImGuiStyleVar_PopupRounding, 3.0f);
+    CherryGUI::PushStyleVar(ImGuiStyleVar_PopupRounding, 3.0f);
+    std::cout << "qsf" << std::endl;
 
     static bool t;
 
+    std::cout << "BEFORME" << std::endl;
     VxContext &ctx = *CVortexMaker;
+
+    std::cout << "okl" << &ctx << std::endl;
+    std::cout << "EB" << std::endl;
 
     CherryKit::NotificationButton(
         &ctx.launcher_update_available,
@@ -414,10 +424,10 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"))->GetData("isClicked
       ctx.vortex_update_available = false;
     }*/
 
-    if (ImGui::BeginMenu(Cherry::GetLocale("loc.menubar.menu.vortex").c_str())) {
+    if (CherryGUI::BeginMenu(Cherry::GetLocale("loc.menubar.menu.vortex").c_str())) {
       CherryKit::SeparatorText(Cherry::GetLocale("loc.menubar.summary.general"));
 
-      if (ImGui::MenuItem(
+      if (CherryGUI::MenuItem(
               Cherry::GetLocale("loc.menubar.menuitem.update_vortex").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.update_vortex_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_update.png")),
@@ -433,19 +443,19 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"))->GetData("isClicked
 
       CherryKit::SeparatorText(Cherry::GetLocale("loc.menubar.summary.vortex_labs"));
 
-      ImGui::BeginDisabled();
-      if (ImGui::MenuItem(
+      CherryGUI::BeginDisabled();
+      if (CherryGUI::MenuItem(
               Cherry::GetLocale("loc.menubar.menuitem.vortex_labs").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.vortex_labs_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_net.png")),
               false)) {
         // c_Launcher->SetDownloadCenterVisibility(!c_Launcher->GetDownloadCenterVisibility());
       }
-      ImGui::EndDisabled();
+      CherryGUI::EndDisabled();
 
       CherryKit::SeparatorText(Cherry::GetLocale("loc.menubar.summary.manage"));
 
-      if (ImGui::MenuItem(
+      if (CherryGUI::MenuItem(
               Cherry::GetLocale("loc.menubar.menuitem.logical_contents").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.logical_contents_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_bricksearch.png")),
@@ -453,7 +463,7 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"))->GetData("isClicked
         c_Launcher->SetLogicalContentManager(!c_Launcher->GetLogicalContentManager());
       }
 
-      if (ImGui::MenuItem(
+      if (CherryGUI::MenuItem(
               Cherry::GetLocale("loc.menubar.menuitem.static_contents").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.static_contents_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_stack.png")),
@@ -461,7 +471,7 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"))->GetData("isClicked
         c_Launcher->SetContentManager(!c_Launcher->GetContentManager());
       }
 
-      if (ImGui::MenuItem(
+      if (CherryGUI::MenuItem(
               Cherry::GetLocale("loc.menubar.menuitem.vortex_versions").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.vortex_versions_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_versions.png")),
@@ -471,7 +481,7 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"))->GetData("isClicked
 
       CherryKit::SeparatorText(Cherry::GetLocale("loc.menubar.summary.other"));
 
-      if (ImGui::MenuItem(
+      if (CherryGUI::MenuItem(
               Cherry::GetLocale("loc.menubar.menuitem.about_vortex").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.about_vortex_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_info.png")),
@@ -479,7 +489,7 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"))->GetData("isClicked
         c_Launcher->SetAboutWindowVisibility(!c_Launcher->GetAboutAppWindowVisibility());
       }
 
-      if (ImGui::MenuItem(
+      if (CherryGUI::MenuItem(
               Cherry::GetLocale("loc.menubar.menuitem.about_contributors").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.about_contributors_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_people.png")),
@@ -487,7 +497,7 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"))->GetData("isClicked
         VortexMaker::OpenURL("https://vortex.infinite.si/contributors");
       }
 
-      if (ImGui::MenuItem(
+      if (CherryGUI::MenuItem(
               Cherry::GetLocale("loc.menubar.menuitem.documentation").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.documentation_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_book.png")),
@@ -495,28 +505,28 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"))->GetData("isClicked
         VortexMaker::OpenURL("https://vortex.infinite.si/learn");
       }
 
-      ImGui::EndMenu();
+      CherryGUI::EndMenu();
     }
 
-    if (ImGui::BeginMenu(Cherry::GetLocale("loc.menubar.menu.options").c_str())) {
-      ImGui::GetFont()->Scale *= 0.8;
-      ImGui::PushFont(ImGui::GetFont());
+    if (CherryGUI::BeginMenu(Cherry::GetLocale("loc.menubar.menu.options").c_str())) {
+      CherryGUI::GetFont()->Scale *= 0.8;
+      CherryGUI::PushFont(CherryGUI::GetFont());
 
-      ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
+      CherryGUI::SetCursorPosY(CherryGUI::GetCursorPosY() + 5.0f);
 
-      ImGui::PushStyleColor(ImGuiCol_Text, grayColor);
-      ImGui::Text(Cherry::GetLocale("loc.menubar.summary.utilities").c_str());
-      ImGui::PopStyleColor();
+      CherryGUI::PushStyleColor(ImGuiCol_Text, grayColor);
+      CherryGUI::Text(Cherry::GetLocale("loc.menubar.summary.utilities").c_str());
+      CherryGUI::PopStyleColor();
 
-      ImGui::PushStyleColor(ImGuiCol_Separator, graySeparatorColor);
-      ImGui::Separator();
-      ImGui::PopStyleColor();
+      CherryGUI::PushStyleColor(ImGuiCol_Separator, graySeparatorColor);
+      CherryGUI::Separator();
+      CherryGUI::PopStyleColor();
 
-      ImGui::GetFont()->Scale = 0.84;
-      ImGui::PopFont();
-      ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);
+      CherryGUI::GetFont()->Scale = 0.84;
+      CherryGUI::PopFont();
+      CherryGUI::SetCursorPosY(CherryGUI::GetCursorPosY() + 2.0f);
 
-      if (ImGui::MenuItem(
+      if (CherryGUI::MenuItem(
               Cherry::GetLocale("loc.menubar.menuitem.logs").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.logs_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_journal.png")),
@@ -524,41 +534,41 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"))->GetData("isClicked
         c_Launcher->SetLogsVisibility(!c_Launcher->GetLogsVisibility());
       }
 
-      ImGui::BeginDisabled();
-      if (ImGui::MenuItem(
+      CherryGUI::BeginDisabled();
+      if (CherryGUI::MenuItem(
               Cherry::GetLocale("loc.menubar.menuitem.session_utility").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.session_utility_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_list.png")),
               c_Launcher->GetLogsVisibility())) {
       }
 
-      if (ImGui::MenuItem(
+      if (CherryGUI::MenuItem(
               Cherry::GetLocale("loc.menubar.menuitem.latest_crash").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.latest_crash_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_info.png")),
               c_Launcher->GetLogsVisibility())) {
       }
 
-      ImGui::EndDisabled();
+      CherryGUI::EndDisabled();
 
-      ImGui::GetFont()->Scale *= 0.8;
-      ImGui::PushFont(ImGui::GetFont());
+      CherryGUI::GetFont()->Scale *= 0.8;
+      CherryGUI::PushFont(CherryGUI::GetFont());
 
-      ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
+      CherryGUI::SetCursorPosY(CherryGUI::GetCursorPosY() + 5.0f);
 
-      ImGui::PushStyleColor(ImGuiCol_Text, grayColor);
-      ImGui::Text(Cherry::GetLocale("loc.menubar.summary.settings").c_str());
-      ImGui::PopStyleColor();
+      CherryGUI::PushStyleColor(ImGuiCol_Text, grayColor);
+      CherryGUI::Text(Cherry::GetLocale("loc.menubar.summary.settings").c_str());
+      CherryGUI::PopStyleColor();
 
-      ImGui::PushStyleColor(ImGuiCol_Separator, graySeparatorColor);
-      ImGui::Separator();
-      ImGui::PopStyleColor();
+      CherryGUI::PushStyleColor(ImGuiCol_Separator, graySeparatorColor);
+      CherryGUI::Separator();
+      CherryGUI::PopStyleColor();
 
-      ImGui::GetFont()->Scale = 0.84;
-      ImGui::PopFont();
-      ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.0f);
+      CherryGUI::GetFont()->Scale = 0.84;
+      CherryGUI::PopFont();
+      CherryGUI::SetCursorPosY(CherryGUI::GetCursorPosY() + 2.0f);
 
-      if (ImGui::MenuItem(
+      if (CherryGUI::MenuItem(
               Cherry::GetLocale("loc.menubar.menuitem.settings").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.settings_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_settings.png")),
@@ -566,36 +576,36 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"))->GetData("isClicked
         c_Launcher->SetMainSettingsVisibility(!c_Launcher->GetMainSettingsVisibility());
       }
 
-      if (ImGui::BeginMenu("Switch language")) {
-        if (ImGui::MenuItem(
+      if (CherryGUI::BeginMenu("Switch language")) {
+        if (CherryGUI::MenuItem(
                 "English",
                 "Switch language to english (en)",
                 Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/us.png")),
                 c_Launcher->GetMainSettingsVisibility())) {
           app->SetLocale("en");
         }
-        if (ImGui::MenuItem(
+        if (CherryGUI::MenuItem(
                 "Français",
                 "Changer la langue pour le Français (fr)",
                 Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/fr.png")),
                 c_Launcher->GetMainSettingsVisibility())) {
           app->SetLocale("fr");
         }
-        if (ImGui::MenuItem(
+        if (CherryGUI::MenuItem(
                 "Español",
                 "Cambiar el idioma a español",
                 Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/es.png")),
                 c_Launcher->GetMainSettingsVisibility())) {
           app->SetLocale("es");
         }
-        if (ImGui::MenuItem(
+        if (CherryGUI::MenuItem(
                 "Português",
                 "Alterar o idioma para Português",
                 Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/po.png")),
                 c_Launcher->GetMainSettingsVisibility())) {
           app->SetLocale("pt");
         }
-        if (ImGui::MenuItem(
+        if (CherryGUI::MenuItem(
                 "Deutsch",
                 "Ändern Sie die Sprache auf Deutsch",
                 Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/po.png")),
@@ -603,16 +613,17 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"))->GetData("isClicked
           app->SetLocale("de");
         }
 
-        ImGui::EndMenu();
+        CherryGUI::EndMenu();
       }
-      ImGui::EndMenu();
+      CherryGUI::EndMenu();
     }
 
-    ImGui::PopStyleVar();
-    ImGui::PopStyleColor(2);
+    CherryGUI::PopStyleVar();
+    CherryGUI::PopStyleColor(2);
   });
 
   c_Launcher = std::make_shared<Launcher>();
+
   return app;
 }
 

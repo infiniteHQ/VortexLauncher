@@ -53,30 +53,30 @@ namespace VortexLauncher
 
     void LauncherLogUtility::Render()
     {
-        float oldsize = ImGui::GetFont()->Scale;
-        ImGui::GetFont()->Scale *= 1.3;
-        ImGui::PushFont(ImGui::GetFont());
+        float oldsize = CherryGUI::GetFont()->Scale;
+        CherryGUI::GetFont()->Scale *= 1.3;
+        CherryGUI::PushFont(CherryGUI::GetFont());
 
-        ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.5f), "Project contents of : ");
-        ImGui::SameLine();
-        // ImGui::Text(this->ctx->name.c_str());
+        CherryGUI::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.5f), "Project contents of : ");
+        CherryGUI::SameLine();
+        // CherryGUI::Text(this->ctx->name.c_str());
 
-        ImGui::GetFont()->Scale = oldsize;
-        ImGui::PopFont();
+        CherryGUI::GetFont()->Scale = oldsize;
+        CherryGUI::PopFont();
 
-        ImGui::Separator();
+        CherryGUI::Separator();
 
         static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
-        const float TEXT_BASE_WIDTH = ImGui::CalcTextSize("A").x;
+        const float TEXT_BASE_WIDTH = CherryGUI::CalcTextSize("A").x;
 
-        if (ImGui::BeginTable("3ways", 4, flags))
+        if (CherryGUI::BeginTable("3ways", 4, flags))
         {
             // The first column will use the default _WidthStretch when ScrollX is Off and _WidthFixed when ScrollX is On
-            ImGui::TableSetupColumn("Level", ImGuiTableColumnFlags_NoHide);
-            ImGui::TableSetupColumn("Timestamp", ImGuiTableColumnFlags_WidthFixed, TEXT_BASE_WIDTH * 18.0f);
-            ImGui::TableSetupColumn("Origin", ImGuiTableColumnFlags_WidthFixed, TEXT_BASE_WIDTH * 12.0f);
-            ImGui::TableSetupColumn("Log", ImGuiTableColumnFlags_WidthFixed, TEXT_BASE_WIDTH * 18.0f);
-            ImGui::TableHeadersRow();
+            CherryGUI::TableSetupColumn("Level", ImGuiTableColumnFlags_NoHide);
+            CherryGUI::TableSetupColumn("Timestamp", ImGuiTableColumnFlags_WidthFixed, TEXT_BASE_WIDTH * 18.0f);
+            CherryGUI::TableSetupColumn("Origin", ImGuiTableColumnFlags_WidthFixed, TEXT_BASE_WIDTH * 12.0f);
+            CherryGUI::TableSetupColumn("Log", ImGuiTableColumnFlags_WidthFixed, TEXT_BASE_WIDTH * 18.0f);
+            CherryGUI::TableHeadersRow();
 
             for (auto log : ctx->registered_logs)
             {
@@ -89,44 +89,44 @@ namespace VortexLauncher
                 if (log->m_level == spdlog::level::info && !InfoFilter)
                     continue;
 
-                ImGui::TableNextRow();
+                CherryGUI::TableNextRow();
                 for (int i = 0; i <= 3; i++)
                 {
-                    ImGui::TableSetColumnIndex(i);
+                    CherryGUI::TableSetColumnIndex(i);
                     if (i == 0)
                     {
                         if (log->m_level == spdlog::level::critical)
                         {
-                            ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Fatal");
+                            CherryGUI::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Fatal");
                         }
                         else if (log->m_level == spdlog::level::err)
                         {
-                            ImGui::TextColored(ImVec4(0.8f, 0.2f, 0.2f, 1.0f), "Error");
+                            CherryGUI::TextColored(ImVec4(0.8f, 0.2f, 0.2f, 1.0f), "Error");
                         }
                         else if (log->m_level == spdlog::level::warn)
                         {
-                            ImGui::TextColored(ImVec4(0.8f, 0.8f, 0.0f, 1.0f), "Warning");
+                            CherryGUI::TextColored(ImVec4(0.8f, 0.8f, 0.0f, 1.0f), "Warning");
                         }
                         else if (log->m_level == spdlog::level::info)
                         {
-                            ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Information");
+                            CherryGUI::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Information");
                         }
                     }
                     else if (i == 1)
                     {
-                        ImGui::Text(log->m_timestamp.c_str());
+                        CherryGUI::Text(log->m_timestamp.c_str());
                     }
                     else if (i == 2)
                     {
-                        ImGui::Text(log->m_filter.c_str());
+                        CherryGUI::Text(log->m_filter.c_str());
                     }
                     else if (i == 3)
                     {
-                        ImGui::Text(log->m_message.c_str());
+                        CherryGUI::Text(log->m_message.c_str());
                     }
                 }
             }
-            ImGui::EndTable();
+            CherryGUI::EndTable();
         }
     }
 
@@ -150,24 +150,24 @@ namespace VortexLauncher
         }
         if(CherryKit::ButtonImageText("Add", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))->GetData("isClicked") == "true")
         {
-            ImGui::OpenPopup("CreationMenu");
+            CherryGUI::OpenPopup("CreationMenu");
         }
-        ImGui::Separator();
-        if (ImGui::BeginMenu("Filters"))
+        CherryGUI::Separator();
+        if (CherryGUI::BeginMenu("Filters"))
         {
-            ImGui::Checkbox("Show informations", &InfoFilter);
-            ImGui::Checkbox("Show fatal errors", &FatalFilter);
-            ImGui::Checkbox("Show errors", &ErrorFilter);
-            ImGui::Checkbox("Show warnings", &WarnFilter);
-            if (ImGui::MenuItem("Build/Rebuild single parts"))
+            CherryGUI::Checkbox("Show informations", &InfoFilter);
+            CherryGUI::Checkbox("Show fatal errors", &FatalFilter);
+            CherryGUI::Checkbox("Show errors", &ErrorFilter);
+            CherryGUI::Checkbox("Show warnings", &WarnFilter);
+            if (CherryGUI::MenuItem("Build/Rebuild single parts"))
             {
                 // Behavior
             }
-            if (ImGui::MenuItem("Global build"))
+            if (CherryGUI::MenuItem("Global build"))
             {
                 // Behavior
             }
-            ImGui::EndMenu();
+            CherryGUI::EndMenu();
         }
     }
 }

@@ -23,6 +23,7 @@ static ImU32 folder_color = IM_COL32(150, 128, 50, 255);
 static std::pair<std::string, ImU32> current_editing_folder;
 static bool current_editing_folder_is_favorite;
 
+#ifndef _WIN32
 std::string ExecCommand(const char *cmd) {
   std::array<char, 256> buffer;
   std::string result;
@@ -37,6 +38,7 @@ std::string ExecCommand(const char *cmd) {
     result.pop_back();
   return result;
 }
+#endif
 
 std::string GetUserDirectory(const std::string &xdgName) {
 #ifdef _WIN32

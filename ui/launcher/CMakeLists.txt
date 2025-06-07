@@ -2,8 +2,10 @@ cmake_minimum_required(VERSION 3.16)
 project(launcher)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+if(NOT MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -O3")
+endif()
+set(BIN_FOLDER ${CMAKE_BINARY_DIR}/bin)
 
 set(CHERRY_CEF OFF)
 set(CHERRY_ENABLE_NET ON)
@@ -29,8 +31,15 @@ else()
     message(FATAL_ERROR "No source files found for the launcher target.")
 endif()
 
-target_include_directories(launcher PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../main/include" )
-target_link_libraries(launcher PRIVATE cherry crypto)
+target_include_directories(launcher PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../main/include")
+
+target_link_libraries(launcher PRIVATE cherry)
+
+if(UNIX AND NOT APPLE)
+    target_link_libraries(launcher PRIVATE crypto)
+endif()
+
+
 
 file(GLOB_RECURSE ASSET_FILES
     CONFIGURE_DEPENDS
@@ -39,10 +48,10 @@ file(GLOB_RECURSE ASSET_FILES
 
 add_custom_target(sync_assets ALL
     COMMAND ${CMAKE_COMMAND} -E echo "Synchronizing assets..."
-    COMMAND ${CMAKE_COMMAND} -E rm -r -f ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources
+    COMMAND ${CMAKE_COMMAND} -E rm -r -f ${BIN_FOLDER}/resources
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_CURRENT_SOURCE_DIR}/assets
-        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/
+        ${BIN_FOLDER}/
     COMMAND ${CMAKE_COMMAND} -E echo "Assets synchronized."
     DEPENDS ${ASSET_FILES}
 )

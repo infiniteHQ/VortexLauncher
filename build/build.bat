@@ -1,7 +1,7 @@
 @echo off
 
 set RUN_ALL=true
-if "%1"=="--ni" (
+if "%1"=="-ni" (
     set RUN_ALL=false
 )
 
@@ -14,16 +14,22 @@ rmdir /S /Q ..\lib\installer\build\build\bin
 rmdir /S /Q ..\lib\installer\ui\installer\assets\builtin
 mkdir dist
 
-cd build_spdlog
-cmake ..\..\lib\spdlog -G "MinGW Makefiles"
-mingw32-make.exe -j%NUMBER_OF_PROCESSORS%
+cd build
 
-cd ..\build
-cmake ..\.. -G "MinGW Makefiles"
-mingw32-make.exe -j%NUMBER_OF_PROCESSORS%
-mingw32-make.exe install
+cmake -G "Visual Studio 17" -A x64 ..\..
 
+for /f %%i in ('powershell -command "(Get-WmiObject -Class Win32_Processor).NumberOfLogicalProcessors"') do set THREADS=%%i
+
+cmake --build . --config Release -- /m:%THREADS%
+
+xcopy /Y /E /I .\bin\Release\* .\bin
+
+rmdir /S /Q .\bin\Release
+
+
+echo %cd%
 cd ..
+echo %cd%
 
 copy ..\manifest.json dist\
 copy ..\LICENSE dist\

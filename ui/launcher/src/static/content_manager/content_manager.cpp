@@ -44,8 +44,8 @@ namespace VortexLauncher {
     float versionBoxHeight = 20.0f;
     float thumbnailIconOffsetY = 30.0f;
 
-    float oldfontsize = ImGui::GetFont()->Scale;
-    ImFont *oldFont = ImGui::GetFont();
+    float oldfontsize = CherryGUI::GetFont()->Scale;
+    ImFont *oldFont = CherryGUI::GetFont();
 
     if (selected) {
       bgColor = IM_COL32(80, 80, 240, 255);
@@ -57,9 +57,9 @@ namespace VortexLauncher {
     const char *originalText = name.c_str();
     std::string truncatedText = name;
 
-    if (ImGui::CalcTextSize(originalText).x > maxTextWidth) {
+    if (CherryGUI::CalcTextSize(originalText).x > maxTextWidth) {
       truncatedText = name.substr(0, 20);
-      if (ImGui::CalcTextSize(truncatedText.c_str()).x > maxTextWidth) {
+      if (CherryGUI::CalcTextSize(truncatedText.c_str()).x > maxTextWidth) {
         truncatedText = name.substr(0, 10) + "\n" + name.substr(10, 10);
       }
     } else {
@@ -68,15 +68,15 @@ namespace VortexLauncher {
 
     ImVec2 fixedSize(maxTextWidth + padding * 2, logoSize + extraHeight + padding * 2);
 
-    ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+    ImVec2 cursorPos = CherryGUI::GetCursorScreenPos();
 
     std::string button_id = name + "squareButtonWithText" + name;
-    if (ImGui::InvisibleButton(button_id.c_str(), fixedSize)) {
+    if (CherryGUI::InvisibleButton(button_id.c_str(), fixedSize)) {
       pressed = true;
     }
 
-    if (ImGui::IsItemHovered()) {
-      ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+    if (CherryGUI::IsItemHovered()) {
+      CherryGUI::SetMouseCursor(ImGuiMouseCursor_Hand);
     }
 
     ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
@@ -92,7 +92,7 @@ namespace VortexLauncher {
     CherryGUI::PopStyleVar();
     CherryGUI::PopStyleColor(2);
 
-    ImDrawList *drawList = ImGui::GetWindowDrawList();
+    ImDrawList *drawList = CherryGUI::GetWindowDrawList();
 
     drawList->AddRectFilled(cursorPos, ImVec2(cursorPos.x + fixedSize.x, cursorPos.y + fixedSize.y), bgColor, borderRadius);
     drawList->AddRectFilled(
@@ -107,54 +107,54 @@ namespace VortexLauncher {
     ImVec2 logoPos = ImVec2(cursorPos.x + (fixedSize.x - squareSize.x) / 2, cursorPos.y + padding);
 
     ImVec2 sizePos = ImVec2(cursorPos.x + padding, cursorPos.y + squareSize.y + thumbnailIconOffsetY - 20 + textOffsetY);
-    ImGui::SetCursorScreenPos(sizePos);
+    CherryGUI::SetCursorScreenPos(sizePos);
 
     static ImTextureID logotexture = Application::GetCurrentRenderedWindow()->get_texture(logo);
     drawList->AddImage(logotexture, logoPos, ImVec2(logoPos.x + squareSize.x, logoPos.y + squareSize.y));
 
-    ImGui::GetFont()->Scale = 0.7;
-    ImGui::PushFont(ImGui::GetFont());
+    CherryGUI::GetFont()->Scale = 0.7;
+    CherryGUI::PushFont(CherryGUI::GetFont());
     CherryGUI::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
-    ImGui::PushItemWidth(maxTextWidth);
-    ImGui::TextWrapped(size.c_str());
-    ImGui::PopItemWidth();
+    CherryGUI::PushItemWidth(maxTextWidth);
+    CherryGUI::TextWrapped(size.c_str());
+    CherryGUI::PopItemWidth();
     CherryGUI::PopStyleColor();
 
-    ImGui::GetFont()->Scale = oldfontsize;
-    ImGui::PopFont();
+    CherryGUI::GetFont()->Scale = oldfontsize;
+    CherryGUI::PopFont();
 
     ImVec2 lineStart = ImVec2(cursorPos.x, cursorPos.y + squareSize.y + thumbnailIconOffsetY + separatorHeight);
     ImVec2 lineEnd = ImVec2(cursorPos.x + fixedSize.x, cursorPos.y + squareSize.y + thumbnailIconOffsetY + separatorHeight);
     drawList->AddLine(lineStart, lineEnd, lineColor, separatorHeight);
 
-    ImGui::GetFont()->Scale = 0.9;
-    ImGui::PushFont(ImGui::GetFont());
+    CherryGUI::GetFont()->Scale = 0.9;
+    CherryGUI::PushFont(CherryGUI::GetFont());
 
     ImVec2 textPos = ImVec2(cursorPos.x + padding, cursorPos.y + squareSize.y + thumbnailIconOffsetY + textOffsetY);
-    ImGui::SetCursorScreenPos(textPos);
-    ImGui::PushItemWidth(maxTextWidth);
+    CherryGUI::SetCursorScreenPos(textPos);
+    CherryGUI::PushItemWidth(maxTextWidth);
     ImU32 textColor = IM_COL32(255, 255, 255, 255);
     ImU32 highlightColor = IM_COL32(255, 255, 0, 255);
     ImU32 highlightTextColor = IM_COL32(0, 0, 0, 255);
 
-    ImGui::PopItemWidth();
+    CherryGUI::PopItemWidth();
 
-    ImGui::GetFont()->Scale = oldfontsize;
-    ImGui::PopFont();
+    CherryGUI::GetFont()->Scale = oldfontsize;
+    CherryGUI::PopFont();
 
     ImVec2 descriptionPos = ImVec2(cursorPos.x + padding, cursorPos.y + squareSize.y + thumbnailIconOffsetY + textOffsetY);
-    ImGui::SetCursorScreenPos(descriptionPos);
+    CherryGUI::SetCursorScreenPos(descriptionPos);
 
-    ImGui::GetFont()->Scale = 0.7;
-    ImGui::PushFont(ImGui::GetFont());
+    CherryGUI::GetFont()->Scale = 0.7;
+    CherryGUI::PushFont(CherryGUI::GetFont());
     CherryGUI::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
-    ImGui::PushItemWidth(maxTextWidth);
-    ImGui::TextWrapped(description.c_str());
-    ImGui::PopItemWidth();
+    CherryGUI::PushItemWidth(maxTextWidth);
+    CherryGUI::TextWrapped(description.c_str());
+    CherryGUI::PopItemWidth();
     CherryGUI::PopStyleColor();
 
-    ImGui::GetFont()->Scale = oldfontsize;
-    ImGui::PopFont();
+    CherryGUI::GetFont()->Scale = oldfontsize;
+    CherryGUI::PopFont();
 
     ImVec2 smallRectPos = ImVec2(
         cursorPos.x + fixedSize.x - versionBoxWidth - padding, cursorPos.y + fixedSize.y - versionBoxHeight - padding);
@@ -183,11 +183,11 @@ namespace VortexLauncher {
 
     CherryGUI::EndChild();
 
-    float windowVisibleX2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
+    float windowVisibleX2 = CherryGUI::GetWindowPos().x + CherryGUI::GetWindowContentRegionMax().x;
     if (cursorPos.x + fixedSize.x < windowVisibleX2)
-      ImGui::SameLine();
+      CherryGUI::SameLine();
 
-    ImGui::SetCursorScreenPos(ImVec2(cursorPos.x, cursorPos.y + fixedSize.y + padding));
+    CherryGUI::SetCursorScreenPos(ImVec2(cursorPos.x, cursorPos.y + fixedSize.y + padding));
 
     return pressed;
   }
@@ -258,9 +258,9 @@ namespace VortexLauncher {
               CherryNextProp("color_text", "#797979");
               CherryKit::TitleFive("All contents in the system");
               Cherry::PopFont();
-              ImGui::SameLine();
+              CherryGUI::SameLine();
 
-              ImGui::SameLine();
+              CherryGUI::SameLine();
               CherryStyle::AddMarginX(10.0f);
               Cherry::SetNextComponentProperty("padding_x", "8");
               Cherry::SetNextComponentProperty("padding_y", "4");
@@ -287,11 +287,11 @@ namespace VortexLauncher {
                 spec.CloseCallback = [this]() { Cherry::DeleteAppWindow(m_AssetFinder->GetAppWindow()); };
                 spec.WindowSaves = false;
                 spec.MenubarCallback = [this]() {
-                  if (ImGui::BeginMenu("Window")) {
-                    if (ImGui::MenuItem("Close")) {
+                  if (CherryGUI::BeginMenu("Window")) {
+                    if (CherryGUI::MenuItem("Close")) {
                       Cherry::DeleteAppWindow(m_AssetFinder->GetAppWindow());
                     }
-                    ImGui::EndMenu();
+                    CherryGUI::EndMenu();
                   }
                 };
 
@@ -308,7 +308,7 @@ namespace VortexLauncher {
                 Cherry::AddAppWindow(m_AssetFinder->GetAppWindow());
               }
 
-              ImGui::SameLine();
+              CherryGUI::SameLine();
               Cherry::SetNextComponentProperty("padding_x", "8");
               Cherry::SetNextComponentProperty("padding_y", "4");
               if (CherryKit::ButtonImageText("Browse", Cherry::GetPath("resources/imgs/icons/misc/icon_net.png"))
@@ -427,10 +427,10 @@ namespace VortexLauncher {
               CherryNextProp("color_text", "#797979");
               CherryKit::TitleFive("All templates in the system");
               Cherry::PopFont();
-              ImGui::SameLine();
+              CherryGUI::SameLine();
               CherryKit::TooltipTextCustom("(?)", []() { CherryKit::TitleFour("em : Editor templates"); });
 
-              ImGui::SameLine();
+              CherryGUI::SameLine();
               CherryStyle::AddMarginX(10.0f);
               Cherry::SetNextComponentProperty("padding_x", "8");
               Cherry::SetNextComponentProperty("padding_y", "4");
@@ -457,11 +457,11 @@ namespace VortexLauncher {
                 spec.CloseCallback = [this]() { Cherry::DeleteAppWindow(m_AssetFinder->GetAppWindow()); };
                 spec.WindowSaves = false;
                 spec.MenubarCallback = [this]() {
-                  if (ImGui::BeginMenu("Window")) {
-                    if (ImGui::MenuItem("Close")) {
+                  if (CherryGUI::BeginMenu("Window")) {
+                    if (CherryGUI::MenuItem("Close")) {
                       Cherry::DeleteAppWindow(m_AssetFinder->GetAppWindow());
                     }
-                    ImGui::EndMenu();
+                    CherryGUI::EndMenu();
                   }
                 };
 
@@ -478,7 +478,7 @@ namespace VortexLauncher {
                 Cherry::AddAppWindow(m_AssetFinder->GetAppWindow());
               }
 
-              ImGui::SameLine();
+              CherryGUI::SameLine();
               Cherry::SetNextComponentProperty("padding_x", "8");
               Cherry::SetNextComponentProperty("padding_y", "4");
 
@@ -705,11 +705,11 @@ namespace VortexLauncher {
     CherryGUI::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0.0f, 0.0f));
     CherryGUI::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     CherryGUI::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
-    ImGui::BeginChild(label.c_str(), ImVec2(leftPaneWidth, 0), true);
+    CherryGUI::BeginChild(label.c_str(), ImVec2(leftPaneWidth, 0), true);
 
-    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
-    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 5.0f);
-    ImGui::Image(Cherry::GetTexture(Cherry::GetPath("resources/imgs/contents.png")), ImVec2(280, 142));
+    CherryGUI::SetCursorPosY(CherryGUI::GetCursorPosY() + 5.0f);
+    CherryGUI::SetCursorPosX(CherryGUI::GetCursorPosX() + 5.0f);
+    CherryGUI::Image(Cherry::GetTexture(Cherry::GetPath("resources/imgs/contents.png")), ImVec2(280, 142));
 
     // CherryStyle::SetPadding(7.0f);
 
@@ -734,7 +734,7 @@ namespace VortexLauncher {
       CherryNextProp("padding_y", "2");
       CherryNextProp("size_x", "20");
       CherryNextProp("size_y", "20");
-      ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7.5f);
+      CherryGUI::SetCursorPosX(CherryGUI::GetCursorPosX() + 7.5f);
 
       if (CherryKit::ButtonImageText(CherryID(child_name), child_name.c_str(), child.second.LogoPath)
               ->GetData("isClicked") == "true") {
@@ -760,20 +760,20 @@ namespace VortexLauncher {
       // if (Cherry::TextButtonUnderline(child_name.c_str(), true, opt))
     }
 
-    ImGui::EndChild();
+    CherryGUI::EndChild();
     CherryGUI::PopStyleColor(2);
     CherryGUI::PopStyleVar(4);
 
-    ImGui::SameLine();
-    ImGui::BeginGroup();
+    CherryGUI::SameLine();
+    CherryGUI::BeginGroup();
 
-    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.0f);
+    CherryGUI::SetCursorPosX(CherryGUI::GetCursorPosX() + 20.0f);
 
     if (!m_SelectedChildName.empty()) {
       CherryGUI::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20.0f, 20.0f));
       CherryGUI::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(20.0f, 20.0f));
 
-      if (ImGui::BeginChild(
+      if (CherryGUI::BeginChild(
               "ChildPanel", ImVec2(0, 0), false, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_AlwaysVerticalScrollbar)) {
         auto child = GetChild(m_SelectedChildName);
 
@@ -784,12 +784,12 @@ namespace VortexLauncher {
           }
         }
       }
-      ImGui::EndChild();
+      CherryGUI::EndChild();
 
       CherryGUI::PopStyleVar(2);
     }
 
-    ImGui::EndGroup();
+    CherryGUI::EndGroup();
   }
 
 }  // namespace VortexLauncher

@@ -917,45 +917,78 @@ std::string VortexNet::POST(const std::string &url, const std::string &body, con
   return Request(url, "POST", body, contentType);
 }
 
+
+
+
+
 std::string VortexNet::Request(
     const std::string &url,
     const std::string &method,
     const std::string &body,
     const std::string &contentType) {
-  naettReq *req = nullptr;
 
-  if (method == "GET") {
-    req = naettRequest(url.c_str(), naettMethod("GET"), naettHeader("accept", "*/*"));
-  } else if (method == "POST") {
-    req = naettRequest(
-        url.c_str(),
-        naettMethod("POST"),
-        naettHeader("Content-Type", contentType.c_str()),
-        naettBody(body.data(), body.size()));
-  } else {
-    std::cerr << "Unsupported HTTP method: " << method << std::endl;
-    return "";
-  }
+    naettReq* req = nullptr;
 
-  naettRes *res = naettMake(req);
-  while (!naettComplete(res)) {
-    usleep(100 * 1000);  // 100 ms
-  }
+    if (method == "GET") {
+        std::cout << "GET request\n";
 
-  int status = naettGetStatus(res);
-  std::string response;
+    const char* URL = url.c_str();
+req = naettRequest_va(
+    URL,
+    2,
+    naettMethod("GET"),
+    naettHeader("accept", "*/*")
+);
 
-  if (status == 200) {
-    int len = 0;
-    const void *bodyData = naettGetBody(res, &len);
-    if (bodyData && len > 0) {
-      response.assign(static_cast<const char *>(bodyData), len);
+
+    } else if (method == "POST") {
+        std::cout << "POST request\n";
+
+
+    } else {
+        std::cerr << "Unsupported HTTP method: " << method << std::endl;
+        return "";
     }
-  }
 
-  naettClose(res);
-  naettFree(req);
-  return response;
+    if (!req) {
+        std::cerr << "Failed to create request\n";
+        return "";
+    }
+
+    naettRes* res = naettMake(req);
+    if (!res) {
+        std::cerr << "Failed to make request\n";
+        naettFree(req);
+        return "";
+    }
+
+    while (!naettComplete(res)) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+
+    int status = naettGetStatus(res);
+    if (status < 0) {
+        std::cerr << "Request failed with status: " << status << std::endl;
+        naettClose(res);
+        naettFree(req);
+        return "";
+    }
+
+    int length = 0;
+    const char* responseBody = static_cast<const char*>(naettGetBody(res, &length));
+    if (!responseBody || length == 0) {
+        std::cerr << "Empty response body\n";
+        naettClose(res);
+        naettFree(req);
+        return "";
+    }
+
+    std::string result(responseBody, length);
+
+    naettClose(res);
+    naettFree(req);
+
+    return result;
 }
 
 #endif  // VORTEX_DISABLE

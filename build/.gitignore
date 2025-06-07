@@ -1,5 +1,10 @@
 build
 build_spdlog
+Release
+vortex_launcher_shared.dir
+vortex_launcher.dir
+ALL_BUILD.vcxproj
+ALL_BUILD.vcxproj.filters
 dist
 shipping
 .cmake
@@ -14,3 +19,14 @@ build.ninja
 cmake_install.cmake
 CMakeCache.txt
 compile_commands.json
+x64
+INSTALL.vcxproj
+INSTALL.vcxproj.filters
+vortex_launcher_shared.vcxproj
+vortex_launcher_shared.vcxproj.filters
+vortex_launcher.vcxproj.filters
+vortex_launcher.vcxproj
+ZERO_CHECK.vcxproj.filters
+ZERO_CHECK.vcxproj
+vortex_launcher.sln
+lib

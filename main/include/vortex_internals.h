@@ -40,6 +40,11 @@
 #include <immintrin.h>
 #endif
 
+#ifdef _WIN32
+#define popen _popen
+#define pclose _pclose
+#endif
+
 // Visual Studio warnings
 #ifdef _MSC_VER
 #pragma warning(push)
