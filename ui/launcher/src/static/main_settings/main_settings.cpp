@@ -165,7 +165,8 @@ namespace VortexLauncher {
         CherryGUI::PopStyleColor();
 
         CherryGUI::TableSetColumnIndex(1);
-        if (CherryKit::ButtonImageText(CherryID("delete_entry" + type + std::to_string(i)), "", Cherry::GetPath("resources/imgs/trash.png"))
+        if (CherryKit::ButtonImageText(
+                CherryID("delete_entry" + type + std::to_string(i)), "", Cherry::GetPath("resources/imgs/trash.png"))
                 ->GetData("isClicked") == "true") {
           list->erase(list->begin() + i);
           --i;
@@ -236,8 +237,8 @@ namespace VortexLauncher {
     vortexDists = config["vortex_dists"].get<std::vector<std::string>>();
     vortexLauncherDist = config["vortexlauncher_dist"].get<std::string>();
     std::string path = VortexMaker::getHomeDirectory() + "/.vx/configs/";
-    
-    #ifdef _WIN32
+
+#ifdef _WIN32
     path = VortexMaker::convertPathToWindowsStyle(path);
 #endif
 
@@ -263,10 +264,10 @@ namespace VortexLauncher {
 
     std::string path = VortexMaker::getHomeDirectory() + "/.vx/configs/";
 
-    #ifdef _WIN32
+#ifdef _WIN32
     path = VortexMaker::convertPathToWindowsStyle(path);
 #endif
-    
+
     saveProjects(m_ProjectPoolsPaths, path + "projects_pools.json");
     saveModules(m_ModulesPoolsPaths, path + "modules_pools.json");
     savePlugins(m_PluginsPoolsPaths, path + "plugins_pools.json");
