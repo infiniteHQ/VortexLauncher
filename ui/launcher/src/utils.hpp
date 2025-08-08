@@ -488,7 +488,7 @@ static void DownloadableVersionButton(
       btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));*/
 
       if (CherryKit::ButtonImageText("Already installed", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))
-              ->GetData("isClicked") == "true") {
+              .GetData("isClicked") == "true") {
         //
       }
       CherryGUI::EndDisabled();
@@ -504,7 +504,7 @@ static void DownloadableVersionButton(
       btn->SetBackgroundColorClicked("#00000000");*/
 
       if (CherryKit::ButtonImageText("Already installed", Cherry::GetPath("resources/imgs/icons/misc/icon_more.png"))
-              ->GetData("isClicked") == "true") {
+              .GetData("isClicked") == "true") {
         CherryGUI::OpenPopup(("OptionsMenu_" + envproject).c_str());
       }
 
@@ -537,7 +537,7 @@ static void DownloadableVersionButton(
     btn->SetBackgroundColorClicked("#00000000");*/
 
     if (CherryKit::ButtonImageText("Already installed", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))
-            ->GetData("isClicked") == "true") {
+            .GetData("isClicked") == "true") {
       std::thread([version, ctx, dist, arch, plat]() {
         VortexMaker::OpenVortexInstaller(version, arch, dist, plat);
 
@@ -619,7 +619,7 @@ static void InstalledVersionButton(
   btn->SetBorderColorIdle("#00000000");
   btn->SetBackgroundColorClicked("#00000000");*/
 
-  if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_more.png"))->GetData("isClicked") ==
+  if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_more.png")).GetData("isClicked") ==
       "true") {
     CherryGUI::OpenPopup(("OptionsMenu_" + bannerpath).c_str());
   }

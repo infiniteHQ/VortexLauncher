@@ -369,7 +369,7 @@ AssetFinder::AssetFinder(const std::string &name, const std::string &start_path)
       Cherry::SetNextComponentProperty("size_x", "15.0f");
       Cherry::SetNextComponentProperty("size_y", "15.0f");
       if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_arrow_l_disabled.png"))
-              ->GetData("isClicked") == "true") {
+              .GetData("isClicked") == "true") {
         //
       }
     } else {
@@ -377,7 +377,7 @@ AssetFinder::AssetFinder(const std::string &name, const std::string &start_path)
       Cherry::SetNextComponentProperty("size_x", "15.0f");
       Cherry::SetNextComponentProperty("size_y", "15.0f");
       if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_arrow_l_enabled.png"))
-              ->GetData("isClicked") == "true")
+              .GetData("isClicked") == "true")
 
       {
         GoBack();
@@ -393,7 +393,7 @@ AssetFinder::AssetFinder(const std::string &name, const std::string &start_path)
       Cherry::SetNextComponentProperty("size_x", "15.0f");
       Cherry::SetNextComponentProperty("size_y", "15.0f");
       if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_arrow_r_disabled.png"))
-              ->GetData("isClicked") == "true") {
+              .GetData("isClicked") == "true") {
         //
       }
     } else {
@@ -401,7 +401,7 @@ AssetFinder::AssetFinder(const std::string &name, const std::string &start_path)
       Cherry::SetNextComponentProperty("size_x", "15.0f");
       Cherry::SetNextComponentProperty("size_y", "15.0f");
       if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_arrow_r_enabled.png"))
-              ->GetData("isClicked") == "true") {
+              .GetData("isClicked") == "true") {
         GoForward();
       }
 
@@ -419,16 +419,16 @@ AssetFinder::AssetFinder(const std::string &name, const std::string &start_path)
 
   m_AppWindow->SetRightMenubarCallback([this]() {
     if (CherryKit::ButtonImageTextDropdown("Options", Cherry::GetPath("resources/imgs/icons/misc/icon_settings.png"))
-            ->GetData("isClicked") == "true") {
+            .GetData("isClicked") == "true") {
       m_GetFileBrowserPath = true;
     }
   });
 
   m_AppWindow->SetRightBottombarCallback([this]() {
-    CherryStyle::RemoveYMargin(10.0f);
-    CherryStyle::RemoveXMargin(75.0f);
+    CherryStyle::RemoveMarginY(10.0f);
+    CherryStyle::RemoveMarginX(75.0f);
     if (CherryKit::ButtonImageText("Cancel", Cherry::GetPath("resources/imgs/icons/misc/icon_return.png"))
-            ->GetData("isClicked") == "true") {
+            .GetData("isClicked") == "true") {
       m_GetFileBrowserPath = true;
     }
 
@@ -448,7 +448,7 @@ AssetFinder::AssetFinder(const std::string &name, const std::string &start_path)
       Cherry::SetNextComponentProperty("color_border", "#B1FF31");
     }
 
-    if (CherryKit::ButtonImageText(label, Cherry::GetPath("resources/imgs/add.png"))->GetData("isClicked") == "true") {
+    if (CherryKit::ButtonImageText(label, Cherry::GetPath("resources/imgs/add.png")).GetData("isClicked") == "true") {
       m_GetFileBrowserPath = true;
     }
 
@@ -869,9 +869,7 @@ void AssetFinder::DrawFolderIcon(ImVec2 pos, ImVec2 size, ImU32 color) {
 }
 
 void AssetFinder::FolderButton(const char *id, ImVec2 size, ImU32 color, const std::string &path) {
-  if (CherryKit::WidgetFolder(
-          Cherry::IdentifierPattern(Cherry::IdentifierProperty::Inline, path), "#c2a24c", size.x, size.y - 2)
-          ->GetData("isDoubleClicked") == "true") {
+  if (CherryKit::WidgetFolder("#c2a24c", size.x, size.y - 2).GetData("isDoubleClicked") == "true") {
     ChangeDirectory(path);
   }
 }
@@ -938,7 +936,7 @@ void AssetFinder::RenderSideBar() {
   CherryKit::SeparatorText("Installation target");
   CherryGUI::SetNextItemWidth(230.0f);
   auto combo = CherryKit::ComboText("", &m_TargetPossibilities);
-  m_TargetPoolIndex = std::stoi(combo->GetProperty("selected"));
+  m_TargetPoolIndex = std::stoi(combo.GetProperty("selected"));
 
   CherryKit::SeparatorText("Quick access");
 
@@ -953,7 +951,7 @@ void AssetFinder::RenderSideBar() {
   CherryNextProp("size_x", "20");
   CherryNextProp("size_y", "20");
   CherryGUI::SetCursorPosX(CherryGUI::GetCursorPosX() + 7.5f);
-  if (CherryKit::ButtonImageText("Home", Cherry::GetPath("resources/imgs/icons/misc/icon_home.png"))->GetData("isClicked") ==
+  if (CherryKit::ButtonImageText("Home", Cherry::GetPath("resources/imgs/icons/misc/icon_home.png")).GetData("isClicked") ==
       "true") {
     m_CurrentDirectory = GetUserDirectory("");
   }
@@ -966,7 +964,7 @@ void AssetFinder::RenderSideBar() {
   CherryNextProp("size_y", "20");
   CherryGUI::SetCursorPosX(CherryGUI::GetCursorPosX() + 7.5f);
   if (CherryKit::ButtonImageText("Desktop", Cherry::GetPath("resources/imgs/icons/misc/icon_desktop.png"))
-          ->GetData("isClicked") == "true") {
+          .GetData("isClicked") == "true") {
     m_CurrentDirectory = GetUserDirectory("DESKTOP");
   }
 
@@ -978,7 +976,7 @@ void AssetFinder::RenderSideBar() {
   CherryNextProp("size_y", "20");
   CherryGUI::SetCursorPosX(CherryGUI::GetCursorPosX() + 7.5f);
   if (CherryKit::ButtonImageText("Download", Cherry::GetPath("resources/imgs/icons/misc/icon_star.png"))
-          ->GetData("isClicked") == "true") {
+          .GetData("isClicked") == "true") {
     m_CurrentDirectory = GetUserDirectory("DOWNLOAD");
   }
 
@@ -990,7 +988,7 @@ void AssetFinder::RenderSideBar() {
   CherryNextProp("size_y", "20");
   CherryGUI::SetCursorPosX(CherryGUI::GetCursorPosX() + 7.5f);
   if (CherryKit::ButtonImageText("Documents", Cherry::GetPath("resources/imgs/icons/misc/icon_docs.png"))
-          ->GetData("isClicked") == "true") {
+          .GetData("isClicked") == "true") {
     m_CurrentDirectory = GetUserDirectory("DOCUMENTS");
   }
 
@@ -1002,7 +1000,7 @@ void AssetFinder::RenderSideBar() {
   CherryNextProp("size_y", "20");
   CherryGUI::SetCursorPosX(CherryGUI::GetCursorPosX() + 7.5f);
   if (CherryKit::ButtonImageText("Pictures", Cherry::GetPath("resources/imgs/icons/misc/icon_pictures.png"))
-          ->GetData("isClicked") == "true") {
+          .GetData("isClicked") == "true") {
     m_CurrentDirectory = GetUserDirectory("PICTURES");
   }
 
@@ -1014,7 +1012,7 @@ void AssetFinder::RenderSideBar() {
   CherryNextProp("size_y", "20");
   CherryGUI::SetCursorPosX(CherryGUI::GetCursorPosX() + 7.5f);
   if (CherryKit::ButtonImageText("Music", Cherry::GetPath("resources/imgs/icons/misc/icon_music.png"))
-          ->GetData("isClicked") == "true") {
+          .GetData("isClicked") == "true") {
     m_CurrentDirectory = GetUserDirectory("MUSIC");
   }
 

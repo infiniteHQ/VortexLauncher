@@ -167,7 +167,7 @@ namespace VortexLauncher {
         CherryGUI::TableSetColumnIndex(1);
         if (CherryKit::ButtonImageText(
                 CherryID("delete_entry" + type + std::to_string(i)), "", Cherry::GetPath("resources/imgs/trash.png"))
-                ->GetData("isClicked") == "true") {
+                .GetData("isClicked") == "true") {
           list->erase(list->begin() + i);
           --i;
         }
@@ -181,7 +181,7 @@ namespace VortexLauncher {
 
     if (CherryKit::ButtonImageText(
             CherryID("add_entry" + type), "", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))
-            ->GetData("isClicked") == "true") {
+            .GetData("isClicked") == "true") {
       if (!newPath->empty()) {
         list->push_back(*newPath);
         newPath->clear();
@@ -306,7 +306,7 @@ namespace VortexLauncher {
                       "Learn and Documentation",
                       Cherry::GetPath("resources/imgs/icons/launcher/docs.png"),
                       Cherry::GetPath("resources/imgs/weblink.png"))
-                      ->GetData("isClicked") == "true") {
+                      .GetData("isClicked") == "true") {
                 VortexMaker::OpenURL("https://vortex.infinite.si/learn");
               }
             },
@@ -359,7 +359,7 @@ namespace VortexLauncher {
               Cherry::SetNextComponentProperty("padding_x", "8");
               Cherry::SetNextComponentProperty("padding_y", "4");
               if (CherryKit::ButtonImageText("Refresh", Cherry::GetPath("resources/imgs/icons/misc/icon_refresh.png"))
-                      ->GetData("isClicked") == "true") {
+                      .GetData("isClicked") == "true") {
                 RefreshConfig();
               }
 
@@ -368,7 +368,7 @@ namespace VortexLauncher {
               Cherry::SetNextComponentProperty("padding_x", "8");
               Cherry::SetNextComponentProperty("padding_y", "4");
               if (CherryKit::ButtonImageText("Save", Cherry::GetPath("resources/imgs/icons/misc/icon_refresh.png"))
-                      ->GetData("isClicked") == "true") {
+                      .GetData("isClicked") == "true") {
                 SaveCurrentConfig();
               }
 
@@ -426,7 +426,7 @@ namespace VortexLauncher {
               Cherry::SetNextComponentProperty("padding_x", "8");
               Cherry::SetNextComponentProperty("padding_y", "4");
               if (CherryKit::ButtonImageText("Refresh", Cherry::GetPath("resources/imgs/icons/misc/icon_refresh.png"))
-                      ->GetData("isClicked") == "true") {
+                      .GetData("isClicked") == "true") {
                 RefreshConfig();
               }
 
@@ -435,7 +435,7 @@ namespace VortexLauncher {
               Cherry::SetNextComponentProperty("padding_x", "8");
               Cherry::SetNextComponentProperty("padding_y", "4");
               if (CherryKit::ButtonImageText("Save", Cherry::GetPath("resources/imgs/icons/misc/icon_refresh.png"))
-                      ->GetData("isClicked") == "true") {
+                      .GetData("isClicked") == "true") {
                 SaveCurrentConfig();
               }
 
@@ -467,7 +467,7 @@ namespace VortexLauncher {
                                         CherryID("delete" + std::to_string(i)),
                                         "",
                                         Cherry::GetPath("resources/imgs/trash.png"))
-                                        ->GetData("isClicked") == "true") {
+                                        .GetData("isClicked") == "true") {
                                   vortexDists.erase(vortexDists.begin() + i);
                                   --i;
                                 }
@@ -478,7 +478,7 @@ namespace VortexLauncher {
                             CherryKit::InputString("Add", &newDist);
                             CherryGUI::SameLine();
                             if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/base/add.png"))
-                                    ->GetData("isClicked") == "true") {
+                                    .GetData("isClicked") == "true") {
                               vortexDists.push_back(newDist);
                             }
                           }),
@@ -552,7 +552,7 @@ namespace VortexLauncher {
     std::string label = "left_pane" + m_AppWindow->m_Name;
     CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
     CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#00000000"));
-    CherryGUI::PushStyleVar(ImGuiStyleVar_ChildRounding, ImVec2(0.0f, 0.0f));
+    CherryGUI::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
     CherryGUI::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0.0f, 0.0f));
     CherryGUI::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     CherryGUI::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
@@ -587,8 +587,8 @@ namespace VortexLauncher {
       CherryNextProp("size_y", "20");
       CherryGUI::SetCursorPosX(CherryGUI::GetCursorPosX() + 7.5f);
 
-      if (CherryKit::ButtonImageText(CherryID(child_name), child_name.c_str(), child.second.LogoPath)
-              ->GetData("isClicked") == "true") {
+      if (CherryKit::ButtonImageText(CherryID(child_name), child_name.c_str(), child.second.LogoPath).GetData("isClicked") ==
+          "true") {
         m_SelectedChildName = child.first;
       }
 

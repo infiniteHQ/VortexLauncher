@@ -78,7 +78,7 @@ namespace VortexLauncher {
                       "Learn and Documentation",
                       Cherry::GetPath("resources/imgs/icons/launcher/docs.png"),
                       Cherry::GetPath("resources/imgs/weblink.png"))
-                      ->GetData("isClicked") == "true") {
+                      .GetData("isClicked") == "true") {
                 VortexMaker::OpenURL("https://vortex.infinite.si/learn");
               }
             },
@@ -87,7 +87,7 @@ namespace VortexLauncher {
         "Plugins",
         LogicalContentManagerChild(
             [this]() {
-              static std::vector<std::shared_ptr<Cherry::Component>> plugins_block;
+              static std::vector<Cherry::Component> plugins_block;
               static bool delete_plugin_modal_opened = false;
               static bool import_plugin_modal_opened = false;
               static std::shared_ptr<PluginInterface> plugin_to_delete = nullptr;
@@ -109,7 +109,7 @@ namespace VortexLauncher {
               CherryStyle::AddMarginX(10.0f);
               Cherry::SetNextComponentProperty("padding_x", "8");
               Cherry::SetNextComponentProperty("padding_y", "4");
-              if (CherryKit::ButtonImageText("Import", Cherry::GetPath("resources/base/add.png"))->GetData("isClicked") ==
+              if (CherryKit::ButtonImageText("Import", Cherry::GetPath("resources/base/add.png")).GetData("isClicked") ==
                   "true") {
                 m_AssetFinder = AssetFinder::Create("Import plugins(s)", VortexMaker::getHomeDirectory());
                 Cherry::ApplicationSpecification spec;
@@ -158,7 +158,7 @@ namespace VortexLauncher {
               Cherry::SetNextComponentProperty("padding_y", "4");
 
               if (CherryKit::ButtonImageText("Browse", Cherry::GetPath("resources/imgs/icons/misc/icon_net.png"))
-                      ->GetData("isClicked") == "true") {
+                      .GetData("isClicked") == "true") {
                 m_WipNotification = true;
               }
 
@@ -207,13 +207,13 @@ namespace VortexLauncher {
                 CherryKit::Separator();
 
                 if (CherryKit::ButtonImageText("Cancel", Cherry::GetPath("resources/imgs/icons/misc/icon_return.png"))
-                        ->GetData("isClicked") == "true") {
+                        .GetData("isClicked") == "true") {
                   delete_plugin_modal_opened = false;
                 }
                 CherryGUI::SameLine();
 
                 if (CherryKit::ButtonImageText("Confirm Delete", Cherry::GetPath("resources/imgs/trash.png"))
-                        ->GetData("isClicked") == "true") {
+                        .GetData("isClicked") == "true") {
                   VortexMaker::DeleteSystemPlugin(plugin_to_delete->m_name, plugin_to_delete->m_version);
                   plugins_block.clear();
                   VortexMaker::LoadSystemPlugins(VortexMaker::GetCurrentContext()->IO.sys_ep);
@@ -224,7 +224,6 @@ namespace VortexLauncher {
               if (plugins_block.empty()) {
                 for (auto sysplugin : VortexMaker::GetCurrentContext()->IO.sys_ep) {
                   plugins_block.push_back(CherryKit::BlockVerticalCustom(
-                      Cherry::IdentifierPattern(Cherry::IdentifierProperty::CreateOnly, sysplugin->m_name),
                       m_CreateProjectCallback,
                       200.0f,
                       130.0f,
@@ -241,7 +240,7 @@ namespace VortexLauncher {
                           },
                           [sysplugin]() {
                             CherryStyle::AddMarginX(5.0f);
-                            CherryStyle::RemoveYMargin(5.0f);
+                            CherryStyle::RemoveMarginY(5.0f);
                             Cherry::SetNextComponentProperty("color_text", "#686868");
                             CherryKit::TextSimple(sysplugin->m_version);
 
@@ -274,14 +273,14 @@ namespace VortexLauncher {
                             Cherry::SetNextComponentProperty("color", "#353535");
                             CherryKit::Separator();
 
-                            CherryStyle::RemoveYMargin(20.0f);
+                            CherryStyle::RemoveMarginY(20.0f);
                             CherryGUI::BeginChild("###action_bar", ImVec2(200, 50), false, ImGuiWindowFlags_NoScrollbar);
                             CherryStyle::AddMarginX(5.0f);
                             Cherry::SetNextComponentProperty("color_text", "#888888");
 
                             CherryGUI::SameLine();
                             if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/trash.png"))
-                                    ->GetData("isClicked") == "true") {
+                                    .GetData("isClicked") == "true") {
                               std::cout << "True" << std::endl;
 
                               plugin_to_delete = sysplugin;
@@ -292,7 +291,7 @@ namespace VortexLauncher {
 
                             if (CherryKit::ButtonImageText(
                                     "", Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"))
-                                    ->GetData("isClicked") == "true") {
+                                    .GetData("isClicked") == "true") {
                               VortexMaker::OpenFolderInFileManager(sysplugin->m_path);
                             }
 
@@ -304,7 +303,7 @@ namespace VortexLauncher {
 
               // Draw grid with blocks
               Cherry::PushPermanentProperty("block_border_radius", "6.0");
-              CherryKit::GridSimple(270.0f, 270.0f, &plugins_block);
+              CherryKit::GridSimple(270.0f, 270.0f, plugins_block);
               Cherry::PopPermanentProperty();
             },
             Cherry::GetPath("resources/imgs/plug.png")));
@@ -312,7 +311,7 @@ namespace VortexLauncher {
         "Modules",
         LogicalContentManagerChild(
             [this]() {
-              static std::vector<std::shared_ptr<Cherry::Component>> modules_block;
+              static std::vector<Cherry::Component> modules_block;
               static bool delete_module_modal_opened = false;
               static bool import_module_modal_opened = false;
               static std::shared_ptr<ModuleInterface> module_to_delete = nullptr;
@@ -334,7 +333,7 @@ namespace VortexLauncher {
               CherryStyle::AddMarginX(10.0f);
               Cherry::SetNextComponentProperty("padding_x", "8");
               Cherry::SetNextComponentProperty("padding_y", "4");
-              if (CherryKit::ButtonImageText("Import", Cherry::GetPath("resources/base/add.png"))->GetData("isClicked") ==
+              if (CherryKit::ButtonImageText("Import", Cherry::GetPath("resources/base/add.png")).GetData("isClicked") ==
                   "true") {
                 m_AssetFinder = AssetFinder::Create("Import module(s)", VortexMaker::getHomeDirectory());
                 Cherry::ApplicationSpecification spec;
@@ -382,7 +381,7 @@ namespace VortexLauncher {
               Cherry::SetNextComponentProperty("padding_x", "8");
               Cherry::SetNextComponentProperty("padding_y", "4");
               if (CherryKit::ButtonImageText("Browse", Cherry::GetPath("resources/imgs/icons/misc/icon_net.png"))
-                      ->GetData("isClicked") == "true") {
+                      .GetData("isClicked") == "true") {
                 m_WipNotification = true;
               }
               CherryNextProp("color", "#252525");
@@ -430,13 +429,13 @@ namespace VortexLauncher {
                 CherryKit::Separator();
 
                 if (CherryKit::ButtonImageText("Cancel", Cherry::GetPath("resources/imgs/icons/misc/icon_return.png"))
-                        ->GetData("isClicked") == "true") {
+                        .GetData("isClicked") == "true") {
                   delete_module_modal_opened = false;
                 }
                 CherryGUI::SameLine();
 
                 if (CherryKit::ButtonImageText("Confirm Delete", Cherry::GetPath("resources/imgs/trash.png"))
-                        ->GetData("isClicked") == "true") {
+                        .GetData("isClicked") == "true") {
                   VortexMaker::DeleteSystemModule(module_to_delete->m_name, module_to_delete->m_version);
                   modules_block.clear();
                   VortexMaker::LoadSystemModules(VortexMaker::GetCurrentContext()->IO.sys_em);
@@ -447,7 +446,6 @@ namespace VortexLauncher {
               if (modules_block.empty()) {
                 for (auto sysmodule : VortexMaker::GetCurrentContext()->IO.sys_em) {
                   modules_block.push_back(CherryKit::BlockVerticalCustom(
-                      Cherry::IdentifierPattern(Cherry::IdentifierProperty::CreateOnly, sysmodule->m_name),
                       m_CreateProjectCallback,
                       269.0f,
                       160.0f,
@@ -462,7 +460,7 @@ namespace VortexLauncher {
                             }
                           },
                           [sysmodule]() {
-                            CherryStyle::RemoveYMargin(35.0f);
+                            CherryStyle::RemoveMarginY(35.0f);
                             CherryStyle::AddMarginX(10.0f);
                             CherryKit::ImageLocal(Cherry::GetPath(sysmodule->m_logo_path), 40.0f, 40.0f);
                           },
@@ -503,14 +501,14 @@ namespace VortexLauncher {
                             Cherry::SetNextComponentProperty("color", "#353535");
                             CherryKit::Separator();
 
-                            CherryStyle::RemoveYMargin(20.0f);
+                            CherryStyle::RemoveMarginY(20.0f);
                             CherryGUI::BeginChild("###action_bar", ImVec2(200, 50), false, ImGuiWindowFlags_NoScrollbar);
                             CherryStyle::AddMarginX(5.0f);
                             Cherry::SetNextComponentProperty("color_text", "#888888");
 
                             CherryGUI::SameLine();
                             if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/trash.png"))
-                                    ->GetData("isClicked") == "true") {
+                                    .GetData("isClicked") == "true") {
                               std::cout << "True" << std::endl;
 
                               module_to_delete = sysmodule;
@@ -521,7 +519,7 @@ namespace VortexLauncher {
 
                             if (CherryKit::ButtonImageText(
                                     "", Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"))
-                                    ->GetData("isClicked") == "true") {
+                                    .GetData("isClicked") == "true") {
                               VortexMaker::OpenFolderInFileManager(sysmodule->m_path);
                             }
 
@@ -533,7 +531,7 @@ namespace VortexLauncher {
 
               // Draw grid with blocks
               Cherry::PushPermanentProperty("block_border_radius", "6.0");
-              CherryKit::GridSimple(270.0f, 270.0f, &modules_block);
+              CherryKit::GridSimple(270.0f, 270.0f, modules_block);
               Cherry::PopPermanentProperty();
             },
             Cherry::GetPath("resources/imgs/box.png")));
@@ -648,8 +646,8 @@ namespace VortexLauncher {
 
       // SetProperty("padding_x", "10");
 
-      if (CherryKit::ButtonImageText(CherryID(child_name), child_name.c_str(), child.second.LogoPath)
-              ->GetData("isClicked") == "true") {
+      if (CherryKit::ButtonImageText(CherryID(child_name), child_name.c_str(), child.second.LogoPath).GetData("isClicked") ==
+          "true") {
         m_SelectedChildName = child.first;
       }
 
@@ -659,14 +657,14 @@ namespace VortexLauncher {
         Cherry::SetNextComponentProperty("color_text", "#676767");
         CherryStyle::AddMarginY(3.5f);
         CherryKit::TextSimple("(" + std::to_string(VortexMaker::GetCurrentContext()->IO.sys_em.size()) + ")");
-        CherryStyle::RemoveYMargin(3.5f);
+        CherryStyle::RemoveMarginY(3.5f);
       } else if (child_name == "Plugins")  // TODO (WARN) : Prepare to locales
       {
         CherryGUI::SameLine();
         Cherry::SetNextComponentProperty("color_text", "#676767");
         CherryStyle::AddMarginY(3.5f);
         CherryKit::TextSimple("(" + std::to_string(VortexMaker::GetCurrentContext()->IO.sys_ep.size()) + ")");
-        CherryStyle::RemoveYMargin(3.5f);
+        CherryStyle::RemoveMarginY(3.5f);
       }
 
       // if (Cherry::TextButtonUnderline(child_name.c_str(), true, opt))

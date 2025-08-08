@@ -270,7 +270,11 @@ class Launcher {
 static std::shared_ptr<Launcher> c_Launcher;
 
 Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
-  std::cout << "CreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplication" << std::endl;
+  std::cout << "CreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreate"
+               "ApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplic"
+               "ationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationC"
+               "reateApplicationCreateApplicationCreateApplication"
+            << std::endl;
   Cherry::ApplicationSpecification spec;
   std::shared_ptr<Layer> layer = std::make_shared<Layer>();
 
@@ -296,6 +300,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
   app->AddFont("Consola", Cherry::GetPath("resources/fonts/consola.ttf"), 17.0f);
   app->AddFont("ASMAN", Cherry::GetPath("resources/fonts/ASMAN.TFF"), 17.0f);
   app->AddFont("ClashBold", Cherry::GetPath("resources/fonts/ClashDisplay-Semibold.ttf"), 20.0f);
+  app->AddFont("ClashMedium", Cherry::GetPath("resources/fonts/ClashDisplay-Medium.ttf"), 20.0f);
   app->AddFont("FiraCode", Cherry::GetPath("resources/fonts/FiraCode-Medium.ttf"), 20.0f);
 
   app->AddLocale("fr", Cherry::GetPath("resources/locales/fr.json"));
@@ -350,7 +355,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
         "A new update for the launcher is available !" + ctx.latest_launcher_version.version,
         []() {
           if (CherryKit::ButtonImageText("Update now", Cherry::GetPath("resources/imgs/icons/misc/icon_upgrade.png"))
-                  ->GetData("isClicked") == "true") {
+                  .GetData("isClicked") == "true") {
             std::thread([]() {
               VortexMaker::OpenLauncherUpdater(
                   VortexMaker::GetCurrentContext()->m_VortexLauncherPath,
@@ -381,7 +386,7 @@ btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_upgrade.png"))
 
 },
 []() { return (CherryKit::ButtonImageText("",
-Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"))->GetData("isClicked") == "true"); },  // Wrap Render in a lambda
+Cherry::GetPath("resources/imgs/icons/misc/icon_close.png")).GetData("isClicked") == "true"); },  // Wrap Render in a lambda
 nullptr,
 Cherry::GetTexture(Cherry::GetPath("resources/imgs/icon_update.png"))
 );
@@ -411,7 +416,7 @@ create_project_button->SetLogoSize(15, 15);
 create_project_button->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_upgrade.png"));*
       },
 []() { return (CherryKit::ButtonImageText("",
-Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"))->GetData("isClicked") == "true"); }
+Cherry::GetPath("resources/imgs/icons/misc/icon_close.png")).GetData("isClicked") == "true"); }
 );
       toast.setTitle("Vortex %s is live !", ctx.latest_vortex_version.version.c_str());
       toast.setContent("A new update of Vortex is available ! Try it now");

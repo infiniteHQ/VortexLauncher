@@ -295,12 +295,12 @@ FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::s
 
     if (m_BackHistory.empty()) {
       if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_arrow_l_disabled.png"))
-              ->GetData("isClicked") == "true") {
+              .GetData("isClicked") == "true") {
         //
       }
     } else {
       if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_arrow_l_disabled.png"))
-              ->GetData("isClicked") == "true")
+              .GetData("isClicked") == "true")
 
       {
         GoBack();
@@ -313,12 +313,12 @@ FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::s
 
     if (m_ForwardHistory.empty()) {
       if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_arrow_r_disabled.png"))
-              ->GetData("isClicked") == "true") {
+              .GetData("isClicked") == "true") {
         //
       }
     } else {
       if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_arrow_r_disabled.png"))
-              ->GetData("isClicked") == "true") {
+              .GetData("isClicked") == "true") {
         GoForward();
       }
 
@@ -342,7 +342,7 @@ FileBrowserAppWindow::FileBrowserAppWindow(const std::string &name, const std::s
                                                  del_btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_magnifying_glass.png"));*/
 
     if (CherryKit::ButtonImageText("Done", Cherry::GetPath("resources/imgs/icons/misc/icon_magnifying_glass.png"))
-            ->GetData("isClicked") == "true") {
+            .GetData("isClicked") == "true") {
       m_GetFileBrowserPath = true;
     }
     CherryGUI::EndChildFrame();

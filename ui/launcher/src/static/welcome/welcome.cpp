@@ -27,7 +27,17 @@ namespace VortexLauncher {
     // CherryKit::TableSimple("", { CherryKit::KeyValString("Project name", &test) });
 
     // Cherry::SetNextComponentProperty("color_text", "#B1FF31"); // Todo remplace
+    {
+      float x = ImGui::GetContentRegionAvail().x;
+      float y = x / 4.726f;
+      CherryKit::ImageLocalCentered(Cherry::GetPath("resources/imgs/vortex_banner.png"), x, y);
+    }
     Cherry::PushFont("ClashBold");
+    CherryNextProp("color_text", "#BBBBBB");
+    CherryKit::TitleOne(Cherry::GetLocale("loc.windows.welcome.overview"));
+    Cherry::PopFont();
+    CherryNextProp("color", "#252525");
+    Cherry::PushFont("ClashMedium");
     CherryNextProp("color_text", "#BBBBBB");
     CherryKit::TitleOne(Cherry::GetLocale("loc.windows.welcome.overview"));
     Cherry::PopFont();
@@ -39,11 +49,10 @@ namespace VortexLauncher {
     CherryNextProp("color_text", "#797979");
     CherryKit::TitleSix("Fast actions");
 
-    static std::vector<std::shared_ptr<Cherry::Component>> actions_blocks;
+    static std::vector<Cherry::Component> actions_blocks;
 
     if (actions_blocks.empty()) {
       actions_blocks.push_back(CherryKit::BlockVerticalCustom(
-          Cherry::IdentifierProperty::CreateOnly,
           m_CreateProjectCallback,
           269.0f,
           120.0f,
@@ -55,7 +64,6 @@ namespace VortexLauncher {
           }));
 
       actions_blocks.push_back(CherryKit::BlockVerticalCustom(
-          Cherry::IdentifierProperty::CreateOnly,
           m_OpenProjectCallback,
           269.0f,
           120.0f,
@@ -67,7 +75,6 @@ namespace VortexLauncher {
           }));
 
       actions_blocks.push_back(CherryKit::BlockVerticalCustom(
-          Cherry::IdentifierProperty::CreateOnly,
           m_SettingsCallback,
           269.0f,
           120.0f,
@@ -80,14 +87,14 @@ namespace VortexLauncher {
     }
 
     // Draw grid with blocks
-    CherryKit::GridSimple(270.0f, 270.0f, &actions_blocks);
+    CherryKit::GridSimple(270.0f, 270.0f, actions_blocks);
 
     CherryKit::Space(5.0f);
 
     CherryNextProp("color_text", "#797979");
     CherryKit::TitleSix("Latest projects & tools");
 
-    static std::vector<std::shared_ptr<Cherry::Component>> blocks;
+    static std::vector<Cherry::Component> blocks;
 
     if (blocks.empty()) {
       auto recentProjects = VortexMaker::GetRecentProjects(4);
@@ -96,7 +103,6 @@ namespace VortexLauncher {
       for (auto project : recentProjects) {
         if (project) {
           blocks.push_back(CherryKit::BlockVerticalCustom(
-              Cherry::IdentifierProperty::CreateOnly,
               [=]() { m_ProjectCallback(project); },
               200.0f,
               120.0f,
@@ -108,7 +114,7 @@ namespace VortexLauncher {
                   },
                   [=]() {
                     CherryStyle::AddMarginX(5.0f);
-                    CherryStyle::RemoveYMargin(5.0f);
+                    CherryStyle::RemoveMarginY(5.0f);
                     CherryStyle::PushFontSize(0.70f);
                     CherryKit::TextSimple(project->lastOpened);
                     CherryStyle::PopFontSize();
@@ -131,7 +137,6 @@ namespace VortexLauncher {
           str2 = "Create another :)";
         }
         blocks.push_back(CherryKit::BlockVerticalCustom(
-            Cherry::IdentifierProperty::CreateOnly,
             m_CreateProjectCallback,
             200.0f,
             120.0f,
@@ -152,7 +157,7 @@ namespace VortexLauncher {
         i++;
       }
     }
-    CherryKit::GridSimple(200.0f, 200.0f, &blocks);
+    CherryKit::GridSimple(200.0f, 200.0f, blocks);
 
     CherryKit::Space(20.0f);
     CherryNextProp("color", "#222222");
@@ -163,17 +168,12 @@ namespace VortexLauncher {
     Cherry::PopFont();
     CherryKit::Separator();
 
-    static std::vector<std::shared_ptr<Cherry::Component>> news_blocks;
+    static std::vector<Cherry::Component> news_blocks;
 
     if (VortexMaker::GetCurrentContext()->IO.offline) {
       if (news_blocks.empty()) {
         auto block = CherryKit::BannerImageContext(
-            Cherry::IdentifierProperty::CreateOnly,
-            402.0f,
-            140.0f,
-            Cherry::GetPath("resources/imgs/vortex_banner_disconnected.png"),
-            "",
-            "");
+            402.0f, 140.0f, Cherry::GetPath("resources/imgs/vortex_banner_disconnected.png"), "", "");
         news_blocks.push_back(block);
         news_blocks.push_back(block);
       }
@@ -183,21 +183,15 @@ namespace VortexLauncher {
           if (!article.image_link.empty() &&
               (EndsWith(article.image_link, ".png") || EndsWith(article.image_link, ".jpg")) &&
               (article.image_link.find("http://") == 0 || article.image_link.find("https://") == 0)) {
-            
-                auto block = CherryKit::BannerImageContext(
-                Cherry::IdentifierProperty::CreateOnly,
-                402.0f,
-                140.0f,
-                Cherry::GetHttpPath(article.image_link),
-                article.title,
-                article.description);
+            auto block = CherryKit::BannerImageContext(
+                402.0f, 140.0f, Cherry::GetHttpPath(article.image_link), article.title, article.description);
             news_blocks.push_back(block);
           }
         }
       }
     }
 
-    CherryKit::GridSimple(400.0f, 400.0f, &news_blocks);
+    CherryKit::GridSimple(400.0f, 400.0f, news_blocks);
 
     /*CherryKit::Space(20.0f);
     Cherry::PushFont("ClashBold");
@@ -226,7 +220,7 @@ namespace VortexLauncher {
                   /*CherryLambda
                   (
                       CherryStyle::AddMarginX(5.0f);
-                      CherryStyle::RemoveYMargin(5.0f);
+                      CherryStyle::RemoveMarginY(5.0f);
                       CherryStyle::PushFontSize(0.70f);
                       CherryKit::TextSimple(version.already_installed);
                       CherryStyle::PopFontSize();
@@ -241,7 +235,7 @@ namespace VortexLauncher {
 
 CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
 */
-  std::cout << "dg" << std::endl;
+    std::cout << "dg" << std::endl;
   }
 
   WelcomeWindow::WelcomeWindow(const std::string &name) {
@@ -343,15 +337,14 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
   }
 
   void WelcomeWindow::Render() {
-    
-  std::cout << "comeWindow::RendercomeWindow::RendercomeWindow::RendercomeWindow::Render" << std::endl;
+    std::cout << "comeWindow::RendercomeWindow::RendercomeWindow::RendercomeWindow::Render" << std::endl;
     const float minPaneWidth = 50.0f;
     const float splitterWidth = 1.5f;
 
     std::string label = "left_pane" + m_AppWindow->m_Name;
     CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
     CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#00000000"));
-    CherryGUI::PushStyleVar(ImGuiStyleVar_ChildRounding, ImVec2(0.0f, 0.0f));
+    CherryGUI::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
     CherryGUI::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0.0f, 0.0f));
     CherryGUI::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     CherryGUI::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
@@ -401,7 +394,7 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
                 child_name.c_str(),
                 child.second.LogoPath,
                 Cherry::GetPath("resources/imgs/weblink.png"))
-                ->GetData("isClicked") == "true") {
+                .GetData("isClicked") == "true") {
           VortexMaker::OpenURL(child.second.WebLink);
         }
       }
@@ -440,5 +433,5 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
 
     CherryGUI::EndGroup();
   }
-  
+
 }  // namespace VortexLauncher

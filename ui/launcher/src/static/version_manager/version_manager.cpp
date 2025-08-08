@@ -68,7 +68,7 @@ namespace VortexLauncher {
                       "Learn and Documentation",
                       Cherry::GetPath("resources/imgs/icons/launcher/docs.png"),
                       Cherry::GetPath("resources/imgs/weblink.png"))
-                      ->GetData("isClicked") == "true") {
+                      .GetData("isClicked") == "true") {
                 VortexMaker::OpenURL("https://vortex.infinite.si/learn");
               }
             },
@@ -95,7 +95,7 @@ namespace VortexLauncher {
 
               if (CherryKit::ButtonImageText(
                       "Import a version", Cherry::GetPath("resources/imgs/icons/misc/icon_import.png"))
-                      ->GetData("isClicked") == "true") {
+                      .GetData("isClicked") == "true") {
                 m_WipNotification = true;
                 // TODO Open local importation modal
               }
@@ -140,7 +140,7 @@ namespace VortexLauncher {
                                     CherryID("available_versions_reinstall" + std::to_string(i)),
                                     "Reinstall",
                                     Cherry::GetPath("resources/imgs/icons/misc/icon_settings.png"))
-                                    ->GetData("isClicked") == "true") {
+                                    .GetData("isClicked") == "true") {
                               std::thread([available_version]() {
                                 VortexMaker::OpenVortexUninstaller(available_version->path);
                                 VortexMaker::OpenVortexInstaller(
@@ -158,7 +158,7 @@ namespace VortexLauncher {
                                     CherryID("available_versions" + std::to_string(i)),
                                     "Install",
                                     Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))
-                                    ->GetData("isClicked") == "true") {
+                                    .GetData("isClicked") == "true") {
                               std::thread([available_version]() {
                                 VortexMaker::OpenVortexInstaller(
                                     available_version->version,
@@ -177,7 +177,7 @@ namespace VortexLauncher {
                                   CherryID("available_versions_install" + std::to_string(i)),
                                   "Install",
                                   Cherry::GetPath("resources/base/add.png"))
-                                  ->GetData("isClicked") == "true") {
+                                  .GetData("isClicked") == "true") {
                             VortexMaker::OpenVortexInstaller(
                                 available_version->version,
                                 available_version->arch,
@@ -224,7 +224,7 @@ namespace VortexLauncher {
               Cherry::SetNextComponentProperty("padding_x", "8");
               Cherry::SetNextComponentProperty("padding_y", "4");
               if (CherryKit::ButtonImageText("Add new version", Cherry::GetPath("resources/base/add.png"))
-                      ->GetData("isClicked") == "true") {
+                      .GetData("isClicked") == "true") {
                 m_SelectedChildName = "Install new version";
               }
 
@@ -254,7 +254,7 @@ namespace VortexLauncher {
                                 CherryID("versions_render_callbacks" + std::to_string(i)),
                                 "Delete",
                                 Cherry::GetPath("resources/imgs/trash.png"))
-                                ->GetData("isClicked") == "true") {
+                                .GetData("isClicked") == "true") {
                           std::thread([version]() { VortexMaker::OpenVortexUninstaller(version->path); }).detach();
                         }
                         CherryGUI::SameLine();
@@ -262,7 +262,7 @@ namespace VortexLauncher {
                                 CherryID("versions_render_callbacks_search" + std::to_string(i)),
                                 "",
                                 Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"))
-                                ->GetData("isClicked") == "true") {
+                                .GetData("isClicked") == "true") {
                           VortexMaker::OpenFolderInFileManager(version->path);
                         }
 
@@ -390,8 +390,8 @@ namespace VortexLauncher {
       CherryNextProp("size_y", "20");
       CherryGUI::SetCursorPosX(CherryGUI::GetCursorPosX() + 7.5f);
 
-      if (CherryKit::ButtonImageText(CherryID(child_name), child_name.c_str(), child.second.LogoPath)
-              ->GetData("isClicked") == "true") {
+      if (CherryKit::ButtonImageText(CherryID(child_name), child_name.c_str(), child.second.LogoPath).GetData("isClicked") ==
+          "true") {
         m_SelectedChildName = child.first;
       }
 

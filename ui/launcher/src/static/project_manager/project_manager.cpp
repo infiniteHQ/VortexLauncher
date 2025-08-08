@@ -19,7 +19,7 @@ static std::string no_installed_project_name;
 static std::string no_installed_project_picture;
 static VortexVersion no_installed_version_available;
 
-static std::vector<std::shared_ptr<Cherry::Component>> project_blocks;
+static std::vector<Cherry::Component> project_blocks;
 
 static void MyButton(
     const std::shared_ptr<EnvProject> envproject,
@@ -136,11 +136,11 @@ ProjectManager::ProjectManager(const std::string &name) {
   m_AppWindow->SetRightMenubarCallback([this]() {
     if (!m_ProjectCreation) {
       if (CherryKit::ButtonImageText("Search Folders", Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"))
-              ->GetData("isClicked") == "true") {
+              .GetData("isClicked") == "true") {
         showProjectPools = !showProjectPools;
       }
 
-      if (CherryKit::ButtonImage(Cherry::GetPath("resources/imgs/icons/misc/icon_refresh.png"))->GetData("isClicked") ==
+      if (CherryKit::ButtonImage(Cherry::GetPath("resources/imgs/icons/misc/icon_refresh.png")).GetData("isClicked") ==
           "true") {
         project_blocks.clear();
         VortexMaker::RefreshEnvironmentProjects();
@@ -379,7 +379,7 @@ void ProjectManager::Render() {
     Cherry::SetNextComponentProperty("padding_x", "8");
     Cherry::SetNextComponentProperty("padding_y", "4");
 
-    if (CherryKit::ButtonImageText("Import", Cherry::GetPath("resources/base/add.png"))->GetData("isClicked") == "true") {
+    if (CherryKit::ButtonImageText("Import", Cherry::GetPath("resources/base/add.png")).GetData("isClicked") == "true") {
       m_AssetFinder = AssetFinder::Create("Import projects(s)", VortexMaker::getHomeDirectory());
       Cherry::ApplicationSpecification spec;
 
@@ -448,6 +448,7 @@ void ProjectManager::Render() {
 
     if (ctx->IO.sys_projects.empty()) {
       if (CherryKit::BlockVerticalCustom(
+              []() {},
               100.0f,
               100.0f,
               {
@@ -456,7 +457,7 @@ void ProjectManager::Render() {
                   []() { CherryKit::TextCenter("Create new"); },
               },
               200)
-              ->GetData("isClicked") == "true") {
+              .GetData("isClicked") == "true") {
         m_ProjectCreation = true;
       }
     }
@@ -465,14 +466,13 @@ void ProjectManager::Render() {
       for (int row = 0; row < ctx->IO.sys_projects.size(); row++) {
         auto element = ctx->IO.sys_projects[row];
         project_blocks.push_back(CherryKit::BlockVerticalCustom(
-            Cherry::ID(Cherry::IdentifierProperty::CreateOnly, element, row),
             [this, element]() { m_SelectedEnvproject = element; },
             150.0f,
             115.0f,
             {
                 []() { CherryKit::ImageLocal(Cherry::GetPath("resources/imgs/def_project_banner.png"), 150.0f); },
                 [element]() {
-                  CherryStyle::RemoveYMargin(35.0f);
+                  CherryStyle::RemoveMarginY(35.0f);
                   CherryStyle::AddMarginX(10.0f);
                   std::string imgpath = element->logoPath;
 #ifdef _WIN32
@@ -525,14 +525,14 @@ void ProjectManager::Render() {
 
                       // CherryKit::TextRight(CherryID("qsd"), "Project");
                     }
-                    CherryStyle::RemoveXMargin(5.0f);
+                    CherryStyle::RemoveMarginX(5.0f);
                   }
                 },
             }));
       }
     }
 
-    CherryKit::GridSimple(150.0f, 150.0f, &project_blocks);
+    CherryKit::GridSimple(150.0f, 150.0f, project_blocks);
 
     CherryGUI::EndChild();
 
@@ -558,12 +558,12 @@ void ProjectManager::Render() {
       float imagex = child_size.x;
       float imagey = imagex / 3.235;
 
-      CherryStyle::RemoveYMargin(10.0f);
+      CherryStyle::RemoveMarginY(10.0f);
 
       CherryGUI::Image(Cherry::GetTexture(Cherry::GetPath("resources/imgs/vortexbanner2.png")), ImVec2(imagex, imagey));
 
       {
-        CherryStyle::RemoveYMargin(20.0f);
+        CherryStyle::RemoveMarginY(20.0f);
         CherryStyle::AddMarginX(8.0f);
         MyButton(m_SelectedEnvproject->logoPath, 50, 50);
         CherryGUI::SameLine();
@@ -581,7 +581,7 @@ void ProjectManager::Render() {
       }
 
       // Divider
-      CherryStyle::RemoveYMargin(30.0f);
+      CherryStyle::RemoveMarginY(30.0f);
       CherryGUI::Separator();
       CherryStyle::AddMarginX(10.0f);
       Cherry::SetNextComponentProperty("color_text", "#B1FF31");
@@ -712,18 +712,17 @@ void ProjectManager::Render() {
     for (int i = 0; i < 3; ++i)
       columnProportions[i] = columnWidths[i] / totalColumnWidths;
 
-    static std::vector<std::shared_ptr<Cherry::Component>> pt_blocks;
+    static std::vector<Cherry::Component> pt_blocks;
 
     if (pt_blocks.empty()) {
       pt_blocks.push_back(CherryKit::BlockVerticalCustom(
-          Cherry::ID(Cherry::IdentifierProperty::CreateOnly, "pt_blocks"),
           []() {},
           290.0f,
           60.0f,
           {
               []() { CherryKit::ImageLocal(Cherry::GetPath("resources/imgs/def_project_banner.png"), 290.0f, 60.0f); },
               []() {
-                CherryStyle::RemoveYMargin(45.0f);
+                CherryStyle::RemoveMarginY(45.0f);
                 CherryStyle::AddMarginX(15.0f);
 
                 Cherry::PushFont("ClashBold");
@@ -733,14 +732,13 @@ void ProjectManager::Render() {
           }));
 
       pt_blocks.push_back(CherryKit::BlockVerticalCustom(
-          Cherry::ID(Cherry::IdentifierProperty::CreateOnly, 1, "pt_blocks"),
           []() {},
           290.0f,
           60.0f,
           {
               []() { CherryKit::ImageLocal(Cherry::GetPath("resources/imgs/def_project_banner.png"), 290.0f, 60.0f); },
               []() {
-                CherryStyle::RemoveYMargin(45.0f);
+                CherryStyle::RemoveMarginY(45.0f);
                 CherryStyle::AddMarginX(15.0f);
 
                 Cherry::PushFont("ClashBold");
@@ -750,14 +748,13 @@ void ProjectManager::Render() {
           }));
 
       pt_blocks.push_back(CherryKit::BlockVerticalCustom(
-          Cherry::ID(Cherry::IdentifierProperty::CreateOnly, 2, "pt_blocks"),
           []() {},
           290.0f,
           60.0f,
           {
               []() { CherryKit::ImageLocal(Cherry::GetPath("resources/imgs/def_project_banner.png"), 290.0f, 60.0f); },
               []() {
-                CherryStyle::RemoveYMargin(45.0f);
+                CherryStyle::RemoveMarginY(45.0f);
                 CherryStyle::AddMarginX(15.0f);
 
                 Cherry::PushFont("ClashBold");
@@ -767,14 +764,13 @@ void ProjectManager::Render() {
           }));
 
       pt_blocks.push_back(CherryKit::BlockVerticalCustom(
-          Cherry::ID(Cherry::IdentifierProperty::CreateOnly, 3, "pt_blocks"),
           []() {},
           290.0f,
           60.0f,
           {
               []() { CherryKit::ImageLocal(Cherry::GetPath("resources/imgs/def_project_banner.png"), 290.0f, 60.0f); },
               []() {
-                CherryStyle::RemoveYMargin(45.0f);
+                CherryStyle::RemoveMarginY(45.0f);
                 CherryStyle::AddMarginX(15.0f);
 
                 Cherry::PushFont("ClashBold");
@@ -791,7 +787,7 @@ void ProjectManager::Render() {
     CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#00000000"));
     CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#101010"));
     CherryGUI::BeginChild("left", ImVec2(290, 0), true);
-    CherryKit::GridSimple(CherryID("banner"), 290, 290, &pt_blocks);
+    CherryKit::GridSimple(CherryID("banner"), 290, 290, pt_blocks);
     CherryGUI::EndChild();
     CherryGUI::PopStyleColor(2);
     CherryGUI::PopStyleVar();
@@ -831,12 +827,12 @@ void ProjectManager::Render() {
       float imagey = imagex / 3.235;
       static bool advanced_params = false;
 
-      CherryStyle::RemoveYMargin(10.0f);
+      CherryStyle::RemoveMarginY(10.0f);
 
       CherryGUI::Image(Cherry::GetTexture(Cherry::GetPath("resources/imgs/vortexbanner2.png")), ImVec2(imagex, imagey));
 
       {
-        CherryStyle::RemoveYMargin(20.0f);
+        CherryStyle::RemoveMarginY(20.0f);
         CherryStyle::AddMarginX(8.0f);
         MyButton(selected_template_object->m_logo_path, 50, 50);
         CherryGUI::SameLine();
@@ -856,8 +852,8 @@ void ProjectManager::Render() {
         Cherry::SetNextComponentProperty("size_y", "12");
         Cherry::SetNextComponentProperty("padding_x", "4");
         Cherry::SetNextComponentProperty("padding_y", "2");
-        CherryStyle::RemoveYMargin(2.0f);
-        if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/settings.png"))->GetData("isClicked") == "true") {
+        CherryStyle::RemoveMarginY(2.0f);
+        if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/settings.png")).GetData("isClicked") == "true") {
           advanced_params = !advanced_params;
         }
 
@@ -865,7 +861,7 @@ void ProjectManager::Render() {
       }
 
       // Divider
-      CherryStyle::RemoveYMargin(30.0f);
+      CherryStyle::RemoveMarginY(30.0f);
       CherryGUI::Separator();
       CherryStyle::AddMarginX(10.0f);
       Cherry::SetNextComponentProperty("color_text", "#B1FF31");
@@ -926,7 +922,7 @@ void ProjectManager::Render() {
       Cherry::SetNextComponentProperty("padding_y", "6.5");
       CherryKit::InputString("", &v_ProjectName);
       CherryGUI::SameLine();
-      if (CherryKit::ButtonImageText("Create", Cherry::GetPath("resources/base/add.png"))->GetData("isClicked") == "true") {
+      if (CherryKit::ButtonImageText("Create", Cherry::GetPath("resources/base/add.png")).GetData("isClicked") == "true") {
         std::string vx_version;
 
         if (Cherry::GetData(CherryID("VersionSelector"), "selected_string") != "undefined") {
@@ -1051,7 +1047,7 @@ void ProjectManager::Render() {
 
           if (CherryKit::ButtonImageText(
                   CherryID("delete" + std::to_string(i)), "", Cherry::GetPath("resources/imgs/trash.png"))
-                  ->GetData("isClicked") == "true") {
+                  .GetData("isClicked") == "true") {
             projectPaths.erase(projectPaths.begin() + i);
             --i;
           }
@@ -1078,7 +1074,7 @@ void ProjectManager::Render() {
 
       CherryGUI::Separator();
 
-      if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))->GetData("isClicked") ==
+      if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png")).GetData("isClicked") ==
           "true") {
         if (newPath[0] != '\0') {
           projectPaths.push_back(std::string(newPath));
@@ -1099,7 +1095,7 @@ void ProjectManager::Render() {
       CherryGUI::SameLine();
 
       if (CherryKit::ButtonImageText("Save", Cherry::GetPath("resources/imgs/icons/misc/icon_save.png"))
-              ->GetData("isClicked") == "true") {
+              .GetData("isClicked") == "true") {
         std::string path = VortexMaker::getHomeDirectory() + "/.vx/data/";
         std::string json_file = path + "/projects_pools.json";
         saveProjects(projectPaths, json_file);
@@ -1198,7 +1194,7 @@ void ProjectManager::mainButtonsMenuItem() {
   if (!m_ProjectCreation) {
     CherryStyle::PushFontSize(0.85f);
     if (CherryKit::ButtonImageText("Create a project", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))
-            ->GetData("isClicked") == "true") {
+            .GetData("isClicked") == "true") {
       m_ProjectCreation = true;
     }
 
@@ -1220,7 +1216,7 @@ void ProjectManager::mainButtonsMenuItem() {
     // TODO ProjectSearch = v_SearchString->c_str();
   } else {
     if (CherryKit::ButtonImageText("Open a project", Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"))
-            ->GetData("isClicked") == "true") {
+            .GetData("isClicked") == "true") {
       m_ProjectCreation = false;
     }
   }

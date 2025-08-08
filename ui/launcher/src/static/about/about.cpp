@@ -5,7 +5,6 @@
 #include <openssl/sha.h>
 #endif
 
-
 std::string getBuildDate() {
   return BUILD_DATE_STR;
 }
@@ -28,60 +27,61 @@ static std::string vxl_exehash = "";
 static std::string system_desktop = "";
 
 #ifdef _WIN32
-#include <windows.h>
 #include <wincrypt.h>
+#include <windows.h>
+
 #include <fstream>
-#include <sstream>
 #include <iomanip>
-#include <vector>
+#include <sstream>
 #include <string>
+#include <vector>
 
 #pragma comment(lib, "advapi32.lib")
 
 std::string computeSHA256Short(const std::string &filepath, size_t length = 10) {
-    std::ifstream file(filepath, std::ios::binary);
-    if (!file)
-        return "";
+  std::ifstream file(filepath, std::ios::binary);
+  if (!file)
+    return "";
 
-    std::vector<char> buffer(8192);
-    HCRYPTPROV hProv = 0;
-    HCRYPTHASH hHash = 0;
-    BYTE hash[32]; // SHA-256 produces 32-byte hash
-    DWORD hashLen = sizeof(hash);
+  std::vector<char> buffer(8192);
+  HCRYPTPROV hProv = 0;
+  HCRYPTHASH hHash = 0;
+  BYTE hash[32];  // SHA-256 produces 32-byte hash
+  DWORD hashLen = sizeof(hash);
 
-    if (!CryptAcquireContext(&hProv, nullptr, nullptr, PROV_RSA_AES, CRYPT_VERIFYCONTEXT)) {
-        return "";
+  if (!CryptAcquireContext(&hProv, nullptr, nullptr, PROV_RSA_AES, CRYPT_VERIFYCONTEXT)) {
+    return "";
+  }
+
+  if (!CryptCreateHash(hProv, CALG_SHA_256, 0, 0, &hHash)) {
+    CryptReleaseContext(hProv, 0);
+    return "";
+  }
+
+  while (file.read(buffer.data(), buffer.size()) || file.gcount()) {
+    if (!CryptHashData(hHash, reinterpret_cast<BYTE *>(buffer.data()), static_cast<DWORD>(file.gcount()), 0)) {
+      CryptDestroyHash(hHash);
+      CryptReleaseContext(hProv, 0);
+      return "";
     }
+  }
 
-    if (!CryptCreateHash(hProv, CALG_SHA_256, 0, 0, &hHash)) {
-        CryptReleaseContext(hProv, 0);
-        return "";
-    }
-
-    while (file.read(buffer.data(), buffer.size()) || file.gcount()) {
-        if (!CryptHashData(hHash, reinterpret_cast<BYTE*>(buffer.data()), static_cast<DWORD>(file.gcount()), 0)) {
-            CryptDestroyHash(hHash);
-            CryptReleaseContext(hProv, 0);
-            return "";
-        }
-    }
-
-    if (!CryptGetHashParam(hHash, HP_HASHVAL, hash, &hashLen, 0)) {
-        CryptDestroyHash(hHash);
-        CryptReleaseContext(hProv, 0);
-        return "";
-    }
-
+  if (!CryptGetHashParam(hHash, HP_HASHVAL, hash, &hashLen, 0)) {
     CryptDestroyHash(hHash);
     CryptReleaseContext(hProv, 0);
+    return "";
+  }
 
-    std::ostringstream oss;
-    for (DWORD i = 0; i < hashLen && oss.tellp() < (std::streampos)length * 2; ++i) {
-        oss << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];
-    }
+  CryptDestroyHash(hHash);
+  CryptReleaseContext(hProv, 0);
 
-    std::string result = oss.str();
-    return result.substr(0, length);
+  std::ostringstream oss;
+  for (DWORD i = 0; i < hashLen && oss.tellp() < (std::streampos)length * 2; ++i) {
+    oss << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];
+  }
+
+  std::string result = oss.str();
+  return result.substr(0, length);
 }
 #else
 std::string computeSHA256Short(const std::string &filepath, size_t length = 10) {
@@ -123,30 +123,28 @@ std::string getVortexLauncherHash() {
 
 #if defined(_WIN32)
 std::string GetWindowsVersion() {
-    HKEY hKey;
-    LONG lRes = RegOpenKeyExA(HKEY_LOCAL_MACHINE,
-        "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", 0,
-        KEY_READ, &hKey);
+  HKEY hKey;
+  LONG lRes = RegOpenKeyExA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", 0, KEY_READ, &hKey);
 
-    if (lRes != ERROR_SUCCESS)
-        return "Unknown Windows version";
+  if (lRes != ERROR_SUCCESS)
+    return "Unknown Windows version";
 
-    char productName[256];
-    DWORD size = sizeof(productName);
-    RegQueryValueExA(hKey, "ProductName", NULL, NULL, (LPBYTE)productName, &size);
+  char productName[256];
+  DWORD size = sizeof(productName);
+  RegQueryValueExA(hKey, "ProductName", NULL, NULL, (LPBYTE)productName, &size);
 
-    DWORD buildNumber = 0;
-    size = sizeof(buildNumber);
-    RegQueryValueExA(hKey, "CurrentBuildNumber", NULL, NULL, (LPBYTE)&buildNumber, &size);
+  DWORD buildNumber = 0;
+  size = sizeof(buildNumber);
+  RegQueryValueExA(hKey, "CurrentBuildNumber", NULL, NULL, (LPBYTE)&buildNumber, &size);
 
-    char releaseId[256] = {0};
-    size = sizeof(releaseId);
-    RegQueryValueExA(hKey, "DisplayVersion", NULL, NULL, (LPBYTE)releaseId, &size);
+  char releaseId[256] = { 0 };
+  size = sizeof(releaseId);
+  RegQueryValueExA(hKey, "DisplayVersion", NULL, NULL, (LPBYTE)releaseId, &size);
 
-    RegCloseKey(hKey);
+  RegCloseKey(hKey);
 
-    std::string versionStr = std::string(productName) + " " + std::string(releaseId);
-    return versionStr;
+  std::string versionStr = std::string(productName) + " " + std::string(releaseId);
+  return versionStr;
 }
 
 #define OS_NAME GetWindowsVersion().c_str()
@@ -304,7 +302,7 @@ namespace VortexLauncher {
             "Support Us",
             Cherry::GetPath("resources/imgs/icons/launcher/heart.png"),
             Cherry::GetPath("resources/imgs/weblink.png"))
-            ->GetData("isClicked") == "true") {
+            .GetData("isClicked") == "true") {
       VortexMaker::OpenURL("https://fund.infinite.si/");
     }
 
@@ -318,7 +316,7 @@ namespace VortexLauncher {
             "Credits & Contributors",
             Cherry::GetPath("resources/imgs/icons/misc/icon_people.png"),
             Cherry::GetPath("resources/imgs/weblink.png"))
-            ->GetData("isClicked") == "true") {
+            .GetData("isClicked") == "true") {
       VortexMaker::OpenURL("https://github.com/infiniteHQ/Vortex/graphs/contributors");
     }
 
@@ -332,7 +330,7 @@ namespace VortexLauncher {
             "Learn and Documentation",
             Cherry::GetPath("resources/imgs/icons/launcher/docs.png"),
             Cherry::GetPath("resources/imgs/weblink.png"))
-            ->GetData("isClicked") == "true") {
+            .GetData("isClicked") == "true") {
       VortexMaker::OpenURL("https://vortex.infinite.si/learn");
     }
 

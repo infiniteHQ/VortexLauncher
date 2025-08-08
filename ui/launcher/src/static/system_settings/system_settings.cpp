@@ -297,7 +297,7 @@ void SystemSettings::Render() {
 
               if (column == 0) {
                 if (CherryKit::ButtonImageText("create_project_button", Cherry::GetPath("resources/base/undefined"))
-                        ->GetData("isClicked") == "true") {
+                        .GetData("isClicked") == "true") {
                   selected_module = ctx->IO.sys_em[row];
                 }
               } else if (column == 1) {
@@ -346,7 +346,7 @@ void SystemSettings::Render() {
 
               if (column == 0) {
                 if (CherryKit::ButtonImageText("delete_button", Cherry::GetPath("resources/base/undefined"))
-                        ->GetData("isClicked") == "true") {
+                        .GetData("isClicked") == "true") {
                   selected_template = ctx->IO.sys_templates[row];
                 }
               } else if (column == 1) {
@@ -622,7 +622,7 @@ void SystemSettings::menubar() {
         CherryGUI::Text("Please chose a folder");
 
         if (CherryKit::ButtonImageText("refresh_project_button", Cherry::GetPath("resources/base/undefined"))
-                ->GetData("isClicked") == "true") {
+                .GetData("isClicked") == "true") {
           //
         }
 
@@ -796,7 +796,7 @@ void SystemSettings::menubar() {
       if (CherryGUI::BeginMenuBar()) {
         CherryGUI::Text("Please chose a folder");
 
-        if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") == "true") {
+        if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/base/undefined")).GetData("isClicked") == "true") {
         }
 
         CherryGUI::InputText("###Path", path_input_all, IM_ARRAYSIZE(path_input_all));
@@ -947,46 +947,46 @@ void SystemSettings::menubar() {
 
   if (CherryGUI::BeginMenuBar()) {
     if (current_section == "mm") {
-      if (CherryKit::ButtonImageText("Import a module", Cherry::GetPath("resources/base/undefined"))->GetData("isClicked") ==
+      if (CherryKit::ButtonImageText("Import a module", Cherry::GetPath("resources/base/undefined")).GetData("isClicked") ==
           "true") {
         open_import_module = true;
       }
 
       if (CherryKit::ButtonImageText("Search modules in a folder", Cherry::GetPath("resources/base/undefined"))
-              ->GetData("isClicked") == "true") {
+              .GetData("isClicked") == "true") {
         open_import_all_module = true;
       }
     }
     if (current_section == "tm") {
       if (CherryKit::ButtonImageText("Search modules in a folder", Cherry::GetPath("resources/base/undefined"))
-              ->GetData("isClicked") == "true") {
+              .GetData("isClicked") == "true") {
         open_import_all_templates = true;
       }
     }
     if (current_section == "pm") {
-      if (CherryKit::ButtonImageText("Install a plugin", Cherry::GetPath("resources/base/undefined"))
-              ->GetData("isClicked") == "true") {
+      if (CherryKit::ButtonImageText("Install a plugin", Cherry::GetPath("resources/base/undefined")).GetData("isClicked") ==
+          "true") {
         //
       }
     }
     if (current_section == "cv") {
-      if (CherryKit::ButtonImageText("Refresh versions", Cherry::GetPath("resources/base/undefined"))
-              ->GetData("isClicked") == "true") {
+      if (CherryKit::ButtonImageText("Refresh versions", Cherry::GetPath("resources/base/undefined")).GetData("isClicked") ==
+          "true") {
         RegisterAvailableVersions();
       }
 
       if (CherryKit::ButtonImageText("Download a newer version", Cherry::GetPath("resources/base/undefined"))
-              ->GetData("isClicked") == "true") {
+              .GetData("isClicked") == "true") {
         //
       }
 
       if (CherryKit::ButtonImageText("Upgrade a project", Cherry::GetPath("resources/base/undefined"))
-              ->GetData("isClicked") == "true") {
+              .GetData("isClicked") == "true") {
         //
       }
 
-      if (CherryKit::ButtonImageText("Upgrade a module", Cherry::GetPath("resources/base/undefined"))
-              ->GetData("isClicked") == "true") {
+      if (CherryKit::ButtonImageText("Upgrade a module", Cherry::GetPath("resources/base/undefined")).GetData("isClicked") ==
+          "true") {
         //
       }
     }
