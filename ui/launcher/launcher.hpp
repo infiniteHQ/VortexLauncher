@@ -270,11 +270,6 @@ class Launcher {
 static std::shared_ptr<Launcher> c_Launcher;
 
 Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
-  std::cout << "CreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreate"
-               "ApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplic"
-               "ationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationCreateApplicationC"
-               "reateApplicationCreateApplicationCreateApplication"
-            << std::endl;
   Cherry::ApplicationSpecification spec;
   std::shared_ptr<Layer> layer = std::make_shared<Layer>();
 
@@ -283,7 +278,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
   spec.MinHeight = 500;
   spec.MinWidth = 750;
   spec.Height = 600;
-  spec.Width = 1200;
+  spec.Width = 1150;
   spec.IconPath = Cherry::GetPath("resources/imgs/icon.png");
   spec.FavIconPath = Cherry::GetPath("resources/imgs/icon.png");
   spec.CustomTitlebar = true;
