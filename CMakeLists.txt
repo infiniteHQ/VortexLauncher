@@ -97,7 +97,7 @@ if(UNIX AND NOT APPLE)
 endif()
 
 #TODO : Do only in cherry
-target_link_libraries(vortex_launcher PRIVATE cherry SDL2)
+target_link_libraries(vortex_launcher PRIVATE cherry)
 ####set(CEF_RELEASE_DIR "${CMAKE_BINARY_DIR}/Release")
 ####set(CEF_EXTRA_LIBRARIES
 ####    "${CEF_RELEASE_DIR}/libEGL.so"

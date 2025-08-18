@@ -7,7 +7,8 @@
 #define WELCOME_WINDOW_H
 
 #include "../../../../../lib/cherry/cherry.hpp"
-
+#include "../../instances/asset_finder/asset_finder.hpp"
+#include "../../utils.hpp"
 namespace VortexLauncher {
   // This window can be a "subappwindow" of a parent if you use the constructor with parent parameter.
 
@@ -36,7 +37,9 @@ namespace VortexLauncher {
     static std::shared_ptr<WelcomeWindow> Create(const std::string &name);
     void SetupRenderCallback();
     void Render();
+
     void WelcomeRender();
+    void OpenProjectRender();
 
     std::unordered_map<std::string, WelcomeWindowChild> m_Childs;
 
@@ -51,9 +54,15 @@ namespace VortexLauncher {
     std::vector<std::shared_ptr<EnvProject>> m_RecentProjects;
     std::string m_SelectedChildName;
 
+    std::shared_ptr<AssetFinder> m_AssetFinder;
+
+    std::shared_ptr<EnvProject> m_SelectedEnvproject;
+    std::shared_ptr<EnvProject> m_SelectedEnvprojectToRemove;
+
     std::shared_ptr<Cherry::AppWindow> m_AppWindow;
     int selected;
     float leftPaneWidth = 290.0f;
+    float middlePaneWidth = 500.0f;
   };
 }  // namespace VortexLauncher
 

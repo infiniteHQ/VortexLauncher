@@ -13,7 +13,7 @@
 #include "src/static/logic_content_manager/logic_content_manager.hpp"
 #include "src/static/logs/logs.hpp"
 #include "src/static/main_settings/main_settings.hpp"
-#include "src/static/project_manager/project_manager.hpp"
+// #include "src/static/project_manager/project_manager.hpp"
 #include "src/static/version_manager/version_manager.hpp"
 #include "src/static/welcome/welcome.hpp"
 
@@ -62,7 +62,8 @@ class Launcher {
 
     // Welcome
     welcome_window = WelcomeWindow::Create("?loc:loc.window_names.welcome");
-    welcome_window->m_CreateProjectCallback = [this]() {
+    Cherry::AddAppWindow(welcome_window->GetAppWindow());
+    /*welcome_window->m_CreateProjectCallback = [this]() {
       project_manager->m_ProjectCreation = true;
       CherryGUI::SetWindowFocus(project_manager->GetAppWindow()->m_IdName.c_str());
     };
@@ -79,12 +80,11 @@ class Launcher {
       project_manager->m_ProjectCreation = false;
       project_manager->m_SelectedEnvproject = project;
       CherryGUI::SetWindowFocus(project_manager->GetAppWindow()->m_IdName.c_str());
-    };
-    Cherry::AddAppWindow(welcome_window->GetAppWindow());
+    };*/
 
     // Project manager
-    project_manager = ProjectManager::Create("?loc:loc.window_names.project_manager");
-    Cherry::AddAppWindow(project_manager->GetAppWindow());
+    // project_manager = ProjectManager::Create("?loc:loc.window_names.project_manager");
+    // Cherry::AddAppWindow(project_manager->GetAppWindow());
 
     // Download center (change to Vortex Lab integratio)
     /*download_center = DownloadCenter::Create("Download Center");
@@ -132,10 +132,6 @@ class Launcher {
 
   void SetMainSettingsVisibility(const bool &visibility) {
     system_settings->GetAppWindow()->SetVisibility(visibility);
-  }
-
-  void SetProjectManagerVisibility(const bool &visibility) {
-    project_manager->GetAppWindow()->SetVisibility(visibility);
   }
 
   void SetWelcomeWindowVisibility(const bool &visibility) {
@@ -240,10 +236,6 @@ class Launcher {
     return system_settings->GetAppWindow()->m_Visible;
   }
 
-  bool GetProjectManagerVisibility() {
-    return project_manager->GetAppWindow()->m_Visible;
-  }
-
   bool GetWelcomeWindowVisibility() {
     return welcome_window->GetAppWindow()->m_Visible;
   }
@@ -255,7 +247,6 @@ class Launcher {
  private:
   std::shared_ptr<LauncherLogUtility> logs_window;
   std::shared_ptr<MainSettings> system_settings;
-  std::shared_ptr<ProjectManager> project_manager;
   // std::shared_ptr<DownloadCenter> download_center;
   std::shared_ptr<WelcomeWindow> welcome_window;
   std::shared_ptr<LogicalContentManager> logic_content_manager;
@@ -284,7 +275,9 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
   spec.CustomTitlebar = true;
   spec.DisableWindowManagerTitleBar = true;
   spec.WindowOnlyClosable = true;
-  spec.RenderMode = WindowRenderingMethod::DockingWindows;
+  spec.RenderMode = WindowRenderingMethod::SimpleWindow;
+  spec.DefaultWindowName = "?loc:loc.window_names.welcome";
+  spec.UniqueAppWindowName = "?loc:loc.window_names.welcome";
   spec.DisableTitle = true;
   spec.WindowSaves = false;
   spec.IconPath = Cherry::GetPath("resources/imgs/icon.png");
@@ -317,6 +310,8 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
   btn_close->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"));*/
 
   app->PushLayer(layer);
+  app->SetFramebarCallback([=]() { CherryKit::ButtonText("Support"); });
+
   app->SetMenubarCallback([=]() {
     std::cout << "SetMenubarCallback" << std::endl;
     ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);

@@ -186,11 +186,7 @@ int main(int argc, char *argv[]) {
 
   VortexMaker::LogInfo("Bootstrapp", "Opening the graphical interface...");
 
-  std::thread mainthread;
-  std::thread Thread([=]() { Cherry::Main(argc, argv); });
-  mainthread.swap(Thread);
-
-  mainthread.join();
+  CherryRun(argc, argv);
 
   return 0;
 }
@@ -198,9 +194,9 @@ int main(int argc, char *argv[]) {
 #ifdef _WIN32
 #include <windows.h>
 
-extern int main(int argc, char* argv[]);
+extern int main(int argc, char *argv[]);
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
-    return main(__argc, __argv);
+  return main(__argc, __argv);
 }
 #endif

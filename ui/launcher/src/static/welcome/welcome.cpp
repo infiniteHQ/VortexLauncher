@@ -1,9 +1,28 @@
 #include "./welcome.hpp"
 
+#include <algorithm>
+#include <cctype>
 #include <cstdlib>  // std::system
 #include <cstring>
 #include <iostream>
 #include <string>
+#include <unordered_set>
+static std::vector<bool> selectedRows(finded_projects.size(), false);
+
+std::vector<std::string> modules_projects;
+static std::vector<int> selectedIDs;
+
+int projetct_import_dest_index;
+std::vector<std::string> project_pools;
+std::string projetct_import_dest;
+
+static bool no_installed_modal_opened;
+static std::string no_installed_version;
+static std::string no_installed_project_name;
+static std::string no_installed_project_picture;
+static VortexVersion no_installed_version_available;
+
+static std::vector<Cherry::Component> project_blocks;
 
 #if defined(_WIN32)
 #include <shellapi.h>
@@ -23,6 +42,341 @@ bool EndsWith(const std::string &value, const std::string &suffix) {
 
 static std::string test;
 namespace VortexLauncher {
+  void WelcomeWindow::OpenProjectRender() {
+    static bool open_deletion_modal = false;
+    CherryGUI::BeginChild("left_pane", ImVec2(middlePaneWidth, 0), true, ImGuiWindowFlags_NoBackground);
+
+    Cherry::PushFont("ClashBold");
+    CherryNextProp("color_text", "#797979");
+    CherryKit::TitleFive("All projects and tools");
+    Cherry::PopFont();
+    CherryNextProp("color", "#252525");
+
+    CherryGUI::SameLine();
+    CherryStyle::AddMarginX(10.0f);
+    Cherry::SetNextComponentProperty("padding_x", "8");
+    Cherry::SetNextComponentProperty("padding_y", "4");
+
+    if (CherryKit::ButtonImageText("Import", Cherry::GetPath("resources/base/add.png")).GetData("isClicked") == "true") {
+      m_AssetFinder = AssetFinder::Create("Import projects(s)", VortexMaker::getHomeDirectory());
+      Cherry::ApplicationSpecification spec;
+
+      std::string name = "Import project(s)";
+      spec.Name = name;
+      spec.MinHeight = 500;
+      spec.MinWidth = 500;
+      spec.Height = 600;
+      spec.Width = 1150;
+      spec.DisableTitle = false;
+      spec.CustomTitlebar = true;
+      spec.DisableWindowManagerTitleBar = true;
+      spec.WindowOnlyClosable = false;
+      spec.RenderMode = Cherry::WindowRenderingMethod::SimpleWindow;
+      spec.UniqueAppWindowName = m_AssetFinder->GetAppWindow()->m_Name;
+      spec.UsingCloseCallback = true;
+      spec.FavIconPath = Cherry::GetPath("resources/imgs/vproject.png");
+      spec.IconPath = Cherry::GetPath("resources/imgs/vproject.png");
+      spec.CloseCallback = [this]() { Cherry::DeleteAppWindow(m_AssetFinder->GetAppWindow()); };
+      spec.WindowSaves = false;
+      spec.MenubarCallback = [this]() {
+        if (CherryGUI::BeginMenu("Window")) {
+          if (CherryGUI::MenuItem("Close")) {
+            Cherry::DeleteAppWindow(m_AssetFinder->GetAppWindow());
+          }
+          CherryGUI::EndMenu();
+        }
+      };
+
+      m_AssetFinder->GetAppWindow()->AttachOnNewWindow(spec);
+      m_AssetFinder->m_ElementName = "";
+
+      if (!VortexMaker::GetCurrentContext()->IO.sys_projects_pools.empty()) {
+        m_AssetFinder->m_TargetPossibilities = VortexMaker::GetCurrentContext()->IO.sys_modules_pools;
+      }
+
+      m_AssetFinder->GetAppWindow()->SetVisibility(true);
+      m_AssetFinder->m_ItemToReconize.push_back(std::make_shared<AssetFinderItem>(
+          VortexMaker::CheckProjectInDirectory, "Project", "Project/Tool", Cherry::HexToRGBA("#B1FF31")));
+
+      Cherry::AddAppWindow(m_AssetFinder->GetAppWindow());
+    }
+
+    if (m_AssetFinder) {
+      if (m_AssetFinder->m_GetFileBrowserPath) {
+        m_AssetFinder->m_GetFileBrowserPath = false;
+        // m_FindedModules.clear();
+
+        std::string pool;
+        if (!VortexMaker::GetCurrentContext()->IO.sys_projects_pools[m_AssetFinder->m_TargetPoolIndex].empty()) {
+          pool = VortexMaker::GetCurrentContext()->IO.sys_projects_pools[m_AssetFinder->m_TargetPoolIndex];
+        }
+
+        for (auto selected : m_AssetFinder->m_Selected) {
+          VortexMaker::ImportProject(selected, pool);
+        }
+
+        project_blocks.clear();
+        VortexMaker::RefreshEnvironmentProjects();
+        m_AssetFinder->GetAppWindow()->SetVisibility(false);
+        m_AssetFinder->GetAppWindow()->SetParentWindow(Cherry::Application::GetCurrentRenderedWindow()->GetName());
+      }
+    }
+
+    CherryKit::Separator();
+
+    if (VortexMaker::GetCurrentContext()->IO.sys_projects.empty()) {
+      if (CherryKit::BlockVerticalCustom(
+              []() {},
+              100.0f,
+              100.0f,
+              {
+                  []() { CherryKit::Space(20.0f); },
+                  []() { CherryKit::ImageLocalCentered(Cherry::GetPath("resources/base/add.png"), 15, 15); },
+                  []() { CherryKit::TextCenter("Create new"); },
+              },
+              200)
+              .GetData("isClicked") == "true") {
+        // m_ProjectCreation = true;
+      }
+    }
+
+    if (project_blocks.empty()) {
+      for (int row = 0; row < VortexMaker::GetCurrentContext()->IO.sys_projects.size(); row++) {
+        auto element = VortexMaker::GetCurrentContext()->IO.sys_projects[row];
+        project_blocks.push_back(CherryKit::BlockVerticalCustom(
+            [this, element]() { m_SelectedEnvproject = element; },
+            150.0f,
+            115.0f,
+            {
+                []() { CherryKit::ImageLocal(Cherry::GetPath("resources/imgs/def_project_banner.png"), 150.0f); },
+                [element]() {
+                  CherryStyle::RemoveMarginY(35.0f);
+                  CherryStyle::AddMarginX(10.0f);
+                  std::string imgpath = element->logoPath;
+#ifdef _WIN32
+                  imgpath = VortexMaker::convertPathToWindowsStyle(imgpath);
+#endif
+                  CherryKit::ImageLocal(imgpath, 40.0f, 40.0f);
+                },
+                [element]() {
+                  CherryStyle::AddMarginX(5.0f);
+                  Cherry::SetNextComponentProperty("color_text", "#FFFFFF");
+                  CherryKit::TextSimple(element->name);
+                },
+                [element]() {
+                  Cherry::SetNextComponentProperty("color", "#353535");
+                  CherryKit::Separator();
+                  CherryStyle::AddMarginX(5.0f);
+
+                  std::string versionpath;
+                  bool version_available =
+                      VortexMaker::CheckIfVortexVersionUtilityExist(element->compatibleWith, versionpath);
+                  if (version_available) {
+                    Cherry::SetNextComponentProperty("color_text", "#AAAAAA");
+                  } else {
+                    if (VortexMaker::CheckVersionAvailibility(element->compatibleWith).version == "") {
+                      Cherry::SetNextComponentProperty("color_text", "#EE5555");
+                    } else {
+                      Cherry::SetNextComponentProperty("color_text", "#EEAA55");
+                    }
+                  }
+                  CherryKit::TextSimple(element->compatibleWith);
+                  if (!version_available) {
+                    CherryGUI::SameLine();
+
+                    if (VortexMaker::CheckVersionAvailibility(element->compatibleWith).version == "") {
+                      CherryKit::TooltipImage(
+                          Cherry::GetPath("resources/base/error.png"),
+                          "Vortex " + element->compatibleWith +
+                              " is not installed in your system. Please click to see more.");
+                      CherryGUI::SameLine();
+                      Cherry::SetNextComponentProperty("color_text", "#888888");
+
+                      // CherryKit::TextRight(CherryID("qsd"), "Project");
+                    } else {
+                      CherryKit::TooltipImage(
+                          Cherry::GetPath("resources/base/warn.png"),
+                          "Vortex " + element->compatibleWith +
+                              " is not installed in your system but available to download.");
+                      CherryGUI::SameLine();
+                      Cherry::SetNextComponentProperty("color_text", "#888888");
+
+                      // CherryKit::TextRight(CherryID("qsd"), "Project");
+                    }
+                    CherryStyle::RemoveMarginX(5.0f);
+                  }
+                },
+            }));
+      }
+    }
+
+    CherryKit::GridSimple(150.0f, 150.0f, project_blocks);
+
+    CherryGUI::EndChild();
+
+    CherryGUI::SameLine();
+
+    CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
+    CherryGUI::BeginChild("###rightpan");
+    if (!m_SelectedEnvproject) {
+      auto texture = Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/frame_selectproject.png"));
+      auto texture_size = Cherry::GetTextureSize(Cherry::GetPath("resources/imgs/icons/misc/frame_selectproject.png"));
+
+      ImVec2 child_size = CherryGUI::GetContentRegionAvail();
+
+      ImVec2 image_pos = ImVec2((child_size.x - texture_size.x) / 2.0f, (child_size.y - texture_size.y) / 2.0f);
+
+      CherryGUI::SetCursorPos(image_pos);
+
+      CherryGUI::Image(texture, texture_size);
+    } else {
+      CherryGUI::PushStyleColor(ImGuiCol_Separator, Cherry::HexToRGBA("#44444466"));
+
+      ImVec2 child_size = CherryGUI::GetContentRegionAvail();
+      float imagex = child_size.x;
+      float imagey = imagex / 3.235;
+
+      CherryStyle::RemoveMarginY(10.0f);
+
+      CherryGUI::Image(Cherry::GetTexture(Cherry::GetPath("resources/imgs/vortexbanner2.png")), ImVec2(imagex, imagey));
+
+      {
+        CherryStyle::RemoveMarginY(20.0f);
+        CherryStyle::AddMarginX(8.0f);
+        MyButton(m_SelectedEnvproject->logoPath, 50, 50);
+        CherryGUI::SameLine();
+        CherryStyle::AddMarginY(20.0f);
+      }
+
+      {
+        ImGuiID _id = CherryGUI::GetID("INFO_PANEL");
+        CherryGUI::BeginChild(_id, ImVec2(0, 60), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBackground);
+        CherryGUI::SetCursorPosY(CherryGUI::GetStyle().ItemSpacing.y);
+
+        CherryKit::TitleThree(m_SelectedEnvproject->name);
+
+        CherryGUI::EndChild();
+      }
+
+      // Divider
+      CherryStyle::RemoveMarginY(30.0f);
+      CherryGUI::Separator();
+      CherryStyle::AddMarginX(10.0f);
+      Cherry::SetNextComponentProperty("color_text", "#B1FF31");
+
+      std::string project_type;
+      if (m_SelectedEnvproject->type == "project") {
+        project_type = "Project";
+      } else if (m_SelectedEnvproject->type == "tool") {
+        project_type = "Tool";
+      } else {
+        project_type = "Project";
+      }
+
+      CherryGUI::BeginHorizontal("InfoBar");
+
+      CherryStyle::AddMarginX(5.0f);
+      CherryKit::TitleSix(project_type);
+
+      ImVec2 p1 = ImVec2(CherryGUI::GetCursorScreenPos().x, CherryGUI::GetCursorScreenPos().y - 5.0f);
+      ImVec2 p2 = ImVec2(p1.x, p1.y + 25);
+      CherryGUI::GetWindowDrawList()->AddLine(p1, p2, Cherry::HexToImU32("#343434"));
+      CherryGUI::Dummy(ImVec2(1, 0));
+
+      Cherry::SetNextComponentProperty("color_text", "#585858");
+      CherryKit::TitleSix(m_SelectedEnvproject->compatibleWith);
+
+      CherryGUI::EndHorizontal();
+
+      CherryGUI::Separator();
+
+      CherryGUI::BeginChild("aboutchild", ImVec2(0, 200), true, ImGuiWindowFlags_NoBackground);  // cherry api
+
+      Cherry::SetNextComponentProperty("color_text", "#585858");
+      CherryKit::TextSimple(m_SelectedEnvproject->description);
+
+      CherryKit::Space(20.0f);
+
+      CherryGUI::EndChild();
+
+      ImVec2 windowSize = CherryGUI::GetWindowSize();
+      ImVec2 windowPos = CherryGUI::GetWindowPos();
+      ImVec2 buttonSize = ImVec2(120, 35);
+      float footerHeight = buttonSize.y + CherryGUI::GetStyle().ItemSpacing.y * 2;
+
+      CherryGUI::SetCursorPosY(windowSize.y - footerHeight - 10.0f);
+
+      CherryGUI::Separator();
+      CherryGUI::Spacing();
+
+      float buttonPosX = windowSize.x - buttonSize.x * 2 - CherryGUI::GetStyle().ItemSpacing.x * 3;
+      CherryGUI::SetCursorPosX(buttonPosX);
+
+      if (CherryGUI::Button("Delete", buttonSize)) {
+        m_SelectedEnvprojectToRemove = m_SelectedEnvproject;
+        open_deletion_modal = true;
+      }
+
+      CherryGUI::SameLine();
+
+      CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#006FFFFF"));
+      CherryGUI::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#689DFFFF"));
+      CherryGUI::PushStyleColor(ImGuiCol_ButtonActive, Cherry::HexToRGBA("#9DBFFFFF"));
+
+      std::cout << "dqs" << std::endl;
+      if (CherryGUI::Button("Open Project", buttonSize)) {
+        std::string versionpath;
+        bool version_exist =
+            VortexMaker::CheckIfVortexVersionUtilityExist(m_SelectedEnvproject->compatibleWith, versionpath);
+        if (!version_exist) {
+          no_installed_version = m_SelectedEnvproject->compatibleWith;
+          no_installed_project_name = m_SelectedEnvproject->name;
+          no_installed_project_picture = m_SelectedEnvproject->logoPath;
+
+          no_installed_version_available = VortexMaker::CheckVersionAvailibility(
+              m_SelectedEnvproject->compatibleWith);  // TODO : In the future, make unique request to api for selected
+                                                      // version, and reserve the pagination for all versions page.
+
+          no_installed_modal_opened = true;
+        } else {
+          if (VortexMaker::CheckIfProjectRunning(m_SelectedEnvproject->path)) {
+            CherryGUI::OpenPopup("Project Already Running");
+          } else {
+            std::thread([this]() {
+              VortexMaker::OpenProject(m_SelectedEnvproject->path, m_SelectedEnvproject->compatibleWith);
+            }).detach();
+          }
+        }
+      }
+      std::cout << "dqssdg" << std::endl;
+
+      if (CherryGUI::BeginPopupModal("Project Already Running", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+        CherryGUI::Text("The project seems to have already been launched. Would you like to relaunch a new instance?");
+
+        CherryGUI::Spacing();
+        if (CherryGUI::Button("Cancel", ImVec2(120, 0))) {
+          CherryGUI::CloseCurrentPopup();
+        }
+        CherryGUI::SameLine();
+        if (CherryGUI::Button("Continue", ImVec2(120, 0))) {
+          std::thread([this]() {
+            VortexMaker::OpenProject(m_SelectedEnvproject->path, m_SelectedEnvproject->compatibleWith);
+          }).detach();
+
+          CherryGUI::CloseCurrentPopup();
+        }
+
+        CherryGUI::EndPopup();
+      }
+
+      CherryGUI::PopStyleColor(3);
+      CherryGUI::PopStyleColor();
+    }
+
+    CherryGUI::EndChild();
+    CherryGUI::PopStyleColor();
+  }
+
   void WelcomeWindow::WelcomeRender() {
     // CherryKit::TableSimple("", { CherryKit::KeyValString("Project name", &test) });
 
@@ -368,6 +722,10 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
         "?loc:loc.windows.welcome.overview",
         WelcomeWindowChild(
             [this]() { this->WelcomeRender(); }, Cherry::GetPath("resources/imgs/icons/launcher/overview.png")));
+    this->AddChild(
+        "?loc:loc.windows.welcome.open_project",
+        WelcomeWindowChild(
+            [this]() { this->OpenProjectRender(); }, Cherry::GetPath("resources/imgs/icons/launcher/overview.png")));
 
     std::shared_ptr<Cherry::AppWindow> win = m_AppWindow;
   }
@@ -467,22 +825,7 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
             -1,
             ImVec4(0, 0, 0, 0),
             ImVec4(1, 1, 1, 1))) {
-    }
-
-    CherryStyle::AddMarginX(6.0f);
-    if (CherryGUI::ImageSizeButtonWithText(
-            Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_stack.png")),
-            header_width,
-            "Your projects & tools",
-            ImVec2(-FLT_MIN, 0.0f),
-            ImVec2(0, 0),
-            ImVec2(1, 1),
-            -1,
-            ImVec4(0, 0, 0, 0),
-            ImVec4(1, 1, 1, 1))) {
-      if (m_OpenProjectCallback) {
-        m_OpenProjectCallback();
-      }
+      m_SelectedChildName = "?loc:loc.windows.welcome.overview";
     }
 
     CherryStyle::AddMarginX(6.0f);
@@ -499,6 +842,20 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
       if (m_CreateProjectCallback) {
         m_CreateProjectCallback();
       }
+    }
+
+    CherryStyle::AddMarginX(6.0f);
+    if (CherryGUI::ImageSizeButtonWithText(
+            Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_stack.png")),
+            header_width,
+            "Your projects & tools",
+            ImVec2(-FLT_MIN, 0.0f),
+            ImVec2(0, 0),
+            ImVec2(1, 1),
+            -1,
+            ImVec4(0, 0, 0, 0),
+            ImVec4(1, 1, 1, 1))) {
+      m_SelectedChildName = "?loc:loc.windows.welcome.open_project";
     }
 
     CherryStyle::AddMarginX(6.0f);
