@@ -40,6 +40,16 @@ namespace VortexLauncher {
 
     void WelcomeRender();
     void OpenProjectRender();
+    void CreateProjectRender();
+
+    void RefreshTemplates() {
+      project_templates.clear();
+      for (auto tem : VortexMaker::GetCurrentContext()->IO.sys_templates) {
+        if (tem->m_type == "project") {
+          project_templates.push_back(tem);
+        }
+      }
+    }
 
     std::unordered_map<std::string, WelcomeWindowChild> m_Childs;
 
@@ -59,7 +69,16 @@ namespace VortexLauncher {
     std::shared_ptr<EnvProject> m_SelectedEnvproject;
     std::shared_ptr<EnvProject> m_SelectedEnvprojectToRemove;
 
+    std::vector<Cherry::Component> project_blocks;
     std::shared_ptr<Cherry::AppWindow> m_AppWindow;
+
+    std::string v_ProjectName = "New Project";
+    std::string v_ProjectVersion = "";
+    std::string v_ProjectAuthor = "";
+    std::string v_ProjectDescription = "";
+    std::vector<std::shared_ptr<TemplateInterface>> project_templates;
+    std::vector<std::string> projectPoolsPaths;
+
     int selected;
     float leftPaneWidth = 290.0f;
     float middlePaneWidth = 500.0f;

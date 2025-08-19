@@ -62,13 +62,13 @@ class Launcher {
 
     // Welcome
     welcome_window = WelcomeWindow::Create("?loc:loc.window_names.welcome");
+    welcome_window->m_ProjectCallback = [this](const std::shared_ptr<EnvProject> &project) {
+      welcome_window->m_SelectedChildName = "?loc:loc.windows.welcome.open_project";
+      welcome_window->m_SelectedEnvproject = project;
+    };
     Cherry::AddAppWindow(welcome_window->GetAppWindow());
     /*welcome_window->m_CreateProjectCallback = [this]() {
       project_manager->m_ProjectCreation = true;
-      CherryGUI::SetWindowFocus(project_manager->GetAppWindow()->m_IdName.c_str());
-    };
-    welcome_window->m_OpenProjectCallback = [this]() {
-      project_manager->m_ProjectCreation = false;
       CherryGUI::SetWindowFocus(project_manager->GetAppWindow()->m_IdName.c_str());
     };
     welcome_window->m_SettingsCallback = [this]() {
