@@ -942,7 +942,7 @@ void AssetFinder::RenderSideBar() {
 
   CherryGUI::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.0f, 2.0f));
   CherryGUI::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(4.0f, 0.0f));
-  CherryGUI::PushStyleVar(ImGuiStyleVar_ChildRounding, ImVec2(4.0f, 0.0f));
+  CherryGUI::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
 
   CherryNextProp("color_bg", "#00000000");
   CherryNextProp("color_border", "#00000000");

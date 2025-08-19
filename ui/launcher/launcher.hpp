@@ -91,31 +91,6 @@ class Launcher {
     download_center->GetAppWindow()->SetVisibility(false);
     Cherry::AddAppWindow(download_center->GetAppWindow());*/
 
-    // Main settings
-    system_settings = MainSettings::Create("?loc:loc.window_names.settings");
-    system_settings->GetAppWindow()->SetVisibility(false);
-    Cherry::AddAppWindow(system_settings->GetAppWindow());
-
-    // Logs window
-    logs_window = LauncherLogUtility::Create("?loc:loc.window_names.logs_utility");
-    logs_window->GetAppWindow()->SetVisibility(false);
-    Cherry::AddAppWindow(logs_window->GetAppWindow());
-
-    // Logic content manager
-    logic_content_manager = LogicalContentManager::Create("?loc:loc.window_names.logic_content_manager");
-    logic_content_manager->GetAppWindow()->SetVisibility(false);
-    Cherry::AddAppWindow(logic_content_manager->GetAppWindow());
-
-    // Content manager
-    content_manager = ContentManager::Create("?loc:loc.window_names.content_manager");
-    content_manager->GetAppWindow()->SetVisibility(false);
-    Cherry::AddAppWindow(content_manager->GetAppWindow());
-
-    // Version manager
-    version_manager = VersionManager::Create("?loc:loc.window_names.version_manager");
-    version_manager->GetAppWindow()->SetVisibility(false);
-    Cherry::AddAppWindow(version_manager->GetAppWindow());
-
     std::string version = VORTEXLAUNCHER_VERSION;
     std::thread([this, version]() {
       VxContext *ctx = VortexMaker::GetCurrentContext();
@@ -126,12 +101,174 @@ class Launcher {
     }).detach();
   };
 
-  void SetLogsVisibility(const bool &visibility) {
-    logs_window->GetAppWindow()->SetVisibility(visibility);
+  void SpawnLogicContentManager() {
+    std::string label = "?loc:loc.window_names.logic_content_manager" + std::to_string(logic_content_manager_counter);
+    auto settings_win = LogicalContentManager::Create(label);
+    settings_win->GetAppWindow()->SetVisibility(true);
+
+    Cherry::ApplicationSpecification spec;
+
+    std::string name = "Manage logical contents";
+    spec.Name = name;
+    spec.MinHeight = 500;
+    spec.MinWidth = 500;
+    spec.Height = 800;
+    spec.DisableResize = true;
+    spec.Width = 1350;
+    spec.CustomTitlebar = true;
+    spec.DisableWindowManagerTitleBar = true;
+    spec.WindowOnlyClosable = true;
+    spec.RenderMode = Cherry::WindowRenderingMethod::SimpleWindow;
+    spec.UniqueAppWindowName = settings_win->GetAppWindow()->m_Name;
+
+    spec.UsingCloseCallback = true;
+    spec.CloseCallback = [this, settings_win]() {
+      Cherry::DeleteAppWindow(settings_win->GetAppWindow());
+      logic_content_manager_counter--;
+    };
+
+    spec.MenubarCallback = []() { };
+    spec.WindowSaves = false;
+
+    Cherry::AddAppWindow(settings_win->GetAppWindow());
+    settings_win->GetAppWindow()->AttachOnNewWindow(spec);
+    logic_content_manager_counter++;
   }
 
-  void SetMainSettingsVisibility(const bool &visibility) {
-    system_settings->GetAppWindow()->SetVisibility(visibility);
+  void SpawnContentManager() {
+    std::string label = "?loc:loc.window_names.content_manager" + std::to_string(content_manager_counter);
+    auto settings_win = ContentManager::Create(label);
+    settings_win->GetAppWindow()->SetVisibility(true);
+
+    Cherry::ApplicationSpecification spec;
+
+    std::string name = "Manage contents";
+    spec.Name = name;
+    spec.MinHeight = 500;
+    spec.MinWidth = 500;
+    spec.Height = 800;
+    spec.DisableResize = true;
+    spec.Width = 1350;
+    spec.CustomTitlebar = true;
+    spec.DisableWindowManagerTitleBar = true;
+    spec.WindowOnlyClosable = true;
+    spec.RenderMode = Cherry::WindowRenderingMethod::SimpleWindow;
+    spec.UniqueAppWindowName = settings_win->GetAppWindow()->m_Name;
+
+    spec.UsingCloseCallback = true;
+    spec.CloseCallback = [this, settings_win]() {
+      Cherry::DeleteAppWindow(settings_win->GetAppWindow());
+      content_manager_counter--;
+    };
+
+    spec.MenubarCallback = []() { };
+    spec.WindowSaves = false;
+
+    Cherry::AddAppWindow(settings_win->GetAppWindow());
+    settings_win->GetAppWindow()->AttachOnNewWindow(spec);
+    content_manager_counter++;
+  }
+
+  void SpawnLogsUtility() {
+    std::string label = "?loc:loc.window_names.logs_utility" + std::to_string(logs_utility_counter);
+    auto settings_win = LauncherLogUtility::Create(label);
+    settings_win->GetAppWindow()->SetVisibility(true);
+
+    Cherry::ApplicationSpecification spec;
+
+    std::string name = "Logs Utility";
+    spec.Name = name;
+    spec.MinHeight = 500;
+    spec.MinWidth = 500;
+    spec.Height = 800;
+    spec.DisableResize = true;
+    spec.Width = 1350;
+    spec.CustomTitlebar = true;
+    spec.DisableWindowManagerTitleBar = true;
+    spec.WindowOnlyClosable = true;
+    spec.RenderMode = Cherry::WindowRenderingMethod::SimpleWindow;
+    spec.UniqueAppWindowName = settings_win->GetAppWindow()->m_Name;
+
+    spec.UsingCloseCallback = true;
+    spec.CloseCallback = [this, settings_win]() {
+      Cherry::DeleteAppWindow(settings_win->GetAppWindow());
+      logs_utility_counter--;
+    };
+
+    spec.MenubarCallback = []() { };
+    spec.WindowSaves = false;
+
+    Cherry::AddAppWindow(settings_win->GetAppWindow());
+    settings_win->GetAppWindow()->AttachOnNewWindow(spec);
+    logs_utility_counter++;
+  }
+
+  void SpawnVersionManager() {
+    std::string label = "?loc:loc.window_names.version_manager" + std::to_string(vortex_versions_counter);
+    auto settings_win = VersionManager::Create(label);
+    settings_win->GetAppWindow()->SetVisibility(true);
+
+    Cherry::ApplicationSpecification spec;
+
+    std::string name = "Version Manager";
+    spec.Name = name;
+    spec.MinHeight = 500;
+    spec.MinWidth = 500;
+    spec.Height = 800;
+    spec.DisableResize = true;
+    spec.Width = 1350;
+    spec.CustomTitlebar = true;
+    spec.DisableWindowManagerTitleBar = true;
+    spec.WindowOnlyClosable = true;
+    spec.RenderMode = Cherry::WindowRenderingMethod::SimpleWindow;
+    spec.UniqueAppWindowName = settings_win->GetAppWindow()->m_Name;
+
+    spec.UsingCloseCallback = true;
+    spec.CloseCallback = [this, settings_win]() {
+      Cherry::DeleteAppWindow(settings_win->GetAppWindow());
+      vortex_versions_counter--;
+    };
+
+    spec.MenubarCallback = []() { };
+    spec.WindowSaves = false;
+
+    Cherry::AddAppWindow(settings_win->GetAppWindow());
+    settings_win->GetAppWindow()->AttachOnNewWindow(spec);
+    vortex_versions_counter++;
+  }
+
+  void SpawnMainSettings() {
+    std::string label = "?loc:loc.window_names.settings" + std::to_string(system_settings_counter);
+    auto settings_win = MainSettings::Create(label);
+    settings_win->GetAppWindow()->SetVisibility(true);
+
+    Cherry::ApplicationSpecification spec;
+
+    std::string name = "Main settings";
+    spec.Name = name;
+    spec.MinHeight = 500;
+    spec.MinWidth = 500;
+    spec.Height = 800;
+    spec.DisableResize = true;
+    spec.Width = 1350;
+    spec.CustomTitlebar = true;
+    spec.DisableWindowManagerTitleBar = true;
+    spec.WindowOnlyClosable = true;
+    spec.RenderMode = Cherry::WindowRenderingMethod::SimpleWindow;
+    spec.UniqueAppWindowName = settings_win->GetAppWindow()->m_Name;
+
+    spec.UsingCloseCallback = true;
+    spec.CloseCallback = [this, settings_win]() {
+      Cherry::DeleteAppWindow(settings_win->GetAppWindow());
+      system_settings_counter--;
+    };
+
+    spec.MenubarCallback = []() { };
+    spec.WindowSaves = false;
+
+    Cherry::AddAppWindow(settings_win->GetAppWindow());
+    settings_win->GetAppWindow()->AttachOnNewWindow(spec);
+    system_settings_counter++;
   }
 
   void SetWelcomeWindowVisibility(const bool &visibility) {
@@ -197,44 +334,13 @@ class Launcher {
     }
   }
 
-  void SetLogicalContentManager(const bool &visibility) {
-    logic_content_manager->GetAppWindow()->SetVisibility(visibility);
-  }
-  void SetContentManager(const bool &visibility) {
-    content_manager->GetAppWindow()->SetVisibility(visibility);
-  }
-
-  void SetVersionManager(const bool &visibility) {
-    version_manager->GetAppWindow()->SetVisibility(visibility);
-  }
-
   void SetAboutWindow(const bool &visibility) {
     about_window->GetAppWindow()->SetVisibility(visibility);
-  }
-
-  bool GetVersionManager() {
-    return version_manager->GetAppWindow()->m_Visible;
-  }
-
-  bool GetContentManager() {
-    return content_manager->GetAppWindow()->m_Visible;
-  }
-
-  bool GetLogicalContentManager() {
-    return logic_content_manager->GetAppWindow()->m_Visible;
   }
 
   /*bool GetDownloadCenterVisibility() {
     return download_center->GetAppWindow()->m_Visible;
   }*/
-
-  bool GetLogsVisibility() {
-    return logs_window->GetAppWindow()->m_Visible;
-  }
-
-  bool GetMainSettingsVisibility() {
-    return system_settings->GetAppWindow()->m_Visible;
-  }
 
   bool GetWelcomeWindowVisibility() {
     return welcome_window->GetAppWindow()->m_Visible;
@@ -245,13 +351,13 @@ class Launcher {
   }
 
  private:
-  std::shared_ptr<LauncherLogUtility> logs_window;
-  std::shared_ptr<MainSettings> system_settings;
+  int system_settings_counter = 0;
+  int vortex_versions_counter = 0;
+  int logs_utility_counter = 0;
+  int logic_content_manager_counter = 0;
+  int content_manager_counter = 0;
   // std::shared_ptr<DownloadCenter> download_center;
   std::shared_ptr<WelcomeWindow> welcome_window;
-  std::shared_ptr<LogicalContentManager> logic_content_manager;
-  std::shared_ptr<VersionManager> version_manager;
-  std::shared_ptr<ContentManager> content_manager;
   std::shared_ptr<AboutAppWindow> about_window;
 
   bool offline = false;
@@ -454,24 +560,24 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png")).GetData("isClicked"
               Cherry::GetLocale("loc.menubar.menuitem.logical_contents").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.logical_contents_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_bricksearch.png")),
-              c_Launcher->GetLogicalContentManager())) {
-        c_Launcher->SetLogicalContentManager(!c_Launcher->GetLogicalContentManager());
+              false)) {
+        c_Launcher->SpawnLogicContentManager();
       }
 
       if (CherryGUI::MenuItem(
               Cherry::GetLocale("loc.menubar.menuitem.static_contents").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.static_contents_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_stack.png")),
-              c_Launcher->GetContentManager())) {
-        c_Launcher->SetContentManager(!c_Launcher->GetContentManager());
+              false)) {
+        c_Launcher->SpawnContentManager();
       }
 
       if (CherryGUI::MenuItem(
               Cherry::GetLocale("loc.menubar.menuitem.vortex_versions").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.vortex_versions_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_versions.png")),
-              c_Launcher->GetVersionManager())) {
-        c_Launcher->SetVersionManager(!c_Launcher->GetVersionManager());
+              false)) {
+        c_Launcher->SpawnVersionManager();
       }
 
       CherryKit::SeparatorText(Cherry::GetLocale("loc.menubar.summary.other"));
@@ -480,7 +586,7 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png")).GetData("isClicked"
               Cherry::GetLocale("loc.menubar.menuitem.about_vortex").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.about_vortex_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_info.png")),
-              c_Launcher->GetLogsVisibility())) {
+              false)) {
         c_Launcher->SetAboutWindowVisibility(!c_Launcher->GetAboutAppWindowVisibility());
       }
 
@@ -496,7 +602,7 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png")).GetData("isClicked"
               Cherry::GetLocale("loc.menubar.menuitem.documentation").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.documentation_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_book.png")),
-              c_Launcher->GetMainSettingsVisibility())) {
+              false)) {
         VortexMaker::OpenURL("https://vortex.infinite.si/learn");
       }
 
@@ -525,8 +631,8 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png")).GetData("isClicked"
               Cherry::GetLocale("loc.menubar.menuitem.logs").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.logs_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_journal.png")),
-              c_Launcher->GetLogsVisibility())) {
-        c_Launcher->SetLogsVisibility(!c_Launcher->GetLogsVisibility());
+              false)) {
+        c_Launcher->SpawnLogsUtility();
       }
 
       CherryGUI::BeginDisabled();
@@ -534,14 +640,14 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png")).GetData("isClicked"
               Cherry::GetLocale("loc.menubar.menuitem.session_utility").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.session_utility_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_list.png")),
-              c_Launcher->GetLogsVisibility())) {
+              false)) {
       }
 
       if (CherryGUI::MenuItem(
               Cherry::GetLocale("loc.menubar.menuitem.latest_crash").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.latest_crash_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_info.png")),
-              c_Launcher->GetLogsVisibility())) {
+              false)) {
       }
 
       CherryGUI::EndDisabled();
@@ -567,8 +673,8 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png")).GetData("isClicked"
               Cherry::GetLocale("loc.menubar.menuitem.settings").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.settings_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_settings.png")),
-              c_Launcher->GetMainSettingsVisibility())) {
-        c_Launcher->SetMainSettingsVisibility(!c_Launcher->GetMainSettingsVisibility());
+              false)) {
+        c_Launcher->SpawnMainSettings();
       }
 
       if (CherryGUI::BeginMenu("Switch language")) {
@@ -576,35 +682,35 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png")).GetData("isClicked"
                 "English",
                 "Switch language to english (en)",
                 Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/us.png")),
-                c_Launcher->GetMainSettingsVisibility())) {
+                false)) {
           app->SetLocale("en");
         }
         if (CherryGUI::MenuItem(
                 "Français",
                 "Changer la langue pour le Français (fr)",
                 Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/fr.png")),
-                c_Launcher->GetMainSettingsVisibility())) {
+                false)) {
           app->SetLocale("fr");
         }
         if (CherryGUI::MenuItem(
                 "Español",
                 "Cambiar el idioma a español",
                 Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/es.png")),
-                c_Launcher->GetMainSettingsVisibility())) {
+                false)) {
           app->SetLocale("es");
         }
         if (CherryGUI::MenuItem(
                 "Português",
                 "Alterar o idioma para Português",
                 Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/po.png")),
-                c_Launcher->GetMainSettingsVisibility())) {
+                false)) {
           app->SetLocale("pt");
         }
         if (CherryGUI::MenuItem(
                 "Deutsch",
                 "Ändern Sie die Sprache auf Deutsch",
                 Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/po.png")),
-                c_Launcher->GetMainSettingsVisibility())) {
+                false)) {
           app->SetLocale("de");
         }
 
