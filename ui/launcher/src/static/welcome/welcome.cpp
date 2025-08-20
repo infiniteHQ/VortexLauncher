@@ -751,7 +751,7 @@ namespace VortexLauncher {
       CherryNextComponent.SetRenderMode(Cherry::RenderMode::CreateOnly);
       actions_blocks.push_back(
           CherryKit::BlockVerticalCustom(
-              m_CreateProjectCallback,
+              [this]() { m_SelectedChildName = "?loc:loc.windows.welcome.create_project"; },
               269.0f,
               120.0f,
               {
@@ -768,7 +768,7 @@ namespace VortexLauncher {
       CherryNextComponent.SetRenderMode(Cherry::RenderMode::CreateOnly);
       actions_blocks.push_back(
           CherryKit::BlockVerticalCustom(
-              m_OpenProjectCallback,
+              [this]() { m_SelectedChildName = "?loc:loc.windows.welcome.open_project"; },
               269.0f,
               120.0f,
               {

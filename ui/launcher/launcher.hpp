@@ -66,6 +66,8 @@ class Launcher {
       welcome_window->m_SelectedChildName = "?loc:loc.windows.welcome.open_project";
       welcome_window->m_SelectedEnvproject = project;
     };
+    welcome_window->m_SettingsCallback = [this]() { this->SpawnMainSettings(); };
+
     Cherry::AddAppWindow(welcome_window->GetAppWindow());
     /*welcome_window->m_CreateProjectCallback = [this]() {
       project_manager->m_ProjectCreation = true;
@@ -416,7 +418,81 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
   btn_close->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"));*/
 
   app->PushLayer(layer);
-  app->SetFramebarCallback([=]() { CherryKit::ButtonText("Support"); });
+  app->SetFramebarCallback([=]() {
+    float oldSize = CherryGUI::GetFont()->Scale;
+    CherryGUI::PushFont(CherryGUI::GetFont());
+
+    const char *text = "idle";
+    CherryGUI::GetFont()->Scale *= 0.84;
+    CherryGUI::PushFont(CherryGUI::GetFont());
+
+    ImVec2 textSize = CherryGUI::CalcTextSize(text);
+
+    float circleRadius = 10.0f;
+    float circlePadding = 12.0f;
+    float rectanglePaddingX = 15.0f;
+    float rectanglePaddingY = 25.0f;
+
+    ImVec2 cursorPos = CherryGUI::GetCursorScreenPos();
+
+    float yOffset = 5.0f;
+
+    ImVec2 circlePos = ImVec2(cursorPos.x - 12 + circleRadius, cursorPos.y + textSize.y * 0.1f + 6);
+
+    ImVec2 rectMin = ImVec2(cursorPos.x + circleRadius + circlePadding, cursorPos.y - 38 + yOffset);
+    ImVec2 rectMax =
+        ImVec2(rectMin.x + textSize.x + 2 * rectanglePaddingX, cursorPos.y + textSize.y + 2 * rectanglePaddingY - 45);
+
+    ImDrawList *drawList = CherryGUI::GetWindowDrawList();
+    drawList->AddRectFilled(rectMin, rectMax, IM_COL32(15, 15, 15, 255));
+
+    CherryGUI::SetCursorScreenPos(circlePos);
+    CherryGUI::InvisibleButton("circleButton", ImVec2(circleRadius * 2, circleRadius * 2));
+
+    if (CherryGUI::IsItemHovered()) {
+      drawList->AddCircle(circlePos, circleRadius + 1.0f, IM_COL32(200, 200, 200, 255), 32, 2.0f);
+    }
+
+    drawList->AddCircleFilled(circlePos, circleRadius, IM_COL32(40, 40, 40, 255));
+
+    ImVec2 textPos = ImVec2(
+        rectMin.x + rectanglePaddingX, rectMin.y + (rectMax.y - rectMin.y - textSize.y) * 0.5f + rectanglePaddingY - 10);
+
+    CherryGUI::SetCursorScreenPos(textPos);
+
+    if (CherryGUI::IsItemClicked(ImGuiMouseButton_Left)) {
+      CherryGUI::OpenPopup("projectMenu");
+    }
+
+    CherryGUI::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), text);
+    if (CherryGUI::BeginPopup("projectMenu")) {
+      CherryGUI::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), text);
+      if (CherryGUI::MenuItem("Project settings")) {
+      }
+
+      CherryGUI::Separator();
+      if (CherryGUI::MenuItem("Connect to Vortex community")) {
+      }
+      CherryGUI::Separator();
+      if (CherryGUI::MenuItem("See my marketplace contents")) {
+      }
+      if (CherryGUI::MenuItem("See my marketplace plugins/modules")) {
+      }
+      if (CherryGUI::MenuItem("See my marketplace templates")) {
+      }
+      if (CherryGUI::MenuItem("See my VortexHub projects")) {
+      }
+      CherryGUI::Separator();
+      if (CherryGUI::MenuItem("Upload content(s)")) {
+      }
+      CherryGUI::EndPopup();
+    }
+
+    CherryGUI::GetFont()->Scale = oldSize;
+    CherryGUI::PopFont();
+
+    CherryGUI::PopFont();
+  });
 
   app->SetMenubarCallback([=]() {
     std::cout << "SetMenubarCallback" << std::endl;
