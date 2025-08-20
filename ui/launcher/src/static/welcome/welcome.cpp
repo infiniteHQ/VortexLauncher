@@ -287,13 +287,15 @@ namespace VortexLauncher {
 
   void WelcomeWindow::OpenProjectRender() {
     static bool open_deletion_modal = false;
-    CherryGUI::BeginChild("left_pane", ImVec2(middlePaneWidth, 0), true, ImGuiWindowFlags_NoBackground);
+    float avail_x = CherryGUI::GetContentRegionAvail().x - 350.0f;
+    CherryGUI::BeginChild(
+        "left_pane", ImVec2(avail_x, 0), true, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoScrollbar);
 
+    CherryStyle::AddMarginY(4.0f);
     Cherry::PushFont("ClashBold");
     CherryNextProp("color_text", "#797979");
     CherryKit::TitleFive("All projects and tools");
     Cherry::PopFont();
-    CherryNextProp("color", "#252525");
 
     CherryGUI::SameLine();
     CherryStyle::AddMarginX(10.0f);
@@ -366,6 +368,7 @@ namespace VortexLauncher {
       }
     }
 
+    CherryNextProp("color", "#252525");
     CherryKit::Separator();
 
     if (VortexMaker::GetCurrentContext()->IO.sys_projects.empty()) {
@@ -383,7 +386,7 @@ namespace VortexLauncher {
         // m_ProjectCreation = true;
       }
     }
-    std::cout << "project bloc size" << project_blocks.size() << std::endl;
+
     if (project_blocks.empty()) {
       for (int row = 0; row < VortexMaker::GetCurrentContext()->IO.sys_projects.size(); row++) {
         auto element = VortexMaker::GetCurrentContext()->IO.sys_projects[row];
@@ -456,14 +459,14 @@ namespace VortexLauncher {
       }
     }
 
-    CherryKit::GridSimple(CherryID("project_blocks"), 150.0f, 150.0f, project_blocks);
+    CherryKit::GridSimple(CherryID("test"), 150.0f, 150.0f, this->project_blocks);
 
     CherryGUI::EndChild();
 
     CherryGUI::SameLine();
 
     CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
-    CherryGUI::BeginChild("###rightpan");
+    CherryGUI::BeginChild("###rightpan", ImVec2(350, 0));
     if (!m_SelectedEnvproject) {
       auto texture = Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/frame_selectproject.png"));
       auto texture_size = Cherry::GetTextureSize(Cherry::GetPath("resources/imgs/icons/misc/frame_selectproject.png"));
@@ -634,7 +637,7 @@ namespace VortexLauncher {
       CherryStyle::RemoveMarginY(60.0f);
       Cherry::PushFont("ClashMedium");
       CherryNextProp("color_text", "#FFFFFF");
-      CherryKit::TitleOne("Welcome to Vortex");
+      CherryKit::TitleOne(Cherry::GetLocale("loc.windows.welcome.title"));
       Cherry::PopFont();
     }
 
@@ -873,7 +876,7 @@ namespace VortexLauncher {
 
     std::vector<Cherry::Component> news_blocks;
 
-    if (VortexMaker::GetCurrentContext()->IO.offline) {
+    if (VortexMaker::GetCurrentContext()->disconnected) {
       if (news_blocks.empty()) {
         CherryNextComponent.SetRenderMode(Cherry::RenderMode::CreateOnly);
         auto block = CherryKit::BannerImageContext(
@@ -962,7 +965,6 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
     m_SelectedChildName = "?loc:loc.windows.welcome.overview";
     m_RecentProjects = GetMostRecentProjects(VortexMaker::GetCurrentContext()->IO.sys_projects, 4);
     RefreshTemplates();
-
     std::string path = VortexMaker::getHomeDirectory() + "/.vx/configs/";
     loadProjects(projectPoolsPaths, path + "/projects_pools.json");
 
@@ -1087,7 +1089,7 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
     if (CherryGUI::ImageSizeButtonWithText(
             Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_home.png")),
             header_width,
-            "Overview",
+            Cherry::GetLocale("loc.windows.welcome.overview").c_str(),
             ImVec2(-FLT_MIN, 0.0f),
             ImVec2(0, 0),
             ImVec2(1, 1),
@@ -1101,7 +1103,7 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
     if (CherryGUI::ImageSizeButtonWithText(
             Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_add.png")),
             header_width,
-            "Create projects",
+            Cherry::GetLocale("loc.windows.welcome.create_projects").c_str(),
             ImVec2(-FLT_MIN, 0.0f),
             ImVec2(0, 0),
             ImVec2(1, 1),
@@ -1115,7 +1117,7 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
     if (CherryGUI::ImageSizeButtonWithText(
             Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_stack.png")),
             header_width,
-            "Your projects & tools",
+            Cherry::GetLocale("loc.windows.welcome.your_projects").c_str(),
             ImVec2(-FLT_MIN, 0.0f),
             ImVec2(0, 0),
             ImVec2(1, 1),
@@ -1129,7 +1131,7 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
     if (CherryGUI::ImageSizeButtonWithText(
             Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_settings.png")),
             header_width,
-            "Settings",
+            Cherry::GetLocale("loc.windows.welcome.settings").c_str(),
             ImVec2(-FLT_MIN, 0.0f),
             ImVec2(0, 0),
             ImVec2(1, 1),

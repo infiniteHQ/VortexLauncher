@@ -649,47 +649,40 @@ std::string VortexMaker::GetPath(const std::string &path) {
 #endif
 }
 
-
 #ifdef _WIN32
 #include <windows.h>
+
 #include <string>
 
-int VortexMaker::RunCommand(const std::string& command) {
-    STARTUPINFOA si = { sizeof(si) };
-    PROCESS_INFORMATION pi;
-    si.dwFlags = STARTF_USESHOWWINDOW;
-    si.wShowWindow = SW_HIDE;
+int VortexMaker::RunCommand(const std::string &command) {
+  STARTUPINFOA si = { sizeof(si) };
+  PROCESS_INFORMATION pi;
+  si.dwFlags = STARTF_USESHOWWINDOW;
+  si.wShowWindow = SW_HIDE;
 
-    std::string cmdLine = "cmd.exe /C " + command;
+  std::string cmdLine = "cmd.exe /C " + command;
 
-    BOOL success = CreateProcessA(
-        NULL,
-        cmdLine.data(),
-        NULL, NULL, FALSE,
-        CREATE_NO_WINDOW,
-        NULL, NULL,
-        &si, &pi
-    );
+  BOOL success = CreateProcessA(NULL, cmdLine.data(), NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi);
 
-    if (!success) {
-        return 1; 
-    }
+  if (!success) {
+    return 1;
+  }
 
-    WaitForSingleObject(pi.hProcess, INFINITE);
+  WaitForSingleObject(pi.hProcess, INFINITE);
 
-    DWORD exitCode = 1;
-    GetExitCodeProcess(pi.hProcess, &exitCode);
+  DWORD exitCode = 1;
+  GetExitCodeProcess(pi.hProcess, &exitCode);
 
-    CloseHandle(pi.hProcess);
-    CloseHandle(pi.hThread);
+  CloseHandle(pi.hProcess);
+  CloseHandle(pi.hThread);
 
-    return static_cast<int>(exitCode);
+  return static_cast<int>(exitCode);
 }
 #else
 #include <cstdlib>
 
-int VortexMaker::RunCommand(const std::string& command) {
-    return std::system(command.c_str());
+int VortexMaker::RunCommand(const std::string &command) {
+  return std::system(command.c_str());
 }
 #endif
 
@@ -948,9 +941,38 @@ VortexNet::VortexNet() {
 VortexNet::~VortexNet() {
 }
 
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "Ws2_32.lib")
+#else
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <unistd.h>
+#endif
+
 bool VortexNet::CheckNet() {
-  std::string res = GET("http://api.infinite.si:8000/");
-  return !res.empty();
+#ifdef _WIN32
+  WSADATA wsaData;
+  if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+    return false;
+  }
+#endif
+
+  addrinfo hints{}, *res = nullptr;
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_socktype = SOCK_STREAM;
+
+  int status = getaddrinfo("infinite.si", "80", &hints, &res);
+
+  if (res)
+    freeaddrinfo(res);
+
+#ifdef _WIN32
+  WSACleanup();
+#endif
+
+  return (status == 0);
 }
 
 std::string VortexNet::GET(const std::string &url) {
@@ -961,78 +983,69 @@ std::string VortexNet::POST(const std::string &url, const std::string &body, con
   return Request(url, "POST", body, contentType);
 }
 
-
-
-
-
 std::string VortexNet::Request(
     const std::string &url,
     const std::string &method,
     const std::string &body,
     const std::string &contentType) {
+  naettReq *req = nullptr;
 
-    naettReq* req = nullptr;
+  if (method == "GET") {
+    std::cout << "GET request\n";
+    req = naettRequest_va(url.c_str(), 2, naettMethod("GET"), naettHeader("accept", "*/*"));
+  } else if (method == "POST") {
+    std::cout << "POST request\n";
+    req = naettRequest_va(
+        url.c_str(),
+        4,
+        naettMethod("POST"),
+        naettHeader("Content-Type", contentType.c_str()),
+        naettBody(body.c_str(), (int)body.size()),
+        naettHeader("accept", "*/*"));
+  } else {
+    std::cerr << "Unsupported HTTP method: " << method << std::endl;
+    return "";
+  }
 
-    if (method == "GET") {
-        std::cout << "GET request\n";
+  if (!req) {
+    std::cerr << "Failed to create request\n";
+    return "";
+  }
 
-    const char* URL = url.c_str();
-req = naettRequest_va(
-    URL,
-    2,
-    naettMethod("GET"),
-    naettHeader("accept", "*/*")
-);
+  naettRes *res = naettMake(req);
+  if (!res) {
+    std::cerr << "Failed to make request\n";
+    naettFree(req);
+    return "";
+  }
 
+  while (!naettComplete(res)) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
 
-    } else if (method == "POST") {
-        std::cout << "POST request\n";
-
-
-    } else {
-        std::cerr << "Unsupported HTTP method: " << method << std::endl;
-        return "";
-    }
-
-    if (!req) {
-        std::cerr << "Failed to create request\n";
-        return "";
-    }
-
-    naettRes* res = naettMake(req);
-    if (!res) {
-        std::cerr << "Failed to make request\n";
-        naettFree(req);
-        return "";
-    }
-
-    while (!naettComplete(res)) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-
-    int status = naettGetStatus(res);
-    if (status < 0) {
-        std::cerr << "Request failed with status: " << status << std::endl;
-        naettClose(res);
-        naettFree(req);
-        return "";
-    }
-
-    int length = 0;
-    const char* responseBody = static_cast<const char*>(naettGetBody(res, &length));
-    if (!responseBody || length == 0) {
-        std::cerr << "Empty response body\n";
-        naettClose(res);
-        naettFree(req);
-        return "";
-    }
-
-    std::string result(responseBody, length);
-
+  int status = naettGetStatus(res);
+  if (status < 0) {
+    std::cerr << "Request failed with status: " << status << std::endl;
     naettClose(res);
     naettFree(req);
+    return "";
+  }
 
-    return result;
+  int length = 0;
+  const char *responseBody = static_cast<const char *>(naettGetBody(res, &length));
+  std::string result;
+
+  if (responseBody && length > 0) {
+    result.assign(responseBody, length);
+  } else {
+    std::cerr << "Empty response body\n";
+    result = "";
+  }
+
+  naettClose(res);
+  naettFree(req);
+
+  return result;
 }
 
 #endif  // VORTEX_DISABLE

@@ -33,6 +33,19 @@
         {"loc.menubar.menuitem.main_settings":"Paramètres généraux"},
         {"loc.menubar.menuitem.main_settings_desc":"Configurer Vortex"},
         {"loc.menubar.menuitem.switch_language":"Changer la langue"},
-        {"loc.menubar.menuitem.switch_language_desc":"Définir une autre langue"}
+        {"loc.menubar.menuitem.switch_language_desc":"Définir une autre langue"},
+        
+        {"loc.windows.welcome.contribute":"Contribuer à Vortex"},
+        {"loc.windows.welcome.fast_actions":"Actions rapides"},
+        {"loc.windows.welcome.trends":"Tendances"},
+        {"loc.windows.welcome.actuality":"Actualités"},
+        {"loc.windows.welcome.whats_news":"Quoi de neuf ?"},
+        {"loc.windows.welcome.sponsor":"Sponsors de Vortex"},
+        {"loc.windows.welcome.overview":"Aperçu"},
+        {"loc.windows.welcome.title":"Bienvenue sur Vortex !"},
+        {"loc.windows.welcome.create_projects":"Créer des projets"},
+        {"loc.windows.welcome.your_projects":"Vos projets & outils"},
+        {"loc.windows.welcome.settings":"Paramètres"}
+        
     ]
 }

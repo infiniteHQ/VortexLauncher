@@ -108,6 +108,16 @@ void PrintHeader() {
 VxContext *InitBlankRuntime(bool logger) {
   VxContext *ctx = VortexMaker::CreateContext();
 
+  // Checking connexion
+
+  ctx->disconnected = true;
+
+  std::thread([ctx]() {
+    if (VortexMaker::GetCurrentContext()->net.CheckNet()) {
+      ctx->disconnected = false;
+    }
+  }).detach();
+
 #ifdef _WIN32
   ctx->m_VortexLauncherPath = VortexMaker::GetPath(".\\");
 #else
@@ -140,9 +150,11 @@ VxContext *InitBlankRuntime(bool logger) {
   VortexMaker::RefreshVortexLauncherDists();
   VortexMaker::RefreshVortexDists();
 
-  VortexMaker::UpdateVortexWebData();
-  VortexMaker::UpdateVortexLauncherWebData();
-  VortexMaker::UpdateVortexNews({ "vortex1", "vortex2" });
+  if (!ctx->disconnected) {
+    VortexMaker::UpdateVortexWebData();
+    VortexMaker::UpdateVortexLauncherWebData();
+    VortexMaker::UpdateVortexNews({ "vortex1", "vortex2" });
+  }
 
   VortexMaker::RefreshEnvironmentProjects();
   VortexMaker::RefreshEnvironmentVortexVersion();
@@ -178,11 +190,6 @@ int main(int argc, char *argv[]) {
   }
   PrintHeader();
   VxContext *ctx = InitBlankRuntime(true);
-
-  // Checking connexion
-  if (!VortexMaker::GetCurrentContext()->net.CheckNet()) {
-    ctx->disconnected = true;
-  }
 
   VortexMaker::LogInfo("Bootstrapp", "Opening the graphical interface...");
 

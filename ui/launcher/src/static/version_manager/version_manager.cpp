@@ -103,8 +103,8 @@ namespace VortexLauncher {
               CherryNextProp("color", "#252525");
               CherryKit::Separator();
 
-              if (VortexMaker::GetCurrentContext()->IO.offline) {
-                CherryKit::TitleFour("Online mode");  // TODO : LOGO
+              if (VortexMaker::GetCurrentContext()->disconnected) {
+                CherryKit::TitleFour("Offline mode");  // TODO : LOGO
               } else {
                 static std::vector<std::function<void(int)>> available_versions;
 

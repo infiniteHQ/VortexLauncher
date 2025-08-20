@@ -518,31 +518,32 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
 
     std::cout << "okl" << &ctx << std::endl;
     std::cout << "EB" << std::endl;
+    if (!VortexMaker::GetCurrentContext()->disconnected) {
+      CherryKit::NotificationButton(
+          &ctx.launcher_update_available,
+          10,
+          "info",
+          "Update Vortex Launcher",
+          "A new update for the launcher is available !" + ctx.latest_launcher_version.version,
+          []() {
+            if (CherryKit::ButtonImageText("Update now", Cherry::GetPath("resources/imgs/icons/misc/icon_upgrade.png"))
+                    .GetData("isClicked") == "true") {
+              std::thread([]() {
+                VortexMaker::OpenLauncherUpdater(
+                    VortexMaker::GetCurrentContext()->m_VortexLauncherPath,
+                    VortexMaker::GetCurrentContext()->IO.sys_vortexlauncher_dist);
+              }).detach();
+              Cherry::Application::Get().Close();
+            }
+          });
 
-    CherryKit::NotificationButton(
-        &ctx.launcher_update_available,
-        10,
-        "info",
-        "Update Vortex Launcher",
-        "A new update for the launcher is available !" + ctx.latest_launcher_version.version,
-        []() {
-          if (CherryKit::ButtonImageText("Update now", Cherry::GetPath("resources/imgs/icons/misc/icon_upgrade.png"))
-                  .GetData("isClicked") == "true") {
-            std::thread([]() {
-              VortexMaker::OpenLauncherUpdater(
-                  VortexMaker::GetCurrentContext()->m_VortexLauncherPath,
-                  VortexMaker::GetCurrentContext()->IO.sys_vortexlauncher_dist);
-            }).detach();
-            Cherry::Application::Get().Close();
-          }
-        });
-
-    CherryKit::NotificationSimple(
-        &ctx.vortex_update_available,
-        10,
-        "info",
-        "Vortex " + ctx.latest_vortex_version->version + " is live !",
-        "A new update of Vortex is available ! Try it now" + ctx.latest_launcher_version.version);
+      CherryKit::NotificationSimple(
+          &ctx.vortex_update_available,
+          10,
+          "info",
+          "Vortex " + ctx.latest_vortex_version->version + " is live !",
+          "A new update of Vortex is available ! Try it now" + ctx.latest_launcher_version.version);
+    }
 
     /*if(ctx.launcher_update_available)
     {

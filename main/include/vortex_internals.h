@@ -41,7 +41,7 @@
 #endif
 
 #ifdef _WIN32
-#define popen _popen
+#define popen  _popen
 #define pclose _pclose
 #endif
 
@@ -214,7 +214,6 @@ struct VxIO {
 
   // Misc
   std::vector<VortexNews> news;
-  bool offline = false;
 };
 
 struct VxPaths {
