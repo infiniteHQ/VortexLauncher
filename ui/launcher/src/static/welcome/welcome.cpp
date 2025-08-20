@@ -387,80 +387,80 @@ namespace VortexLauncher {
       }
     }
 
-    if (project_blocks.empty()) {
-      for (int row = 0; row < VortexMaker::GetCurrentContext()->IO.sys_projects.size(); row++) {
-        auto element = VortexMaker::GetCurrentContext()->IO.sys_projects[row];
-        project_blocks.push_back(
-            CherryKit::BlockVerticalCustom(
-                [this, element]() { m_SelectedEnvproject = element; },
-                150.0f,
-                115.0f,
-                {
-                    []() { CherryKit::ImageLocal(Cherry::GetPath("resources/imgs/def_project_banner.png"), 150.0f); },
-                    [element]() {
-                      CherryStyle::RemoveMarginY(35.0f);
-                      CherryStyle::AddMarginX(10.0f);
-                      std::string imgpath = element->logoPath;
+    project_blocks.clear();
+    int index = 0;
+    for (auto element : VortexMaker::GetCurrentContext()->IO.sys_projects) {
+      index++;
+      CherryNextComponent.SetRenderMode(RenderMode::CreateOnly);
+      project_blocks.push_back(
+          CherryKit::BlockVerticalCustom(
+              [this, element]() { m_SelectedEnvproject = element; },
+              150.0f,
+              115.0f,
+              {
+                  []() { CherryKit::ImageLocal(Cherry::GetPath("resources/imgs/def_project_banner.png"), 150.0f); },
+                  [element]() {
+                    CherryStyle::RemoveMarginY(35.0f);
+                    CherryStyle::AddMarginX(10.0f);
+                    std::string imgpath = element->logoPath;
 #ifdef _WIN32
-                      imgpath = VortexMaker::convertPathToWindowsStyle(imgpath);
+                    imgpath = VortexMaker::convertPathToWindowsStyle(imgpath);
 #endif
-                      CherryKit::ImageLocal(imgpath, 40.0f, 40.0f);
-                    },
-                    [element]() {
-                      CherryStyle::AddMarginX(5.0f);
-                      Cherry::SetNextComponentProperty("color_text", "#FFFFFF");
-                      CherryKit::TextSimple(element->name);
-                    },
-                    [element]() {
-                      Cherry::SetNextComponentProperty("color", "#353535");
-                      CherryKit::Separator();
-                      CherryStyle::AddMarginX(5.0f);
+                    CherryKit::ImageLocal(imgpath, 40.0f, 40.0f);
+                  },
+                  [element]() {
+                    CherryStyle::AddMarginX(5.0f);
+                    Cherry::SetNextComponentProperty("color_text", "#FFFFFF");
+                    CherryKit::TextSimple(element->name);
+                  },
+                  [element]() {
+                    Cherry::SetNextComponentProperty("color", "#353535");
+                    CherryKit::Separator();
+                    CherryStyle::AddMarginX(5.0f);
 
-                      std::string versionpath;
-                      bool version_available =
-                          VortexMaker::CheckIfVortexVersionUtilityExist(element->compatibleWith, versionpath);
-                      if (version_available) {
-                        Cherry::SetNextComponentProperty("color_text", "#AAAAAA");
+                    std::string versionpath;
+                    bool version_available =
+                        VortexMaker::CheckIfVortexVersionUtilityExist(element->compatibleWith, versionpath);
+                    if (version_available) {
+                      Cherry::SetNextComponentProperty("color_text", "#AAAAAA");
+                    } else {
+                      if (VortexMaker::CheckVersionAvailibility(element->compatibleWith).version == "") {
+                        Cherry::SetNextComponentProperty("color_text", "#EE5555");
                       } else {
-                        if (VortexMaker::CheckVersionAvailibility(element->compatibleWith).version == "") {
-                          Cherry::SetNextComponentProperty("color_text", "#EE5555");
-                        } else {
-                          Cherry::SetNextComponentProperty("color_text", "#EEAA55");
-                        }
+                        Cherry::SetNextComponentProperty("color_text", "#EEAA55");
                       }
-                      CherryKit::TextSimple(element->compatibleWith);
-                      if (!version_available) {
+                    }
+                    CherryKit::TextSimple(element->compatibleWith);
+                    if (!version_available) {
+                      CherryGUI::SameLine();
+
+                      if (VortexMaker::CheckVersionAvailibility(element->compatibleWith).version == "") {
+                        CherryKit::TooltipImage(
+                            Cherry::GetPath("resources/base/error.png"),
+                            "Vortex " + element->compatibleWith +
+                                " is not installed in your system. Please click to see more.");
                         CherryGUI::SameLine();
+                        Cherry::SetNextComponentProperty("color_text", "#888888");
 
-                        if (VortexMaker::CheckVersionAvailibility(element->compatibleWith).version == "") {
-                          CherryKit::TooltipImage(
-                              Cherry::GetPath("resources/base/error.png"),
-                              "Vortex " + element->compatibleWith +
-                                  " is not installed in your system. Please click to see more.");
-                          CherryGUI::SameLine();
-                          Cherry::SetNextComponentProperty("color_text", "#888888");
+                        // CherryKit::TextRight(CherryID("qsd"), "Project");
+                      } else {
+                        CherryKit::TooltipImage(
+                            Cherry::GetPath("resources/base/warn.png"),
+                            "Vortex " + element->compatibleWith +
+                                " is not installed in your system but available to download.");
+                        CherryGUI::SameLine();
+                        Cherry::SetNextComponentProperty("color_text", "#888888");
 
-                          // CherryKit::TextRight(CherryID("qsd"), "Project");
-                        } else {
-                          CherryKit::TooltipImage(
-                              Cherry::GetPath("resources/base/warn.png"),
-                              "Vortex " + element->compatibleWith +
-                                  " is not installed in your system but available to download.");
-                          CherryGUI::SameLine();
-                          Cherry::SetNextComponentProperty("color_text", "#888888");
-
-                          // CherryKit::TextRight(CherryID("qsd"), "Project");
-                        }
-                        CherryStyle::RemoveMarginX(5.0f);
+                        // CherryKit::TextRight(CherryID("qsd"), "Project");
                       }
-                    },
-                },
-                row));
-      }
+                      CherryStyle::RemoveMarginX(5.0f);
+                    }
+                  },
+              },
+              index));
     }
 
-    CherryKit::GridSimple(CherryID("test"), 150.0f, 150.0f, this->project_blocks);
-
+    CherryKit::GridSimple(150.0f, 150.0f, project_blocks);
     CherryGUI::EndChild();
 
     CherryGUI::SameLine();
