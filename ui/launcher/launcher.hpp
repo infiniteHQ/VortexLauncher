@@ -47,7 +47,6 @@ class Launcher {
       cmd = "cp -r " + Cherry::GetPath("resources/templates/blank_project") + " " + path;
 #endif
 
-      std::cout << "CPUY <" << cmd << std::endl;
       system(cmd.c_str());
     }*/
 
@@ -495,31 +494,16 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
   });
 
   app->SetMenubarCallback([=]() {
-    std::cout << "SetMenubarCallback" << std::endl;
     ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
     ImVec4 graySeparatorColor = ImVec4(0.4f, 0.4f, 0.4f, 0.5f);
     ImVec4 darkBackgroundColor = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
     ImVec4 lightBorderColor = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
-    std::cout << "BEFORME" << std::endl;
 
     CherryGUI::PushStyleColor(ImGuiCol_PopupBg, darkBackgroundColor);
-
-    std::cout << "sdh" << std::endl;
     CherryGUI::PushStyleColor(ImGuiCol_Border, lightBorderColor);
-    std::cout << "g" << std::endl;
 
     CherryGUI::PushStyleVar(ImGuiStyleVar_PopupRounding, 3.0f);
-    std::cout << "qsf" << std::endl;
-
-    static bool t;
-
-    std::cout << "BEFORME" << std::endl;
     VxContext &ctx = *CVortexMaker;
-
-    std::cout << "okl" << &ctx << std::endl;
-    std::cout << "EB" << std::endl;
-
-    std::cout << "EB2" << std::endl;
     /*if(ctx.launcher_update_available)
     {
         static bool close_toast = false;

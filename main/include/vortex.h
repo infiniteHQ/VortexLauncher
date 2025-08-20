@@ -7,9 +7,9 @@
 //_____________________________________________________________________________
 // Versions & Build identification
 //_____________________________________________________________________________
-// (Integer encoded as XYYZZ for use in #if preprocessor conditionals, e.g. '#if VORTEXLAUNCHER_VERSION_NUM >= 1.4.0')
-#define VORTEXLAUNCHER_VERSION     "1.4.0"
-#define VORTEXLAUNCHER_VERSION_NUM 01.4.0  // Major.Medium.Minor
+// (Integer encoded as XYYZZ for use in #if preprocessor conditionals, e.g. '#if VORTEXLAUNCHER_VERSION_NUM >= 1.5.0')
+#define VORTEXLAUNCHER_VERSION     "1.5.0"
+#define VORTEXLAUNCHER_VERSION_NUM 010500  // Major.Medium.Minor
 
 //_____________________________________________________________________________
 
@@ -41,12 +41,11 @@
 #include <stdio.h>   // NULL
 #include <sys/stat.h>
 #ifdef _WIN32
-    #include <windows.h>
-    #include <shellapi.h>
+#include <shellapi.h>
+#include <windows.h>
 #else
-    #include <unistd.h>
+#include <unistd.h>
 #endif
-
 
 #include <algorithm>
 #include <chrono>
@@ -69,7 +68,7 @@
 #include <sys/wait.h>
 #endif
 #ifndef _WIN32
-    #include <dirent.h>
+#include <dirent.h>
 #endif
 
 #include <deque>
@@ -310,9 +309,9 @@ namespace VortexMaker {
   VORTEX_API void OpenProject(const std::string &path, const std::string &version);
 
 #ifdef _WIN32
-VORTEX_API int RunCommand(const std::string& command);
+  VORTEX_API int RunCommand(const std::string &command);
 #else
-VORTEX_API int RunCommand(const std::string& command);
+  VORTEX_API int RunCommand(const std::string &command);
 #endif
 
   VORTEX_API void CreateProject(const std::string &name, const std::string &path);
