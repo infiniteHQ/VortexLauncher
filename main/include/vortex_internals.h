@@ -278,7 +278,8 @@ struct VxContext {  // Master flags
   bool launcher_update_available = false;
   bool vortex_update_available = false;
   bool blankproject_exist = false;
-  bool disconnected = false;
+  std::atomic<bool> disconnected{ true };
+  std::atomic<bool> web_fetched{ false };
 
   // Components
   VxIO IO;

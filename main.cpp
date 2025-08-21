@@ -108,13 +108,29 @@ void PrintHeader() {
 VxContext *InitBlankRuntime(bool logger) {
   VxContext *ctx = VortexMaker::CreateContext();
 
-  // Checking connexion
-
   ctx->disconnected = true;
+  ctx->web_fetched = false;
 
-  std::thread([ctx]() {
+  std::thread([=]() {
     if (VortexMaker::GetCurrentContext()->net.CheckNet()) {
-      ctx->disconnected = false;
+      VortexMaker::GetCurrentContext()->disconnected = false;
+    }
+  }).detach();
+
+  std::thread([=]() {
+    while (!VortexMaker::GetCurrentContext()->web_fetched) {
+      if (!VortexMaker::GetCurrentContext()->disconnected) {
+        VortexMaker::UpdateVortexWebData();
+        VortexMaker::UpdateVortexLauncherWebData();
+        VortexMaker::UpdateVortexNews({ "vortex1", "vortex2" });
+        VortexMaker::GetCurrentContext()->web_fetched = true;
+
+        std::string version = VORTEXLAUNCHER_VERSION;
+        if (VortexMaker::IsVersionGreater(version, ctx->latest_launcher_version.version)) {
+          ctx->launcher_update_available = true;
+        }
+      }
+      std::this_thread::sleep_for(std::chrono::seconds(2));
     }
   }).detach();
 
@@ -149,12 +165,6 @@ VxContext *InitBlankRuntime(bool logger) {
 
   VortexMaker::RefreshVortexLauncherDists();
   VortexMaker::RefreshVortexDists();
-
-  if (!ctx->disconnected) {
-    VortexMaker::UpdateVortexWebData();
-    VortexMaker::UpdateVortexLauncherWebData();
-    VortexMaker::UpdateVortexNews({ "vortex1", "vortex2" });
-  }
 
   VortexMaker::RefreshEnvironmentProjects();
   VortexMaker::RefreshEnvironmentVortexVersion();

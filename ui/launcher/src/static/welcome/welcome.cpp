@@ -628,6 +628,42 @@ namespace VortexLauncher {
   void WelcomeWindow::WelcomeRender() {
     // CherryKit::TableSimple("", { CherryKit::KeyValString("Project name", &test) });
 
+    if (VortexMaker::GetCurrentContext()->web_fetched) {
+      std::cout << "sedfgghnh1" << std::endl;
+      CherryNextComponent.SetProperty("color_border", "#343434");
+      CherryNextComponent.SetProperty("color_bg", "#232323");
+      CherryKit::NotificationButton(
+          &VortexMaker::GetCurrentContext()->launcher_update_available,
+          10,
+          "info",
+          "Update Vortex Launcher",
+          "A new update for the launcher is available !" + VortexMaker::GetCurrentContext()->latest_launcher_version.version,
+          []() {
+            if (CherryKit::ButtonImageText("Update now", Cherry::GetPath("resources/imgs/icons/misc/icon_upgrade.png"))
+                    .GetData("isClicked") == "true") {
+              std::thread([]() {
+                VortexMaker::OpenLauncherUpdater(
+                    VortexMaker::GetCurrentContext()->m_VortexLauncherPath,
+                    VortexMaker::GetCurrentContext()->IO.sys_vortexlauncher_dist);
+              }).detach();
+              Cherry::Application::Get().Close();
+            }
+          });
+
+      std::cout << "13" << std::endl;
+      std::cout << VortexMaker::GetCurrentContext()->vortex_update_available << std::endl;
+      if (VortexMaker::GetCurrentContext()->latest_vortex_version) {
+        CherryKit::NotificationSimple(
+            &VortexMaker::GetCurrentContext()->vortex_update_available,
+            10,
+            "info",
+            "Vortex " + VortexMaker::GetCurrentContext()->latest_vortex_version->version + " is live !",
+            "A new update of Vortex is available ! Try it now" +
+                VortexMaker::GetCurrentContext()->latest_vortex_version->version);
+      }
+      std::cout << "1345" << std::endl;
+    }
+
     // Cherry::SetNextComponentProperty("color_text", "#B1FF31"); // Todo remplace
     {
       float x = ImGui::GetContentRegionAvail().x;
@@ -876,7 +912,11 @@ namespace VortexLauncher {
 
     std::vector<Cherry::Component> news_blocks;
 
-    if (VortexMaker::GetCurrentContext()->disconnected) {
+    static bool was_disconnected;
+    static bool refresh_grid_needed = false;
+
+    if (!VortexMaker::GetCurrentContext()->web_fetched) {
+      was_disconnected = true;
       if (news_blocks.empty()) {
         CherryNextComponent.SetRenderMode(Cherry::RenderMode::CreateOnly);
         auto block = CherryKit::BannerImageContext(
@@ -885,6 +925,13 @@ namespace VortexLauncher {
         news_blocks.push_back(block);
       }
     } else {
+      std::cout << "099090909090" << std::endl;
+      if (was_disconnected) {
+        news_blocks.clear();
+        was_disconnected = false;
+        refresh_grid_needed = true;
+      }
+
       if (news_blocks.empty()) {
         for (const auto &article : VortexMaker::GetCurrentContext()->IO.news) {
           if (!article.image_link.empty() &&
@@ -900,7 +947,12 @@ namespace VortexLauncher {
     }
 
     CherryStyle::AddMarginX(8.0f);
-    CherryKit::GridSimple(400.0f, 400.0f, news_blocks);
+
+    if (!refresh_grid_needed) {
+      CherryKit::GridSimple(400.0f, 400.0f, news_blocks);
+    } else {
+      refresh_grid_needed = false;
+    }
 
     /*CherryKit::Space(20.0f);
     Cherry::PushFont("ClashBold");
@@ -1224,6 +1276,124 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
     }
 
     CherryGUI::EndGroup();
+
+    if (no_installed_modal_opened) {
+      CherryGUI::OpenPopup("Not installed version");
+
+      ImVec2 main_window_size = CherryGUI::GetWindowSize();
+      ImVec2 window_pos = CherryGUI::GetWindowPos();
+
+      CherryGUI::SetNextWindowPos(ImVec2(window_pos.x + (main_window_size.x * 0.5f) - 200, window_pos.y + 150));
+
+      CherryGUI::SetNextWindowSize(ImVec2(400, 0), ImGuiCond_Always);
+
+      if (CherryGUI::BeginPopupModal(
+              "Not installed version",
+              NULL,
+              ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove)) {
+        CherryKit::TitleFour("Not installed version");  // B1FF31FF
+        {
+          std::string text_label = "You wanna open the project \"" + no_installed_project_name +
+                                   "\" but this project was created on the Vortex version \"" + no_installed_version +
+                                   "\" wich not installed in your system";
+          CherryGUI::TextWrapped(text_label.c_str());
+        }
+        CherryGUI::Separator();
+
+        if (no_installed_version_available.version != "") {
+          CherryKit::TitleFive("All projects");  // 797979FF
+
+          {
+            // LOGO Section
+            CherryGUI::BeginChild(
+                "LOGO_", ImVec2(160, 40), false, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoScrollbar);
+            MyButton(Cherry::GetHttpPath(no_installed_version_available.banner), 120, 40);
+            CherryGUI::EndChild();
+            CherryGUI::SameLine();
+          }
+          {
+            // Project Info Section
+            ImGuiID _id = CherryGUI::GetID("INFO_PANEL");
+            CherryGUI::BeginChild(_id, ImVec2(0, 50), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBackground);
+            CherryGUI::SetCursorPosY(CherryGUI::GetStyle().ItemSpacing.y);
+            {
+              float fontScale = 0.9f;
+              float oldFontSize = CherryGUI::GetFont()->Scale;
+              CherryGUI::GetFont()->Scale = fontScale;
+              CherryGUI::PushFont(CherryGUI::GetFont());
+
+              CherryGUI::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.9f), no_installed_version_available.name.c_str());
+
+              CherryGUI::GetFont()->Scale = oldFontSize;
+              CherryGUI::PopFont();
+            }
+
+            // Space(2.0f);
+            {
+              float fontScale = 0.8f;
+              float oldFontSize = CherryGUI::GetFont()->Scale;
+              CherryGUI::GetFont()->Scale = fontScale;
+              CherryGUI::PushFont(CherryGUI::GetFont());
+
+              CherryGUI::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.5f), "Version: ");
+              CherryGUI::SameLine();
+              CherryGUI::TextColored(ImVec4(1.0f, 0.8f, 0.8f, 0.8f), no_installed_version_available.version.c_str());
+
+              CherryGUI::GetFont()->Scale = oldFontSize;
+              CherryGUI::PopFont();
+            }
+
+            CherryGUI::EndChild();
+          }
+
+          CherryGUI::Separator();
+
+          std::string text_label = "But good news ! We can install the version to open this project.";
+          CherryGUI::TextWrapped(text_label.c_str());
+        } else {
+          if (true)  // Connected to the Vortex version svc
+          {
+            std::string text_label =
+                "Inforunetly, we cannot find this version. Please contact the project creator, or find manually this "
+                "version "
+                "by import it, or find a good.";
+            CherryGUI::TextWrapped(text_label.c_str());
+          } else {
+            std::string text_label =
+                "Inforunetly, the web Vortex service not respondding (your connected to internet ?) so we cannot find "
+                "this "
+                "versions  Please contact the project creator, or find manually this version by import it.";
+            CherryGUI::TextWrapped(text_label.c_str());
+          }
+        }
+
+        CherryGUI::Separator();
+
+        if (CherryGUI::Button("Close")) {
+          CherryGUI::CloseCurrentPopup();
+          no_installed_modal_opened = false;
+        }
+        if (no_installed_version_available.version != "") {
+          CherryGUI::SameLine();
+          CherryGUI::PushStyleColor(ImGuiCol_Text, Cherry::HexToRGBA("#232323FF"));
+          CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#B1FF31FF"));
+          CherryGUI::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#FFFFFFFF"));
+          CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#FFFFFFFF"));
+          if (CherryGUI::Button("Install and Open")) {
+            std::thread([this]() {
+              VortexMaker::OpenVortexInstaller(
+                  no_installed_version_available.version,
+                  no_installed_version_available.arch,
+                  no_installed_version_available.dist,
+                  no_installed_version_available.plat);
+            }).detach();
+          }
+          CherryGUI::PopStyleColor(4);
+        }
+
+        CherryGUI::EndPopup();
+      }
+    }
   }
 
 }  // namespace VortexLauncher
