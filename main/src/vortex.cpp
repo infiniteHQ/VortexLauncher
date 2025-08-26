@@ -953,27 +953,24 @@ VortexNet::~VortexNet() {
 
 bool VortexNet::CheckNet() {
 #ifdef _WIN32
-  WSADATA wsaData;
-  if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-    return false;
-  }
+    int rc = std::system("ping -n 1 -w 2000 1.1.1.1 >NUL 2>&1");
+    if (rc != 0)
+        rc = std::system("ping -n 1 -w 2000 8.8.8.8 >NUL 2>&1");
+    return rc == 0;
+#else
+    addrinfo hints{}, *res = nullptr;
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+
+    int status = getaddrinfo("infinite.si", "80", &hints, &res);
+
+    if (res)
+        freeaddrinfo(res);
+
+    return (status == 0);
 #endif
-
-  addrinfo hints{}, *res = nullptr;
-  hints.ai_family = AF_UNSPEC;
-  hints.ai_socktype = SOCK_STREAM;
-
-  int status = getaddrinfo("infinite.si", "80", &hints, &res);
-
-  if (res)
-    freeaddrinfo(res);
-
-#ifdef _WIN32
-  WSACleanup();
-#endif
-
-  return (status == 0);
 }
+
 
 std::string VortexNet::GET(const std::string &url) {
   return Request(url, "GET");

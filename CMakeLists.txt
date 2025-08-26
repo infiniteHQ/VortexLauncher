@@ -80,8 +80,6 @@ if(WIN32)
     target_link_libraries(vortex_launcher_shared PRIVATE Shell32)
 endif()
 
-
-
 file(GLOB_RECURSE VORTEX_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/main/src/*.cpp")
 
 if(WIN32)
@@ -96,18 +94,6 @@ if(UNIX AND NOT APPLE)
     target_link_libraries(vortex_launcher PRIVATE CURL::libcurl)
 endif()
 
-#TODO : Do only in cherry
-target_link_libraries(vortex_launcher PRIVATE cherry)
-####set(CEF_RELEASE_DIR "${CMAKE_BINARY_DIR}/Release")
-####set(CEF_EXTRA_LIBRARIES
-####    "${CEF_RELEASE_DIR}/libEGL.so"
-####    "${CEF_RELEASE_DIR}/libGLESv2.so"
-####    "${CEF_RELEASE_DIR}/libvk_swiftshader.so"
-####    "${CEF_RELEASE_DIR}/libvulkan.so.1"
-   #### "${CEF_RELEASE_DIR}/libcef.so"
-####)
-####target_link_libraries(vortex_launcher PRIVATE ${CEF_EXTRA_LIBRARIES})
-#################
 
 # Set the installation directories
 set_target_properties(vortex_launcher PROPERTIES
@@ -154,10 +140,6 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ui/launcher/src/
 #        PATTERN "*.inl"
 #)
 
-install(TARGETS spdlog
-        LIBRARY DESTINATION ${INSTALL_LIB_DIR}
-        ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
-        RUNTIME DESTINATION ${INSTALL_BIN_DIR})
 
 install(TARGETS cherry
         LIBRARY DESTINATION ${INSTALL_LIB_DIR}
