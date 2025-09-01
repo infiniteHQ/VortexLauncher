@@ -389,7 +389,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
   spec.WindowSaves = false;
   spec.IconPath = Cherry::GetPath("resources/imgs/icon.png");
   spec.UseAudio();
-  
+
   spec.SetFramebarCallback([]() {
     CherryGUI::SetCursorPosX(CherryGUI::GetCursorPosX() + 40.0f);
     if (VortexMaker::GetCurrentContext()->disconnected) {
@@ -409,7 +409,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
   });
 
   Cherry::Application *app = new Cherry::Application(spec);
-  
+
   app->SetFavIconPath(Cherry::GetPath("resources/imgs/icon.png"));
   app->AddFont("Consola", Cherry::GetPath("resources/fonts/consola.ttf"), 17.0f);
   app->AddFont("ASMAN", Cherry::GetPath("resources/fonts/ASMAN.TFF"), 17.0f);

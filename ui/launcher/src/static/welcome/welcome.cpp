@@ -287,14 +287,16 @@ namespace VortexLauncher {
 
   void WelcomeWindow::OpenProjectRender() {
     static bool open_deletion_modal = false;
-    float avail_x = CherryGUI::GetContentRegionAvail().x - 350.0f;
+    float bottom_pan = 130.0f;
+    float avail_x = CherryGUI::GetContentRegionAvail().x;
+    float avail_y = CherryGUI::GetContentRegionAvail().y - bottom_pan;
     CherryGUI::BeginChild(
-        "left_pane", ImVec2(avail_x, 0), true, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoScrollbar);
+        "left_pane", ImVec2(avail_x, avail_y), false, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoScrollbar);
 
-    CherryStyle::AddMarginY(4.0f);
-    Cherry::PushFont("ClashBold");
-    CherryNextProp("color_text", "#797979");
-    CherryKit::TitleFive("All projects and tools");
+    Cherry::PushFont("ClashMedium");
+    CherryNextProp("color_text", "#676767");
+    CherryStyle::AddMarginX(8.0f);
+    CherryKit::TitleFive("Latest projects & tools");
     Cherry::PopFont();
 
     CherryGUI::SameLine();
@@ -463,21 +465,29 @@ namespace VortexLauncher {
     CherryKit::GridSimple(150.0f, 150.0f, project_blocks);
     CherryGUI::EndChild();
 
-    CherryGUI::SameLine();
-
     CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
-    CherryGUI::BeginChild("###rightpan", ImVec2(350, 0));
+    CherryGUI::BeginChild("###rightpan", ImVec2(0, bottom_pan), false, ImGuiWindowFlags_NoScrollbar);
     if (!m_SelectedEnvproject) {
-      auto texture = Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/frame_selectproject.png"));
-      auto texture_size = Cherry::GetTextureSize(Cherry::GetPath("resources/imgs/icons/misc/frame_selectproject.png"));
-
       ImVec2 child_size = CherryGUI::GetContentRegionAvail();
+      float imagex = child_size.x;
+      float imagey = imagex / 3.235;
 
-      ImVec2 image_pos = ImVec2((child_size.x - texture_size.x) / 2.0f, (child_size.y - texture_size.y) / 2.0f);
+      CherryStyle::AddMarginY(7.0f);
+      CherryGUI::BeginChild('SADH', ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBackground);
+      {
+        CherryStyle::AddMarginX(8.0f);
+        MyButton(Cherry::GetPath("resources/imgs/select.png"), 35, 35);
+        CherryGUI::SameLine();
+        CherryStyle::AddMarginY(20.0f);
+      }
 
-      CherryGUI::SetCursorPos(image_pos);
-
-      CherryGUI::Image(texture, texture_size);
+      {
+        CherryStyle::RemoveMarginY(10.0f);
+        ImGuiID _id = CherryGUI::GetID("INFO_PANEL");
+        CherryGUI::BeginChild(_id, ImVec2(0, 35), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBackground);
+        CherryKit::TitleSix("Please selecte a project or tool");
+        CherryGUI::EndChild();
+      }
     } else {
       CherryGUI::PushStyleColor(ImGuiCol_Separator, Cherry::HexToRGBA("#44444466"));
 
@@ -485,32 +495,26 @@ namespace VortexLauncher {
       float imagex = child_size.x;
       float imagey = imagex / 3.235;
 
-      CherryStyle::RemoveMarginY(10.0f);
-
-      CherryGUI::Image(Cherry::GetTexture(Cherry::GetPath("resources/imgs/vortexbanner2.png")), ImVec2(imagex, imagey));
-
+      CherryStyle::AddMarginY(7.0f);
+      CherryGUI::BeginChild('SADH', ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBackground);
       {
-        CherryStyle::RemoveMarginY(20.0f);
         CherryStyle::AddMarginX(8.0f);
-        MyButton(m_SelectedEnvproject->logoPath, 50, 50);
+        MyButton(m_SelectedEnvproject->logoPath, 35, 35);
         CherryGUI::SameLine();
         CherryStyle::AddMarginY(20.0f);
       }
 
       {
+        CherryStyle::RemoveMarginY(10.0f);
         ImGuiID _id = CherryGUI::GetID("INFO_PANEL");
-        CherryGUI::BeginChild(_id, ImVec2(0, 60), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBackground);
-        CherryGUI::SetCursorPosY(CherryGUI::GetStyle().ItemSpacing.y);
-
-        CherryKit::TitleThree(m_SelectedEnvproject->name);
-
+        CherryGUI::BeginChild(_id, ImVec2(0, 35), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBackground);
+        CherryKit::TitleSix(m_SelectedEnvproject->name);
         CherryGUI::EndChild();
       }
 
       // Divider
-      CherryStyle::RemoveMarginY(30.0f);
+      CherryStyle::RemoveMarginY(15.0f);
       CherryGUI::Separator();
-      CherryStyle::AddMarginX(10.0f);
       Cherry::SetNextComponentProperty("color_text", "#B1FF31");
 
       std::string project_type;
@@ -537,42 +541,28 @@ namespace VortexLauncher {
 
       CherryGUI::EndHorizontal();
 
-      CherryGUI::Separator();
-
-      CherryGUI::BeginChild("aboutchild", ImVec2(0, 200), true, ImGuiWindowFlags_NoBackground);  // cherry api
+      CherryGUI::BeginChild("aboutchild", ImVec2(0, 0), false, ImGuiWindowFlags_NoBackground);  // cherry api
 
       Cherry::SetNextComponentProperty("color_text", "#585858");
+      CherryStyle::AddMarginX(5.0f);
       CherryKit::TextSimple(m_SelectedEnvproject->description);
 
-      CherryKit::Space(20.0f);
+      std::string text = "Delete Open";
+      ImVec2 to_remove = CherryGUI::CalcTextSize(text.c_str());
+      CherryGUI::SetCursorPosX(CherryGUI::GetContentRegionMax().x - to_remove.x - 50);
 
-      CherryGUI::EndChild();
-
-      ImVec2 windowSize = CherryGUI::GetWindowSize();
-      ImVec2 windowPos = CherryGUI::GetWindowPos();
-      ImVec2 buttonSize = ImVec2(120, 35);
-      float footerHeight = buttonSize.y + CherryGUI::GetStyle().ItemSpacing.y * 2;
-
-      CherryGUI::SetCursorPosY(windowSize.y - footerHeight - 10.0f);
-
-      CherryGUI::Separator();
-      CherryGUI::Spacing();
-
-      float buttonPosX = windowSize.x - buttonSize.x * 2 - CherryGUI::GetStyle().ItemSpacing.x * 3;
-      CherryGUI::SetCursorPosX(buttonPosX);
-
-      if (CherryGUI::Button("Delete", buttonSize)) {
+      CherryNextProp("color_text", "#B1FF31");
+      if (CherryKit::ButtonText("Delete").GetData("isClicked") == "true") {
         m_SelectedEnvprojectToRemove = m_SelectedEnvproject;
         open_deletion_modal = true;
       }
 
       CherryGUI::SameLine();
 
-      CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#006FFFFF"));
-      CherryGUI::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#689DFFFF"));
-      CherryGUI::PushStyleColor(ImGuiCol_ButtonActive, Cherry::HexToRGBA("#9DBFFFFF"));
-
-      if (CherryGUI::Button("Open Project", buttonSize)) {
+      Cherry::SetNextComponentProperty("color_bg", "#B1FF31FF");
+      Cherry::SetNextComponentProperty("color_bg_hovered", "#C3FF53FF");
+      Cherry::SetNextComponentProperty("color_text", "#121212FF");
+      if (CherryKit::ButtonText("Open").GetData("isClicked") == "true") {
         std::string versionpath;
         bool version_exist =
             VortexMaker::CheckIfVortexVersionUtilityExist(m_SelectedEnvproject->compatibleWith, versionpath);
@@ -596,7 +586,19 @@ namespace VortexLauncher {
           }
         }
       }
-      std::cout << "dqssdg" << std::endl;
+      CherryGUI::EndChild();
+
+      ImVec2 windowSize = CherryGUI::GetWindowSize();
+      ImVec2 windowPos = CherryGUI::GetWindowPos();
+      ImVec2 buttonSize = ImVec2(120, 35);
+      float footerHeight = buttonSize.y + CherryGUI::GetStyle().ItemSpacing.y * 2;
+
+      CherryGUI::SetCursorPosY(windowSize.y - footerHeight - 10.0f);
+
+      CherryGUI::Separator();
+      CherryGUI::Spacing();
+
+      CherryGUI::EndChild();
 
       if (CherryGUI::BeginPopupModal("Project Already Running", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
         CherryGUI::Text("The project seems to have already been launched. Would you like to relaunch a new instance?");
@@ -617,7 +619,6 @@ namespace VortexLauncher {
         CherryGUI::EndPopup();
       }
 
-      CherryGUI::PopStyleColor(3);
       CherryGUI::PopStyleColor();
     }
 
@@ -1109,7 +1110,6 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
   }
 
   void WelcomeWindow::Render() {
-    std::cout << "comeWindow::RendercomeWindow::RendercomeWindow::RendercomeWindow::Render" << std::endl;
     const float minPaneWidth = 50.0f;
     const float splitterWidth = 1.5f;
 
