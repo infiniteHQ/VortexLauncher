@@ -45,7 +45,7 @@ endif()
 
 target_include_directories(launcher PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../main/include")
 
-target_link_libraries(launcher PRIVATE cherry)
+target_link_libraries(launcher PUBLIC cherry)
 
 if(UNIX AND NOT APPLE)
     target_link_libraries(launcher PRIVATE crypto)
