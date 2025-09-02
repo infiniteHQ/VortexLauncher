@@ -170,6 +170,8 @@ typedef void *(
 typedef void (
     *VortexMakerMemFreeFunc)(void *ptr, void *user_data);  // Function signature for VortexMaker::SetAllocatorFunctions()
 
+#define DEFAULT_VERSION_NAME "Vortex Editor"
+
 //_____________________________________________________________________________
 // [SECTION] VortexMaker API
 //_____________________________________________________________________________

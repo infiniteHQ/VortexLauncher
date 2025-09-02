@@ -21,6 +21,12 @@ namespace VortexLauncher {
           LogoPath(logopath) { };
   };
 
+  struct VxVersion {
+    bool online_version_finded = false;
+    std::shared_ptr<VortexVersion> system_version = nullptr;
+    std::shared_ptr<VortexVersion> online_version = nullptr;
+  };
+
   class VersionManager : public std::enable_shared_from_this<VersionManager> {
    public:
     VersionManager(const std::string &name);
@@ -34,6 +40,7 @@ namespace VortexLauncher {
     void SetupRenderCallback();
     void Render();
     void ModulesRender();
+    void RenderMenubar();
 
     std::unordered_map<std::string, VersionManagerChild> m_Childs;
 
@@ -41,6 +48,38 @@ namespace VortexLauncher {
     std::function<void()> m_OpenProjectCallback;
     std::function<void()> m_SettingsCallback;
     std::function<void(const std::shared_ptr<EnvProject> &)> m_ProjectCallback;
+
+    std::vector<VxVersion> m_VortexVersions;
+    void RefreshVortexVersions() {
+      m_VortexVersions.clear();
+
+      for (auto v : VortexMaker::GetCurrentContext()->IO.sys_vortex_versions) {
+        VxVersion version;
+        version.system_version = v;
+
+        for (auto availv : VortexMaker::GetCurrentContext()->IO.available_vortex_versions) {
+          if (availv->name == v->name) {
+            version.online_version = availv;
+            version.online_version_finded = true;
+          }
+        }
+
+        m_VortexVersions.push_back(version);
+      }
+
+      for (auto availv : VortexMaker::GetCurrentContext()->IO.available_vortex_versions) {
+        bool add = true;
+        for (auto v : m_VortexVersions) {
+          if (v.system_version->name == availv->name)
+            add = false;
+        }
+        if (add) {
+          VxVersion version;
+          version.online_version = availv;
+          m_VortexVersions.push_back(version);
+        }
+      }
+    }
 
     bool m_WipNotification = false;
 

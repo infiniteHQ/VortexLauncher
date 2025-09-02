@@ -100,9 +100,7 @@ VORTEX_API void VortexMaker::UpdateVortexWebData() {
                       "&dist=" + dist + "&arch=" + arch;
     VortexMaker::LogWarn("URL", url);
 
-    std::cout << "F1dsf13" << std::endl;
     std::string body = ctx.net.GET(url);
-    std::cout << "1DFQdsf13" << std::endl;
 
     if (body.empty()) {
       VortexMaker::LogWarn("Failed to fetch data for dist", dist);
@@ -128,6 +126,8 @@ VORTEX_API void VortexMaker::UpdateVortexWebData() {
 
   for (const auto &item : aggregatedJsonData) {
     std::shared_ptr<VortexVersion> version = std::make_shared<VortexVersion>();
+    std::string proper_name = DEFAULT_VERSION_NAME;
+
     version->version = item["version"].get<std::string>();
     version->name = item["name"].get<std::string>();
     version->path = item["path"].get<std::string>();
@@ -136,6 +136,14 @@ VORTEX_API void VortexMaker::UpdateVortexWebData() {
     version->dist = item["dist"].get<std::string>();
     version->plat = plat;
     version->arch = arch;
+
+    if (item.contains("proper_name") && !item["proper_name"].is_null()) {
+      std::string value = item["proper_name"];
+      if (!value.empty()) {
+        proper_name = value;
+      }
+    }
+    version->proper_name = proper_name;
 
     if (item.contains("values")) {
       auto values = nlohmann::json::parse(item["values"].get<std::string>());

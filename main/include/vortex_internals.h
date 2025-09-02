@@ -235,6 +235,7 @@ struct VortexLauncherVersion {
 struct VortexVersion {
   std::string version;
   std::string name;
+  std::string proper_name;
   std::string path;
   std::string sum;
   std::string date;

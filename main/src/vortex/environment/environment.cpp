@@ -263,7 +263,7 @@ VORTEX_API void VortexMaker::InitEnvironment() {
     VortexMaker::createJsonFileIfNotExists(file, default_data);
   }
 
-{
+  {
     std::string path = vxBasePath + "contents/templates";
     std::string blank_template_path = path + "/blank_project";
 
@@ -273,27 +273,27 @@ VORTEX_API void VortexMaker::InitEnvironment() {
 #endif
 
     if (!fs::exists(blank_template_path)) {
-        try {
-            std::string cmd;
+      try {
+        std::string cmd;
 
 #ifdef _WIN32
-            cmd = "xcopy \"" + VortexMaker::GetPath("resources/templates") + "\\blank_project\" \"" + path + "\\blank_project\\\" /E /I /Y /Q";
+        cmd = "xcopy \"" + VortexMaker::GetPath("resources/templates") + "\\blank_project\" \"" + path +
+              "\\blank_project\\\" /E /I /Y /Q";
 #else
-            cmd = "cp -r \"" + VortexMaker::GetPath("resources/templates/blank_project") + "\" \"" + path + "\"";
+        cmd = "cp -r \"" + VortexMaker::GetPath("resources/templates/blank_project") + "\" \"" + path + "\"";
 #endif
 
-            int res = VortexMaker::RunCommand(cmd.c_str());
-            if (res != 0) {
-                throw std::runtime_error("Copy command failed with exit code " + std::to_string(res));
-            }
-            VortexMaker::LogInfo("Core", "Path '" + blank_template_path + "' created with success.");
-        } catch (const std::exception &ex) {
-            VortexMaker::LogError("Core", "Error while creating folder '" + blank_template_path + "'");
-            VortexMaker::LogError("Core", ex.what());
+        int res = VortexMaker::RunCommand(cmd.c_str());
+        if (res != 0) {
+          throw std::runtime_error("Copy command failed with exit code " + std::to_string(res));
         }
+        VortexMaker::LogInfo("Core", "Path '" + blank_template_path + "' created with success.");
+      } catch (const std::exception &ex) {
+        VortexMaker::LogError("Core", "Error while creating folder '" + blank_template_path + "'");
+        VortexMaker::LogError("Core", ex.what());
+      }
     }
-}
-
+  }
 
   {
     std::string path = vxBasePath + "data/";
@@ -741,6 +741,14 @@ VORTEX_API void VortexMaker::RefreshEnvironmentVortexVersion() {
 
             std::string version = manifest_json["version"];
             std::string version_name = manifest_json["name"];
+            std::string proper_name = DEFAULT_VERSION_NAME;
+
+            if (manifest_json.contains("proper_name") && !manifest_json["proper_name"].is_null()) {
+              std::string value = manifest_json["proper_name"];
+              if (!value.empty()) {
+                proper_name = value;
+              }
+            }
 
             std::string image_path = base_path + "/" + version_dir + "/" + manifest_json["image"].get<std::string>();
             if (!std::filesystem::exists(image_path)) {
@@ -755,9 +763,9 @@ VORTEX_API void VortexMaker::RefreshEnvironmentVortexVersion() {
             vortex_version->banner = image_path;
             vortex_version->path = entry.path().string();
             vortex_version->working = is_working;
+            vortex_version->proper_name = proper_name;
 
             ctx.IO.sys_vortex_versions.push_back(vortex_version);
-            // ctx.IO.available_vortex_versions.push_back(version);
           } catch (const std::exception &e) {
             std::cout << "FAIL" << std::endl;
             continue;
@@ -950,13 +958,14 @@ VORTEX_API void VortexMaker::UpdateEnvironmentProject(
   VortexMaker::LogInfo("Core", "Create a new entry in registered projects for \"" + name + "\".");
 
   // If the project doesn't exist, create a new JSON object and add it to the list
-  json_data["projects"].push_back({ { "name", name },
-                                    { "version", version },
-                                    { "description", description },
-                                    { "path", path },
-                                    { "lastOpened", VortexMaker::getCurrentTimeStamp() },
-                                    { "compatibleWith", compatibleWith },
-                                    { "logoPath", logo_path } });
+  json_data["projects"].push_back(
+      { { "name", name },
+        { "version", version },
+        { "description", description },
+        { "path", path },
+        { "lastOpened", VortexMaker::getCurrentTimeStamp() },
+        { "compatibleWith", compatibleWith },
+        { "logoPath", logo_path } });
 
   // Write the updated JSON data back to the file
   std::ofstream output(json_file);
@@ -1037,13 +1046,14 @@ VORTEX_API void VortexMaker::UpdateEnvironmentProject() {
 
     // Create a new entry if project doesn't exist
     if (!projectExists) {
-      json_data["projects"].push_back({ { "name", ctx.name },
-                                        { "version", ctx.project_version },
-                                        { "description", ctx.description },
-                                        { "path", ctx.projectPath },
-                                        { "lastOpened", VortexMaker::getCurrentTimeStamp() },
-                                        { "compatibleWith", ctx.compatibleWith },
-                                        { "logoPath", ctx.logoPath } });
+      json_data["projects"].push_back(
+          { { "name", ctx.name },
+            { "version", ctx.project_version },
+            { "description", ctx.description },
+            { "path", ctx.projectPath },
+            { "lastOpened", VortexMaker::getCurrentTimeStamp() },
+            { "compatibleWith", ctx.compatibleWith },
+            { "logoPath", ctx.logoPath } });
     }
 
     // Save the updated JSON data back to the file
@@ -1092,11 +1102,12 @@ VORTEX_API void VortexMaker::UpdateEnvironmentProject(const std::string &oldname
 
     // If the project doesn't exist, create a new JSON object and add it to the list
     if (!projectExists) {
-      json_data["projects"].push_back({ { "name", ctx.name },
-                                        { "version", ctx.version },
-                                        { "description", ctx.description },
-                                        { "path", ctx.projectPath },
-                                        { "logoPath", ctx.logoPath } });
+      json_data["projects"].push_back(
+          { { "name", ctx.name },
+            { "version", ctx.version },
+            { "description", ctx.description },
+            { "path", ctx.projectPath },
+            { "logoPath", ctx.logoPath } });
     }
 
     // Write the updated JSON data back to the file

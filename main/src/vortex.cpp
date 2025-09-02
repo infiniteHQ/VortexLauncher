@@ -426,15 +426,14 @@ std::string convertPathToWindowsStyle(const std::string &path) {
   return windowsPath;
 }
 
-// TODO: Open by Vortex version shared_ptr, not by version (avoid version collision)
-VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::string &version) {
+VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::string &name) {
   std::string session_id = generateSessionID();
-  addSessionToJson(session_id, version, "user", path);
+  addSessionToJson(session_id, name, "user", path);
 
   std::string project_path = path;
   std::string vortex_path;
   for (auto vortex : VortexMaker::GetCurrentContext()->IO.sys_vortex_versions) {
-    if (vortex->version == version) {
+    if (vortex->name == name) {
       vortex_path = vortex->path;
     }
   }
@@ -953,24 +952,23 @@ VortexNet::~VortexNet() {
 
 bool VortexNet::CheckNet() {
 #ifdef _WIN32
-    int rc = std::system("ping -n 1 -w 2000 1.1.1.1 >NUL 2>&1");
-    if (rc != 0)
-        rc = std::system("ping -n 1 -w 2000 8.8.8.8 >NUL 2>&1");
-    return rc == 0;
+  int rc = std::system("ping -n 1 -w 2000 1.1.1.1 >NUL 2>&1");
+  if (rc != 0)
+    rc = std::system("ping -n 1 -w 2000 8.8.8.8 >NUL 2>&1");
+  return rc == 0;
 #else
-    addrinfo hints{}, *res = nullptr;
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
+  addrinfo hints{}, *res = nullptr;
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_socktype = SOCK_STREAM;
 
-    int status = getaddrinfo("infinite.si", "80", &hints, &res);
+  int status = getaddrinfo("infinite.si", "80", &hints, &res);
 
-    if (res)
-        freeaddrinfo(res);
+  if (res)
+    freeaddrinfo(res);
 
-    return (status == 0);
+  return (status == 0);
 #endif
 }
-
 
 std::string VortexNet::GET(const std::string &url) {
   return Request(url, "GET");
