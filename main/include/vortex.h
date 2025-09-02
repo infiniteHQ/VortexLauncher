@@ -345,6 +345,12 @@ namespace VortexMaker {
   VORTEX_API std::vector<std::shared_ptr<VortexVersion>> GetAllSystemVersions(const std::string &compatibleWith);
   VORTEX_API void OpenLauncherUpdater(const std::string &path, const std::string &dist);
 
+  VORTEX_API std::string GetDefaultSelectedLanguage();
+  VORTEX_API std::string DetectSystemLanguage();
+
+  VORTEX_API void SetLanguage(const std::string &language);
+  VORTEX_API std::string GetLanguage();
+
   VORTEX_API void OpenVortexUninstaller(const std::string &path);
   VORTEX_API void OpenVortexInstaller(
       const std::string &version,

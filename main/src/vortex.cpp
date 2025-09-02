@@ -782,6 +782,62 @@ VortexVersion VortexMaker::CheckVersionAvailibility(const std::string &version) 
   return VortexVersion();
 }
 
+#if defined(_WIN32)
+#include <windows.h>
+#elif defined(__APPLE__)
+#include <CoreFoundation/CFLocale.h>
+#include <CoreFoundation/CFString.h>
+#endif
+
+VORTEX_API std::string VortexMaker::DetectSystemLanguage() {
+#if defined(_WIN32)
+  wchar_t localeName[LOCALE_NAME_MAX_LENGTH];
+  if (GetUserDefaultLocaleName(localeName, LOCALE_NAME_MAX_LENGTH)) {
+    char buffer[LOCALE_NAME_MAX_LENGTH];
+    wcstombs(buffer, localeName, LOCALE_NAME_MAX_LENGTH);
+    std::string lang(buffer);
+
+    auto pos = lang.find('-');
+    if (pos != std::string::npos)
+      lang = lang.substr(0, pos);
+
+    std::transform(lang.begin(), lang.end(), lang.begin(), ::tolower);
+    return lang;
+  }
+#else
+  const char *envVars[] = { "LC_ALL", "LANG", "LC_MESSAGES" };
+  for (auto var : envVars) {
+    const char *val = std::getenv(var);
+    if (val && *val) {
+      std::string s(val);
+
+      auto pos = s.find('_');
+      if (pos != std::string::npos)
+        s = s.substr(0, pos);
+      pos = s.find('.');
+      if (pos != std::string::npos)
+        s = s.substr(0, pos);
+
+      std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+      return s;
+    }
+  }
+#endif
+  return "en";
+}
+
+VORTEX_API std::string VortexMaker::GetDefaultSelectedLanguage() {
+  std::string sysLang = VortexMaker::DetectSystemLanguage();
+  std::transform(sysLang.begin(), sysLang.end(), sysLang.begin(), ::tolower);
+
+  if (sysLang.find("fr") != std::string::npos) {
+    return "fr";
+  } else if (sysLang.find("es") != std::string::npos) {
+    return "es";
+  }
+  return 0;
+}
+
 VORTEX_API void VortexMaker::OpenURL(const std::string &url) {
 #if defined(_WIN32)
   ShellExecuteA(NULL, "open", url.c_str(), NULL, NULL, SW_SHOWNORMAL);
@@ -794,6 +850,69 @@ VORTEX_API void VortexMaker::OpenURL(const std::string &url) {
 #else
   std::cerr << "Unsupported platform: unable to open URL." << std::endl;
 #endif
+}
+
+VORTEX_API void VortexMaker::SetLanguage(const std::string &language) {
+  std::string vxBasePath;
+  std::string vortexProjectsPath;
+  std::string homeDir = VortexMaker::getHomeDirectory();
+
+  if (VortexMaker::IsWindows()) {
+    vxBasePath = homeDir + "\\.vx\\";
+    vortexProjectsPath = homeDir + "\\VortexProjects\\";
+  } else {
+    vxBasePath = homeDir + "/.vx/";
+    vortexProjectsPath = homeDir + "/VortexProjects/";
+  }
+
+  std::string path = vxBasePath + "configs/";
+  std::string file = path + "locales.json";
+
+  nlohmann::json jsonData;
+  std::ifstream inFile(file);
+  if (inFile.is_open()) {
+    inFile >> jsonData;
+    inFile.close();
+  }
+
+  jsonData["language"] = language;
+  std::ofstream outFile(file);
+  outFile << jsonData.dump(4);
+  outFile.close();
+}
+
+VORTEX_API std::string VortexMaker::GetLanguage() {
+  std::string vxBasePath;
+  std::string vortexProjectsPath;
+  std::string homeDir = VortexMaker::getHomeDirectory();
+  std::string language;
+
+  if (VortexMaker::IsWindows()) {
+    vxBasePath = homeDir + "\\.vx\\";
+    vortexProjectsPath = homeDir + "\\VortexProjects\\";
+  } else {
+    vxBasePath = homeDir + "/.vx/";
+    vortexProjectsPath = homeDir + "/VortexProjects/";
+  }
+
+  std::string path = vxBasePath + "configs/";
+  std::string file = path + "locales.json";
+
+  nlohmann::json jsonData;
+  std::ifstream inFile(file);
+  if (inFile.is_open()) {
+    inFile >> jsonData;
+    inFile.close();
+
+    if (jsonData.contains("language") && jsonData["language"].is_string()) {
+      language = jsonData["language"];
+      return language;
+    }
+  }
+
+  std::string defaultLang = GetDefaultSelectedLanguage();
+  SetLanguage(defaultLang);
+  return defaultLang;
 }
 
 /**

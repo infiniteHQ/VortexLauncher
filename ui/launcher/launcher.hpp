@@ -437,7 +437,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
   app->AddLocale("pt", Cherry::GetPath("resources/locales/pt.json"));
   app->AddLocale("de", Cherry::GetPath("resources/locales/de.json"));
   app->SetDefaultLocale("en");
-  app->SetLocale("en");
+  app->SetLocale(VortexMaker::GetLanguage());
 
   /*static std::shared_ptr<Cherry::ImageButtonSimple> btn_close =
   std::make_shared<Cherry::ImageButtonSimple>("create_project_button",
@@ -678,6 +678,7 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png")).GetData("isClicked"
                 Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/us.png")),
                 false)) {
           app->SetLocale("en");
+          VortexMaker::SetLanguage("en");
         }
         if (CherryGUI::MenuItem(
                 "Français",
@@ -685,6 +686,7 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png")).GetData("isClicked"
                 Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/fr.png")),
                 false)) {
           app->SetLocale("fr");
+          VortexMaker::SetLanguage("fr");
         }
         if (CherryGUI::MenuItem(
                 "Español",
@@ -692,6 +694,7 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png")).GetData("isClicked"
                 Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/es.png")),
                 false)) {
           app->SetLocale("es");
+          VortexMaker::SetLanguage("es");
         }
         if (CherryGUI::MenuItem(
                 "Português",
@@ -699,13 +702,15 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png")).GetData("isClicked"
                 Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/po.png")),
                 false)) {
           app->SetLocale("pt");
+          VortexMaker::SetLanguage("pt");
         }
         if (CherryGUI::MenuItem(
                 "Deutsch",
                 "Ändern Sie die Sprache auf Deutsch",
-                Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/po.png")),
+                Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/de.png")),
                 false)) {
           app->SetLocale("de");
+          VortexMaker::SetLanguage("de");
         }
 
         CherryGUI::EndMenu();

@@ -176,6 +176,15 @@ VORTEX_API void VortexMaker::InitEnvironment() {
 
   {
     std::string path = vxBasePath + "configs/";
+    std::string file = path + "locales.json";
+
+    nlohmann::json default_data = { { "language", VortexMaker::GetDefaultSelectedLanguage() } };
+
+    VortexMaker::createJsonFileIfNotExists(file, default_data);
+  }
+
+  {
+    std::string path = vxBasePath + "configs/";
     std::string file = path + "modules_pools.json";
 
     std::string content_path;
