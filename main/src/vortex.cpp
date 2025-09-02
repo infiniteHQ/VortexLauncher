@@ -426,6 +426,18 @@ std::string convertPathToWindowsStyle(const std::string &path) {
   return windowsPath;
 }
 
+VORTEX_API std::vector<std::shared_ptr<VortexVersion>> VortexMaker::GetAllSystemVersions(const std::string &compatibleWith) {
+  std::vector<std::shared_ptr<VortexVersion>> versions;
+
+  for (auto v : VortexMaker::GetCurrentContext()->IO.sys_vortex_versions) {
+    if (v->version == compatibleWith) {
+      versions.push_back(v);
+    }
+  }
+
+  return versions;
+}
+
 VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::string &name) {
   std::string session_id = generateSessionID();
   addSessionToJson(session_id, name, "user", path);

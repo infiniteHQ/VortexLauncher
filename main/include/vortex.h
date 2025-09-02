@@ -342,6 +342,7 @@ namespace VortexMaker {
   VORTEX_API void PostLatestVortexVersion(const std::shared_ptr<VortexVersion> &version);
   VORTEX_API VortexVersion CheckLatestVortexVersion();
 
+  VORTEX_API std::vector<std::shared_ptr<VortexVersion>> GetAllSystemVersions(const std::string &compatibleWith);
   VORTEX_API void OpenLauncherUpdater(const std::string &path, const std::string &dist);
 
   VORTEX_API void OpenVortexUninstaller(const std::string &path);

@@ -1,5 +1,7 @@
 {
     "locales": [ 
+        {"loc.open":"Open"},
+        {"loc.close":"Close"},
         {"loc.menubar.menu.vortex":"Vortex"},
         {"loc.menubar.menu.options":"Options"},
         

@@ -31,9 +31,7 @@ namespace VortexLauncher {
     CherryNextComponent.SetProperty("padding_y", "6.0f");
     CherryNextComponent.SetProperty("padding_x", "10.0f");
 
-    if (CherryKit::ButtonImageText(
-            Cherry::GetLocale("loc.window.content.content_browser.add"),
-            Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))
+    if (CherryKit::ButtonImageText("Import", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))
             .GetDataAs<bool>("isClicked")) {
       m_SelectedChildName = "Install new version";
     }
@@ -42,37 +40,18 @@ namespace VortexLauncher {
     CherryNextComponent.SetProperty("color_border_hovered", "#00000000");
     CherryNextComponent.SetProperty("color_border_pressed", "#00000000");
     CherryNextComponent.SetProperty("padding_y", "6.0f");
-    CherryKit::ButtonImageText(
-        Cherry::GetLocale("loc.window.content.content_browser.save"),
-        Cherry::GetPath("resources/imgs/icons/misc/icon_save.png"));
+    CherryKit::ButtonImageText("Filters", Cherry::GetPath("resources/imgs/icons/misc/icon_save.png"));
 
     CherryNextComponent.SetProperty("color_border", "#00000000");
     CherryNextComponent.SetProperty("color_border_hovered", "#00000000");
     CherryNextComponent.SetProperty("color_border_pressed", "#00000000");
     CherryNextComponent.SetProperty("padding_y", "6.0f");
-    CherryKit::ButtonImageText(
-        Cherry::GetLocale("loc.window.content.content_browser.import"),
-        Cherry::GetPath("resources/imgs/icons/misc/icon_import.png"));
-
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-    ImGui::PushStyleColor(ImGuiCol_Separator, Cherry::HexToRGBA("#444444AA"));
-    ImGui::Separator();
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 12));
-
-    static bool wasButtonX1Pressed = false;
-    static bool wasButtonX2Pressed = false;
-
-    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 1.0f);
-    ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 1.5f);
-    ImGui::PopStyleVar();
-
-    ImGui::Separator();
-    ImGui::PopStyleColor(2);
+    CherryKit::ButtonImageText("Search", Cherry::GetPath("resources/imgs/icons/misc/icon_import.png"));
   }
 
   VersionManager::VersionManager(const std::string &name) {
     m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
-    m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/icons/misc/icon_versions.png"));
+    m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/vortex_logo.png"));
 
     m_AppWindow->SetClosable(true);
     m_AppWindow->m_CloseCallback = [=]() { m_AppWindow->SetVisibility(false); };
@@ -274,47 +253,54 @@ namespace VortexLauncher {
                         break;
                       }
                       case 1: {  // Name
-                        CherryStyle::AddMarginY(9.0f);
                         if (version.system_version) {
+                          CherryStyle::AddMarginY(9.0f);
                           CherryKit::TitleSix(version.system_version->proper_name + " " + version.system_version->name);
                         } else {
-                          if (version.online_version)
+                          if (version.online_version) {
+                            CherryStyle::AddMarginY(9.0f);
                             CherryKit::TitleSix(version.online_version->proper_name + " " + version.online_version->name);
+                          }
                         }
                         break;
                       }
                       case 2: {  // Version
-                        CherryStyle::AddMarginY(9.0f);
                         if (version.system_version) {
+                          CherryStyle::AddMarginY(9.0f);
                           CherryKit::TextSimple(version.system_version->version);
                         } else {
-                          if (version.online_version)
+                          if (version.online_version) {
+                            CherryStyle::AddMarginY(9.0f);
                             CherryKit::TextSimple(version.online_version->version);
+                          }
                         }
                         break;
                       }
                       case 3: {  // Platform
-                        CherryStyle::AddMarginY(9.0f);
                         if (version.system_version) {
+                          CherryStyle::AddMarginY(9.0f);
                           CherryKit::TextSimple(version.system_version->plat);
                         } else {
-                          if (version.online_version)
+                          if (version.online_version) {
+                            CherryStyle::AddMarginY(9.0f);
                             CherryKit::TextSimple(version.online_version->plat);
+                          }
                         }
                         break;
                       }
                       case 4: {  // Dist
-                        CherryStyle::AddMarginY(9.0f);
                         if (version.system_version) {
+                          CherryStyle::AddMarginY(9.0f);
                           CherryKit::TextSimple(version.system_version->dist);
                         } else {
-                          if (version.online_version)
+                          if (version.online_version) {
+                            CherryStyle::AddMarginY(9.0f);
                             CherryKit::TextSimple(version.online_version->dist);
+                          }
                         }
                         break;
                       }
                       case 5: {  // Actions
-
                         if (version.system_version) {
                           CherryStyle::AddMarginY(4.0f);
                           if (CherryKit::ButtonImageText(
@@ -357,10 +343,9 @@ namespace VortexLauncher {
                               }).detach();
                             }
                           } else {
-                            CherryStyle::AddMarginY(7.0f);
-                            CherryGUI::SameLine();
+                            CherryStyle::AddMarginY(4.0f);
                             if (CherryKit::ButtonImageText(
-                                    CherryID("available_versions" + std::to_string(i)),
+                                    CherryID("available_versions_install" + std::to_string(i)),
                                     "Install",
                                     Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))
                                     .GetData("isClicked") == "true") {
@@ -391,8 +376,9 @@ namespace VortexLauncher {
               Cherry::SetNextComponentProperty("columns_name_3", "Platform");
               Cherry::SetNextComponentProperty("columns_name_4", "Dist");
               Cherry::SetNextComponentProperty("columns_name_5", "Actions");
-              Cherry::SetNextComponentProperty("columns_width_0", "2.0f");
+              Cherry::SetNextComponentProperty("columns_width_0", "1.0f");
               Cherry::SetNextComponentProperty("columns_width_1", "3.0f");
+              Cherry::SetNextComponentProperty("columns_width_5", "2.0f");
               CherryKit::TableCustom(CherryID("qsf"), "Installed Vortex versions", versions_render_callbacks);
             },
             Cherry::GetPath("resources/imgs/stack.png")));
@@ -464,9 +450,8 @@ namespace VortexLauncher {
         "This feature is not available yet. Thanks for your patience.",
         []() { });
 
-    CherryGUI::BeginGroup();
-
     if (!m_SelectedChildName.empty()) {
+      CherryStyle::RemoveMarginY(9.0f);
       if (CherryGUI::BeginChild(
               "ChildPanelVManager",
               ImVec2(0, 0),
@@ -483,8 +468,6 @@ namespace VortexLauncher {
       }
       CherryGUI::EndChild();
     }
-
-    CherryGUI::EndGroup();
   }
 
 }  // namespace VortexLauncher

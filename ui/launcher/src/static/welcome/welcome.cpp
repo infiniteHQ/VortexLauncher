@@ -17,11 +17,15 @@ std::vector<std::string> project_pools;
 std::string projetct_import_dest;
 
 static bool no_installed_modal_opened;
+static bool multiple_versions_modal_opened;
+static bool already_running_modal_opened;
+static bool open_deletion_modal = false;
+
 static std::string no_installed_version;
 static std::string no_installed_project_name;
 static std::string no_installed_project_picture;
 static VortexVersion no_installed_version_available;
-
+static std::vector<std::shared_ptr<VortexVersion>> all_versions_for_project;
 #if defined(_WIN32)
 #include <shellapi.h>
 #include <windows.h>
@@ -286,7 +290,6 @@ namespace VortexLauncher {
   }
 
   void WelcomeWindow::OpenProjectRender() {
-    static bool open_deletion_modal = false;
     float bottom_pan = 130.0f;
     float avail_x = CherryGUI::GetContentRegionAvail().x;
     float avail_y = CherryGUI::GetContentRegionAvail().y - bottom_pan;
@@ -571,18 +574,22 @@ namespace VortexLauncher {
           no_installed_project_name = m_SelectedEnvproject->name;
           no_installed_project_picture = m_SelectedEnvproject->logoPath;
 
-          no_installed_version_available = VortexMaker::CheckVersionAvailibility(
-              m_SelectedEnvproject->compatibleWith);  // TODO : In the future, make unique request to api for selected
-                                                      // version, and reserve the pagination for all versions page.
+          no_installed_version_available = VortexMaker::CheckVersionAvailibility(m_SelectedEnvproject->compatibleWith);
 
           no_installed_modal_opened = true;
         } else {
           if (VortexMaker::CheckIfProjectRunning(m_SelectedEnvproject->path)) {
-            CherryGUI::OpenPopup("Project Already Running");
+            already_running_modal_opened = true;
           } else {
-            std::thread([this]() {
-              VortexMaker::OpenProject(m_SelectedEnvproject->path, m_SelectedEnvproject->compatibleWith);
-            }).detach();
+            auto sys_versions = VortexMaker::GetAllSystemVersions(m_SelectedEnvproject->compatibleWith);
+            if (sys_versions.size() == 1) {
+              std::thread([this, sys_versions]() {
+                VortexMaker::OpenProject(m_SelectedEnvproject->path, sys_versions.front()->name);
+              }).detach();
+            } else {
+              all_versions_for_project = sys_versions;
+              multiple_versions_modal_opened = true;
+            }
           }
         }
       }
@@ -599,25 +606,6 @@ namespace VortexLauncher {
       CherryGUI::Spacing();
 
       CherryGUI::EndChild();
-
-      if (CherryGUI::BeginPopupModal("Project Already Running", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
-        CherryGUI::Text("The project seems to have already been launched. Would you like to relaunch a new instance?");
-
-        CherryGUI::Spacing();
-        if (CherryGUI::Button("Cancel", ImVec2(120, 0))) {
-          CherryGUI::CloseCurrentPopup();
-        }
-        CherryGUI::SameLine();
-        if (CherryGUI::Button("Continue", ImVec2(120, 0))) {
-          std::thread([this]() {
-            VortexMaker::OpenProject(m_SelectedEnvproject->path, m_SelectedEnvproject->compatibleWith);
-          }).detach();
-
-          CherryGUI::CloseCurrentPopup();
-        }
-
-        CherryGUI::EndPopup();
-      }
 
       CherryGUI::PopStyleColor();
     }
@@ -1276,6 +1264,181 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
     }
 
     CherryGUI::EndGroup();
+
+    static int selected_version_index = 0;
+
+    static bool user_string_validation = false;
+    static char string_validation[256] = "";
+    if (open_deletion_modal) {
+      CherryGUI::OpenPopup("Delete a project");
+
+      if (CherryGUI::BeginPopupModal("Delete a project", NULL, NULL)) {
+        static char path_input_all[512];
+        Cherry::SetNextComponentProperty("color_text", "#CC2222");
+        CherryKit::TitleThree(m_SelectedEnvprojectToRemove->name);
+        CherryGUI::TextWrapped("WARNING, if you click on the Delete button, the project will be erase forever.");
+        CherryGUI::InputText(
+            "####Please validate by entering the name of the project.", string_validation, sizeof(string_validation));
+
+        std::string text = CherryApp.GetLocale("loc.delete") + CherryApp.GetLocale("loc.close");
+        ImVec2 to_remove = CherryGUI::CalcTextSize(text.c_str());
+        CherryGUI::SetCursorPosX(CherryGUI::GetContentRegionMax().x - to_remove.x - 50);
+        CherryGUI::SetCursorPosY(CherryGUI::GetContentRegionMax().y - 35.0f);
+        CherryNextProp("color", "#222222");
+        CherryKit::Separator();
+        CherryGUI::SetCursorPosX(CherryGUI::GetContentRegionMax().x - to_remove.x - 40);
+
+        CherryNextProp("color_text", "#B1FF31");
+        if (CherryKit::ButtonText(CherryApp.GetLocale("loc.close")).GetData("isClicked") == "true") {
+          open_deletion_modal = false;
+          CherryGUI::CloseCurrentPopup();
+        }
+
+        CherryGUI::SameLine();
+        Cherry::SetNextComponentProperty("color_bg", "#ed5247");
+        Cherry::SetNextComponentProperty("color_bg_hovered", "#eda49f");
+        Cherry::SetNextComponentProperty("color_text", "#121212FF");
+
+        if (strcmp(string_validation, m_SelectedEnvprojectToRemove->name.c_str()) != 0) {
+          CherryGUI::BeginDisabled();
+        }
+
+        if (CherryKit::ButtonText(CherryApp.GetLocale("loc.delete")).GetData("isClicked") == "true") {
+          // Delete
+          VortexMaker::DeleteProject(m_SelectedEnvprojectToRemove->path, m_SelectedEnvprojectToRemove->name);
+
+          VortexMaker::RefreshEnvironmentProjects();
+          project_blocks.clear();
+
+          open_deletion_modal = false;
+          CherryGUI::CloseCurrentPopup();
+        }
+
+        if (strcmp(string_validation, m_SelectedEnvprojectToRemove->name.c_str()) != 0) {
+          CherryGUI::EndDisabled();
+        }
+
+        CherryGUI::EndPopup();
+      }
+    }
+
+    if (already_running_modal_opened) {
+      CherryGUI::OpenPopup("Project Already Running");
+
+      ImVec2 main_window_size = CherryGUI::GetWindowSize();
+      ImVec2 window_pos = CherryGUI::GetWindowPos();
+
+      CherryGUI::SetNextWindowPos(ImVec2(window_pos.x + (main_window_size.x * 0.5f) - 200, window_pos.y + 150));
+
+      CherryGUI::SetNextWindowSize(ImVec2(400, 170), ImGuiCond_Always);
+      if (CherryGUI::BeginPopupModal("Project Already Running", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+        CherryGUI::TextWrapped(
+            "The project seems to have already been launched. Would you like to relaunch a new instance?");
+
+        std::string text = CherryApp.GetLocale("loc.open") + CherryApp.GetLocale("loc.close");
+        ImVec2 to_remove = CherryGUI::CalcTextSize(text.c_str());
+        CherryGUI::SetCursorPosX(CherryGUI::GetContentRegionMax().x - to_remove.x - 50);
+        CherryGUI::SetCursorPosY(CherryGUI::GetContentRegionMax().y - 35.0f);
+        CherryNextProp("color", "#222222");
+        CherryKit::Separator();
+        CherryGUI::SetCursorPosX(CherryGUI::GetContentRegionMax().x - to_remove.x - 40);
+
+        CherryNextProp("color_text", "#B1FF31");
+        if (CherryKit::ButtonText(CherryApp.GetLocale("loc.close")).GetData("isClicked") == "true") {
+          CherryGUI::CloseCurrentPopup();
+          already_running_modal_opened = false;
+        }
+
+        CherryGUI::SameLine();
+
+        Cherry::SetNextComponentProperty("color_bg", "#B1FF31FF");
+        Cherry::SetNextComponentProperty("color_bg_hovered", "#C3FF53FF");
+        Cherry::SetNextComponentProperty("color_text", "#121212FF");
+        if (CherryKit::ButtonText(CherryApp.GetLocale("loc.open")).GetData("isClicked") == "true") {
+          auto sys_versions = VortexMaker::GetAllSystemVersions(m_SelectedEnvproject->compatibleWith);
+          if (sys_versions.size() == 1) {
+            std::thread([this, sys_versions]() {
+              VortexMaker::OpenProject(m_SelectedEnvproject->path, sys_versions.front()->name);
+            }).detach();
+          } else {
+            all_versions_for_project = sys_versions;
+            multiple_versions_modal_opened = true;
+          }
+
+          CherryGUI::CloseCurrentPopup();
+          already_running_modal_opened = false;
+        }
+
+        CherryGUI::EndPopup();
+      }
+    }
+    if (multiple_versions_modal_opened) {
+      CherryGUI::OpenPopup("Select a Vortex version");
+
+      ImVec2 main_window_size = CherryGUI::GetWindowSize();
+      ImVec2 window_pos = CherryGUI::GetWindowPos();
+
+      CherryGUI::SetNextWindowPos(ImVec2(window_pos.x + (main_window_size.x * 0.5f) - 200, window_pos.y + 150));
+
+      CherryGUI::SetNextWindowSize(ImVec2(400, 0), ImGuiCond_Always);
+      if (ImGui::BeginPopupModal("Select a Vortex version", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+        std::cout << "asssdfdd" << std::endl;
+        ImGui::TextWrapped(
+            "Your system has multiple Vortex Editors assigned to the same version. You need to select one before "
+            "launching.");
+
+        std::cout << "asd" << std::endl;
+
+        if (all_versions_for_project.empty()) {
+          ImGui::Text("No versions available.");
+        } else {
+          std::vector<const char *> version_names;
+          version_names.reserve(all_versions_for_project.size());
+
+          for (const auto &v : all_versions_for_project) {
+            version_names.push_back(v->name.c_str());
+          }
+
+          ImGui::Combo("##VersionSelector", &selected_version_index, version_names.data(), version_names.size());
+        }
+
+        std::cout << "aswsd" << std::endl;
+        ImGui::Spacing();
+
+        std::string text = CherryApp.GetLocale("loc.open") + CherryApp.GetLocale("loc.close");
+        ImVec2 to_remove = CherryGUI::CalcTextSize(text.c_str());
+        CherryGUI::SetCursorPosX(CherryGUI::GetContentRegionMax().x - to_remove.x - 50);
+        CherryGUI::SetCursorPosY(CherryGUI::GetContentRegionMax().y - 35.0f);
+        CherryNextProp("color", "#222222");
+        CherryKit::Separator();
+        CherryGUI::SetCursorPosX(CherryGUI::GetContentRegionMax().x - to_remove.x - 40);
+
+        CherryNextProp("color_text", "#B1FF31");
+        if (CherryKit::ButtonText(CherryApp.GetLocale("loc.close")).GetData("isClicked") == "true") {
+          ImGui::CloseCurrentPopup();
+          multiple_versions_modal_opened = false;
+        }
+
+        CherryGUI::SameLine();
+
+        Cherry::SetNextComponentProperty("color_bg", "#B1FF31FF");
+        Cherry::SetNextComponentProperty("color_bg_hovered", "#C3FF53FF");
+        Cherry::SetNextComponentProperty("color_text", "#121212FF");
+        if (CherryKit::ButtonText(CherryApp.GetLocale("loc.open")).GetData("isClicked") == "true") {
+          if (!all_versions_for_project.empty()) {
+            auto selected_version = all_versions_for_project[selected_version_index];
+            std::thread([this, selected_version]() {
+              VortexMaker::OpenProject(m_SelectedEnvproject->path, selected_version->name);
+            }).detach();
+          }
+
+          ImGui::CloseCurrentPopup();
+          multiple_versions_modal_opened = false;
+        }
+
+        ImGui::EndPopup();
+      }
+    }
 
     if (no_installed_modal_opened) {
       CherryGUI::OpenPopup("Not installed version");

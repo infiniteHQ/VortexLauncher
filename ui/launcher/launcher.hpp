@@ -213,19 +213,19 @@ class Launcher {
 
     std::string name = "Version Manager";
     spec.Name = name;
-    spec.MinHeight = 500;
-    spec.MinWidth = 500;
-    spec.Height = 800;
+    spec.MinHeight = 300;
+    spec.MinWidth = 300;
+    spec.Height = 500;
     spec.DisableResize = true;
-    spec.Width = 1350;
+    spec.Width = 800;
     spec.CustomTitlebar = true;
     spec.DisableWindowManagerTitleBar = true;
     spec.WindowOnlyClosable = true;
     spec.RenderMode = Cherry::WindowRenderingMethod::SimpleWindow;
     spec.UniqueAppWindowName = settings_win->GetAppWindow()->m_Name;
 
-    spec.FavIconPath = Cherry::GetPath("resources/imgs/vproject.png");
-    spec.IconPath = Cherry::GetPath("resources/imgs/vproject.png");
+    spec.FavIconPath = Cherry::GetPath("resources/imgs/icon.png");
+    spec.IconPath = Cherry::GetPath("resources/imgs/icon.png");
 
     spec.UsingCloseCallback = true;
     spec.CloseCallback = [this, settings_win]() {
@@ -400,15 +400,26 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
     } else {
       CherryKit::ImageLocal(Cherry::GetPath("resources/imgs/icons/misc/icon_connected.png"), 15.0f, 15.0f);
     }
-    CherryNextComponent.SetProperty("padding_x", "2");
-    CherryNextComponent.SetProperty("padding_y", "0");
-    CherryNextComponent.SetProperty("color_bg", "#66364988");
-    CherryNextComponent.SetProperty("color_border", "#00000000");
+
+    float oldsize = CherryGUI::GetFont()->Scale;
+    CherryGUI::GetFont()->Scale *= 0.7;
+    CherryGUI::PushFont(CherryGUI::GetFont());
+
+    CherryNextComponent.SetProperty("size_image_x", "13");
+    CherryNextComponent.SetProperty("size_image_y", "13");
+    CherryNextComponent.SetProperty("padding_x", "3");
+    CherryNextComponent.SetProperty("padding_y", "3");
+    CherryNextComponent.SetProperty("color_bg", "#663649AA");
+    CherryNextComponent.SetProperty("color_border", "#663649FF");
     CherryNextComponent.SetProperty("color_text", "#CBCBCB");
     if (CherryKit::ButtonImageText("Support", Cherry::GetPath("resources/imgs/icons/launcher/heart.png"))
             .GetDataAs<bool>("isClicked")) {
       VortexMaker::OpenURL("https://fund.infinite.si/");
     }
+
+    CherryGUI::GetFont()->Scale = oldsize;
+    CherryGUI::PopFont();
+    CherryGUI::SetCursorPosY(CherryGUI::GetCursorPosY() + 2.0f);
   });
 
   Cherry::Application *app = new Cherry::Application(spec);
