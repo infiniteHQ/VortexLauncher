@@ -61,6 +61,7 @@
         {"loc.windows.welcome.title":"Welcome to Vortex !"},
         {"loc.windows.welcome.create_projects":"Create projects"},
         {"loc.windows.welcome.your_projects":"Your projects & tools"},
-        {"loc.windows.welcome.settings":"Settings"}
+        {"loc.windows.welcome.settings":"Settings"},
+        {"loc.windows.welcome.project_delete_warning":"WARNING, if you click on the Delete button, the project will be erase forever."}
 ]
 }

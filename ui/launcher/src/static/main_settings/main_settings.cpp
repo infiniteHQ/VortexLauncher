@@ -141,44 +141,31 @@ namespace VortexLauncher {
       }
     }
   }
-
   void PathListEditor(const std::string &type, std::vector<std::string> *list, std::string *newPath) {
     if (!list || !newPath)
       return;
 
     CherryGUI::PushStyleColor(ImGuiCol_TableRowBg, Cherry::HexToRGBA("#151515FF"));
-    if (CherryGUI::BeginTable("##project_paths", 2)) {
-      CherryGUI::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(8.0f, 8.0f));
 
-      CherryGUI::TableSetupColumn("Path");
-      CherryGUI::TableSetupColumn("Action");
-      CherryGUI::TableHeadersRow();
+    for (size_t i = 0; i < list->size(); ++i) {
+      CherryNextComponent.SetProperty("size_x", CherryGUI::GetContentRegionAvail().x - 40.0f);
+      std::string label = (*list)[i];
+      CherryKit::InputString(CherryID("dist " + (*list)[i]), "", &label);
 
-      for (size_t i = 0; i < list->size(); ++i) {
-        CherryGUI::TableNextRow();
-
-        CherryGUI::TableSetColumnIndex(0);
-        CherryGUI::PushStyleColor(ImGuiCol_TableRowBg, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
-
-        CherryGUI::Text("%s", (*list)[i].c_str());
-
-        CherryGUI::PopStyleColor();
-
-        CherryGUI::TableSetColumnIndex(1);
-        if (CherryKit::ButtonImageText(
-                CherryID("delete_entry" + type + std::to_string(i)), "", Cherry::GetPath("resources/imgs/trash.png"))
-                .GetData("isClicked") == "true") {
-          list->erase(list->begin() + i);
-          --i;
-        }
+      ImGui::SameLine();
+      if (CherryKit::ButtonImageText(CherryID("delete" + (*list)[i]), "", Cherry::GetPath("resources/imgs/trash.png"))
+              .GetData("isClicked") == "true") {
+        list->erase(list->begin() + i);
+        --i;
       }
-
-      CherryGUI::PopStyleVar();
-      CherryGUI::EndTable();
     }
 
     CherryGUI::PopStyleColor();
 
+    CherryNextComponent.SetProperty("size_x", CherryGUI::GetContentRegionAvail().x - 40.0f);
+    CherryKit::InputString("##newDist", newPath);
+
+    CherryGUI::SameLine();
     if (CherryKit::ButtonImageText(
             CherryID("add_entry" + type), "", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))
             .GetData("isClicked") == "true") {
@@ -187,10 +174,7 @@ namespace VortexLauncher {
         newPath->clear();
       }
     }
-
-    CherryGUI::SameLine();
-
-    CherryKit::InputString("", newPath);
+    ImGui::Separator();
   }
 
   void MainSettings::ModulesRender() {
@@ -451,36 +435,46 @@ namespace VortexLauncher {
                       CherryKit::KeyValCustom(
                           "Vortex distributions",
                           [=]() {
-                            if (CherryGUI::BeginTable("##vortex_dists", 2)) {
-                              CherryGUI::TableSetupColumn("Path");
-                              CherryGUI::TableSetupColumn("Action");
-                              CherryGUI::TableHeadersRow();
-                              std::cout << vortexDists.size() << std::endl;
-                              for (size_t i = 0; i < vortexDists.size(); ++i) {
-                                CherryGUI::TableNextRow();
-                                CherryGUI::TableSetColumnIndex(0);
-                                CherryGUI::Text("%s", vortexDists[i].c_str());
+                            ImGui::PushID("vortex_dists");
+                            for (size_t i = 0; i < vortexDists.size(); ++i) {
+                              ImGui::PushID(static_cast<int>(i));
 
-                                CherryGUI::TableSetColumnIndex(1);
-
-                                if (CherryKit::ButtonImageText(
-                                        CherryID("delete" + std::to_string(i)),
-                                        "",
-                                        Cherry::GetPath("resources/imgs/trash.png"))
-                                        .GetData("isClicked") == "true") {
-                                  vortexDists.erase(vortexDists.begin() + i);
-                                  --i;
-                                }
+                              std::string buffer = vortexDists[i];
+                              CherryNextComponent.SetProperty("size_x", CherryGUI::GetContentRegionAvail().x - 40.0f);
+                              if (CherryKit::InputString(CherryID("dist " + std::to_string(i)), "##dist", &buffer)
+                                      .GetData("isChanged") == "true") {
+                                vortexDists[i] = buffer;
                               }
-                              CherryGUI::EndTable();
+
+                              ImGui::SameLine();
+                              if (CherryKit::ButtonImageText(
+                                      CherryID("delete" + std::to_string(i)),
+                                      "",
+                                      Cherry::GetPath("resources/imgs/trash.png"))
+                                      .GetData("isClicked") == "true") {
+                                vortexDists.erase(vortexDists.begin() + i);
+                                ImGui::PopID();
+                                --i;
+                                continue;
+                              }
+
+                              ImGui::PopID();
                             }
 
-                            CherryKit::InputString("Add", &newDist);
-                            CherryGUI::SameLine();
-                            if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/base/add.png"))
+                            CherryNextComponent.SetProperty("size_x", CherryGUI::GetContentRegionAvail().x - 40.0f);
+                            CherryKit::InputString("##newDist", &newDist);
+                            ImGui::SameLine();
+
+                            if (CherryKit::ButtonImageText(
+                                    CherryID("add_vortex_dist"), "", Cherry::GetPath("resources/base/add.png"))
                                     .GetData("isClicked") == "true") {
-                              vortexDists.push_back(newDist);
+                              if (!newDist.empty()) {
+                                vortexDists.push_back(newDist);
+                                newDist.clear();
+                              }
                             }
+                            ImGui::PopID();
+                            ImGui::Separator();
                           }),
                       CherryKit::KeyValString("Vortex Launcher distribution", &vortexLauncherDist),
                   });

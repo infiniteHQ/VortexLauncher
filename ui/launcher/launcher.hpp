@@ -252,9 +252,9 @@ class Launcher {
     spec.Name = name;
     spec.MinHeight = 500;
     spec.MinWidth = 500;
-    spec.Height = 800;
+    spec.Height = 550;
     spec.DisableResize = true;
-    spec.Width = 1350;
+    spec.Width = 950;
     spec.CustomTitlebar = true;
     spec.DisableWindowManagerTitleBar = true;
     spec.WindowOnlyClosable = true;

@@ -1301,7 +1301,7 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
         static char path_input_all[512];
         Cherry::SetNextComponentProperty("color_text", "#CC2222");
         CherryKit::TitleThree(m_SelectedEnvprojectToRemove->name);
-        CherryGUI::TextWrapped("WARNING, if you click on the Delete button, the project will be erase forever.");
+        CherryGUI::TextWrapped(Cherry::GetLocale("loc.windows.welcome.project_delete_warning").c_str());
         CherryGUI::InputText(
             "####Please validate by entering the name of the project.", string_validation, sizeof(string_validation));
 
