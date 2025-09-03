@@ -154,6 +154,7 @@ VxContext *InitBlankRuntime(bool logger) {
   VortexMaker::InitEnvironment();
   VortexMaker::DetectPlatform();
   VortexMaker::DetectArch();
+  VortexMaker::RefreshActiveSessions();
 
   // Refresh environment pools
   VortexMaker::RefreshEnvironmentProjectsPools();

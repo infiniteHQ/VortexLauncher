@@ -164,7 +164,6 @@ VORTEX_API void VortexMaker::InitEnvironment() {
 
     VortexMaker::createJsonFileIfNotExists(file, default_data);
   }
-
   {
     std::string path = vxBasePath + "configs/";
     std::string file = path + "projects_pools.json";

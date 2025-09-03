@@ -40,9 +40,9 @@
 #include <stddef.h>  // NULL
 #include <stdio.h>   // NULL
 #include <sys/stat.h>
+#include <sys/sysinfo.h>
 #ifdef _WIN32
 #include <shellapi.h>
-#include <windows.h>
 #else
 #include <unistd.h>
 #endif
@@ -70,7 +70,6 @@
 #ifndef _WIN32
 #include <dirent.h>
 #endif
-
 #include <deque>
 
 namespace fs = std::filesystem;
@@ -249,6 +248,8 @@ namespace VortexMaker {
       int counter);
   bool DebugCheckVersionAndDataLayout(const char *version);
 
+  VORTEX_API std::time_t GetLastBootTime();
+
   VORTEX_API void ImportProject(const std::string &path, const std::string &pool_path);
   VORTEX_API void FindpProjectsInDirectoryRecursively(
       const std::string &directory,
@@ -259,6 +260,7 @@ namespace VortexMaker {
   VORTEX_API bool CheckProjectInDirectory(const std::string &path);
   VORTEX_API std::vector<std::shared_ptr<EnvProject>> FindProjectInFolder(const std::string &path);
   VORTEX_API bool executeInChildProcess(const std::string &command);
+  VORTEX_API void RefreshActiveSessions();
 
   VORTEX_API void InitializePlatformVendor();
   VORTEX_API bool IsLinux();

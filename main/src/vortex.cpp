@@ -493,6 +493,58 @@ VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::str
   // removeSessionFromJson(session_id);
 }
 
+VORTEX_API void VortexMaker::RefreshActiveSessions() {
+  std::string json_path;
+  if (VortexMaker::IsWindows()) {
+    json_path = VortexMaker::getHomeDirectory() + "\\.vx\\sessions\\active_sessions.json";
+  } else {
+    json_path = VortexMaker::getHomeDirectory() + "/.vx/sessions/active_sessions.json";
+  }
+
+  std::ifstream file_in(json_path);
+  nlohmann::json active_sessions;
+
+  if (file_in.is_open()) {
+    file_in >> active_sessions;
+    file_in.close();
+  } else {
+    std::cerr << "Warning: Could not open active sessions file." << std::endl;
+    return;
+  }
+
+  std::time_t lastBoot = GetLastBootTime();
+
+  nlohmann::json filtered_sessions;
+  filtered_sessions["sessions"] = nlohmann::json::array();
+
+  for (const auto &session : active_sessions["sessions"]) {
+    if (session.contains("session_start_at")) {
+      std::time_t start_time = session["session_start_at"];
+      if (start_time >= lastBoot) {
+        filtered_sessions["sessions"].push_back(session);
+      }
+    }
+  }
+
+  std::ofstream file_out(json_path);
+  file_out << filtered_sessions.dump(4);
+}
+
+VORTEX_API std::time_t VortexMaker::GetLastBootTime() {
+#ifdef _WIN32
+  ULONGLONG uptime_ms = GetTickCount64();
+  std::time_t now = std::time(nullptr);
+  return now - static_cast<std::time_t>(uptime_ms / 1000);
+#else
+  struct sysinfo info;
+  if (sysinfo(&info) == 0) {
+    std::time_t now = std::time(nullptr);
+    return now - info.uptime;
+  }
+  return std::time(nullptr);
+#endif
+}
+
 std::string escapeSpaces(const std::string &input) {
   std::string escaped;
   for (char c : input) {
