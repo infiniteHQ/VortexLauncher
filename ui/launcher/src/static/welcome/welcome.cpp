@@ -487,7 +487,7 @@ namespace VortexLauncher {
       {
         CherryStyle::RemoveMarginY(10.0f);
         ImGuiID _id = CherryGUI::GetID("INFO_PANEL");
-        CherryGUI::BeginChild(_id, ImVec2(0, 35), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBackground);
+        CherryGUI::BeginChild(_id, ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBackground);
         CherryKit::TitleSix("Please selecte a project or tool");
         CherryGUI::EndChild();
       }
@@ -1242,25 +1242,50 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
     CherryGUI::BeginGroup();
 
     // CherryGUI::SetCursorPosX(CherryGUI::GetCursorPosX() + 20.0f);
+    static std::string prev_child;
+    static std::unordered_map<std::string, float> scroll_memory;
 
     if (!m_SelectedChildName.empty()) {
       CherryGUI::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
       CherryGUI::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
 
-      if (CherryGUI::BeginChild(
-              "ChildPanel", ImVec2(0, 0), false, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_AlwaysVerticalScrollbar)) {
-        auto child = GetChild(m_SelectedChildName);
+      ImGuiWindowFlags child_flags = 0;
 
-        if (child) {
-          std::function<void()> pannel_render = child->RenderCallback;
-          if (pannel_render) {
-            pannel_render();
+      if (m_SelectedChildName == "?loc:loc.windows.welcome.open_project") {
+        child_flags |= ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+      } else {
+        child_flags |= ImGuiWindowFlags_AlwaysVerticalScrollbar;
+      }
+
+      if (CherryGUI::BeginChild("ChildPanel", ImVec2(0, 0), false, ImGuiWindowFlags_NoBackground | child_flags)) {
+        if (prev_child != m_SelectedChildName) {
+          if (!prev_child.empty()) {
+            scroll_memory[prev_child] = ImGui::GetScrollY();
+          }
+
+          if (m_SelectedChildName == "?loc:loc.windows.welcome.open_project") {
+            ImGui::SetScrollY(0.0f);
+          }
+
+          else if (m_SelectedChildName == "?loc:loc.windows.welcome.overview") {
+            auto it = scroll_memory.find(m_SelectedChildName);
+            if (it != scroll_memory.end()) {
+              ImGui::SetScrollY(it->second);
+            }
+          }
+        }
+
+        if (auto child = GetChild(m_SelectedChildName)) {
+          if (child->RenderCallback) {
+            child->RenderCallback();
           }
         }
       }
       CherryGUI::EndChild();
 
       CherryGUI::PopStyleVar(2);
+
+      prev_child = m_SelectedChildName;
     }
 
     CherryGUI::EndGroup();

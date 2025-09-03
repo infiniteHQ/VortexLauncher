@@ -629,7 +629,7 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png")).GetData("isClicked"
         c_Launcher->SpawnLogsUtility();
       }
 
-      CherryGUI::BeginDisabled();
+      /*CherryGUI::BeginDisabled();
       if (CherryGUI::MenuItem(
               Cherry::GetLocale("loc.menubar.menuitem.session_utility").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.session_utility_desc").c_str(),
@@ -644,7 +644,7 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png")).GetData("isClicked"
               false)) {
       }
 
-      CherryGUI::EndDisabled();
+      CherryGUI::EndDisabled();*/
 
       CherryGUI::GetFont()->Scale *= 0.8;
       CherryGUI::PushFont(CherryGUI::GetFont());
