@@ -261,8 +261,8 @@ class Launcher {
     spec.RenderMode = Cherry::WindowRenderingMethod::SimpleWindow;
     spec.UniqueAppWindowName = settings_win->GetAppWindow()->m_Name;
 
-    spec.FavIconPath = Cherry::GetPath("resources/imgs/vsettings.png");
-    spec.IconPath = Cherry::GetPath("resources/imgs/vsettings.png");
+    spec.FavIconPath = Cherry::GetPath("resources/imgs/icon.png");
+    spec.IconPath = Cherry::GetPath("resources/imgs/icon.png");
 
     spec.UsingCloseCallback = true;
     spec.CloseCallback = [this, settings_win]() {

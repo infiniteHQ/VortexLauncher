@@ -317,7 +317,7 @@ namespace VortexLauncher {
                 locales.push_back({ "Deutsch", Cherry::GetPath("resources/imgs/icons/flags/de.png") });    // 3
                 locales.push_back({ "Italiano", Cherry::GetPath("resources/imgs/icons/flags/it.png") });   // 4
                 locales.push_back({ "Português", Cherry::GetPath("resources/imgs/icons/flags/pt.png") });  // 5
-                locales.push_back({ "Svenska", Cherry::GetPath("resources/imgs/icons/flags/se.png") });    // 6
+                locales.push_back({ "Svenska", Cherry::GetPath("resources/imgs/icons/flags/sv.png") });    // 6
                 locales.push_back({ "Suomi", Cherry::GetPath("resources/imgs/icons/flags/fi.png") });      // 7
               }
 
@@ -423,7 +423,7 @@ namespace VortexLauncher {
               Cherry::SetNextComponentProperty("padding_x", "8");
               Cherry::SetNextComponentProperty("padding_y", "4");
               if (CherryKit::ButtonImageText(
-                      Cherry::GetLocale("loc.save"), Cherry::GetPath("resources/imgs/icons/misc/icon_refresh.png"))
+                      Cherry::GetLocale("loc.save"), Cherry::GetPath("resources/imgs/icons/misc/icon_save.png"))
                       .GetData("isClicked") == "true") {
                 SaveCurrentConfig();
               }
@@ -512,7 +512,7 @@ namespace VortexLauncher {
               Cherry::SetNextComponentProperty("padding_x", "8");
               Cherry::SetNextComponentProperty("padding_y", "4");
               if (CherryKit::ButtonImageText(
-                      Cherry::GetLocale("loc.save"), Cherry::GetPath("resources/imgs/icons/misc/icon_refresh.png"))
+                      Cherry::GetLocale("loc.save"), Cherry::GetPath("resources/imgs/icons/misc/icon_save.png"))
                       .GetData("isClicked") == "true") {
                 SaveCurrentConfig();
               }
