@@ -45,14 +45,12 @@ bool EndsWith(const std::string &value, const std::string &suffix) {
 static std::string test;
 namespace VortexLauncher {
   void WelcomeWindow::CreateProjectRender() {
-    std::cout << "af" << std::endl;
     float columnWidths[3] = { 140.0f, 250.0f, 150.0f };
 
     ImVec2 windowSize = CherryGUI::GetWindowSize();
 
     float availableWidth = windowSize.x - CherryGUI::GetStyle().ItemSpacing.x * 2;
 
-    std::cout << "sdg" << std::endl;
     float totalColumnWidths = 0.0f;
     for (int i = 0; i < 3; ++i)
       totalColumnWidths += columnWidths[i];
@@ -67,7 +65,7 @@ namespace VortexLauncher {
     CherryGUI::BeginChild("###sdgf5mid", ImVec2(total_x - 330, 0), false, ImGuiWindowFlags_NoBackground);
     Cherry::PushFont("ClashBold");
     CherryNextProp("color_text", "#797979");
-    CherryKit::TitleFive("Select a base and create !");
+    CherryKit::TitleFive(Cherry::GetLocale("loc.menubar.welcome.select_a_base_and_create"));
     Cherry::PopFont();
     CherryNextProp("color", "#252525");
     CherryKit::Separator();
@@ -79,13 +77,11 @@ namespace VortexLauncher {
     }
     CherryGUI::EndChild();
 
-    std::cout << "32t5" << std::endl;
     CherryGUI::SameLine();
 
     CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
     CherryGUI::BeginChild("right", ImVec2(330, 0));
 
-    std::cout << "sdg" << std::endl;
     if (!selected_template_object) {
       auto texture = Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/frame_selectproject.png"));
       auto texture_size = Cherry::GetTextureSize(Cherry::GetPath("resources/imgs/icons/misc/frame_selectproject.png"));
@@ -96,13 +92,10 @@ namespace VortexLauncher {
 
       CherryGUI::SetCursorPos(image_pos);
 
-      std::cout << "af" << std::endl;
       CherryGUI::Image(texture, texture_size);
-      std::cout << "dsg" << std::endl;
     } else {
       CherryGUI::PushStyleColor(ImGuiCol_Separator, Cherry::HexToRGBA("#44444466"));
 
-      std::cout << "asf" << std::endl;
       ImVec2 child_size = CherryGUI::GetContentRegionAvail();
       float imagex = child_size.x;
       float imagey = imagex / 3.235;
@@ -112,7 +105,6 @@ namespace VortexLauncher {
 
       CherryGUI::Image(Cherry::GetTexture(Cherry::GetPath("resources/imgs/vortexbanner2.png")), ImVec2(imagex, imagey));
 
-      std::cout << "sdg" << std::endl;
       {
         CherryStyle::RemoveMarginY(20.0f);
         CherryStyle::AddMarginX(8.0f);
@@ -121,7 +113,6 @@ namespace VortexLauncher {
         CherryStyle::AddMarginY(20.0f);
       }
 
-      std::cout << "jfb" << std::endl;
       {
         ImGuiID _id = CherryGUI::GetID("INFO_PANEL");
         CherryGUI::BeginChild(_id, ImVec2(0, 60), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBackground);
@@ -143,7 +134,6 @@ namespace VortexLauncher {
         CherryGUI::EndChild();
       }
 
-      std::cout << "sg" << std::endl;
       // Divider
       CherryStyle::RemoveMarginY(30.0f);
       CherryGUI::Separator();
@@ -152,14 +142,13 @@ namespace VortexLauncher {
 
       std::string project_type;
       if (selected_template_object->m_type == "project") {
-        project_type = "Project Template";
+        project_type = Cherry::GetLocale("loc.project_template");
       } else if (selected_template_object->m_type == "tool") {
-        project_type = "Tool Template";
+        project_type = Cherry::GetLocale("loc.tool_template");
       } else {
-        project_type = "Template";
+        project_type = Cherry::GetLocale("loc.template");
       }
 
-      std::cout << "djh" << std::endl;
       CherryGUI::BeginChild("aboutchild", ImVec2(0, 60), false, ImGuiWindowFlags_NoBackground);  // cherry api
 
       CherryStyle::AddMarginX(5.0f);
@@ -171,27 +160,27 @@ namespace VortexLauncher {
 
       CherryGUI::EndChild();
 
-      std::cout << "sfgkmj" << std::endl;
       if (advanced_params) {
         CherryGUI::Separator();
         Cherry::SetNextComponentProperty("header_visible", "false");
         CherryKit::TableSimple(
             "Project props inputs",
             {
-                CherryKit::KeyValString("Name", &v_ProjectName),
-                CherryKit::KeyValString("Description", &v_ProjectDescription),
-                CherryKit::KeyValString("Author", &v_ProjectAuthor),
-                CherryKit::KeyValString("Version", &v_ProjectVersion),
+                CherryKit::KeyValString(Cherry::GetLocale("loc.name"), &v_ProjectName),
+                CherryKit::KeyValString(Cherry::GetLocale("loc.description"), &v_ProjectDescription),
+                CherryKit::KeyValString(Cherry::GetLocale("loc.author"), &v_ProjectAuthor),
+                CherryKit::KeyValString(Cherry::GetLocale("loc.version"), &v_ProjectVersion),
                 CherryKit::KeyValComboString(
-                    CherryID("VersionSelector"), "Vortex version", &selected_template_object->m_compatible_versions),
+                    CherryID("VersionSelector"),
+                    Cherry::GetLocale("loc.vortex_version"),
+                    &selected_template_object->m_compatible_versions),
                 CherryKit::KeyValComboString(
                     CherryID("PathSelector"),
-                    "Project path",
+                    Cherry::GetLocale("loc.project_path"),
                     &projectPoolsPaths),  // TODO : Take this by the index, not the cherry datas
             });
       }
 
-      std::cout << "sdgj" << std::endl;
       CherryKit::Space(20.0f);
 
       ImVec2 windowSize = CherryGUI::GetWindowSize();
@@ -203,15 +192,13 @@ namespace VortexLauncher {
 
       CherryGUI::Separator();
 
-      std::cout << "v_ProjectName" << v_ProjectName << std::endl;
-
       CherryStyle::AddMarginX(10.0f);
       Cherry::SetNextComponentProperty("padding_y", "6.5");
       Cherry::SetNextComponentProperty("size_x", std::to_string(CherryGUI::GetContentRegionAvail().x - 100.0f));
       CherryKit::InputString("", &v_ProjectName);
       CherryGUI::SameLine();
-      std::cout << "sfgj" << std::endl;
-      if (CherryKit::ButtonImageText("Create", Cherry::GetPath("resources/base/add.png")).GetData("isClicked") == "true") {
+      if (CherryKit::ButtonImageText(Cherry::GetLocale("loc.create"), Cherry::GetPath("resources/base/add.png"))
+              .GetData("isClicked") == "true") {
         std::string vx_version;
 
         if (Cherry::GetData(CherryID("VersionSelector"), "selected_string") != "undefined") {
@@ -280,11 +267,9 @@ namespace VortexLauncher {
         }
       }
 
-      std::cout << "sdg" << std::endl;
       CherryGUI::SameLine();
       CherryGUI::PopStyleColor();
     }
-    std::cout << "a234f" << std::endl;
     CherryGUI::EndChild();
     CherryGUI::PopStyleColor();
   }
@@ -299,7 +284,7 @@ namespace VortexLauncher {
     Cherry::PushFont("ClashMedium");
     CherryNextProp("color_text", "#676767");
     CherryStyle::AddMarginX(8.0f);
-    CherryKit::TitleFive("Latest projects & tools");
+    CherryKit::TitleFive(Cherry::GetLocale("loc.windows.welcome.latest_projects_tools"));
     Cherry::PopFont();
 
     CherryGUI::SameLine();
@@ -307,8 +292,10 @@ namespace VortexLauncher {
     Cherry::SetNextComponentProperty("padding_x", "8");
     Cherry::SetNextComponentProperty("padding_y", "4");
 
-    if (CherryKit::ButtonImageText("Import", Cherry::GetPath("resources/base/add.png")).GetData("isClicked") == "true") {
-      m_AssetFinder = AssetFinder::Create("Import projects(s)", VortexMaker::getHomeDirectory());
+    if (CherryKit::ButtonImageText(Cherry::GetLocale("loc.import"), Cherry::GetPath("resources/base/add.png"))
+            .GetData("isClicked") == "true") {
+      m_AssetFinder =
+          AssetFinder::Create(Cherry::GetLocale("loc.menubar.title.import_projects"), VortexMaker::getHomeDirectory());
       Cherry::ApplicationSpecification spec;
 
       std::string name = "Import project(s)";
@@ -329,8 +316,8 @@ namespace VortexLauncher {
       spec.CloseCallback = [this]() { Cherry::DeleteAppWindow(m_AssetFinder->GetAppWindow()); };
       spec.WindowSaves = false;
       spec.MenubarCallback = [this]() {
-        if (CherryGUI::BeginMenu("Window")) {
-          if (CherryGUI::MenuItem("Close")) {
+        if (CherryGUI::BeginMenu(Cherry::GetLocale("loc.window").c_str())) {
+          if (CherryGUI::MenuItem(Cherry::GetLocale("loc.close").c_str())) {
             Cherry::DeleteAppWindow(m_AssetFinder->GetAppWindow());
           }
           CherryGUI::EndMenu();
@@ -347,7 +334,10 @@ namespace VortexLauncher {
       m_AssetFinder->GetAppWindow()->SetVisibility(true);
       m_AssetFinder->m_ItemToReconize.push_back(
           std::make_shared<AssetFinderItem>(
-              VortexMaker::CheckProjectInDirectory, "Project", "Project/Tool", Cherry::HexToRGBA("#B1FF31")));
+              VortexMaker::CheckProjectInDirectory,
+              Cherry::GetLocale("loc.project"),
+              Cherry::GetLocale("loc.project_tool"),
+              Cherry::HexToRGBA("#B1FF31")));
 
       Cherry::AddAppWindow(m_AssetFinder->GetAppWindow());
     }
@@ -442,8 +432,8 @@ namespace VortexLauncher {
                       if (VortexMaker::CheckVersionAvailibility(element->compatibleWith).version == "") {
                         CherryKit::TooltipImage(
                             Cherry::GetPath("resources/base/error.png"),
-                            "Vortex " + element->compatibleWith +
-                                " is not installed in your system. Please click to see more.");
+                            "Vortex " + element->compatibleWith + " " +
+                                Cherry::GetLocale("loc.windows.welcome.not_installed"));
                         CherryGUI::SameLine();
                         Cherry::SetNextComponentProperty("color_text", "#888888");
 
@@ -451,8 +441,8 @@ namespace VortexLauncher {
                       } else {
                         CherryKit::TooltipImage(
                             Cherry::GetPath("resources/base/warn.png"),
-                            "Vortex " + element->compatibleWith +
-                                " is not installed in your system but available to download.");
+                            "Vortex " + element->compatibleWith + " " +
+                                Cherry::GetLocale("loc.windows.welcome.not_installed_yet"));
                         CherryGUI::SameLine();
                         Cherry::SetNextComponentProperty("color_text", "#888888");
 
@@ -488,7 +478,7 @@ namespace VortexLauncher {
         CherryStyle::RemoveMarginY(10.0f);
         ImGuiID _id = CherryGUI::GetID("INFO_PANEL");
         CherryGUI::BeginChild(_id, ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBackground);
-        CherryKit::TitleSix("Please selecte a project or tool");
+        CherryKit::TitleSix(Cherry::GetLocale("loc.windows.welcome.select_a_project"));
         CherryGUI::EndChild();
       }
     } else {
@@ -522,11 +512,11 @@ namespace VortexLauncher {
 
       std::string project_type;
       if (m_SelectedEnvproject->type == "project") {
-        project_type = "Project";
+        project_type = Cherry::GetLocale("loc.project");
       } else if (m_SelectedEnvproject->type == "tool") {
-        project_type = "Tool";
+        project_type = Cherry::GetLocale("loc.tool");
       } else {
-        project_type = "Project";
+        project_type = Cherry::GetLocale("loc.project");
       }
 
       CherryGUI::BeginHorizontal("InfoBar");
@@ -550,12 +540,12 @@ namespace VortexLauncher {
       CherryStyle::AddMarginX(5.0f);
       CherryKit::TextSimple(m_SelectedEnvproject->description);
 
-      std::string text = "Delete Open";
+      std::string text = Cherry::GetLocale("loc.open") + " " + Cherry::GetLocale("loc.open");
       ImVec2 to_remove = CherryGUI::CalcTextSize(text.c_str());
       CherryGUI::SetCursorPosX(CherryGUI::GetContentRegionMax().x - to_remove.x - 50);
 
       CherryNextProp("color_text", "#B1FF31");
-      if (CherryKit::ButtonText("Delete").GetData("isClicked") == "true") {
+      if (CherryKit::ButtonText(Cherry::GetLocale("loc.open")).GetData("isClicked") == "true") {
         m_SelectedEnvprojectToRemove = m_SelectedEnvproject;
         open_deletion_modal = true;
       }
@@ -565,7 +555,7 @@ namespace VortexLauncher {
       Cherry::SetNextComponentProperty("color_bg", "#B1FF31FF");
       Cherry::SetNextComponentProperty("color_bg_hovered", "#C3FF53FF");
       Cherry::SetNextComponentProperty("color_text", "#121212FF");
-      if (CherryKit::ButtonText("Open").GetData("isClicked") == "true") {
+      if (CherryKit::ButtonText(Cherry::GetLocale("loc.open")).GetData("isClicked") == "true") {
         std::string versionpath;
         bool version_exist =
             VortexMaker::CheckIfVortexVersionUtilityExist(m_SelectedEnvproject->compatibleWith, versionpath);
@@ -615,20 +605,19 @@ namespace VortexLauncher {
   }
 
   void WelcomeWindow::WelcomeRender() {
-    // CherryKit::TableSimple("", { CherryKit::KeyValString("Project name", &test) });
-
     if (VortexMaker::GetCurrentContext()->web_fetched) {
-      std::cout << "sedfgghnh1" << std::endl;
       CherryNextComponent.SetProperty("color_border", "#343434");
       CherryNextComponent.SetProperty("color_bg", "#232323");
       CherryKit::NotificationButton(
           &VortexMaker::GetCurrentContext()->launcher_update_available,
           10,
           "info",
-          "Update Vortex Launcher",
-          "A new update for the launcher is available !" + VortexMaker::GetCurrentContext()->latest_launcher_version.version,
+          Cherry::GetLocale("loc.windows.welcome.update_launcher_title"),
+          Cherry::GetLocale("loc.windows.welcome.update_launcher_description") +
+              VortexMaker::GetCurrentContext()->latest_launcher_version.version,
           []() {
-            if (CherryKit::ButtonImageText("Update now", Cherry::GetPath("resources/imgs/icons/misc/icon_upgrade.png"))
+            if (CherryKit::ButtonImageText(
+                    Cherry::GetLocale("loc.update_now"), Cherry::GetPath("resources/imgs/icons/misc/icon_upgrade.png"))
                     .GetData("isClicked") == "true") {
               std::thread([]() {
                 VortexMaker::OpenLauncherUpdater(
@@ -639,23 +628,21 @@ namespace VortexLauncher {
             }
           });
 
-      std::cout << "13" << std::endl;
-      std::cout << VortexMaker::GetCurrentContext()->vortex_update_available << std::endl;
       if (VortexMaker::GetCurrentContext()->latest_vortex_version) {
         CherryKit::NotificationSimple(
             &VortexMaker::GetCurrentContext()->vortex_update_available,
             10,
             "info",
-            "Vortex " + VortexMaker::GetCurrentContext()->latest_vortex_version->version + " is live !",
-            "A new update of Vortex is available ! Try it now" +
+            "Vortex " + VortexMaker::GetCurrentContext()->latest_vortex_version->version + " " +
+                Cherry::GetLocale("loc.is_live"),
+            Cherry::GetLocale("loc.menubar.menuitem.install_vortex_desc") +
                 VortexMaker::GetCurrentContext()->latest_vortex_version->version);
       }
-      std::cout << "1345" << std::endl;
     }
 
     // Cherry::SetNextComponentProperty("color_text", "#B1FF31"); // Todo remplace
     {
-      float x = ImGui::GetContentRegionAvail().x;
+      float x = CherryGUI::GetContentRegionAvail().x;
       float y = x / 4.726f;
       CherryKit::ImageLocalCentered(Cherry::GetPath("resources/imgs/vortex_banner.png"), x, y);
       CherryStyle::AddMarginX(20.0f);
@@ -684,7 +671,7 @@ namespace VortexLauncher {
     Cherry::PushFont("ClashMedium");
     CherryNextProp("color_text", "#676767");
     CherryStyle::AddMarginX(8.0f);
-    CherryKit::TitleSix("Latest projects & tools");
+    CherryKit::TitleSix(Cherry::GetLocale("loc.windows.welcome.latest_projects_tools"));
     Cherry::PopFont();
     CherryNextProp("color", "#222222");
     CherryStyle::AddMarginX(8.0f);
@@ -728,11 +715,11 @@ namespace VortexLauncher {
         std::string str1;
         std::string str2;
         if (i == 0) {
-          str1 = "No project yet";
-          str2 = "Create one :)";
+          str1 = Cherry::GetLocale("loc.windows.welcome.no_project_yet");
+          str2 = Cherry::GetLocale("loc.windows.welcome.create_one");
         } else {
-          str1 = "No more project";
-          str2 = "Create another :)";
+          str1 = Cherry::GetLocale("loc.windows.welcome.no_more_project");
+          str2 = Cherry::GetLocale("loc.windows.welcome.create_another");
         }
         CherryNextComponent.SetRenderMode(Cherry::RenderMode::CreateOnly);
         blocks.push_back(
@@ -766,7 +753,7 @@ namespace VortexLauncher {
     Cherry::PushFont("ClashMedium");
     CherryNextProp("color_text", "#676767");
     CherryStyle::AddMarginX(8.0f);
-    CherryKit::TitleSix("Fast actions");
+    CherryKit::TitleSix(Cherry::GetLocale("loc.windows.welcome.fast_actions"));
     Cherry::PopFont();
     CherryNextProp("color", "#222222");
     CherryStyle::AddMarginX(8.0f);
@@ -788,7 +775,7 @@ namespace VortexLauncher {
                   []() { CherryKit::Space(15.0f); },
                   []() {
                     CherryNextProp("color_text", "#FFFFFF");
-                    CherryKit::TextCenter("Create a project");
+                    CherryKit::TextCenter(Cherry::GetLocale("loc.windows.welcome.create_a_project"));
                   },
               },
               1));
@@ -805,7 +792,7 @@ namespace VortexLauncher {
                   []() { CherryKit::Space(15.0f); },
                   []() {
                     CherryNextProp("color_text", "#FFFFFF");
-                    CherryKit::TextCenter("Open a project");
+                    CherryKit::TextCenter(Cherry::GetLocale("loc.windows.welcome.open_a_project"));
                   },
               },
               2));
@@ -822,7 +809,7 @@ namespace VortexLauncher {
                   []() { CherryKit::Space(15.0f); },
                   []() {
                     CherryNextProp("color_text", "#FFFFFF");
-                    CherryKit::TextCenter("Settings & Configurations");
+                    CherryKit::TextCenter(Cherry::GetLocale("loc.windows.welcome.settings_confs"));
                   },
               },
               3));
@@ -839,7 +826,7 @@ namespace VortexLauncher {
                   []() { CherryKit::Space(15.0f); },
                   []() {
                     CherryNextProp("color_text", "#FFFFFF");
-                    CherryKit::TextCenter("Learn, Documentations");
+                    CherryKit::TextCenter(Cherry::GetLocale("loc.windows.welcome.learn_docs"));
                   },
               },
               4));
@@ -858,7 +845,7 @@ namespace VortexLauncher {
                   []() { CherryKit::Space(15.0f); },
                   []() {
                     CherryNextProp("color_text", "#FFFFFF");
-                    CherryKit::TextCenter("Forums");
+                    CherryKit::TextCenter(Cherry::GetLocale("loc.windows.welcome.forums"));
                   },
               },
               5));
@@ -875,7 +862,7 @@ namespace VortexLauncher {
                   []() { CherryKit::Space(15.0f); },
                   []() {
                     CherryNextProp("color_text", "#FFFFFF");
-                    CherryKit::TextCenter("What's news ?");
+                    CherryKit::TextCenter(Cherry::GetLocale("loc.windows.welcome.whats_news"));
                   },
               },
               6));
@@ -893,7 +880,7 @@ namespace VortexLauncher {
     Cherry::PushFont("ClashMedium");
     CherryNextProp("color_text", "#676767");
     CherryStyle::AddMarginX(8.0f);
-    CherryKit::TitleSix("Latest news");
+    CherryKit::TitleSix(Cherry::GetLocale("loc.windows.welcome.latest_news"));
     Cherry::PopFont();
     CherryNextProp("color", "#222222");
     CherryStyle::AddMarginX(8.0f);
@@ -914,7 +901,6 @@ namespace VortexLauncher {
         news_blocks.push_back(block);
       }
     } else {
-      std::cout << "099090909090" << std::endl;
       if (was_disconnected) {
         news_blocks.clear();
         was_disconnected = false;
@@ -985,7 +971,6 @@ namespace VortexLauncher {
 
 CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
 */
-    std::cout << "dg" << std::endl;
   }
 
   WelcomeWindow::WelcomeWindow(const std::string &name) {
@@ -1009,23 +994,21 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
     std::string path = VortexMaker::getHomeDirectory() + "/.vx/configs/";
     loadProjects(projectPoolsPaths, path + "/projects_pools.json");
 
-    this->AddChild(
-        "Support Us",
-        WelcomeWindowChild(
-            [this]() { }, Cherry::GetPath("resources/imgs/icons/launcher/heart.png"), "https://fund.infinite.si/"));
-    this->AddChild(
-        "What's news",
-        WelcomeWindowChild(
-            [this]() { }, Cherry::GetPath("resources/imgs/icons/launcher/web.png"), "https://vortex.infinite.si/news"));
-    this->AddChild(
-        "Forums",
-        WelcomeWindowChild(
-            [this]() { }, Cherry::GetPath("resources/imgs/icons/launcher/forum.png"), "https://forums.infinite.si/vortex"));
-    this->AddChild(
-        "Documentation",
-        WelcomeWindowChild(
-            [this]() { }, Cherry::GetPath("resources/imgs/icons/launcher/docs.png"), "https://vortex.infinite.si/learn"));
-
+    /*   this->AddChild(
+           "Support Us",
+           WelcomeWindowChild(
+               [this]() { }, Cherry::GetPath("resources/imgs/icons/launcher/heart.png"), "https://fund.infinite.si/"));
+       this->AddChild(
+           "What's news",
+           WelcomeWindowChild(
+               [this]() { }, Cherry::GetPath("resources/imgs/icons/launcher/web.png"), "https://vortex.infinite.si/news"));
+       this->AddChild(
+           "Forums",
+           WelcomeWindowChild(
+               [this]() { }, Cherry::GetPath("resources/imgs/icons/launcher/forum.png"),
+       "https://forums.infinite.si/vortex")); this->AddChild( "Documentation", WelcomeWindowChild( [this]() { },
+       Cherry::GetPath("resources/imgs/icons/launcher/docs.png"), "https://vortex.infinite.si/learn"));
+   */
     this->AddChild(
         "?loc:loc.windows.welcome.overview",
         WelcomeWindowChild(
@@ -1260,17 +1243,17 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
       if (CherryGUI::BeginChild("ChildPanel", ImVec2(0, 0), false, ImGuiWindowFlags_NoBackground | child_flags)) {
         if (prev_child != m_SelectedChildName) {
           if (!prev_child.empty()) {
-            scroll_memory[prev_child] = ImGui::GetScrollY();
+            scroll_memory[prev_child] = CherryGUI::GetScrollY();
           }
 
           if (m_SelectedChildName == "?loc:loc.windows.welcome.open_project") {
-            ImGui::SetScrollY(0.0f);
+            CherryGUI::SetScrollY(0.0f);
           }
 
           else if (m_SelectedChildName == "?loc:loc.windows.welcome.overview") {
             auto it = scroll_memory.find(m_SelectedChildName);
             if (it != scroll_memory.end()) {
-              ImGui::SetScrollY(it->second);
+              CherryGUI::SetScrollY(it->second);
             }
           }
         }
@@ -1295,15 +1278,14 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
     static bool user_string_validation = false;
     static char string_validation[256] = "";
     if (open_deletion_modal) {
-      CherryGUI::OpenPopup("Delete a project");
+      CherryGUI::OpenPopup(Cherry::GetLocale("loc.windows.welcome.delete_project").c_str());
 
-      if (CherryGUI::BeginPopupModal("Delete a project", NULL, NULL)) {
+      if (CherryGUI::BeginPopupModal(Cherry::GetLocale("loc.windows.welcome.delete_project").c_str(), NULL, NULL)) {
         static char path_input_all[512];
         Cherry::SetNextComponentProperty("color_text", "#CC2222");
         CherryKit::TitleThree(m_SelectedEnvprojectToRemove->name);
         CherryGUI::TextWrapped(Cherry::GetLocale("loc.windows.welcome.project_delete_warning").c_str());
-        CherryGUI::InputText(
-            "####Please validate by entering the name of the project.", string_validation, sizeof(string_validation));
+        CherryGUI::InputText("####name_validation", string_validation, sizeof(string_validation));
 
         std::string text = CherryApp.GetLocale("loc.delete") + CherryApp.GetLocale("loc.close");
         ImVec2 to_remove = CherryGUI::CalcTextSize(text.c_str());
@@ -1348,7 +1330,7 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
     }
 
     if (already_running_modal_opened) {
-      CherryGUI::OpenPopup("Project Already Running");
+      CherryGUI::OpenPopup(Cherry::GetLocale("loc.windows.welcome.project_already_running").c_str());
 
       ImVec2 main_window_size = CherryGUI::GetWindowSize();
       ImVec2 window_pos = CherryGUI::GetWindowPos();
@@ -1356,9 +1338,11 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
       CherryGUI::SetNextWindowPos(ImVec2(window_pos.x + (main_window_size.x * 0.5f) - 200, window_pos.y + 150));
 
       CherryGUI::SetNextWindowSize(ImVec2(400, 170), ImGuiCond_Always);
-      if (CherryGUI::BeginPopupModal("Project Already Running", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
-        CherryGUI::TextWrapped(
-            "The project seems to have already been launched. Would you like to relaunch a new instance?");
+      if (CherryGUI::BeginPopupModal(
+              Cherry::GetLocale("loc.windows.welcome.project_already_running").c_str(),
+              NULL,
+              ImGuiWindowFlags_AlwaysAutoResize)) {
+        CherryGUI::TextWrapped(Cherry::GetLocale("loc.windows.welcome.project_already_running_description").c_str());
 
         std::string text = CherryApp.GetLocale("loc.open") + CherryApp.GetLocale("loc.close");
         ImVec2 to_remove = CherryGUI::CalcTextSize(text.c_str());
@@ -1398,7 +1382,7 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
       }
     }
     if (multiple_versions_modal_opened) {
-      CherryGUI::OpenPopup("Select a Vortex version");
+      CherryGUI::OpenPopup(Cherry::GetLocale("loc.windows.welcome.select_a_verson").c_str());
 
       ImVec2 main_window_size = CherryGUI::GetWindowSize();
       ImVec2 window_pos = CherryGUI::GetWindowPos();
@@ -1406,16 +1390,12 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
       CherryGUI::SetNextWindowPos(ImVec2(window_pos.x + (main_window_size.x * 0.5f) - 200, window_pos.y + 150));
 
       CherryGUI::SetNextWindowSize(ImVec2(400, 0), ImGuiCond_Always);
-      if (ImGui::BeginPopupModal("Select a Vortex version", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
-        std::cout << "asssdfdd" << std::endl;
-        ImGui::TextWrapped(
-            "Your system has multiple Vortex Editors assigned to the same version. You need to select one before "
-            "launching.");
-
-        std::cout << "asd" << std::endl;
+      if (CherryGUI::BeginPopupModal(
+              Cherry::GetLocale("loc.windows.welcome.select_a_verson").c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+        CherryGUI::TextWrapped(Cherry::GetLocale("loc.windows.welcome.select_a_verson_description").c_str());
 
         if (all_versions_for_project.empty()) {
-          ImGui::Text("No versions available.");
+          CherryGUI::Text(Cherry::GetLocale("loc.windows.welcome.no_versions_available").c_str());
         } else {
           std::vector<const char *> version_names;
           version_names.reserve(all_versions_for_project.size());
@@ -1424,11 +1404,10 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
             version_names.push_back(v->name.c_str());
           }
 
-          ImGui::Combo("##VersionSelector", &selected_version_index, version_names.data(), version_names.size());
+          CherryGUI::Combo("##VersionSelector", &selected_version_index, version_names.data(), version_names.size());
         }
 
-        std::cout << "aswsd" << std::endl;
-        ImGui::Spacing();
+        CherryGUI::Spacing();
 
         std::string text = CherryApp.GetLocale("loc.open") + CherryApp.GetLocale("loc.close");
         ImVec2 to_remove = CherryGUI::CalcTextSize(text.c_str());
@@ -1440,7 +1419,7 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
 
         CherryNextProp("color_text", "#B1FF31");
         if (CherryKit::ButtonText(CherryApp.GetLocale("loc.close")).GetData("isClicked") == "true") {
-          ImGui::CloseCurrentPopup();
+          CherryGUI::CloseCurrentPopup();
           multiple_versions_modal_opened = false;
         }
 
@@ -1457,16 +1436,16 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
             }).detach();
           }
 
-          ImGui::CloseCurrentPopup();
+          CherryGUI::CloseCurrentPopup();
           multiple_versions_modal_opened = false;
         }
 
-        ImGui::EndPopup();
+        CherryGUI::EndPopup();
       }
     }
 
     if (no_installed_modal_opened) {
-      CherryGUI::OpenPopup("Not installed version");
+      CherryGUI::OpenPopup(Cherry::GetLocale("loc.windows.welcome.no_version").c_str());
 
       ImVec2 main_window_size = CherryGUI::GetWindowSize();
       ImVec2 window_pos = CherryGUI::GetWindowPos();
@@ -1476,20 +1455,21 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
       CherryGUI::SetNextWindowSize(ImVec2(400, 0), ImGuiCond_Always);
 
       if (CherryGUI::BeginPopupModal(
-              "Not installed version",
+              Cherry::GetLocale("loc.windows.welcome.no_version").c_str(),
               NULL,
               ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove)) {
-        CherryKit::TitleFour("Not installed version");  // B1FF31FF
+        CherryKit::TitleFour(Cherry::GetLocale("loc.windows.welcome.no_version").c_str());  // B1FF31FF
         {
-          std::string text_label = "You wanna open the project \"" + no_installed_project_name +
-                                   "\" but this project was created on the Vortex version \"" + no_installed_version +
-                                   "\" wich not installed in your system";
+          std::string text_label = Cherry::GetLocale("loc.windows.welcome.no_version_1") + " \"" +
+                                   no_installed_project_name + "\"" + Cherry::GetLocale("loc.windows.welcome.no_version_2") +
+                                   +"\"" + no_installed_version + "\"" +
+                                   Cherry::GetLocale("loc.windows.welcome.no_version_1");
           CherryGUI::TextWrapped(text_label.c_str());
         }
         CherryGUI::Separator();
 
         if (no_installed_version_available.version != "") {
-          CherryKit::TitleFive("All projects");  // 797979FF
+          CherryKit::TitleFive(Cherry::GetLocale("loc.all_projects"));  // 797979FF
 
           {
             // LOGO Section
@@ -1536,28 +1516,18 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
 
           CherryGUI::Separator();
 
-          std::string text_label = "But good news ! We can install the version to open this project.";
-          CherryGUI::TextWrapped(text_label.c_str());
+          CherryGUI::TextWrapped(Cherry::GetLocale("loc.windows.welcome.can_install_version").c_str());
         } else {
-          if (true)  // Connected to the Vortex version svc
-          {
-            std::string text_label =
-                "Inforunetly, we cannot find this version. Please contact the project creator, or find manually this "
-                "version "
-                "by import it, or find a good.";
-            CherryGUI::TextWrapped(text_label.c_str());
+          if (!VortexMaker::GetCurrentContext()->disconnected) {
+            CherryGUI::TextWrapped(Cherry::GetLocale("loc.windows.welcome.cannot_find_version").c_str());
           } else {
-            std::string text_label =
-                "Inforunetly, the web Vortex service not respondding (your connected to internet ?) so we cannot find "
-                "this "
-                "versions  Please contact the project creator, or find manually this version by import it.";
-            CherryGUI::TextWrapped(text_label.c_str());
+            CherryGUI::TextWrapped(Cherry::GetLocale("loc.windows.welcome.cannot_find_version_offline").c_str());
           }
         }
 
         CherryGUI::Separator();
 
-        if (CherryGUI::Button("Close")) {
+        if (CherryGUI::Button(Cherry::GetLocale("loc.close").c_str())) {
           CherryGUI::CloseCurrentPopup();
           no_installed_modal_opened = false;
         }
@@ -1567,7 +1537,7 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
           CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#B1FF31FF"));
           CherryGUI::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#FFFFFFFF"));
           CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#FFFFFFFF"));
-          if (CherryGUI::Button("Install and Open")) {
+          if (CherryGUI::Button(Cherry::GetLocale("loc.install_and_open").c_str())) {
             std::thread([this]() {
               VortexMaker::OpenVortexInstaller(
                   no_installed_version_available.version,
