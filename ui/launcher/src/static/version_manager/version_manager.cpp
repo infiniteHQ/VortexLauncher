@@ -120,7 +120,7 @@ namespace VortexLauncher {
               Cherry::SetNextComponentProperty("padding_y", "4");
 
               if (CherryKit::ButtonImageText(
-                      "Import a version", Cherry::GetPath("resources/imgs/icons/misc/icon_import.png"))
+                      Cherry::GetLocale("loc.import_version"), Cherry::GetPath("resources/imgs/icons/misc/icon_import.png"))
                       .GetData("isClicked") == "true") {
                 m_WipNotification = true;
                 // TODO Open local importation modal
@@ -130,7 +130,7 @@ namespace VortexLauncher {
               CherryKit::Separator();
 
               if (VortexMaker::GetCurrentContext()->disconnected) {
-                CherryKit::TitleFour("Offline mode");  // TODO : LOGO
+                CherryKit::TitleFour(Cherry::GetLocale("loc.offline_mode"));  // TODO : LOGO
               } else {
                 static std::vector<std::function<void(int)>> available_versions;
 
@@ -141,7 +141,8 @@ namespace VortexLauncher {
                     available_versions.push_back([available_version, i](int c) {
                       switch (c) {
                         case 0: {
-                          CherryKit::ImageHttp(available_version->banner, 140.0f, 50.0f);
+                          CherryKit::ImageHttp(
+                              CherryID(available_version->banner), available_version->banner, 140.0f, 50.0f);
                           break;
                         }
                         case 1: {
@@ -305,7 +306,7 @@ namespace VortexLauncher {
                           CherryStyle::AddMarginY(4.0f);
                           if (CherryKit::ButtonImageText(
                                   CherryID("versions_render_callbacks" + std::to_string(i)),
-                                  "Delete",
+                                  Cherry::GetLocale("loc.delete"),
                                   Cherry::GetPath("resources/imgs/trash.png"))
                                   .GetData("isClicked") == "true") {
                             std::thread([version]() {
@@ -328,7 +329,7 @@ namespace VortexLauncher {
                             CherryGUI::SameLine();
                             if (CherryKit::ButtonImageText(
                                     CherryID("available_versions_reinstall" + std::to_string(i)),
-                                    "Reinstall",
+                                    Cherry::GetLocale("loc.reinstall"),
                                     Cherry::GetPath("resources/imgs/icons/misc/icon_settings.png"))
                                     .GetData("isClicked") == "true") {
                               std::thread([version]() {
@@ -346,7 +347,7 @@ namespace VortexLauncher {
                             CherryStyle::AddMarginY(4.0f);
                             if (CherryKit::ButtonImageText(
                                     CherryID("available_versions_install" + std::to_string(i)),
-                                    "Install",
+                                    Cherry::GetLocale("loc.install"),
                                     Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))
                                     .GetData("isClicked") == "true") {
                               std::thread([version]() {

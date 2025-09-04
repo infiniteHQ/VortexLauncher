@@ -241,7 +241,7 @@ class Launcher {
     vortex_versions_counter++;
   }
 
-  void SpawnMainSettings() {
+  void SpawnMainSettings(const std::string child = "") {
     std::string label = "?loc:loc.window_names.settings" + std::to_string(system_settings_counter);
     auto settings_win = MainSettings::Create(label);
     settings_win->GetAppWindow()->SetVisibility(true);
@@ -261,6 +261,9 @@ class Launcher {
     spec.RenderMode = Cherry::WindowRenderingMethod::SimpleWindow;
     spec.UniqueAppWindowName = settings_win->GetAppWindow()->m_Name;
 
+    spec.FavIconPath = Cherry::GetPath("resources/imgs/vsettings.png");
+    spec.IconPath = Cherry::GetPath("resources/imgs/vsettings.png");
+
     spec.UsingCloseCallback = true;
     spec.CloseCallback = [this, settings_win]() {
       Cherry::DeleteAppWindow(settings_win->GetAppWindow());
@@ -272,6 +275,10 @@ class Launcher {
 
     Cherry::AddAppWindow(settings_win->GetAppWindow());
     settings_win->GetAppWindow()->AttachOnNewWindow(spec);
+
+    if (!child.empty()) {
+      settings_win->m_SelectedChildName = child;
+    }
     system_settings_counter++;
   }
 
@@ -431,12 +438,17 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
   app->AddFont("ClashMedium", Cherry::GetPath("resources/fonts/ClashDisplay-Medium.ttf"), 20.0f);
   app->AddFont("FiraCode", Cherry::GetPath("resources/fonts/FiraCode-Medium.ttf"), 20.0f);
 
-  app->AddLocale("fr", Cherry::GetPath("resources/locales/fr.json"));
-  app->AddLocale("en", Cherry::GetPath("resources/locales/en.json"));
-  app->AddLocale("es", Cherry::GetPath("resources/locales/es.json"));
-  app->AddLocale("pt", Cherry::GetPath("resources/locales/pt.json"));
-  app->AddLocale("de", Cherry::GetPath("resources/locales/de.json"));
+  app->AddLocale("en", Cherry::GetPath("resources/locales/EN.json"));
+  app->AddLocale("fr", Cherry::GetPath("resources/locales/FR.json"));
+  app->AddLocale("es", Cherry::GetPath("resources/locales/ES.json"));
+  app->AddLocale("de", Cherry::GetPath("resources/locales/DE.json"));
+  app->AddLocale("it", Cherry::GetPath("resources/locales/IT.json"));
+  app->AddLocale("pt", Cherry::GetPath("resources/locales/PT.json"));
+  app->AddLocale("sv", Cherry::GetPath("resources/locales/SV.json"));
+  app->AddLocale("fi", Cherry::GetPath("resources/locales/FI.json"));
+
   app->SetDefaultLocale("en");
+
   app->SetLocale(VortexMaker::GetLanguage());
 
   /*static std::shared_ptr<Cherry::ImageButtonSimple> btn_close =
@@ -460,6 +472,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
     CherryGUI::PushStyleColor(ImGuiCol_PopupBg, darkBackgroundColor);
     CherryGUI::PushStyleColor(ImGuiCol_Border, lightBorderColor);
 
+    CherryGUI::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(12.0f, 8.0f));
     CherryGUI::PushStyleVar(ImGuiStyleVar_PopupRounding, 3.0f);
     VxContext &ctx = *CVortexMaker;
     /*if(ctx.launcher_update_available)
@@ -671,54 +684,19 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png")).GetData("isClicked"
         c_Launcher->SpawnMainSettings();
       }
 
-      if (CherryGUI::BeginMenu("Switch language")) {
-        if (CherryGUI::MenuItem(
-                "English",
-                "Switch language to english (en)",
-                Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/us.png")),
-                false)) {
-          app->SetLocale("en");
-          VortexMaker::SetLanguage("en");
-        }
-        if (CherryGUI::MenuItem(
-                "Français",
-                "Changer la langue pour le Français (fr)",
-                Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/fr.png")),
-                false)) {
-          app->SetLocale("fr");
-          VortexMaker::SetLanguage("fr");
-        }
-        if (CherryGUI::MenuItem(
-                "Español",
-                "Cambiar el idioma a español",
-                Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/es.png")),
-                false)) {
-          app->SetLocale("es");
-          VortexMaker::SetLanguage("es");
-        }
-        if (CherryGUI::MenuItem(
-                "Português",
-                "Alterar o idioma para Português",
-                Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/po.png")),
-                false)) {
-          app->SetLocale("pt");
-          VortexMaker::SetLanguage("pt");
-        }
-        if (CherryGUI::MenuItem(
-                "Deutsch",
-                "Ändern Sie die Sprache auf Deutsch",
-                Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/flags/de.png")),
-                false)) {
-          app->SetLocale("de");
-          VortexMaker::SetLanguage("de");
-        }
-
-        CherryGUI::EndMenu();
+      std::string flag_path = Cherry::GetPath("resources/imgs/icons/flags/") + CherryApp.m_SelectedLocale + ".png";
+      if (CherryGUI::MenuItem(
+              Cherry::GetLocale("loc.menubar.menuitem.switch_language").c_str(),
+              Cherry::GetLocale("loc.menubar.menuitem.switch_language_desc").c_str(),
+              Cherry::GetTexture(flag_path),
+              false)) {
+        c_Launcher->SpawnMainSettings("?loc:loc.windows.settings.child.language");
       }
+
       CherryGUI::EndMenu();
     }
 
-    CherryGUI::PopStyleVar();
+    CherryGUI::PopStyleVar(2);
     CherryGUI::PopStyleColor(2);
   });
 

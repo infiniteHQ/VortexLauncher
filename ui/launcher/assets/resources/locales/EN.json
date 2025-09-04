@@ -2,8 +2,11 @@
     "locales": [ 
         {"loc.open":"Open"},
         {"loc.delete":"Delete"},
+        {"loc.reinstall":"Delete"},
         {"loc.close":"Close"},
         {"loc.create":"Create"},
+        {"loc.save":"Save"},
+        {"loc.refresh":"Refresh"},
         {"loc.project":"Project"},
         {"loc.name":"Name"},
         {"loc.description":"Description"},
@@ -13,7 +16,9 @@
         {"loc.project_path":"Project path"},
         {"loc.tool":"Tool"},
         {"loc.import":"Import"},
+        {"loc.import_version":"Import a version"},
         {"loc.window":"Window"},
+        {"loc.offline_mode":"Offline mode"},
         {"loc.project_tool":"Project/Tool"},
         {"loc.all_projects":"All projects"},
         {"loc.update_now":"Update now"},
@@ -114,6 +119,27 @@
         {"loc.windows.welcome.cannot_find_version_offline":"Inforunetly, the web Vortex service not respondding (your connected to internet ?) so we cannot find this versions  Please contact the project creator, or find manually this version by import it."},
         {"loc.windows.welcome.project_already_running":"Project Already Running"},
         {"loc.windows.welcome.project_already_running_description":"The project seems to have already been launched. Would you like to relaunch a new instance?"},
-        {"loc.windows.welcome.project_delete_warning":"WARNING, if you click on the Delete button, the project will be erase forever."}
-]
+        {"loc.windows.welcome.project_delete_warning":"WARNING, if you click on the Delete button, the project will be erase forever."},
+
+        {"loc.windows.settings.child.update_distribution":"Updates & distribution"},
+        {"loc.windows.settings.child.sys_paths":"System paths"},     
+        {"loc.windows.settings.child.theme":"Theme"},
+        {"loc.windows.settings.child.language":"Language"},
+        {"loc.windows.settings.child.help":"Help"},
+        {"loc.windows.settings.project_paths":"Project paths"},
+        {"loc.windows.settings.vx_versions_paths":"Vortex version paths"},
+        {"loc.windows.settings.modules_paths":"Modules paths"},
+        {"loc.windows.settings.plugins_paths":"Plugins paths"},
+        {"loc.windows.settings.templates_paths":"Templates paths"},
+        {"loc.windows.settings.selected_language":"Selected language"},
+        {"loc.windows.settings.contents_paths":"Contents paths"},
+        {"loc.windows.settings.learn_docs":"Learn and Documentation"},
+        {"loc.windows.settings.language_settings":"Language settings"},
+        {"loc.windows.settings.vortex_distributions":"Vortex distributions"},
+        {"loc.windows.settings.theme_settings":"Theme settings"},
+        {"loc.windows.settings.update_dist_settings":"Update & distribution settings"},
+        {"loc.windows.settings.syspath_settings":"System paths settings"},
+        {"loc.windows.settings.no_settings":"No settings for the moment. Work in progress"},
+        {"loc.window_names.welcome":"Welcome to Vortex !"}
+    ]
 }

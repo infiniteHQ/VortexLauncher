@@ -279,15 +279,15 @@ namespace VortexLauncher {
     m_AppWindow->SetInternalPaddingX(0.0f);
     m_AppWindow->SetInternalPaddingY(0.0f);
 
-    m_SelectedChildName = "Updates & Distribution";
+    m_SelectedChildName = "?loc:loc.windows.settings.child.update_distribution";
     m_RecentProjects = GetMostRecentProjects(VortexMaker::GetCurrentContext()->IO.sys_projects, 4);
 
     this->AddChild(
-        "Help",
+        "?loc:loc.windows.settings.child.help",
         MainSettingsChild(
             [this]() {
               if (CherryKit::ButtonImageTextImage(
-                      "Learn and Documentation",
+                      Cherry::GetLocale("loc.windows.settings.learn_docs"),
                       Cherry::GetPath("resources/imgs/icons/launcher/docs.png"),
                       Cherry::GetPath("resources/imgs/weblink.png"))
                       .GetData("isClicked") == "true") {
@@ -296,53 +296,124 @@ namespace VortexLauncher {
             },
             Cherry::GetPath("resources/imgs/help.png")));
     this->AddChild(
-        "Accessibility",
+        "?loc:loc.windows.settings.child.language",
         MainSettingsChild(
             [this]() {
               Cherry::PushFont("ClashBold");
               CherryNextProp("color_text", "#797979");
-              CherryKit::TitleFive("Accessibility settings");
+              CherryKit::TitleFive(Cherry::GetLocale("loc.windows.settings.language_settings"));
               Cherry::PopFont();
               CherryNextProp("color", "#252525");
               CherryKit::Separator();
-              CherryKit::TextSimple("No settings for the moment. Work in progress");
+
+              static std::vector<std::pair<std::string, std::string>> locales;
+              static int selected = -1;
+              static int previous_selected = -1;
+
+              if (locales.empty()) {
+                locales.push_back({ "English", Cherry::GetPath("resources/imgs/icons/flags/en.png") });    // 0
+                locales.push_back({ "Français", Cherry::GetPath("resources/imgs/icons/flags/fr.png") });   // 1
+                locales.push_back({ "Español", Cherry::GetPath("resources/imgs/icons/flags/es.png") });    // 2
+                locales.push_back({ "Deutsch", Cherry::GetPath("resources/imgs/icons/flags/de.png") });    // 3
+                locales.push_back({ "Italiano", Cherry::GetPath("resources/imgs/icons/flags/it.png") });   // 4
+                locales.push_back({ "Português", Cherry::GetPath("resources/imgs/icons/flags/pt.png") });  // 5
+                locales.push_back({ "Svenska", Cherry::GetPath("resources/imgs/icons/flags/se.png") });    // 6
+                locales.push_back({ "Suomi", Cherry::GetPath("resources/imgs/icons/flags/fi.png") });      // 7
+              }
+
+              if (selected == -1) {
+                std::string lang = VortexMaker::GetLanguage();
+                if (lang == "en") {
+                  selected = 0;
+                } else if (lang == "fr") {
+                  selected = 1;
+                } else if (lang == "es") {
+                  selected = 2;
+                } else if (lang == "de") {
+                  selected = 3;
+                } else if (lang == "it") {
+                  selected = 4;
+                } else if (lang == "pt") {
+                  selected = 5;
+                } else if (lang == "sv") {
+                  selected = 6;
+                } else if (lang == "fi") {
+                  selected = 7;
+                } else {
+                  selected = 0;
+                }
+                previous_selected = selected;
+              }
+
+              CherryKit::TableSimple(
+                  "Settings",
+                  {
+                      CherryKit::KeyValCustom(
+                          Cherry::GetLocale("loc.windows.settings.selected_language"),
+                          [&]() {
+                            CherryNextComponent.SetProperty("size_x", CherryGUI::GetContentRegionAvail().x);
+                            CherryKit::ComboImageText("", locales, selected);
+                            selected = CherryLastComponent.GetPropertyAs<int>("selected");
+                          }),
+                  });
+
+              if (selected != previous_selected) {
+                if (selected == 0) {
+                  CherryApp.SetLocale("en");
+                  VortexMaker::SetLanguage("en");
+                } else if (selected == 1) {
+                  CherryApp.SetLocale("fr");
+                  VortexMaker::SetLanguage("fr");
+                } else if (selected == 2) {
+                  CherryApp.SetLocale("es");
+                  VortexMaker::SetLanguage("es");
+                } else if (selected == 3) {
+                  CherryApp.SetLocale("de");
+                  VortexMaker::SetLanguage("de");
+                } else if (selected == 4) {
+                  CherryApp.SetLocale("it");
+                  VortexMaker::SetLanguage("it");
+                } else if (selected == 5) {
+                  CherryApp.SetLocale("pt");
+                  VortexMaker::SetLanguage("pt");
+                } else if (selected == 6) {
+                  CherryApp.SetLocale("sv");
+                  VortexMaker::SetLanguage("sv");
+                } else if (selected == 7) {
+                  CherryApp.SetLocale("fi");
+                  VortexMaker::SetLanguage("fi");
+                }
+                previous_selected = selected;
+              }
             },
             Cherry::GetPath("resources/imgs/accessibility.png")));
     this->AddChild(
-        "Theme",
+        "?loc:loc.windows.settings.child.theme",
         MainSettingsChild(
             [this]() {
               Cherry::PushFont("ClashBold");
               CherryNextProp("color_text", "#797979");
-              CherryKit::TitleFive("Theme settings");
+              CherryKit::TitleFive(Cherry::GetLocale("loc.windows.settings.theme_settings"));
               Cherry::PopFont();
               CherryNextProp("color", "#252525");
               CherryKit::Separator();
-              CherryKit::TextSimple("No settings for the moment. Work in progress");
+              CherryKit::TextSimple(Cherry::GetLocale("loc.windows.settings.no_settings"));
             },
             Cherry::GetPath("resources/imgs/paint.png")));
     this->AddChild(
-        "System paths",
+        "?loc:loc.windows.settings.child.sys_paths",
         MainSettingsChild(
             [this]() {
               Cherry::PushFont("ClashBold");
               CherryNextProp("color_text", "#797979");
-              CherryKit::TitleFive("System paths settings");
+              CherryKit::TitleFive(Cherry::GetLocale("loc.windows.settings.syspath_settings"));
               Cherry::PopFont();
-              CherryGUI::SameLine();
-              CherryKit::TooltipTextCustom("(?)", []() {
-                CherryKit::TitleFour("em : Editor Modules");
-                CherryKit::TextWrapped("Lorem ipsum Lorem ipsumLorem ipsum");
-                CherryStyle::AddMarginY(10.0f);
-                CherryKit::TitleFour("esm : Editor Script Modules");
-                CherryKit::TextWrapped("Lorem ipsum Lorem ipsumLorem ipsum");
-              });
-
               CherryGUI::SameLine();
               CherryStyle::AddMarginX(10.0f);
               Cherry::SetNextComponentProperty("padding_x", "8");
               Cherry::SetNextComponentProperty("padding_y", "4");
-              if (CherryKit::ButtonImageText("Refresh", Cherry::GetPath("resources/imgs/icons/misc/icon_refresh.png"))
+              if (CherryKit::ButtonImageText(
+                      Cherry::GetLocale("loc.refresh"), Cherry::GetPath("resources/imgs/icons/misc/icon_refresh.png"))
                       .GetData("isClicked") == "true") {
                 RefreshConfig();
               }
@@ -351,7 +422,8 @@ namespace VortexLauncher {
               CherryStyle::AddMarginX(10.0f);
               Cherry::SetNextComponentProperty("padding_x", "8");
               Cherry::SetNextComponentProperty("padding_y", "4");
-              if (CherryKit::ButtonImageText("Save", Cherry::GetPath("resources/imgs/icons/misc/icon_refresh.png"))
+              if (CherryKit::ButtonImageText(
+                      Cherry::GetLocale("loc.save"), Cherry::GetPath("resources/imgs/icons/misc/icon_refresh.png"))
                       .GetData("isClicked") == "true") {
                 SaveCurrentConfig();
               }
@@ -366,50 +438,71 @@ namespace VortexLauncher {
                   "Settings",
                   {
                       CherryKit::KeyValCustom(
-                          "Project paths",
-                          [=]() { PathListEditor("Project paths", &m_ProjectPoolsPaths, &m_NewProjectPath); }),
-                      CherryKit::KeyValCustom(
-                          "Vortex version paths",
+                          Cherry::GetLocale("loc.windows.settings.project_paths"),
                           [=]() {
-                            PathListEditor("Vortex version paths", &m_VortexVersionPoolsPaths, &m_NewVortexVersionPath);
+                            PathListEditor(
+                                Cherry::GetLocale("loc.windows.settings.project_paths"),
+                                &m_ProjectPoolsPaths,
+                                &m_NewProjectPath);
                           }),
                       CherryKit::KeyValCustom(
-                          "Modules paths",
-                          [=]() { PathListEditor("Modules paths", &m_ModulesPoolsPaths, &m_NewModulesPath); }),
+                          Cherry::GetLocale("loc.windows.settings.vx_versions_paths"),
+                          [=]() {
+                            PathListEditor(
+                                Cherry::GetLocale("loc.windows.settings.vx_versions_paths"),
+                                &m_VortexVersionPoolsPaths,
+                                &m_NewVortexVersionPath);
+                          }),
                       CherryKit::KeyValCustom(
-                          "Plugins paths",
-                          [=]() { PathListEditor("Plugins paths", &m_PluginsPoolsPaths, &m_NewPluginsPath); }),
+                          Cherry::GetLocale("loc.windows.settings.modules_paths"),
+                          [=]() {
+                            PathListEditor(
+                                Cherry::GetLocale("loc.windows.settings.modules_paths"),
+                                &m_ModulesPoolsPaths,
+                                &m_NewModulesPath);
+                          }),
                       CherryKit::KeyValCustom(
-                          "Templates paths",
-                          [=]() { PathListEditor("Templates paths", &m_TemplatesPoolsPaths, &m_NewTemplatesPath); }),
+                          Cherry::GetLocale("loc.windows.settings.plugins_paths"),
+                          [=]() {
+                            PathListEditor(
+                                Cherry::GetLocale("loc.windows.settings.plugins_paths"),
+                                &m_PluginsPoolsPaths,
+                                &m_NewPluginsPath);
+                          }),
                       CherryKit::KeyValCustom(
-                          "Contents paths",
-                          [=]() { PathListEditor("Contents paths", &m_ContentsPoolsPaths, &m_NewContentsPath); }),
+                          Cherry::GetLocale("loc.windows.settings.templates_paths"),
+                          [=]() {
+                            PathListEditor(
+                                Cherry::GetLocale("loc.windows.settings.templates_paths"),
+                                &m_TemplatesPoolsPaths,
+                                &m_NewTemplatesPath);
+                          }),
+                      CherryKit::KeyValCustom(
+                          Cherry::GetLocale("loc.windows.settings.contents_paths"),
+                          [=]() {
+                            PathListEditor(
+                                Cherry::GetLocale("loc.windows.settings.contents_paths"),
+                                &m_ContentsPoolsPaths,
+                                &m_NewContentsPath);
+                          }),
                   });
             },
             Cherry::GetPath("resources/imgs/link.png")));
     this->AddChild(
-        "Updates & Distribution",
+        "?loc:loc.windows.settings.child.update_distribution",
         MainSettingsChild(
             [this]() {
               Cherry::PushFont("ClashBold");
               CherryNextProp("color_text", "#797979");
-              CherryKit::TitleFive("Updates & Distribution settings");
+              CherryKit::TitleFive(Cherry::GetLocale("loc.windows.settings.update_dist_settings"));
               Cherry::PopFont();
-              CherryGUI::SameLine();
-              CherryKit::TooltipTextCustom("(?)", []() {
-                CherryKit::TitleFour("em : Editor Modules");
-                CherryKit::TextWrapped("Lorem ipsum Lorem ipsumLorem ipsum");
-                CherryStyle::AddMarginY(10.0f);
-                CherryKit::TitleFour("esm : Editor Script Modules");
-                CherryKit::TextWrapped("Lorem ipsum Lorem ipsumLorem ipsum");
-              });
 
               CherryGUI::SameLine();
               CherryStyle::AddMarginX(10.0f);
               Cherry::SetNextComponentProperty("padding_x", "8");
               Cherry::SetNextComponentProperty("padding_y", "4");
-              if (CherryKit::ButtonImageText("Refresh", Cherry::GetPath("resources/imgs/icons/misc/icon_refresh.png"))
+              if (CherryKit::ButtonImageText(
+                      Cherry::GetLocale("loc.refresh"), Cherry::GetPath("resources/imgs/icons/misc/icon_refresh.png"))
                       .GetData("isClicked") == "true") {
                 RefreshConfig();
               }
@@ -418,7 +511,8 @@ namespace VortexLauncher {
               CherryStyle::AddMarginX(10.0f);
               Cherry::SetNextComponentProperty("padding_x", "8");
               Cherry::SetNextComponentProperty("padding_y", "4");
-              if (CherryKit::ButtonImageText("Save", Cherry::GetPath("resources/imgs/icons/misc/icon_refresh.png"))
+              if (CherryKit::ButtonImageText(
+                      Cherry::GetLocale("loc.save"), Cherry::GetPath("resources/imgs/icons/misc/icon_refresh.png"))
                       .GetData("isClicked") == "true") {
                 SaveCurrentConfig();
               }
@@ -433,7 +527,7 @@ namespace VortexLauncher {
                   "Settings",
                   {
                       CherryKit::KeyValCustom(
-                          "Vortex distributions",
+                          Cherry::GetLocale("loc.windows.settings.vortex_distributions"),
                           [=]() {
                             ImGui::PushID("vortex_dists");
                             for (size_t i = 0; i < vortexDists.size(); ++i) {
