@@ -248,7 +248,7 @@ class Launcher {
 
     Cherry::ApplicationSpecification spec;
 
-    std::string name = "Main settings";
+    std::string name = Cherry::GetLocale("loc.window_names.settings");
     spec.Name = name;
     spec.MinHeight = 500;
     spec.MinWidth = 500;

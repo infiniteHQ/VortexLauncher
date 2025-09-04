@@ -27,11 +27,13 @@ namespace VortexLauncher {
   }
 
   void VersionManager::RenderMenubar() {
+    CherryGUI::BeginDisabled();
     CherryGUI::SetCursorPosX(CherryGUI::GetCursorPosX() + 3.0f);
     CherryNextComponent.SetProperty("padding_y", "6.0f");
     CherryNextComponent.SetProperty("padding_x", "10.0f");
 
-    if (CherryKit::ButtonImageText("Import", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))
+    if (CherryKit::ButtonImageText(
+            Cherry::GetLocale("loc.import"), Cherry::GetPath("resources/imgs/icons/misc/icon_import.png"))
             .GetDataAs<bool>("isClicked")) {
       m_SelectedChildName = "Install new version";
     }
@@ -40,13 +42,15 @@ namespace VortexLauncher {
     CherryNextComponent.SetProperty("color_border_hovered", "#00000000");
     CherryNextComponent.SetProperty("color_border_pressed", "#00000000");
     CherryNextComponent.SetProperty("padding_y", "6.0f");
-    CherryKit::ButtonImageText("Filters", Cherry::GetPath("resources/imgs/icons/misc/icon_save.png"));
+    CherryKit::ButtonImageText("Filters", Cherry::GetPath("resources/imgs/icons/misc/icon_filter.png"));
 
     CherryNextComponent.SetProperty("color_border", "#00000000");
     CherryNextComponent.SetProperty("color_border_hovered", "#00000000");
     CherryNextComponent.SetProperty("color_border_pressed", "#00000000");
     CherryNextComponent.SetProperty("padding_y", "6.0f");
-    CherryKit::ButtonImageText("Search", Cherry::GetPath("resources/imgs/icons/misc/icon_import.png"));
+    CherryKit::ButtonImageText("Search", Cherry::GetPath("resources/imgs/icons/misc/icon_magnifying_glass.png"));
+
+    CherryGUI::EndDisabled();
   }
 
   VersionManager::VersionManager(const std::string &name) {
@@ -100,7 +104,7 @@ namespace VortexLauncher {
             },
             Cherry::GetPath("resources/imgs/help.png")));
 
-    this->AddChild(
+    /*this->AddChild(
         "Install new version",
         VersionManagerChild(
             [this]() {
@@ -230,7 +234,7 @@ namespace VortexLauncher {
                 CherryKit::TableCustom(CherryID("sdfg"), "Available Vortex Versions", available_versions);
               }
             },
-            Cherry::GetPath("resources/imgs/add.png")));
+            Cherry::GetPath("resources/imgs/add.png")));*/
 
     this->AddChild(
         "Installed versions",
@@ -242,14 +246,16 @@ namespace VortexLauncher {
                 int i = 0;
                 for (auto version : m_VortexVersions) {
                   i++;
+
                   versions_render_callbacks.push_back([version, i](int c) {
                     switch (c) {
                       case 0: {  // Image
                         if (version.system_version) {
                           CherryKit::ImageLocal(Cherry::GetPath(version.system_version->banner), 100.0f, 35.0f);
                         } else {
-                          if (version.online_version)
-                            CherryKit::ImageHttp(Cherry::GetPath(version.online_version->banner), 100.0f, 35.0f);
+                          if (version.online_version) {
+                            CherryKit::ImageLocal(Cherry::GetHttpPath(version.online_version->banner), 100.0f, 35.0f);
+                          }
                         }
                         break;
                       }
