@@ -137,7 +137,9 @@
         {"loc.windows.welcome.project_already_running":"Projekt läuft bereits"},
         {"loc.windows.welcome.project_already_running_description":"Das Projekt scheint bereits gestartet zu sein. Möchten Sie eine neue Instanz starten?"},
         {"loc.windows.welcome.project_delete_warning":"WARNUNG: Wenn Sie auf Löschen klicken, wird das Projekt dauerhaft gelöscht."},
-
+        {"loc.windows.welcome.project_delete_warning_description":"Bitte geben Sie den Namen Ihres Projekts in das Textfeld ein, um diese Aktion zu bestätigen"},
+        {"loc.windows.welcome.project_delete_warning_button":"Diesen Projektnamen eingeben"},
+        
         {"loc.windows.settings.child.update_distribution":"Updates & Verteilung"},
         {"loc.windows.settings.child.sys_paths":"Systempfade"},     
         {"loc.windows.settings.child.theme":"Thema"},

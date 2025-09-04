@@ -419,7 +419,8 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
     CherryNextComponent.SetProperty("color_bg", "#663649AA");
     CherryNextComponent.SetProperty("color_border", "#663649FF");
     CherryNextComponent.SetProperty("color_text", "#CBCBCB");
-    if (CherryKit::ButtonImageText("Support", Cherry::GetPath("resources/imgs/icons/launcher/heart.png"))
+    if (CherryKit::ButtonImageText(
+            Cherry::GetLocale("loc.support"), Cherry::GetPath("resources/imgs/icons/launcher/heart.png"))
             .GetDataAs<bool>("isClicked")) {
       VortexMaker::OpenURL("https://fund.infinite.si/");
     }

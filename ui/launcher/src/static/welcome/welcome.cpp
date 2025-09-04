@@ -20,6 +20,7 @@ static bool no_installed_modal_opened;
 static bool multiple_versions_modal_opened;
 static bool already_running_modal_opened;
 static bool open_deletion_modal = false;
+static bool project_deleted = false;
 
 static std::string no_installed_version;
 static std::string no_installed_project_name;
@@ -455,7 +456,12 @@ namespace VortexLauncher {
               index));
     }
 
-    CherryKit::GridSimple(150.0f, 150.0f, project_blocks);
+    if (!project_deleted) {
+      CherryKit::GridSimple(150.0f, 150.0f, project_blocks);
+    } else {
+      project_deleted = false;
+    }
+
     CherryGUI::EndChild();
 
     CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
@@ -1276,21 +1282,31 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
     static int selected_version_index = 0;
 
     static bool user_string_validation = false;
-    static char string_validation[256] = "";
+    static std::string string_validation = "";
     if (open_deletion_modal) {
       CherryGUI::OpenPopup(Cherry::GetLocale("loc.windows.welcome.delete_project").c_str());
 
       if (CherryGUI::BeginPopupModal(Cherry::GetLocale("loc.windows.welcome.delete_project").c_str(), NULL, NULL)) {
         static char path_input_all[512];
+        std::string text = CherryApp.GetLocale("loc.delete") + CherryApp.GetLocale("loc.close");
+        ImVec2 to_remove = CherryGUI::CalcTextSize(text.c_str());
+
         Cherry::SetNextComponentProperty("color_text", "#CC2222");
         CherryKit::TitleThree(m_SelectedEnvprojectToRemove->name);
         CherryGUI::TextWrapped(Cherry::GetLocale("loc.windows.welcome.project_delete_warning").c_str());
-        CherryGUI::InputText("####name_validation", string_validation, sizeof(string_validation));
+        CherryKit::Space(15.0f);
+        CherryGUI::TextWrapped(Cherry::GetLocale("loc.windows.welcome.project_delete_warning_description").c_str());
+        CherryKit::Space(15.0f);
 
-        std::string text = CherryApp.GetLocale("loc.delete") + CherryApp.GetLocale("loc.close");
-        ImVec2 to_remove = CherryGUI::CalcTextSize(text.c_str());
+        CherryNextComponent.SetProperty(
+            "description", Cherry::GetLocale("loc.windows.welcome.project_delete_warning_button"));
+        CherryNextComponent.SetProperty("description_logo", GetPath("resources/imgs/icons/misc/icon_trash.png"));
+        CherryNextComponent.SetProperty("description_logo_place", "r");
+        CherryNextComponent.SetProperty("size_x", CherryGUI::GetContentRegionMax().x - to_remove.x - 75);
+        CherryKit::InputString("####name_validation", &string_validation);
+
         CherryGUI::SetCursorPosX(CherryGUI::GetContentRegionMax().x - to_remove.x - 50);
-        CherryGUI::SetCursorPosY(CherryGUI::GetContentRegionMax().y - 35.0f);
+        CherryGUI::SetCursorPosY(CherryGUI::GetContentRegionMax().y - 30.0f);
         CherryNextProp("color", "#222222");
         CherryKit::Separator();
         CherryGUI::SetCursorPosX(CherryGUI::GetContentRegionMax().x - to_remove.x - 40);
@@ -1306,7 +1322,7 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
         Cherry::SetNextComponentProperty("color_bg_hovered", "#eda49f");
         Cherry::SetNextComponentProperty("color_text", "#121212FF");
 
-        if (strcmp(string_validation, m_SelectedEnvprojectToRemove->name.c_str()) != 0) {
+        if (strcmp(string_validation.c_str(), m_SelectedEnvprojectToRemove->name.c_str()) != 0) {
           CherryGUI::BeginDisabled();
         }
 
@@ -1315,13 +1331,13 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
           VortexMaker::DeleteProject(m_SelectedEnvprojectToRemove->path, m_SelectedEnvprojectToRemove->name);
 
           VortexMaker::RefreshEnvironmentProjects();
-          project_blocks.clear();
+          project_deleted = true;
 
           open_deletion_modal = false;
           CherryGUI::CloseCurrentPopup();
         }
 
-        if (strcmp(string_validation, m_SelectedEnvprojectToRemove->name.c_str()) != 0) {
+        if (strcmp(string_validation.c_str(), m_SelectedEnvprojectToRemove->name.c_str()) != 0) {
           CherryGUI::EndDisabled();
         }
 

@@ -137,7 +137,9 @@
         {"loc.windows.welcome.project_already_running":"Projektet körs redan"},
         {"loc.windows.welcome.project_already_running_description":"Projektet verkar redan ha startats. Vill du starta en ny instans?"},
         {"loc.windows.welcome.project_delete_warning":"VARNING: Om du klickar på Ta bort kommer projektet att raderas permanent."},
-
+        {"loc.windows.welcome.project_delete_warning_description":"Skriv in ditt projektnamn i textfältet för att bekräfta denna åtgärd"},
+        {"loc.windows.welcome.project_delete_warning_button":"Skriv detta projektnamn"},
+        
         {"loc.windows.settings.child.update_distribution":"Uppdateringar & distribution"},
         {"loc.windows.settings.child.sys_paths":"Systemvägar"},     
         {"loc.windows.settings.child.theme":"Tema"},

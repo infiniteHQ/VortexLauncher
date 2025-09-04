@@ -137,7 +137,9 @@
         {"loc.windows.welcome.project_already_running":"Proyecto ya en ejecución"},
         {"loc.windows.welcome.project_already_running_description":"El proyecto parece haberse lanzado ya. ¿Quieres iniciar una nueva instancia?"},
         {"loc.windows.welcome.project_delete_warning":"ADVERTENCIA, si haces clic en Eliminar, el proyecto se borrará para siempre."},
-
+        {"loc.windows.welcome.project_delete_warning_description":"Por favor escribe el nombre de tu proyecto en el campo de texto para confirmar esta acción"},
+        {"loc.windows.welcome.project_delete_warning_button":"Escribe este nombre de proyecto"},
+        
         {"loc.windows.settings.child.update_distribution":"Actualizaciones y distribución"},
         {"loc.windows.settings.child.sys_paths":"Rutas del sistema"},     
         {"loc.windows.settings.child.theme":"Tema"},

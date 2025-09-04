@@ -137,6 +137,8 @@
         {"loc.windows.welcome.project_already_running":"Project Already Running"},
         {"loc.windows.welcome.project_already_running_description":"The project seems to have already been launched. Would you like to relaunch a new instance?"},
         {"loc.windows.welcome.project_delete_warning":"WARNING, if you click on the Delete button, the project will be erase forever."},
+        {"loc.windows.welcome.project_delete_warning_description":"Please write the name of your project on the text input to confirm this action"},
+        {"loc.windows.welcome.project_delete_warning_button":"Write this project name"},
 
         {"loc.windows.settings.child.update_distribution":"Updates & distribution"},
         {"loc.windows.settings.child.sys_paths":"System paths"},     

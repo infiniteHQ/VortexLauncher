@@ -1008,7 +1008,7 @@ void AssetFinder::RenderSideBar() {
   CherryNextProp("size_y", "20");
   CherryGUI::SetCursorPosX(CherryGUI::GetCursorPosX() + 7.5f);
   if (CherryKit::ButtonImageText(
-          Cherry::GetLocale("loc.documents"), Cherry::GetPath("resources/imgs/icons/misc/icon_docs.png"))
+          Cherry::GetLocale("loc.documents"), Cherry::GetPath("resources/imgs/icons/misc/icon_documents.png"))
           .GetData("isClicked") == "true") {
     m_CurrentDirectory = GetUserDirectory("DOCUMENTS");
   }

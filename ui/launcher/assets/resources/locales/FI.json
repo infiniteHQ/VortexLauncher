@@ -137,7 +137,9 @@
         {"loc.windows.welcome.project_already_running":"Projekti on jo käynnissä"},
         {"loc.windows.welcome.project_already_running_description":"Projekti näyttää jo olevan käynnissä. Haluatko käynnistää uuden instanssin?"},
         {"loc.windows.welcome.project_delete_warning":"VAROITUS: Jos napsautat Poista, projekti poistetaan pysyvästi."},
-
+        {"loc.windows.welcome.project_delete_warning_description":"Kirjoita projektisi nimi tekstikenttään vahvistaaksesi tämän toiminnon"},
+        {"loc.windows.welcome.project_delete_warning_button":"Kirjoita tämän projektin nimi"},
+        
         {"loc.windows.settings.child.update_distribution":"Päivitykset & jakelu"},
         {"loc.windows.settings.child.sys_paths":"Järjestelmäpolut"},     
         {"loc.windows.settings.child.theme":"Teema"},
