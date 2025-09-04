@@ -448,7 +448,7 @@ AssetFinder::AssetFinder(const std::string &name, const std::string &start_path)
     std::string text = CherryApp.GetLocale("loc.cancel") + label;
     ImVec2 buttonSize = CherryGUI::CalcTextSize(text.c_str());
 
-    CherryGUI::SetCursorPosX(CherryGUI::GetContentRegionMax().x - buttonSize.x - 50);
+    CherryGUI::SetCursorPosX(CherryGUI::GetContentRegionMax().x - buttonSize.x - 75);
 
     if (CherryKit::ButtonImageText(
             Cherry::GetLocale("loc.cancel"), Cherry::GetPath("resources/imgs/icons/misc/icon_return.png"))
@@ -466,6 +466,7 @@ AssetFinder::AssetFinder(const std::string &name, const std::string &start_path)
       Cherry::SetNextComponentProperty("color_text", "#121212FF");
     }
 
+    CherryStyle::AddMarginY(1.0f);
     if (CherryKit::ButtonImageText(label, Cherry::GetPath("resources/imgs/add.png")).GetData("isClicked") == "true") {
       m_GetFileBrowserPath = true;
     }
