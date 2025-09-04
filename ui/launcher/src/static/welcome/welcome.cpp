@@ -540,12 +540,12 @@ namespace VortexLauncher {
       CherryStyle::AddMarginX(5.0f);
       CherryKit::TextSimple(m_SelectedEnvproject->description);
 
-      std::string text = Cherry::GetLocale("loc.open") + " " + Cherry::GetLocale("loc.open");
+      std::string text = Cherry::GetLocale("loc.delete") + " " + Cherry::GetLocale("loc.open");
       ImVec2 to_remove = CherryGUI::CalcTextSize(text.c_str());
       CherryGUI::SetCursorPosX(CherryGUI::GetContentRegionMax().x - to_remove.x - 50);
 
       CherryNextProp("color_text", "#B1FF31");
-      if (CherryKit::ButtonText(Cherry::GetLocale("loc.open")).GetData("isClicked") == "true") {
+      if (CherryKit::ButtonText(Cherry::GetLocale("loc.delete")).GetData("isClicked") == "true") {
         m_SelectedEnvprojectToRemove = m_SelectedEnvproject;
         open_deletion_modal = true;
       }
