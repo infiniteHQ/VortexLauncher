@@ -40,10 +40,10 @@
 #include <stddef.h>  // NULL
 #include <stdio.h>   // NULL
 #include <sys/stat.h>
-#include <sys/sysinfo.h>
 #ifdef _WIN32
 #include <shellapi.h>
 #else
+#include <sys/sysinfo.h>
 #include <unistd.h>
 #endif
 
