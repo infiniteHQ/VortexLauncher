@@ -68,6 +68,12 @@ fi
 rm -rf shipping
 mkdir -p shipping/launcher/linux
 
+sudo rm dist/bin/vxuninstall
+sudo rm dist/bin/vxinstaller
+sudo rm dist/bin/vortex_installer
+sudo rm dist/bin/vortex_uninstall
+sudo rm dist/bin/vortex_update
+
 if [ "$NO_INSTALLER" = false ]; then
   TAR_FILE=./shipping/launcher/linux/vortex_launcher_${VERSION}.tar.gz
   tar -cvzf "$TAR_FILE" dist
