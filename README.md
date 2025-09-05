@@ -25,12 +25,18 @@ Vortex is a playground built by the Infinite community. It includes an editor, a
 <table align="center">
   <tr>
     <td align="center">
-      <img src="./.github/imgs/launcher1.png" alt="Cherry 1" width="400">
-      <p>Welcome window</p>
+      <img src="./.github/imgs/vx2.png" alt="vx1" width="400">
+      <p>Project managment</p>
     </td>
     <td align="center">
-      <img src="./.github/imgs/launcher1.png" alt="Cherry 2" width="400">
-      <p>Project managment</p>
+      <img src="./.github/imgs/vx3.png" alt="Cherry 2" width="400">
+      <p>Welcome Window</p>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="./.github/imgs/vx1.png" alt="Cherry 2" width="400">
+      <p>Overview</p>
     </td>
   </tr>
 </table>
