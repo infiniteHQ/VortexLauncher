@@ -54,6 +54,9 @@ namespace VortexLauncher {
       m_VortexVersions.clear();
 
       for (auto v : VortexMaker::GetCurrentContext()->IO.sys_vortex_versions) {
+        if (!v)
+          continue;
+
         VxVersion version;
         version.system_version = v;
 
@@ -68,8 +71,14 @@ namespace VortexLauncher {
       }
 
       for (auto availv : VortexMaker::GetCurrentContext()->IO.available_vortex_versions) {
+        if (!availv)
+          continue;
+
         bool add = true;
         for (auto v : m_VortexVersions) {
+          if (!v.system_version)
+            continue;
+
           if (v.system_version->name == availv->name)
             add = false;
         }
