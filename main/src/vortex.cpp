@@ -590,10 +590,10 @@ VORTEX_API void VortexMaker::OpenVortexInstaller(
 
   if (VortexMaker::IsWindows()) {
     command = ctx.m_VortexLauncherPath + "\\VersionInstaller.exe --home=" + VortexMaker::getHomeDirectory() +
-              " --dist=" + dist + " --platform=" + platform + " --arch=" + arch + " --version=" + version;
+              " --dist=" + dist + " --platform=" + platform + " --arch=" + arch + " --version_name=" + version;
   } else {
     command = ctx.m_VortexLauncherPath + "/VersionInstaller --home=" + VortexMaker::getHomeDirectory() + " --dist=" + dist +
-              " --platform=" + platform + " --arch=" + arch + " --version=" + version;
+              " --platform=" + platform + " --arch=" + arch + " --version_name=" + version;
   }
 
   VXWARN("F", command)

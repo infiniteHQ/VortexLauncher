@@ -341,7 +341,7 @@ namespace VortexLauncher {
                               std::thread([version]() {
                                 VortexMaker::OpenVortexUninstaller(version.online_version->path);
                                 VortexMaker::OpenVortexInstaller(
-                                    version.online_version->version,
+                                    version.online_version->name,
                                     version.online_version->arch,
                                     version.online_version->dist,
                                     version.online_version->plat);
@@ -358,7 +358,7 @@ namespace VortexLauncher {
                                     .GetData("isClicked") == "true") {
                               std::thread([version]() {
                                 VortexMaker::OpenVortexInstaller(
-                                    version.online_version->version,
+                                    version.online_version->name,
                                     version.online_version->arch,
                                     version.online_version->dist,
                                     version.online_version->plat);
