@@ -262,11 +262,11 @@ namespace VortexLauncher {
                       case 1: {  // Name
                         if (version.system_version) {
                           CherryStyle::AddMarginY(9.0f);
-                          CherryKit::TitleSix(version.system_version->proper_name + " " + version.system_version->name);
+                          CherryKit::TitleSix(version.system_version->proper_name);
                         } else {
                           if (version.online_version) {
                             CherryStyle::AddMarginY(9.0f);
-                            CherryKit::TitleSix(version.online_version->proper_name + " " + version.online_version->name);
+                            CherryKit::TitleSix(version.online_version->proper_name);
                           }
                         }
                         break;

@@ -150,6 +150,9 @@ VORTEX_API void VortexMaker::UpdateVortexWebData() {
       if (values.contains("image")) {
         version->banner = values["image"].get<std::string>();
       }
+      if (values.contains("proper_name")) {
+        version->proper_name = values["proper_name"].get<std::string>();
+      }
     }
 
     ctx.IO.available_vortex_versions.push_back(version);
