@@ -69,7 +69,6 @@ target_include_directories(vortex_launcher_shared PUBLIC
 
 find_package(Vulkan REQUIRED)
 include_directories(${Vulkan_INCLUDE_DIRS})
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/lib/spdlog/include")
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ui/launcher ui_launcher_build)
 target_link_libraries(vortex_launcher_shared PUBLIC launcher)
