@@ -8,8 +8,8 @@
 // Versions & Build identification
 //_____________________________________________________________________________
 // (Integer encoded as XYYZZ for use in #if preprocessor conditionals, e.g. '#if VORTEXLAUNCHER_VERSION_NUM >= 1.5.0')
-#define VORTEXLAUNCHER_VERSION     "1.5.2"
-#define VORTEXLAUNCHER_VERSION_NUM 010502  // Major.Medium.Minor
+#define VORTEXLAUNCHER_VERSION     "1.5.3"
+#define VORTEXLAUNCHER_VERSION_NUM 010503  // Major.Medium.Minor
 
 //_____________________________________________________________________________
 
@@ -24,11 +24,6 @@
 #endif
 #include "../../lib/httpcl/httpcl.h"
 #include "../../lib/json/single_include/nlohmann/json.hpp"
-#include "../../lib/spdlog/include/spdlog/sinks/basic_file_sink.h"
-#include "../../lib/spdlog/include/spdlog/sinks/daily_file_sink.h"
-#include "../../lib/spdlog/include/spdlog/sinks/rotating_file_sink.h"
-#include "../../lib/spdlog/include/spdlog/sinks/stdout_color_sinks.h"
-#include "../../lib/spdlog/include/spdlog/spdlog.h"
 #include "vortex_configs.h"
 #ifndef VORTEX_DISABLE
 //_____________________________________________________________________________
@@ -147,6 +142,7 @@ struct hArgs;
 struct VxHost;
 struct VxGPOSystem;
 struct EnvProject;
+struct VxLogger;
 
 struct CommandOutput;
 struct VxToolchain;
@@ -227,9 +223,10 @@ namespace VortexMaker {
 
   VORTEX_API void InitEnvironment();
   VORTEX_API void CheckBlankProject();
-  VORTEX_API std::shared_ptr<spdlog::logger> CreateLogPool(const std::string &pool_name);
-  VORTEX_API std::shared_ptr<spdlog::logger> CreateGlobalLogger();
-  VORTEX_API std::shared_ptr<spdlog::logger> CreateConsoleLogger();
+
+  VORTEX_API std::shared_ptr<VxLogger> CreateLogPool(const std::string &pool_name);
+  VORTEX_API std::shared_ptr<VxLogger> CreateGlobalLogger();
+  VORTEX_API std::shared_ptr<VxLogger> CreateConsoleLogger();
   VORTEX_API void DropLoggers();
 
   VORTEX_API void InstallPluginToSystem(const std::string &path, const std::string &pool_path);

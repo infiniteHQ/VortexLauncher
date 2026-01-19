@@ -63,44 +63,40 @@ namespace VortexLauncher {
     const float TEXT_BASE_WIDTH = CherryGUI::CalcTextSize("A").x;
 
     if (CherryGUI::BeginTable("3ways", 4, flags)) {
-      // The first column will use the default _WidthStretch when ScrollX is Off and _WidthFixed when ScrollX is On
       CherryGUI::TableSetupColumn("Level", ImGuiTableColumnFlags_NoHide);
       CherryGUI::TableSetupColumn("Timestamp", ImGuiTableColumnFlags_WidthFixed, TEXT_BASE_WIDTH * 18.0f);
       CherryGUI::TableSetupColumn("Origin", ImGuiTableColumnFlags_WidthFixed, TEXT_BASE_WIDTH * 12.0f);
       CherryGUI::TableSetupColumn("Log", ImGuiTableColumnFlags_WidthFixed, TEXT_BASE_WIDTH * 18.0f);
       CherryGUI::TableHeadersRow();
 
-      for (auto log : ctx->registered_logs) {
-        if (log->m_level == spdlog::level::critical && !FatalFilter)
+      for (const auto &log : ctx->registered_logs) {
+        if (log->m_level == VxLogLevel::critical && !FatalFilter)
           continue;
-        if (log->m_level == spdlog::level::err && !ErrorFilter)
+        if (log->m_level == VxLogLevel::err && !ErrorFilter)
           continue;
-        if (log->m_level == spdlog::level::warn && !WarnFilter)
+        if (log->m_level == VxLogLevel::warn && !WarnFilter)
           continue;
-        if (log->m_level == spdlog::level::info && !InfoFilter)
+        if (log->m_level == VxLogLevel::info && !InfoFilter)
           continue;
 
         CherryGUI::TableNextRow();
-        for (int i = 0; i <= 3; i++) {
-          CherryGUI::TableSetColumnIndex(i);
-          if (i == 0) {
-            if (log->m_level == spdlog::level::critical) {
-              CherryGUI::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Fatal");
-            } else if (log->m_level == spdlog::level::err) {
-              CherryGUI::TextColored(ImVec4(0.8f, 0.2f, 0.2f, 1.0f), "Error");
-            } else if (log->m_level == spdlog::level::warn) {
-              CherryGUI::TextColored(ImVec4(0.8f, 0.8f, 0.0f, 1.0f), "Warning");
-            } else if (log->m_level == spdlog::level::info) {
-              CherryGUI::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Information");
-            }
-          } else if (i == 1) {
-            CherryGUI::Text(log->m_timestamp.c_str());
-          } else if (i == 2) {
-            CherryGUI::Text(log->m_filter.c_str());
-          } else if (i == 3) {
-            CherryGUI::Text(log->m_message.c_str());
-          }
+
+        CherryGUI::TableSetColumnIndex(0);
+        switch (log->m_level) {
+          case VxLogLevel::critical: CherryGUI::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Fatal"); break;
+          case VxLogLevel::err: CherryGUI::TextColored(ImVec4(0.8f, 0.2f, 0.2f, 1.0f), "Error"); break;
+          case VxLogLevel::warn: CherryGUI::TextColored(ImVec4(0.8f, 0.8f, 0.0f, 1.0f), "Warning"); break;
+          case VxLogLevel::info: CherryGUI::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Information"); break;
         }
+
+        CherryGUI::TableSetColumnIndex(1);
+        CherryGUI::Text(log->m_timestamp.c_str());
+
+        CherryGUI::TableSetColumnIndex(2);
+        CherryGUI::Text(log->m_filter.c_str());
+
+        CherryGUI::TableSetColumnIndex(3);
+        CherryGUI::Text(log->m_message.c_str());
       }
       CherryGUI::EndTable();
     }

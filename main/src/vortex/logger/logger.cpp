@@ -1,187 +1,94 @@
+#include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <memory>
+
 #include "../../../include/vortex.h"
 #include "../../../include/vortex_internals.h"
 
-
-VORTEX_API void VortexMaker::DropLoggers()
-{
-    spdlog::drop_all();
+VORTEX_API void VortexMaker::DropLoggers() {
+  VxContext &ctx = *CVortexMaker;
+  ctx.pool_loggers.clear();
+  ctx.global_logger = nullptr;
+  ctx.console_logger = nullptr;
 }
 
-VORTEX_API std::shared_ptr<spdlog::logger> VortexMaker::CreateLogPool(const std::string &pool_name)
-{
+VORTEX_API std::shared_ptr<VxLogger> VortexMaker::CreateLogPool(const std::string &pool_name) {
   VxContext &ctx = *CVortexMaker;
-  std::string file_path = VortexMaker::getHomeDirectory() + "/.vx/sessions/" + ctx.state.session_id + "/logs/" + pool_name + ".log";
-  std::shared_ptr<spdlog::logger> new_logger = spdlog::daily_logger_mt(pool_name, file_path ,0 ,0);
-  new_logger->flush_on(spdlog::level::info);
+  std::string dir = VortexMaker::getHomeDirectory() + "/.vx/sessions/" + ctx.state.session_id + "/logs/";
+  std::string file_path = dir + pool_name + ".log";
 
-  ctx.pool_loggers.push_back({pool_name, new_logger});
+  auto new_logger = std::make_shared<VxLogger>(pool_name, file_path);
+  ctx.pool_loggers.push_back({ pool_name, new_logger });
 
   return new_logger;
 }
 
-VORTEX_API std::shared_ptr<spdlog::logger> VortexMaker::CreateGlobalLogger()
-{
+VORTEX_API std::shared_ptr<VxLogger> VortexMaker::CreateGlobalLogger() {
   VxContext &ctx = *CVortexMaker;
   std::string file_path = VortexMaker::getHomeDirectory() + "/.vx/sessions/" + ctx.state.session_id + "/logs/global.log";
-  ctx.global_logger = spdlog::basic_logger_mt("global_logger", file_path);
-  ctx.global_logger->flush_on(spdlog::level::info);
+  ctx.global_logger = std::make_shared<VxLogger>("global", file_path);
   return ctx.global_logger;
 }
 
-VORTEX_API std::shared_ptr<spdlog::logger> VortexMaker::CreateConsoleLogger()
-{
+VORTEX_API std::shared_ptr<VxLogger> VortexMaker::CreateConsoleLogger() {
   VxContext &ctx = *CVortexMaker;
-  ctx.console_logger = spdlog::stdout_color_mt("console");
+  ctx.console_logger = std::make_shared<VxLogger>("console", "", true);
   return ctx.console_logger;
 }
 
-VORTEX_API void VortexMaker::LogInfo(const std::string &pool_name, const std::string &scope, const std::string &message)
-{
-        std::cout << "pool" << pool_name << std::endl;
+void DispatchLog(VxLogLevel level, const std::string &pool_name, const std::string &scope, const std::string &message) {
   VxContext &ctx = *CVortexMaker;
-  if (ctx.logger)
-  {
-    bool finded = false;
+  if (!ctx.logger)
+    return;
 
-    for (auto pool : ctx.pool_loggers)
-    {
-      if (pool.first == pool_name)
-      {
-        finded = true;
+  std::string formatted_msg = "[" + scope + "] : " + message;
 
-        // Ajout du nom du thread au message pour le logger global
-        ctx.global_logger->info("[{}] {}", pool_name, "[" + scope + "] : " + message);
+  if (ctx.console_logger) {
+    ctx.console_logger->log(level, pool_name, formatted_msg);
+  }
 
-        pool.second->info("[{}] {}", pool_name, "[" + scope + "] : " + message);
+  if (ctx.global_logger) {
+    ctx.global_logger->log(level, pool_name, formatted_msg);
+  }
 
-        // Également logguer dans le logger global (console)
-        ctx.console_logger->info("[" + scope + "] : " + message);
+  if (pool_name != "global") {
+    auto it = std::find_if(
+        ctx.pool_loggers.begin(), ctx.pool_loggers.end(), [&](const std::pair<std::string, std::shared_ptr<VxLogger>> &p) {
+          return p.first == pool_name;
+        });
 
-        std::cout << "OKOOKOKOK"<< std::endl;
-
-        if (ctx.logger_registering)
-        {
-          std::shared_ptr<VxSystemLog> log = std::make_shared<VxSystemLog>(spdlog::level::level_enum::info, scope, message);
-          log->m_timestamp = VortexMaker::getCurrentTimeStamp();
-          ctx.registered_logs.push_back(log);
-        }
-
-        return;
-      }
+    if (it != ctx.pool_loggers.end()) {
+      it->second->log(level, pool_name, formatted_msg);
+    } else {
+      auto new_pool = VortexMaker::CreateLogPool(pool_name);
+      new_pool->log(level, pool_name, formatted_msg);
     }
+  }
 
-    if (!finded)
-    {
-      std::shared_ptr<spdlog::logger> logger = VortexMaker::CreateLogPool(pool_name);
-
-      // Ajout du nom du thread au message pour le logger global
-      ctx.global_logger->info("[{}] {}", pool_name, "[" + scope + "] : " + message);
-
-      logger->info("[{}] {}", pool_name, "[" + scope + "] : " + message);
-
-      // Également logguer dans le logger global (console)
-      ctx.console_logger->info("[" + scope + "] : " + message);
-    }
+  if (ctx.logger_registering) {
+    auto log_entry = std::make_shared<VxSystemLog>(level, scope, message);
+    log_entry->m_timestamp = VortexMaker::getCurrentTimeStamp();
+    ctx.registered_logs.push_back(log_entry);
   }
 }
 
-/**
- * @brief LogInfo logs an informational message.
- *
- * This function logs an informational message using the provided scope and message strings.
- *
- * @param scope The scope of the log message.
- * @param message The message to be logged.
- */
-VORTEX_API void VortexMaker::LogInfo(const std::string &scope, const std::string &message)
-{
-  VxContext &ctx = *CVortexMaker;
-  if (ctx.logger)
-  {
-
-    // Ajout du nom du thread au message pour le logger global
-    ctx.global_logger->info("[{}] {}", "global", "[" + scope + "] : " + message);
-
-    // Également logguer dans le logger global (console)
-    ctx.console_logger->info("[" + scope + "] : " + message);
-
-    if (ctx.logger_registering)
-    {
-      std::shared_ptr<VxSystemLog> log = std::make_shared<VxSystemLog>(spdlog::level::level_enum::info, scope, message);
-      log->m_timestamp = VortexMaker::getCurrentTimeStamp();
-      ctx.registered_logs.push_back(log);
-    }
-  }
+VORTEX_API void VortexMaker::LogInfo(const std::string &pool_name, const std::string &scope, const std::string &message) {
+  DispatchLog(VxLogLevel::info, pool_name, scope, message);
 }
 
-/**
- * @brief LogWarn logs a warning message.
- *
- * This function logs a warning message using the provided scope and message strings.
- *
- * @param scope The scope of the log message.
- * @param message The message to be logged.
- */
-VORTEX_API void VortexMaker::LogWarn(const std::string &scope, const std::string &message)
-{
-  VxContext &ctx = *CVortexMaker;
-  if (ctx.logger)
-  {
-    spdlog::warn("[" + scope + "] : " + message);
-
-    if (ctx.logger_registering)
-    {
-      std::shared_ptr<VxSystemLog> log = std::make_shared<VxSystemLog>(spdlog::level::level_enum::warn, scope, message);
-      log->m_timestamp = VortexMaker::getCurrentTimeStamp();
-      ctx.registered_logs.push_back(log);
-    }
-  }
+VORTEX_API void VortexMaker::LogInfo(const std::string &scope, const std::string &message) {
+  DispatchLog(VxLogLevel::info, "global", scope, message);
 }
 
-/**
- * @brief LogError logs an error message.
- *
- * This function logs an error message using the provided scope and message strings.
- *
- * @param scope The scope of the log message.
- * @param message The message to be logged.
- */
-VORTEX_API void VortexMaker::LogError(const std::string &scope, const std::string &message)
-{
-  VxContext &ctx = *CVortexMaker;
-  if (ctx.logger)
-  {
-    spdlog::error("[" + scope + "] : " + message);
-
-    if (ctx.logger_registering)
-    {
-      std::shared_ptr<VxSystemLog> log = std::make_shared<VxSystemLog>(spdlog::level::level_enum::err, scope, message);
-      log->m_timestamp = VortexMaker::getCurrentTimeStamp();
-      ctx.registered_logs.push_back(log);
-    }
-  }
+VORTEX_API void VortexMaker::LogWarn(const std::string &scope, const std::string &message) {
+  DispatchLog(VxLogLevel::warn, "global", scope, message);
 }
 
-/**
- * @brief LogFatal logs a fatal error message.
- *
- * This function logs a fatal error message using the provided scope and message strings.
- *
- * @param scope The scope of the log message.
- * @param message The message to be logged.
- */
-VORTEX_API void VortexMaker::LogFatal(const std::string &scope, const std::string &message)
-{
-  VxContext &ctx = *CVortexMaker;
-  if (ctx.logger)
-  {
-    spdlog::critical("[" + scope + "] : " + message);
+VORTEX_API void VortexMaker::LogError(const std::string &scope, const std::string &message) {
+  DispatchLog(VxLogLevel::err, "global", scope, message);
+}
 
-    if (ctx.logger_registering)
-    {
-      std::shared_ptr<VxSystemLog> log = std::make_shared<VxSystemLog>(spdlog::level::level_enum::critical, scope, message);
-      log->m_timestamp = VortexMaker::getCurrentTimeStamp();
-      ctx.registered_logs.push_back(log);
-    }
-  }
+VORTEX_API void VortexMaker::LogFatal(const std::string &scope, const std::string &message) {
+  DispatchLog(VxLogLevel::critical, "global", scope, message);
 }

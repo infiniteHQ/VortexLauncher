@@ -16,7 +16,6 @@ done
 
 VERSION=$(cat ../version.conf)
 
-mkdir -p build_spdlog
 rm -rf ./dist
 rm -rf ./build/dist
 rm -rf ./build/bin
@@ -28,16 +27,9 @@ mkdir -p dist
 mkdir -p build
 
 # -----------------------------
-# Build SPDLOG en Release
-# -----------------------------
-cd build_spdlog
-cmake -DCMAKE_BUILD_TYPE=Release ../../lib/spdlog
-make -j$(nproc)
-
-# -----------------------------
 # Build principal en Release
 # -----------------------------
-cd ../build
+cd ./build
 cmake -DCMAKE_BUILD_TYPE=Release ../..
 make -j$(nproc) install
 

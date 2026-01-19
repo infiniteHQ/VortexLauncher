@@ -95,7 +95,7 @@ struct VxContext;
 // See implementation of this variable in imgui.cpp for comments and details.
 //_____________________________________________________________________________
 #ifndef CVortexMaker
-extern VORTEX_API VxContext *CVortexMaker;  // Current implicit context pointer
+extern VORTEX_API VxContext* CVortexMaker;  // Current implicit context pointer
 #endif
 //_____________________________________________________________________________
 
@@ -148,18 +148,54 @@ struct VortexNews {
   std::string news_link;  // to redirect
 };
 
+enum class VxLogLevel { info, warn, err, critical };
+
 struct VxSystemLog {
-  spdlog::level::level_enum m_level;
+  VxLogLevel m_level;
   std::string m_filter;
   std::string m_message;
   std::string m_timestamp;
 
-  VxSystemLog(spdlog::level::level_enum level, std::string filter, std::string message)
+  VxSystemLog(VxLogLevel level, std::string filter, std::string message)
       : m_level(level),
         m_filter(filter),
-        m_message(message) { };
+        m_message(message) {
+  }
 };
 
+class VxLogger {
+ public:
+  std::ofstream file_stream;
+  std::string name;
+  bool is_console = false;
+
+  VxLogger(const std::string& n, const std::string& path, bool console = false) : name(n), is_console(console) {
+    if (!path.empty()) {
+      file_stream.open(path, std::ios::app);
+    }
+  }
+
+  void log(VxLogLevel level, const std::string& prefix, const std::string& message) {
+    std::string s_level = "INFO";
+    if (level == VxLogLevel::warn)
+      s_level = "WARN";
+    if (level == VxLogLevel::err)
+      s_level = "ERROR";
+    if (level == VxLogLevel::critical)
+      s_level = "FATAL";
+
+    std::string full_message = "[" + s_level + "][" + prefix + "] " + message;
+
+    if (is_console) {
+      std::cout << full_message << std::endl;
+    }
+
+    if (file_stream.is_open()) {
+      file_stream << full_message << std::endl;
+      file_stream.flush();
+    }
+  }
+};
 struct SessionState {
   //
   std::string session_id;
@@ -184,7 +220,7 @@ struct VxIO {
   int MetricsActiveAllocations;
 
   // EM / Editor Modules
-  std::vector<void *> em_handles;
+  std::vector<void*> em_handles;
   std::vector<std::shared_ptr<ModuleInterface>> em;
   std::vector<std::shared_ptr<PluginInterface>> ep;
   std::vector<std::shared_ptr<ModuleInterface>> sys_em;  // It's include esm (Script modules)
@@ -254,16 +290,20 @@ struct VortexVersion {
 // This context contain all user data about VortexMaker functionnal interfaces &
 // all instances of custom contents.
 //-----------------------------------------------------------------------------
-struct VxContext {  // Master flags
+struct VxContext {
+  // Master flags
   bool initialized;
   int session_count = 0;
 
-  // Loger
-  bool logger;
+  // Logger
+  bool logger = true;
   bool logger_registering = true;
-  std::shared_ptr<spdlog::logger> global_logger;
-  std::shared_ptr<spdlog::logger> console_logger;
-  std::vector<std::pair<std::string, std::shared_ptr<spdlog::logger>>> pool_loggers;
+
+  std::shared_ptr<VxLogger> global_logger;
+  std::shared_ptr<VxLogger> console_logger;
+  std::vector<std::pair<std::string, std::shared_ptr<VxLogger>>> pool_loggers;
+
+  std::vector<std::shared_ptr<VxSystemLog>> registered_logs;
 
   VortexNet net;
 
@@ -286,7 +326,6 @@ struct VxContext {  // Master flags
   VxIO IO;
   SessionState state;
   VortexMakerDebugAllocInfo debugAllocInfo;
-  std::vector<std::shared_ptr<VxSystemLog>> registered_logs;
   fs::path projectPath;
   fs::path logoPath;
   VxPaths paths;
@@ -325,7 +364,7 @@ namespace VortexMaker {
 
   // Utils & Base
   VORTEX_API void
-  DebugAllocHook(VortexMakerDebugAllocInfo *info, void *ptr, size_t size);  // size >= 0 : alloc, size = -1 : free
+  DebugAllocHook(VortexMakerDebugAllocInfo* info, void* ptr, size_t size);  // size >= 0 : alloc, size = -1 : free
 
 }  // namespace VortexMaker
 //_____________________________________________________________________________
