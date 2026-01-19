@@ -90,6 +90,10 @@ VORTEX_API void VortexMaker::UpdateVortexNews(const std::vector<std::string> &to
 VORTEX_API void VortexMaker::UpdateVortexWebData() {
   VxContext &ctx = *CVortexMaker;
 
+  ctx.IO.available_vortex_versions.clear();
+  ctx.latest_vortex_version.reset();
+  ctx.vortex_update_available = false;
+
   std::string plat = ctx.platform;
   std::string arch = ctx.arch;
 
@@ -98,60 +102,89 @@ VORTEX_API void VortexMaker::UpdateVortexWebData() {
   for (auto &dist : ctx.IO.sys_vortex_dists) {
     std::string url = "http://api.infinite.si:9000/api/vortexupdates/get_filtered_v_versions?platform=" + plat +
                       "&dist=" + dist + "&arch=" + arch;
-    VortexMaker::LogWarn("URL", url);
 
-    std::string body = ctx.net.GET(url);
+    std::string body;
+    try {
+      body = ctx.net.GET(url);
+    } catch (...) {
+      continue;
+    }
 
     if (body.empty()) {
-      VortexMaker::LogWarn("Failed to fetch data for dist", dist);
       continue;
     }
 
     try {
       nlohmann::json jsonData = nlohmann::json::parse(body);
 
-      for (auto &item : jsonData) {
-        item["dist"] = dist;
+      if (!jsonData.is_array()) {
+        continue;
       }
 
-      aggregatedJsonData.insert(aggregatedJsonData.end(), jsonData.begin(), jsonData.end());
-    } catch (const std::exception &e) {
-      VortexMaker::LogWarn("JSON parse error for dist " + dist, e.what());
+      for (auto &item : jsonData) {
+        if (item.is_object()) {
+          item["dist"] = dist;
+          aggregatedJsonData.push_back(item);
+        }
+      }
+    } catch (...) {
       continue;
     }
+  }
+
+  if (aggregatedJsonData.empty()) {
+    return;
   }
 
   std::shared_ptr<VortexVersion> latest_vortex_version;
   std::string highestVersion = "0.0.0";
 
   for (const auto &item : aggregatedJsonData) {
-    std::shared_ptr<VortexVersion> version = std::make_shared<VortexVersion>();
-    std::string proper_name = DEFAULT_VERSION_NAME;
+    if (!item.is_object()) {
+      continue;
+    }
 
-    version->version = item["version"].get<std::string>();
-    version->name = item["name"].get<std::string>();
-    version->path = item["path"].get<std::string>();
-    version->sum = item["sum"].get<std::string>();
-    version->date = item["date"].get<std::string>();
-    version->dist = item["dist"].get<std::string>();
+    if (!item.contains("version") || !item.contains("name") || !item.contains("path") || !item.contains("sum") ||
+        !item.contains("date") || !item.contains("dist")) {
+      continue;
+    }
+
+    std::shared_ptr<VortexVersion> version = std::make_shared<VortexVersion>();
+
+    try {
+      version->version = item.at("version").get<std::string>();
+      version->name = item.at("name").get<std::string>();
+      version->path = item.at("path").get<std::string>();
+      version->sum = item.at("sum").get<std::string>();
+      version->date = item.at("date").get<std::string>();
+      version->dist = item.at("dist").get<std::string>();
+    } catch (...) {
+      continue;
+    }
+
     version->plat = plat;
     version->arch = arch;
+    version->proper_name = DEFAULT_VERSION_NAME;
 
-    if (item.contains("proper_name") && !item["proper_name"].is_null()) {
-      std::string value = item["proper_name"];
+    if (item.contains("proper_name") && item["proper_name"].is_string()) {
+      std::string value = item["proper_name"].get<std::string>();
       if (!value.empty()) {
-        proper_name = value;
+        version->proper_name = value;
       }
     }
-    version->proper_name = proper_name;
 
-    if (item.contains("values")) {
-      auto values = nlohmann::json::parse(item["values"].get<std::string>());
-      if (values.contains("image")) {
-        version->banner = values["image"].get<std::string>();
-      }
-      if (values.contains("proper_name")) {
-        version->proper_name = values["proper_name"].get<std::string>();
+    if (item.contains("values") && item["values"].is_string()) {
+      try {
+        auto values = nlohmann::json::parse(item["values"].get<std::string>());
+        if (values.is_object()) {
+          if (values.contains("image") && values["image"].is_string()) {
+            version->banner = values["image"].get<std::string>();
+          }
+          if (values.contains("proper_name") && values["proper_name"].is_string()) {
+            version->proper_name = values["proper_name"].get<std::string>();
+          }
+        }
+      } catch (...) {
       }
     }
 
@@ -163,26 +196,28 @@ VORTEX_API void VortexMaker::UpdateVortexWebData() {
     }
   }
 
+  if (!latest_vortex_version) {
+    return;
+  }
+
   ctx.latest_vortex_version = latest_vortex_version;
 
-  VortexVersion saved_latest_version = VortexMaker::CheckLatestVortexVersion();
+  VortexVersion saved_latest_version;
+  try {
+    saved_latest_version = VortexMaker::CheckLatestVortexVersion();
+  } catch (...) {
+    return;
+  }
 
-  if (VortexMaker::IsVersionGreater(saved_latest_version.version, latest_vortex_version->version)) {
+  if (!saved_latest_version.version.empty() &&
+      VortexMaker::IsVersionGreater(saved_latest_version.version, latest_vortex_version->version)) {
     ctx.vortex_update_available = true;
   } else {
     ctx.vortex_update_available = false;
   }
 
-  VortexMaker::PostLatestVortexVersion(latest_vortex_version);
-
-  std::cout << "________________ ALL ______________________" << std::endl;
-  for (auto version : ctx.IO.available_vortex_versions) {
-    std::cout << version->name << " /// " << version->version << " /// " << version->path << std::endl;
+  try {
+    VortexMaker::PostLatestVortexVersion(latest_vortex_version);
+  } catch (...) {
   }
-  std::cout << "______________________________________" << std::endl;
-
-  std::cout << "________________ LATEST ______________________" << std::endl;
-  std::cout << ctx.latest_vortex_version->name << " /// " << ctx.latest_vortex_version->version << " /// "
-            << ctx.latest_vortex_version->path << std::endl;
-  std::cout << "______________________________________" << std::endl;
 }
