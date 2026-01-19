@@ -1,21 +1,13 @@
 cmake_minimum_required(VERSION 3.16)
-project(vortex_launcher)
+project(vortex_launcher VERSION 1.5.3)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
-if(NOT MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -O3")
-endif()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-set(VORTEX_VERSION "1.5.3")
+
+set(VORTEX_VERSION "1.5.2")
 set(VORTEX_DIST "beta")
 set(VORTEX_BUILD "dev")
-
-set(CHERRY_CEF OFF)
-set(CHERRY_ENABLE_NET ON)
-set(CHERRY_ENABLE_AUDIO ON)
 
 if (MSVC)
     add_compile_options(/utf-8)
@@ -39,94 +31,42 @@ else()
     add_compile_definitions(GIT_COMMIT_HASH="0000000")
 endif()
 
-file(GLOB_RECURSE vortex_launcher_SHARED_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/main/src/*.cpp")
-
-add_library(vortex_launcher_shared STATIC ${vortex_launcher_SHARED_SOURCES})
-
-if(UNIX AND NOT APPLE)
-    set(INSTALL_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build/dist/)
-    set(INSTALL_MAIN_DIR ${INSTALL_BASE_DIR}/)
-    set(INSTALL_BIN_DIR ${INSTALL_BASE_DIR}/bin)
-    set(INSTALL_LIB_DIR ${INSTALL_BASE_DIR}/bin)
-    set(INSTALL_INCLUDE_DIR ${INSTALL_BASE_DIR}/include)
-elseif(WIN32)
-    set(USER_PROFILE $ENV{USERPROFILE})
-    set(INSTALL_BASE_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/build/dist/)
-    set(INSTALL_BIN_DIR ${INSTALL_BASE_DIR}/bin)
-    set(INSTALL_LIB_DIR ${INSTALL_BASE_DIR}/bin)
-    set(INSTALL_MAIN_DIR ${INSTALL_BASE_DIR}/)
-    set(INSTALL_INCLUDE_DIR ${INSTALL_BASE_DIR}/include)
+if(NOT MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -fdata-sections -ffunction-sections -D_GLIBCXX_USE_CXX11_ABI=1")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--gc-sections -s")
 endif()
 
-set(CMAKE_INSTALL_PREFIX ${INSTALL_BASE_DIR})
+file(GLOB_RECURSE VORTEX_CORE_SRC 
+    "${CMAKE_CURRENT_SOURCE_DIR}/main/src/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/main/src/*.c"
+)
 
-target_include_directories(vortex_launcher_shared PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/main/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/main/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/spdlog/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/restclient-cpp/include
+add_library(vortex_launcher_shared STATIC ${VORTEX_CORE_SRC})
+
+target_include_directories(vortex_launcher_shared PUBLIC 
+    main/include 
+    main/src
+    lib/spdlog/include 
+    lib/restclient-cpp/include
 )
 
 find_package(Vulkan REQUIRED)
-include_directories(${Vulkan_INCLUDE_DIRS})
+find_package(CURL REQUIRED)
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ui/launcher ui_launcher_build)
-target_link_libraries(vortex_launcher_shared PUBLIC launcher)
-target_link_libraries(vortex_launcher_shared PUBLIC httpcl)
+add_subdirectory(ui/launcher ui_launcher_build)
 
-if(WIN32)
-    target_link_libraries(vortex_launcher_shared PRIVATE Shell32)
-endif()
+target_link_libraries(vortex_launcher_shared PUBLIC launcher httpcl Vulkan::Vulkan)
 
-if(WIN32)
-    add_executable(vortex_launcher WIN32 main.cpp)
-else()
-    add_executable(vortex_launcher main.cpp)
-endif()
-
+add_executable(vortex_launcher main.cpp)
 target_link_libraries(vortex_launcher PRIVATE vortex_launcher_shared)
 
-if(UNIX AND NOT APPLE)
-    find_package(CURL REQUIRED)
-    target_link_libraries(vortex_launcher PRIVATE CURL::libcurl)
+if(WIN32)
+    set_target_properties(vortex_launcher PROPERTIES WIN32_EXECUTABLE TRUE)
+    target_link_libraries(vortex_launcher PRIVATE Shell32)
+else()
+    target_link_libraries(vortex_launcher PRIVATE CURL::libcurl pthread dl)
 endif()
 
-set_target_properties(vortex_launcher PROPERTIES
-    INSTALL_RPATH "$ORIGIN"
-    BUILD_WITH_INSTALL_RPATH TRUE
-    INSTALL_RPATH_USE_LINK_PATH TRUE
-)
-
-install(TARGETS vortex_launcher DESTINATION ${INSTALL_BIN_DIR})
-install(TARGETS vortex_launcher_shared LIBRARY DESTINATION ${INSTALL_LIB_DIR})
-
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/main/include/
-        DESTINATION ${INSTALL_INCLUDE_DIR}/main/include/
-        PATTERN "*.h"
-        PATTERN "*.hpp"
-        PATTERN "*.inl"
-)
-
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ui/launcher/src/
-        DESTINATION ${INSTALL_INCLUDE_DIR}/ui/launcher/src/
-        PATTERN "*.h"
-        PATTERN "*.hpp"
-        PATTERN "*.inl"
-)
-
-install(TARGETS cherry
-        LIBRARY DESTINATION ${INSTALL_LIB_DIR}
-        ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
-        RUNTIME DESTINATION ${INSTALL_BIN_DIR})
-
-install(TARGETS SDL2
-        LIBRARY DESTINATION ${INSTALL_LIB_DIR}
-        ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
-        RUNTIME DESTINATION ${INSTALL_BIN_DIR})
-
-cmake_policy(SET CMP0177 NEW)
-
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ui/launcher/assets/
-        DESTINATION ${INSTALL_BIN_DIR}/
-        FILES_MATCHING PATTERN "*"
-)
+# Installation
+install(TARGETS vortex_launcher vortex_launcher_shared DESTINATION bin)
+install(DIRECTORY main/include/ DESTINATION include/main)

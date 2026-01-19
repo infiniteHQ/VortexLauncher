@@ -27,7 +27,7 @@ mkdir -p dist
 mkdir -p build
 
 # -----------------------------
-# Build principal en Release
+# Build
 # -----------------------------
 cd ./build
 cmake -DCMAKE_BUILD_TYPE=Release ../..
@@ -39,7 +39,7 @@ cp ../manifest.json dist/
 cp ../LICENSE dist/
 
 # -----------------------------
-# Création de l'installeur
+# Installer
 # -----------------------------
 if [ "$NO_INSTALLER" = false ]; then
   rm -rf ../lib/installer/ui/installer/assets/builtin
@@ -55,7 +55,7 @@ if [ "$NO_INSTALLER" = false ]; then
 fi
 
 # -----------------------------
-# Packaging et génération du manifest
+# Manifest
 # -----------------------------
 rm -rf shipping
 mkdir -p shipping/launcher/linux

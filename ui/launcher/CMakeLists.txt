@@ -1,65 +1,37 @@
 cmake_minimum_required(VERSION 3.16)
 project(launcher)
 
-set(CMAKE_CXX_STANDARD 17)
-if(NOT MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -O3")
-endif()
-set(BIN_FOLDER ${CMAKE_BINARY_DIR}/bin)
-
-# Build options
+# Options
 option(CHERRY_STATIC "Link Cherry statically" ON)
 option(CHERRY_DEBUG "Enable Cherry debug tools" ON)
-option(CHERRY_PACKAGE "Enable packaging features with pyinstaller" OFF)
 option(CHERRY_ENABLE_NET "Enable net features" ON)
-option(CHERRY_ENABLE_CEF "Enable chrome embedded framwork (CEF)" OFF)
 option(CHERRY_ENABLE_AUDIO "Enable audio features" OFF)
-option(CHERRY_ENABLE_LINUXDRM "Enable Linux Direct Rendering Manager" OFF)
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../lib/cherry cherry_build)
+add_subdirectory(../../lib/cherry cherry_build)
 
-file(
-    GLOB_RECURSE
-    UI_LAUNCHER
-    CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h" 
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp" 
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../main/include/*.hpp" 
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../main/src/*.cpp"
+file(GLOB_RECURSE UI_SRC 
+    "src/*.cpp" 
+    "src/*.hpp" 
+    "src/*.h"
+    "../../main/include/*.hpp" 
+    "../../main/src/*.cpp"
 )
 
-message(STATUS "UI_LAUNCHER sources: ${UI_LAUNCHER}")
+add_library(launcher STATIC ${UI_SRC})
 
-if (UI_LAUNCHER)
-    add_library(launcher STATIC ${UI_LAUNCHER})
-else()
-    message(FATAL_ERROR "No source files found for the launcher target.")
-endif()
-
-target_include_directories(launcher PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../main/include")
-
+target_include_directories(launcher PRIVATE "../../main/include")
 target_link_libraries(launcher PUBLIC cherry)
 
 if(UNIX AND NOT APPLE)
     target_link_libraries(launcher PRIVATE crypto)
 endif()
 
-
-
-file(GLOB_RECURSE ASSET_FILES
-    CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/assets/*"
-)
-
 add_custom_target(sync_assets ALL
-    COMMAND ${CMAKE_COMMAND} -E echo "Synchronizing assets..."
-    COMMAND ${CMAKE_COMMAND} -E rm -r -f ${BIN_FOLDER}/resources
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_CURRENT_SOURCE_DIR}/assets
-        ${BIN_FOLDER}/
-    COMMAND ${CMAKE_COMMAND} -E echo "Assets synchronized."
-    DEPENDS ${ASSET_FILES}
+        ${CMAKE_BINARY_DIR}/bin
+    COMMENT "Syncing assets to bin..."
 )
-
 add_dependencies(launcher sync_assets)
+
+
