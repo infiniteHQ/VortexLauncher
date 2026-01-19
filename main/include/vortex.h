@@ -36,6 +36,7 @@
 #include <stdio.h>   // NULL
 #include <sys/stat.h>
 #ifdef _WIN32
+    #include <Windows.h>
 #include <shellapi.h>
 #else
 #include <sys/sysinfo.h>
@@ -51,6 +52,8 @@
 #include <fstream>
 #include <future>
 #include <iostream>
+#include <sstream>
+#include <string>
 #include <mutex>
 #include <random>
 #include <stdexcept>  // NULL
@@ -839,7 +842,7 @@ struct hString {
     if (Buf.Data == nullptr || substr == nullptr) {
       return npos;
     }
-    size_t searchStart = (start == npos) ? Size - 1 : std::min(start, Size - 1);
+    size_t searchStart = (start == npos) ? Size - 1 : (std::min)(start, Size - 1);
     for (size_t i = searchStart; i < Size; --i) {
       const char *result = std::strstr(Buf.Data + i, substr);
       if (result != nullptr) {

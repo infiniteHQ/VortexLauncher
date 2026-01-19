@@ -1,5 +1,8 @@
-#include "../../include/contents/delete.h"
+#ifdef _WIN32
+    #include <Windows.h>
+#endif
 
+#include "../../include/contents/delete.h"
 #include "../../include/vortex.h"
 #include "../../include/vortex_internals.h"
 

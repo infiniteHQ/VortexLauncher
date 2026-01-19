@@ -2,6 +2,12 @@
 
 #include "../../include/modules/load.h"
 #include "../../include/modules/runtime.h"
+#include <string>
+#include <memory>
+#include <filesystem>
+#include <thread>
+#include <chrono>
+#include <iostream>
 
 VORTEX_API void InstallModule(const std::string &module_name, const std::string &version, bool &restart_modules) {
   // Get reference to the Vortex context
