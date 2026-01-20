@@ -57,9 +57,17 @@ target_include_directories(vortex_launcher_shared PUBLIC
 
 find_package(Vulkan REQUIRED)
 
+if(UNIX AND NOT APPLE)
+    find_package(CURL REQUIRED)
+endif()
+
 add_subdirectory(ui/launcher ui_launcher_build)
 
 target_link_libraries(vortex_launcher_shared PUBLIC launcher httpcl Vulkan::Vulkan)
+
+if(UNIX AND NOT APPLE)
+    target_link_libraries(vortex_launcher_shared PUBLIC CURL::libcurl)
+endif()
 
 if(WIN32)
     target_link_libraries(vortex_launcher_shared PRIVATE Shell32)
@@ -72,21 +80,52 @@ else()
 endif()
 
 target_link_libraries(vortex_launcher PRIVATE vortex_launcher_shared)
-
-if(WIN32)
-    set(INSTALL_BIN_DIR "bin")
-    set(INSTALL_INC_DIR "include/main")
-else()
-    set(INSTALL_BIN_DIR "bin")
-    set(INSTALL_INC_DIR "include/main")
+if(UNIX AND NOT APPLE)
+    set(INSTALL_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build/dist/)
+    set(INSTALL_MAIN_DIR ${INSTALL_BASE_DIR}/)
+    set(INSTALL_BIN_DIR ${INSTALL_BASE_DIR}/bin)
+    set(INSTALL_LIB_DIR ${INSTALL_BASE_DIR}/bin)
+    set(INSTALL_INCLUDE_DIR ${INSTALL_BASE_DIR}/include)
+elseif(WIN32)
+    set(USER_PROFILE $ENV{USERPROFILE})
+    set(INSTALL_BASE_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/build/dist/)
+    set(INSTALL_BIN_DIR ${INSTALL_BASE_DIR}/bin)
+    set(INSTALL_LIB_DIR ${INSTALL_BASE_DIR}/bin)
+    set(INSTALL_MAIN_DIR ${INSTALL_BASE_DIR}/)
+    set(INSTALL_INCLUDE_DIR ${INSTALL_BASE_DIR}/include)
 endif()
 
-install(TARGETS vortex_launcher vortex_launcher_shared 
-        RUNTIME DESTINATION ${INSTALL_BIN_DIR}
-        ARCHIVE DESTINATION lib)
+# Set the installation directories
+set_target_properties(vortex_launcher PROPERTIES
+    INSTALL_RPATH "$ORIGIN"
+    BUILD_WITH_INSTALL_RPATH TRUE
+    INSTALL_RPATH_USE_LINK_PATH TRUE
+)
 
-install(DIRECTORY main/include/ DESTINATION ${INSTALL_INC_DIR})
+set_target_properties(vortex_launcher PROPERTIES
+    CMAKE_INSTALL_RPATH "\$ORIGIN"
+)
 
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ui/launcher/assets/")
-    install(DIRECTORY ui/launcher/assets/ DESTINATION ${INSTALL_BIN_DIR}/assets)
-endif()
+# Install targets
+install(TARGETS vortex_launcher DESTINATION ${INSTALL_BIN_DIR})
+install(TARGETS vortex_launcher_shared LIBRARY DESTINATION ${INSTALL_LIB_DIR})
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/main/include/
+        DESTINATION ${INSTALL_INCLUDE_DIR}/main/include/
+        PATTERN "*.h"
+        PATTERN "*.hpp"
+        PATTERN "*.inl"
+)
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ui/launcher/src/
+        DESTINATION ${INSTALL_INCLUDE_DIR}/ui/launcher/src/
+        PATTERN "*.h"
+        PATTERN "*.hpp"
+        PATTERN "*.inl"
+)
+
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ui/launcher/assets/
+        DESTINATION ${INSTALL_BIN_DIR}/
+        FILES_MATCHING PATTERN "*"
+)
