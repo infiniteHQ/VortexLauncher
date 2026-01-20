@@ -72,7 +72,6 @@ else()
 endif()
 
 target_link_libraries(vortex_launcher PRIVATE vortex_launcher_shared)
-target_compile_features(vortex_launcher PRIVATE cxx_std_17)
 
 if(WIN32)
     set(INSTALL_BIN_DIR "bin")
