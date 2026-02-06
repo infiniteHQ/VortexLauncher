@@ -12,25 +12,29 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, windows-latest]
         build_type: [Release]
 
     steps:
     - uses: actions/checkout@v3
 
-    - name: Install Dependencies and Build (ubuntu-latest)
+    - name: Build (ubuntu-latest)
       if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
         sudo apt-get install -y git cmake make g++
         sudo apt-get install -y libvulkan-dev xorg-dev
+        sudo apt-get install -y glslang-tools shaderc
         sudo apt-get install -y libfmt-dev
-        sudo apt-get install -y curl
         sudo apt-get install -y libcurl4-openssl-dev
-
-        # Initialize and update submodules
         git submodule update --init --recursive
-
-        # Configure and build
-        cd "build"
+        cd build
         sudo bash ./build.sh
+
+    - name: Build (windows-latest)
+      if: matrix.os == 'windows-latest'
+      shell: cmd
+      run: |
+        git submodule update --init --recursive
+        cd build
+        build.bat
