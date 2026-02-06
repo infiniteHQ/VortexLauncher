@@ -29,7 +29,7 @@ jobs:
         sudo apt-get install -y libcurl4-openssl-dev
         git submodule update --init --recursive
         cd build
-        sudo bash ./build.sh -ni
+        sudo bash ./build.sh
 
     - name: Setup Python (windows-latest)
       if: matrix.os == 'windows-latest'
@@ -44,10 +44,16 @@ jobs:
         python -m pip install --upgrade pip
         pip install pyinstaller
 
+    - name: Install Vulkan SDK (windows-latest)
+      if: matrix.os == 'windows-latest'
+      shell: powershell
+      run: |
+        choco install vulkan-sdk -y
+
     - name: Build (windows-latest)
       if: matrix.os == 'windows-latest'
       shell: cmd
       run: |
         git submodule update --init --recursive
         cd build
-        build.bat -ni
+        build.bat
