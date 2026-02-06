@@ -25,7 +25,7 @@ jobs:
         sudo apt-get install -y git cmake make g++
         sudo apt-get install -y libvulkan-dev xorg-dev
         sudo apt-get install -y libfmt-dev
-        sudo apt-get install curl
+        sudo apt-get install -y curl
 
         # Initialize and update submodules
         git submodule update --init --recursive
