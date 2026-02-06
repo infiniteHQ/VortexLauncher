@@ -29,7 +29,7 @@ jobs:
         sudo apt-get install -y libcurl4-openssl-dev
         git submodule update --init --recursive
         cd build
-        sudo bash ./build.sh
+        sudo bash ./build.sh -ni
 
     - name: Setup Python (windows-latest)
       if: matrix.os == 'windows-latest'
@@ -50,4 +50,4 @@ jobs:
       run: |
         git submodule update --init --recursive
         cd build
-        build.bat
+        build.bat -ni
