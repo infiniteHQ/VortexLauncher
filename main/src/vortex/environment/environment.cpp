@@ -751,8 +751,8 @@ VORTEX_API void VortexMaker::RefreshEnvironmentVortexVersion() {
             std::string version_name = manifest_json["name"];
             std::string proper_name = DEFAULT_VERSION_NAME;
 
-            if (manifest_json.contains("proper_name") && !manifest_json["proper_name"].is_null()) {
-              std::string value = manifest_json["proper_name"];
+            if (manifest_json.contains("full_version") && !manifest_json["full_version"].is_null()) {
+              std::string value = manifest_json["full_version"];
               if (!value.empty()) {
                 proper_name = value;
               }
