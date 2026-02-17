@@ -22,7 +22,7 @@ rm -rf ./build/bin
 rm -rf ./shipping
 rm -rf ../lib/installer/build/build/bin
 rm -rf ../lib/installer/build/build/dist
-rm -rf ../lib/installer/ui/installer/assets/builtin
+rm -rf ../lib/installer/src/ui/assets/builtin
 mkdir -p dist
 mkdir -p build
 
@@ -42,7 +42,7 @@ cp ../LICENSE dist/
 # Installer
 # -----------------------------
 if [ "$NO_INSTALLER" = false ]; then
-  rm -rf ../lib/installer/ui/installer/assets/builtin
+  rm -rf ../lib/installer/src/ui/assets/builtin
   cd ../lib/installer/build
   sudo bash build.sh
   cd ../../../build
@@ -74,14 +74,14 @@ if [ "$NO_INSTALLER" = false ]; then
   sha256sum "vortex_launcher_${VERSION}.tar.gz" > "vortex_launcher_${VERSION}.tar.gz.sha256"
   cd ../../../
 
-  rm -rf  ../lib/installer/ui/installer/assets/builtin
-  mkdir -p  ../lib/installer/ui/installer/assets/builtin
+  rm -rf  ../lib/installer/src/ui/assets/builtin
+  mkdir -p  ../lib/installer/src/ui/assets/builtin
 
-  cp shipping/launcher/linux/vortex_launcher_${VERSION}.tar.gz ../lib/installer/ui/installer/assets/builtin/
-  cp shipping/launcher/linux/vortex_launcher_${VERSION}.tar.gz.sha256 ../lib/installer/ui/installer/assets/builtin/
-  cp -r ../lib/blank_project ../lib/installer/ui/installer/assets/builtin/
+  cp shipping/launcher/linux/vortex_launcher_${VERSION}.tar.gz ../lib/installer/src/ui/assets/builtin/
+  cp shipping/launcher/linux/vortex_launcher_${VERSION}.tar.gz.sha256 ../lib/installer/src/ui/assets/builtin/
+  cp -r ../lib/blank_project ../lib/installer/src/ui/assets/builtin/
 
-  MANIFEST_PATH="../lib/installer/ui/installer/assets/builtin/manifest.json"
+  MANIFEST_PATH="../lib/installer/src/ui/assets/builtin/manifest.json"
   VERSION_FILE="../version.conf"
   ARCHITECTURE="x86_64"
   PLATFORM="linux"

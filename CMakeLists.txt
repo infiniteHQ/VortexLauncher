@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(vortex_launcher VERSION 1.5.3)
+project(vortex_launcher VERSION 1.5.4)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -7,7 +7,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-set(VORTEX_VERSION "1.5.3")
+set(VORTEX_VERSION "1.5.4")
 set(VORTEX_DIST "beta")
 set(VORTEX_BUILD "dev")
 

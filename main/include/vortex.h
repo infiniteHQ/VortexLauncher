@@ -8,7 +8,7 @@
 // Versions & Build identification
 //_____________________________________________________________________________
 // (Integer encoded as XYYZZ for use in #if preprocessor conditionals, e.g. '#if VORTEXLAUNCHER_VERSION_NUM >= 1.5.0')
-#define VORTEXLAUNCHER_VERSION     "1.5.3"
+#define VORTEXLAUNCHER_VERSION     "1.5.4"
 #define VORTEXLAUNCHER_VERSION_NUM 010503  // Major.Medium.Minor
 
 //_____________________________________________________________________________
@@ -36,7 +36,7 @@
 #include <stdio.h>   // NULL
 #include <sys/stat.h>
 #ifdef _WIN32
-    #include <Windows.h>
+#include <Windows.h>
 #include <shellapi.h>
 #else
 #include <sys/sysinfo.h>
@@ -52,10 +52,9 @@
 #include <fstream>
 #include <future>
 #include <iostream>
-#include <sstream>
-#include <string>
 #include <mutex>
 #include <random>
+#include <sstream>
 #include <stdexcept>  // NULL
 #include <string>
 #include <thread>
