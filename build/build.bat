@@ -11,7 +11,7 @@ mkdir build_spdlog
 mkdir build
 rmdir /S /Q dist
 rmdir /S /Q ..\lib\installer\build\build\bin
-rmdir /S /Q ..\lib\installer\ui\installer\assets\builtin
+rmdir /S /Q ..\lib\installer\src\ui\assets\builtin
 mkdir dist
 
 cd build
@@ -53,14 +53,14 @@ tar -cvzf shipping\launcher\windows\vortex_launcher_%VERSION%.tar.gz dist
 
 certutil -hashfile shipping\launcher\windows\vortex_launcher_%VERSION%.tar.gz SHA256 > shipping\launcher\windows\vortex_launcher_%VERSION%.tar.gz.sha256
 
-rmdir /S /Q ..\lib\installer\ui\installer\assets\builtin
-mkdir ..\lib\installer\ui\installer\assets\builtin
+rmdir /S /Q ..\lib\installer\src\ui\assets\builtin
+mkdir ..\lib\installer\src\ui\assets\builtin
 
-copy shipping\launcher\windows\vortex_launcher_%VERSION%.tar.gz ..\lib\installer\ui\installer\assets\builtin\ 
-copy shipping\launcher\windows\vortex_launcher_%VERSION%.tar.gz.sha256 ..\lib\installer\ui\installer\assets\builtin\
-xcopy /E /Y ..\lib\blank_project ..\lib\installer\ui\installer\assets\builtin\
+copy shipping\launcher\windows\vortex_launcher_%VERSION%.tar.gz ..\lib\installer\src\ui\assets\builtin\ 
+copy shipping\launcher\windows\vortex_launcher_%VERSION%.tar.gz.sha256 ..\lib\installer\src\ui\assets\builtin\
+xcopy /E /Y ..\lib\blank_project ..\lib\installer\src\ui\assets\builtin\
 
-set MANIFEST_PATH=..\lib\installer\ui\installer\assets\builtin\manifest.json
+set MANIFEST_PATH=..\lib\installer\src\ui\assets\builtin\manifest.json
 set VERSION_FILE=..\version.conf
 set ARCHITECTURE=x86_64
 set PLATFORM=windows
