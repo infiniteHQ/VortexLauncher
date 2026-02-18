@@ -558,25 +558,22 @@ std::string escapeSpaces(const std::string &input) {
 }
 
 VORTEX_API void VortexMaker::OpenVortexUninstaller(const std::string &path) {
-  VxContext &ctx = *CVortexMaker;
+    VxContext &ctx = *CVortexMaker;
+    
+    std::string quotedPath = "\"" + path + "\"";
+    
+    std::string binName = VortexMaker::IsWindows() ? "\\VersionUninstaller.exe" : "/VersionUninstaller";
+    std::string launcherPath = "\"" + ctx.m_VortexLauncherPath + binName + "\"";
 
-  std::string command;
+    std::string command = launcherPath + " --path=" + quotedPath;
 
-  std::string escapedPath = escapeSpaces(path);
+    bool success = VortexMaker::executeInChildProcess(command);
 
-  if (VortexMaker::IsWindows()) {
-    command = ctx.m_VortexLauncherPath + "\\VersionUninstaller.exe --path=" + escapedPath;
-  } else {
-    command = ctx.m_VortexLauncherPath + "/VersionUninstaller --path=" + escapedPath;
-  }
-
-  bool success = VortexMaker::executeInChildProcess(command);
-
-  if (success) {
-    std::cout << "Uninstallation succeeded." << std::endl;
-  } else {
-    std::cerr << "Uninstallation failed." << std::endl;
-  }
+    if (success) {
+        std::cout << "Uninstallation succeeded." << std::endl;
+    } else {
+        std::cerr << "Uninstallation failed." << std::endl;
+    }
 }
 
 VORTEX_API void VortexMaker::OpenVortexInstaller(
