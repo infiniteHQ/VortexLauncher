@@ -9,7 +9,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 set(VORTEX_VERSION "1.5.4")
 set(VORTEX_DIST "beta")
-set(VORTEX_BUILD "dev")
+set(VORTEX_BUILD "prod")
 
 if (MSVC)
     add_compile_options(/O1 /GL /Gw /Gy)
