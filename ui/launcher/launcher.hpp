@@ -19,11 +19,6 @@
 
 using namespace VortexLauncher;
 
-class Layer : public Cherry::Layer {
- public:
-  Layer() { };
-};
-
 class Launcher {
  public:
   Launcher() {
@@ -379,7 +374,6 @@ static std::shared_ptr<Launcher> c_Launcher;
 
 Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
   Cherry::ApplicationSpecification spec;
-  std::shared_ptr<Layer> layer = std::make_shared<Layer>();
 
   std::string name = "Vortex Launcher";
   spec.Name = name;
@@ -461,8 +455,6 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
   btn_close->SetBorderColorIdle("#00000000");
   btn_close->SetBackgroundColorClicked("#00000000");
   btn_close->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_close.png"));*/
-
-  app->PushLayer(layer);
 
   app->SetMenubarCallback([=]() {
     ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
@@ -685,7 +677,7 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png")).GetData("isClicked"
         c_Launcher->SpawnMainSettings();
       }
 
-      std::string flag_path = Cherry::GetPath("resources/imgs/icons/flags/") + CherryApp.m_SelectedLocale + ".png";
+      std::string flag_path = Cherry::GetPath("resources/imgs/icons/flags/") + CherryApp.GetSelectedLocale() + ".png";
       if (CherryGUI::MenuItem(
               Cherry::GetLocale("loc.menubar.menuitem.switch_language").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.switch_language_desc").c_str(),

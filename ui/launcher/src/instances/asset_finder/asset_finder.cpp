@@ -777,7 +777,7 @@ bool AssetFinder::MyButton(
   ImVec2 sizePos = ImVec2(cursorPos.x + padding, cursorPos.y + squareSize.y + thumbnailIconOffsetY - 20 + textOffsetY);
   CherryGUI::SetCursorScreenPos(sizePos);
 
-  ImTextureID logotexture = Application::GetCurrentRenderedWindow()->get_texture(logo);
+  ImTextureID logotexture = Application::GetCurrentRenderedWindow()->GetTexture(logo);
   drawList->AddImage(logotexture, logoPos, ImVec2(logoPos.x + squareSize.x, logoPos.y + squareSize.y));
 
   CherryGUI::GetFont()->Scale *= 0.7;
@@ -1066,7 +1066,7 @@ void AssetFinder::RenderSideBar() {
         CherryGUI::PushStyleColor(ImGuiCol_Border, ImVec4(0.4f, 0.4f, 0.4f, 0.7f));
         if (!pool_add_mode) {
           if (CherryGUI::ImageButtonWithText(
-                  Application::Get().GetCurrentRenderedWindow()->get_texture("/usr/local/include/Vortex/imgs/vortex.png"),
+                  Application::Get().GetCurrentRenderedWindow()->GetTexture("/usr/local/include/Vortex/imgs/vortex.png"),
                   Cherry::GetLocale("loc.add_pool").c_str(),
                   ImVec2(0, 0),
                   ImVec2(0, 0),
@@ -1081,7 +1081,7 @@ void AssetFinder::RenderSideBar() {
           CherryGUI::SetNextItemWidth(-FLT_MIN);
           CherryGUI::InputText("###AddPool", pool_add_path, sizeof(pool_add_path));
           if (CherryGUI::ImageButtonWithText(
-                  Application::Get().GetCurrentRenderedWindow()->get_texture("/usr/local/include/Vortex/imgs/vortex.png"),
+                  Application::Get().GetCurrentRenderedWindow()->GetTexture("/usr/local/include/Vortex/imgs/vortex.png"),
                   Cherry::GetLocale("loc.add").c_str(),
                   ImVec2(0, 0),
                   ImVec2(0, 0),
@@ -1094,7 +1094,7 @@ void AssetFinder::RenderSideBar() {
           }
           CherryGUI::SameLine();
           if (CherryGUI::ImageButtonWithText(
-                  Application::Get().GetCurrentRenderedWindow()->get_texture("/usr/local/include/Vortex/imgs/vortex.png"),
+                  Application::Get().GetCurrentRenderedWindow()->GetTexture("/usr/local/include/Vortex/imgs/vortex.png"),
                   Cherry::GetLocale("loc.cancel").c_str(),
                   ImVec2(0, 0),
                   ImVec2(0, 0),
@@ -1266,7 +1266,7 @@ bool AssetFinder::ItemCard(
   ImVec2 sizePos = ImVec2(cursorPos.x + padding, cursorPos.y + squareSize.y + thumbnailIconOffsetY - 20 + textOffsetY);
   CherryGUI::SetCursorScreenPos(sizePos);
 
-  static ImTextureID logotexture = Application::GetCurrentRenderedWindow()->get_texture(logo);
+  static ImTextureID logotexture = Application::GetCurrentRenderedWindow()->GetTexture(logo);
   drawList->AddImage(logotexture, logoPos, ImVec2(logoPos.x + squareSize.x, logoPos.y + squareSize.y));
 
   CherryGUI::GetFont()->Scale = 0.7;
