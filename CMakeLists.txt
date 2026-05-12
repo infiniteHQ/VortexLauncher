@@ -57,17 +57,10 @@ target_include_directories(vortex_launcher_shared PUBLIC
 
 find_package(Vulkan REQUIRED)
 
-if(UNIX AND NOT APPLE)
-    find_package(CURL REQUIRED)
-endif()
 
 add_subdirectory(ui/launcher ui_launcher_build)
 
 target_link_libraries(vortex_launcher_shared PUBLIC launcher httpcl Vulkan::Vulkan)
-
-if(UNIX AND NOT APPLE)
-    target_link_libraries(vortex_launcher_shared PUBLIC CURL::libcurl)
-endif()
 
 if(WIN32)
     target_link_libraries(vortex_launcher_shared PRIVATE Shell32)
