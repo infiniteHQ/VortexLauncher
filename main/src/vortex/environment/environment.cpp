@@ -60,7 +60,7 @@ VORTEX_API void VortexMaker::InitEnvironment() {
     std::string path = vxBasePath + "configs/";
     std::string file = path + "sessions.json";
 
-    nlohmann::json default_data = { { "KeepSessionDataTimeout", "30d" } };
+    nlohmann::json default_data = { { "KeepSessionDataTimeout", "10d" } };
 
     VortexMaker::createJsonFileIfNotExists(file, default_data);
   }
