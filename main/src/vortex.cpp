@@ -498,7 +498,7 @@ VORTEX_API std::vector<std::shared_ptr<VortexVersion>> VortexMaker::GetAllSystem
 
 VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::string &name) {
   std::string session_id = generateSessionID();
-  addSessionToJson(session_id, name, "user", path);
+  // addSessionToJson(session_id, name, "user", path);
 
   std::string project_path = path;
   std::string vortex_path;
