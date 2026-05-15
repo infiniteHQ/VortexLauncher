@@ -433,7 +433,7 @@ bool VortexMaker::executeInChildProcess(const std::string &command) {
 
   if (!CreateProcessA(
           NULL, commandLine, NULL, NULL, FALSE, CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP, NULL, NULL, &si, &pi)) {
-    std::cerr << "Error while creating process for command: " << command << " Error: " << GetLastError() << std::endl;
+    VortexMaker::LogError("Child process loader", "Error while creating process for command: " + command + " Error: " + std::to_string(GetLastError()));
     return false;
   }
 
@@ -514,11 +514,12 @@ VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::str
   }
 
   std::string command;
-  if (VortexMaker::IsWindows()) {
-    command = "cmd.exe /C \"" + vortex_path + "\\bin\\vortex.exe\" --editor --session_id=" + "\"" + session_id + "\"" + "\"";
-  } else {
-    command = vortex_path + "/bin/vx.sh" + " \"" + project_path + "\"";
-  }
+if (VortexMaker::IsWindows()) {command = "cmd.exe /C \"\"" +
+          vortex_path + "\\bin\\vx.bat\" \"" +
+          project_path + "\"\"";
+} else {
+  command = vortex_path + "/bin/vx.sh" + " \"" + project_path + "\"";
+}
 
   VortexMaker::executeInChildProcess(command);
   return;
