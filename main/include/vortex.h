@@ -261,6 +261,8 @@ namespace VortexMaker {
   VORTEX_API bool executeInChildProcess(const std::string &command);
   VORTEX_API void RefreshActiveSessions();
 
+  VORTEX_API void clean_sessions(const std::string &max_save_time);
+  VORTEX_API void clear_all_active_sessions();
   VORTEX_API void InitializePlatformVendor();
   VORTEX_API bool IsLinux();
   VORTEX_API bool IsNotLinux();
@@ -371,8 +373,8 @@ namespace VortexMaker {
   // - Those functions are not reliant on the current context.
   // - DLL users: heaps and globals are not shared across DLL boundaries! You will need to call SetCurrentContext() +
   // SetAllocatorFunctions()
-  //   for each static/DLL boundary you are calling from. Read "Context and Memory Allocators" section of VortexMaker.cpp for
-  //   more details.
+  //   for each static/DLL boundary you are calling from. Read "Context and Memory Allocators" section of VortexMaker.cpp
+  //   for more details.
   VORTEX_API void
   SetAllocatorFunctions(VortexMakerMemAllocFunc alloc_func, VortexMakerMemFreeFunc free_func, void *user_data = NULL);
   VORTEX_API void
@@ -403,8 +405,8 @@ void VX_DELETE(T *p) {
 
 //=============================================================================
 // hVector<>
-// Lightweight hVector<>-like class to avoid dragging dependencies (also, some implementations of STL with debug enabled are
-// absurdly slow, we bypass it so our code runs fast in debug).
+// Lightweight hVector<>-like class to avoid dragging dependencies (also, some implementations of STL with debug enabled
+// are absurdly slow, we bypass it so our code runs fast in debug).
 //=============================================================================
 // - You generally do NOT need to care or use this ever. But we need to make it available in imgui.h because some of our
 // public structures are relying on it.

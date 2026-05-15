@@ -148,13 +148,14 @@ VxContext *InitBlankRuntime(bool logger) {
   VortexMaker::CreateConsoleLogger();
   VortexMaker::LogInfo("Bootstrapp", "Initializing runtime...");
 
-  VortexMaker::CreateSessionTopic(ctx->state.session_id);
+  // VortexMaker::CreateSessionTopic(ctx->state.session_id);
 
   // Initialize environment
   VortexMaker::InitEnvironment();
   VortexMaker::DetectPlatform();
   VortexMaker::DetectArch();
   VortexMaker::RefreshActiveSessions();
+  VortexMaker::UpdateSessions();
 
   // Refresh environment pools
   VortexMaker::RefreshEnvironmentProjectsPools();

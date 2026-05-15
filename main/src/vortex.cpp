@@ -308,42 +308,6 @@ VORTEX_API bool VortexMaker::CheckIfProjectRunning(const std::string &path) {
   return false;  // Project is not running
 }
 
-// TODO move this to vortex_utils (in Vortex Editor), that will be triggered by the vx.bat/vx.sh starting script
-void writeSessionEndState(const std::string &session_id, const std::string &state) {
-  // Set the session directory path depending on the platform
-  std::string session_dir;
-  if (VortexMaker::IsWindows()) {
-    session_dir = VortexMaker::getHomeDirectory() + "\\.vx\\sessions\\" + session_id;
-  } else {
-    session_dir = VortexMaker::getHomeDirectory() + "/.vx/sessions/" + session_id;
-  }
-
-  std::string session_file_path = session_dir + "/session.json";
-
-  // Get current time in ISO 8601 format
-  auto now = std::chrono::system_clock::now();
-  std::time_t now_time = std::chrono::system_clock::to_time_t(now);
-  std::tm tm = *std::localtime(&now_time);
-  char buffer[32];
-  std::strftime(buffer, sizeof(buffer), "%Y-%m-%dT%H:%M:%S", &tm);
-
-  nlohmann::json session_data = { { "SessionID", session_id },
-                                  { "SessionEndedAt", buffer },
-                                  { "SessionEndedWithState", state } };
-
-  // Create the session directory if it does not exist
-  std::filesystem::create_directories(session_dir);
-
-  // Write session data to the JSON file
-  std::ofstream session_file(session_file_path);
-  if (session_file.is_open()) {
-    session_file << session_data.dump(4);  // Pretty print with indentation
-    session_file.close();
-  } else {
-    std::cerr << "Error: Could not open session file for writing." << std::endl;
-  }
-}
-
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -360,6 +324,99 @@ std::string escapeQuotes(const std::string &command) {
     }
   }
   return escapedCommand;
+}
+
+// Called from Vortex Launcher if the session reached the maximum time of session saving delay
+// max_save_time format : 42[mi/d/mo/y] ex: 30mi = 30 minutes ; 5d = 5 Days ; 1mo = 1 month
+void VortexMaker::clean_sessions(const std::string &max_save_time) {
+  // Parse max_save_time into a duration in seconds
+  int value = 0;
+  std::string unit;
+  size_t i = 0;
+  while (i < max_save_time.size() && std::isdigit(max_save_time[i])) {
+    value = value * 10 + (max_save_time[i] - '0');
+    ++i;
+  }
+  unit = max_save_time.substr(i);
+
+  std::chrono::seconds max_duration(0);
+  if (unit == "mi")
+    max_duration = std::chrono::seconds(value * 60);
+  else if (unit == "h")
+    max_duration = std::chrono::seconds(value * 3600);
+  else if (unit == "d")
+    max_duration = std::chrono::seconds(value * 86400);
+  else if (unit == "mo")
+    max_duration = std::chrono::seconds(value * 2592000);  // 30 days
+  else if (unit == "y")
+    max_duration = std::chrono::seconds(value * 31536000);
+  else {
+    std::cerr << "Error: Unknown time unit '" << unit << "'" << std::endl;
+    return;
+  }
+
+#if defined(_WIN32) || defined(_WIN64)
+  std::string sessions_dir = VortexMaker::getHomeDirectory() + "\\.vx\\sessions";
+#else
+  std::string sessions_dir = VortexMaker::getHomeDirectory() + "/.vx/sessions";
+#endif
+
+  auto now = std::chrono::system_clock::now();
+
+  for (const auto &entry : std::filesystem::directory_iterator(sessions_dir)) {
+    if (!entry.is_directory())
+      continue;
+
+    std::string session_file_path = entry.path().string() + "/session.json";
+    std::ifstream session_file(session_file_path);
+    if (!session_file.is_open())
+      continue;
+
+    nlohmann::json session_data;
+    try {
+      session_file >> session_data;
+    } catch (...) {
+      continue;
+    }
+    session_file.close();
+
+    if (!session_data.contains("SessionEndedAt"))
+      continue;
+
+    // SessionEndedAt (ISO 8601: "%Y-%m-%dT%H:%M:%S")
+    std::string ended_at = session_data["SessionEndedAt"];
+    std::tm tm = {};
+    std::istringstream ss(ended_at);
+    ss >> std::get_time(&tm, "%Y-%m-%dT%H:%M:%S");
+    if (ss.fail())
+      continue;
+
+    auto session_end_time = std::chrono::system_clock::from_time_t(std::mktime(&tm));
+    auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - session_end_time);
+
+    if (elapsed >= max_duration) {
+      std::string session_id = entry.path().filename().string();
+      removeSessionFromJson(session_id);
+      std::filesystem::remove_all(entry.path());
+    }
+  }
+}
+
+void VortexMaker::clear_all_active_sessions() {
+  std::string json_path;
+#if defined(_WIN32) || defined(_WIN64)
+  json_path = VortexMaker::getHomeDirectory() + "\\.vx\\sessions\\active_sessions.json";
+#else
+  json_path = VortexMaker::getHomeDirectory() + "/.vx/sessions/active_sessions.json";
+#endif
+
+  nlohmann::json empty = { { "sessions", nlohmann::json::array() } };
+  std::ofstream file_out(json_path);
+  if (file_out.is_open()) {
+    file_out << empty.dump(4);
+  } else {
+    std::cerr << "Error: Could not open active_sessions.json for writing." << std::endl;
+  }
 }
 
 bool VortexMaker::executeInChildProcess(const std::string &command) {

@@ -374,25 +374,21 @@ std::chrono::system_clock::time_point addTimeoutToTime(const std::string &time_s
 
 VORTEX_API void VortexMaker::UpdateSessions() {
   std::string homeDir = VortexMaker::getHomeDirectory();
-  std::string sessions_dir;
   std::string config_path;
 
   if (VortexMaker::IsWindows()) {
-    sessions_dir = homeDir + "\\.vx\\sessions";
     config_path = homeDir + "\\.vx\\configs\\sessions.json";
-  } else
-    // Get reference to the Vortex context
-    VxContext &ctx = *CVortexMaker;
-
-  {
-    sessions_dir = homeDir + "/.vx/sessions";
+  } else {
     config_path = homeDir + "/.vx/configs/sessions.json";
   }
+
+  // Get reference to the Vortex context
+  VxContext &ctx = *CVortexMaker;
 
   std::ifstream config_file(config_path);
   nlohmann::json config;
   if (!config_file.is_open()) {
-    std::cerr << "Error." << std::endl;
+    std::cerr << "Error: Could not open sessions config." << std::endl;
     return;
   }
   config_file >> config;
@@ -400,38 +396,7 @@ VORTEX_API void VortexMaker::UpdateSessions() {
 
   std::string timeout = config["KeepSessionDataTimeout"];
 
-  for (const auto &entry : fs::directory_iterator(sessions_dir)) {
-    if (fs::is_directory(entry)) {
-      std::string session_path = entry.path().string();
-      std::string session_json_path;
-
-      if (VortexMaker::IsWindows()) {
-        session_json_path = session_path + "\\session.json";
-      } else {
-        session_json_path = session_path + "/session.json";
-      }
-
-      std::ifstream session_file(session_json_path);
-      if (session_file.is_open()) {
-        nlohmann::json session_data;
-        session_file >> session_data;
-        session_file.close();
-
-        if (session_data.contains("SessionEndedAt")) {
-          std::string session_ended_at = session_data["SessionEndedAt"];
-
-          auto expiration_time = addTimeoutToTime(session_ended_at, timeout);
-          auto now = std::chrono::system_clock::now();
-
-          if (now > expiration_time) {
-            fs::remove_all(session_path);
-          }
-        }
-      } else {
-        std::cerr << "Error : " << session_json_path << std::endl;
-      }
-    }
-  }
+  VortexMaker::clean_sessions(timeout);
 }
 
 VORTEX_API void VortexMaker::RefreshVortexDists() {
