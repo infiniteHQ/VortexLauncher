@@ -459,38 +459,38 @@ VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::str
   if (VortexMaker::IsWindows()) {
     command = "cmd.exe /C \"" + vortex_path + "\\bin\\vortex.exe\" --editor --session_id=" + "\"" + session_id + "\"" + "\"";
   } else {
-    command = "\"" + vortex_path + "/bin/vortex\" --editor --session_id=" + "\"" + session_id + "\"";
+    command = vortex_path + "/bin/vx.sh" + " \"" + project_path + "\"";
   }
 
-  std::string target_path = VortexMaker::getHomeDirectory() + "/.vx/sessions/" + session_id + "/crash/core_dumped.txt";
-  std::string crash_script_command;
+  VortexMaker::executeInChildProcess(command);
+  return;
 
-  if (VortexMaker::IsWindows()) {
-    crash_script_command = "cmd.exe /C \"cd \"" + project_path + "\" && \"" + vortex_path + "\\bin\\handle_crash.bat\" \"" +
-                           target_path + "\"; & \"" + vortex_path + "\\bin\\vortex.exe\" --editor --session_id=" + "\"" +
-                           session_id + "\"" + "; & \"" + vortex_path + "\\bin\\vortex.exe\" -crash --session_id=" + "\"" +
-                           session_id + "\"" + " ; & \"" + vortex_path +
-                           "\\bin\\vortex_utils.exe\" -rms --session_id=" + "\"" + session_id + "\"" + "\"";
-  } else {
-    crash_script_command =
-        "cd \"" + project_path + "\" && bash \"" + vortex_path + "/bin/handle_crash.sh\" " + target_path + " " + command;
-  }
+  /*
+    std::string target_path = VortexMaker::getHomeDirectory() + "/.vx/sessions/" + session_id + "/crash/core_dumped.txt";
+    std::string crash_script_command;
 
-  std::cout << "Bootstrap: Starting with command: " << crash_script_command << std::endl;
-
-  if (VortexMaker::executeInChildProcess(crash_script_command)) {
-    writeSessionEndState(session_id, "success");
-  } else {
-    std::string crash_handle_command;
-    if (!VortexMaker::IsWindows()) {
-      crash_handle_command = "\"" + vortex_path + "/bin/vortex\" -crash --session_id=" + session_id;
-      VortexMaker::executeInChildProcess(crash_handle_command);
-      writeSessionEndState(session_id, "fail");
+    if (VortexMaker::IsWindows()) {
+      crash_script_command = "cmd.exe /C \"cd \"" + project_path + "\" && \"" + vortex_path + "\\bin\\handle_crash.bat\" \""
+    + target_path + "\"; & \"" + vortex_path + "\\bin\\vortex.exe\" --editor --session_id=" + "\"" + session_id + "\"" + "; &
+    \"" + vortex_path + "\\bin\\vortex.exe\" -crash --session_id=" + "\"" + session_id + "\"" + " ; & \"" + vortex_path +
+                             "\\bin\\vortex_utils.exe\" -rms --session_id=" + "\"" + session_id + "\"" + "\"";
+    } else {
+      crash_script_command =
+          "cd \"" + project_path + "\" && bash \"" + vortex_path + "/bin/handle_crash.sh\" " + target_path + " " + command;
     }
-  }
 
-  // TODO in crash handler or finish
-  // removeSessionFromJson(session_id);
+    std::cout << "Bootstrap: Starting with command: " << crash_script_command << std::endl;
+
+    if () {
+      writeSessionEndState(session_id, "success");
+    } else {
+      std::string crash_handle_command;
+      if (!VortexMaker::IsWindows()) {
+        crash_handle_command = "\"" + vortex_path + "/bin/vortex\" -crash --session_id=" + session_id;
+        VortexMaker::executeInChildProcess(crash_handle_command);
+        writeSessionEndState(session_id, "fail");
+      }
+    }*/
 }
 
 VORTEX_API void VortexMaker::RefreshActiveSessions() {
@@ -558,22 +558,22 @@ std::string escapeSpaces(const std::string &input) {
 }
 
 VORTEX_API void VortexMaker::OpenVortexUninstaller(const std::string &path) {
-    VxContext &ctx = *CVortexMaker;
-    
-    std::string quotedPath = "\"" + path + "\"";
-    
-    std::string binName = VortexMaker::IsWindows() ? "\\VersionUninstaller.exe" : "/VersionUninstaller";
-    std::string launcherPath = "\"" + ctx.m_VortexLauncherPath + binName + "\"";
+  VxContext &ctx = *CVortexMaker;
 
-    std::string command = launcherPath + " --path=" + quotedPath;
+  std::string quotedPath = "\"" + path + "\"";
 
-    bool success = VortexMaker::executeInChildProcess(command);
+  std::string binName = VortexMaker::IsWindows() ? "\\VersionUninstaller.exe" : "/VersionUninstaller";
+  std::string launcherPath = "\"" + ctx.m_VortexLauncherPath + binName + "\"";
 
-    if (success) {
-        std::cout << "Uninstallation succeeded." << std::endl;
-    } else {
-        std::cerr << "Uninstallation failed." << std::endl;
-    }
+  std::string command = launcherPath + " --path=" + quotedPath;
+
+  bool success = VortexMaker::executeInChildProcess(command);
+
+  if (success) {
+    std::cout << "Uninstallation succeeded." << std::endl;
+  } else {
+    std::cerr << "Uninstallation failed." << std::endl;
+  }
 }
 
 VORTEX_API void VortexMaker::OpenVortexInstaller(
