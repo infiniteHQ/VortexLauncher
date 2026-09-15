@@ -567,15 +567,34 @@ VORTEX_API std::time_t VortexMaker::GetLastBootTime() {
   ULONGLONG uptime_ms = GetTickCount64();
   std::time_t now = std::time(nullptr);
   return now - static_cast<std::time_t>(uptime_ms / 1000);
-#else
+
+#elif defined(__APPLE__)
+  struct timeval boottime;
+  size_t size = sizeof(boottime);
+
+  int mib[2] = {CTL_KERN, KERN_BOOTTIME};
+
+  if (sysctl(mib, 2, &boottime, &size, nullptr, 0) == 0) {
+    return static_cast<std::time_t>(boottime.tv_sec);
+  }
+
+  return std::time(nullptr);
+
+#elif defined(__linux__)
   struct sysinfo info;
+
   if (sysinfo(&info) == 0) {
     std::time_t now = std::time(nullptr);
-    return now - info.uptime;
+    return now - static_cast<std::time_t>(info.uptime);
   }
+
+  return std::time(nullptr);
+
+#else
   return std::time(nullptr);
 #endif
 }
+
 
 std::string escapeSpaces(const std::string &input) {
   std::string escaped;

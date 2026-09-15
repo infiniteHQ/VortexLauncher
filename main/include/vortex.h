@@ -36,9 +36,15 @@
 #include <stdio.h>   // NULL
 #include <sys/stat.h>
 #ifdef _WIN32
-#include <Windows.h>
-#include <shellapi.h>
-#else
+#include <windows.h>
+
+#elif defined(__APPLE__)
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#include <sys/time.h>
+#include <unistd.h>
+
+#elif defined(__linux__)
 #include <sys/sysinfo.h>
 #include <unistd.h>
 #endif

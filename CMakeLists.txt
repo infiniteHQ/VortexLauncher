@@ -56,7 +56,16 @@ target_include_directories(vortex_launcher_shared PUBLIC
 )
 
 find_package(Vulkan REQUIRED)
+find_package(OpenSSL REQUIRED)
 
+target_link_libraries(vortex_launcher_shared PUBLIC
+    launcher
+    httpcl
+    Vulkan::Vulkan
+    Threads::Threads
+    OpenSSL::Crypto
+)
+find_package(Threads REQUIRED)
 
 add_subdirectory(ui/launcher ui_launcher_build)
 
@@ -73,7 +82,7 @@ else()
 endif()
 
 target_link_libraries(vortex_launcher PRIVATE vortex_launcher_shared)
-if(UNIX AND NOT APPLE)
+if(UNIX)
     set(INSTALL_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build/dist/)
     set(INSTALL_MAIN_DIR ${INSTALL_BASE_DIR}/)
     set(INSTALL_BIN_DIR ${INSTALL_BASE_DIR}/bin)

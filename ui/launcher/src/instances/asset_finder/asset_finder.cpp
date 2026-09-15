@@ -1381,8 +1381,15 @@ void AssetFinder::RenderContentBar() {
       files.push_back(directoryEntry);
     }
   }
+  
+  struct PathHash {
+      std::size_t operator()(const std::filesystem::path& path) const noexcept {
+          return std::hash<std::string>{}(path.string());
+      }
+  };
 
-  std::unordered_set<std::filesystem::path> recognized_paths;
+  std::unordered_set<std::filesystem::path, PathHash> recognized_paths;
+
 
   for (auto &directoryEntry : directories) {
     std::string path = directoryEntry.path().string();
