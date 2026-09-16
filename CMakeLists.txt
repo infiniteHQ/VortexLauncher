@@ -57,6 +57,7 @@ target_include_directories(vortex_launcher_shared PUBLIC
 
 find_package(Vulkan REQUIRED)
 find_package(OpenSSL REQUIRED)
+find_package(Threads REQUIRED)
 
 target_link_libraries(vortex_launcher_shared PUBLIC
     launcher
@@ -65,7 +66,6 @@ target_link_libraries(vortex_launcher_shared PUBLIC
     Threads::Threads
     OpenSSL::Crypto
 )
-find_package(Threads REQUIRED)
 
 add_subdirectory(ui/launcher ui_launcher_build)
 
