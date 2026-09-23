@@ -935,7 +935,7 @@ VORTEX_API std::string VortexMaker::GetDefaultSelectedLanguage() {
   } else if (sysLang.find("es") != std::string::npos) {
     return "es";
   }
-  return 0;
+  return "en";
 }
 
 VORTEX_API void VortexMaker::OpenURL(const std::string &url) {
