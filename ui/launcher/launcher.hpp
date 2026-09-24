@@ -56,7 +56,7 @@ class Launcher {
 
     // Welcome
     welcome_window = WelcomeWindow::Create("?loc:loc.window_names.welcome");
-    welcome_window->m_ProjectCallback = [this](const std::shared_ptr<EnvProject> &project) {
+    welcome_window->m_ProjectCallback = [this](const std::shared_ptr<EnvProject>& project) {
       welcome_window->m_SelectedChildName = "?loc:loc.windows.welcome.open_project";
       welcome_window->m_SelectedEnvproject = project;
     };
@@ -89,7 +89,7 @@ class Launcher {
 
     std::string version = VORTEXLAUNCHER_VERSION;
     std::thread([this, version]() {
-      VxContext *ctx = VortexMaker::GetCurrentContext();
+      VxContext* ctx = VortexMaker::GetCurrentContext();
       std::cout << "V vs Vlatest" << version << " -> " << ctx->latest_launcher_version.version << std::endl;
       if (VortexMaker::IsVersionGreater(version, ctx->latest_launcher_version.version)) {
         ctx->launcher_update_available = true;
@@ -277,7 +277,7 @@ class Launcher {
     system_settings_counter++;
   }
 
-  void SetWelcomeWindowVisibility(const bool &visibility) {
+  void SetWelcomeWindowVisibility(const bool& visibility) {
     welcome_window->GetAppWindow()->SetVisibility(visibility);
   }
 
@@ -305,7 +305,7 @@ class Launcher {
     }
   }*/
 
-  void SetAboutWindowVisibility(const bool &visibility) {
+  void SetAboutWindowVisibility(const bool& visibility) {
     about_window->GetAppWindow()->SetVisibility(visibility);
     if (visibility) {
       Cherry::ApplicationSpecification spec;
@@ -340,7 +340,7 @@ class Launcher {
     }
   }
 
-  void SetAboutWindow(const bool &visibility) {
+  void SetAboutWindow(const bool& visibility) {
     about_window->GetAppWindow()->SetVisibility(visibility);
   }
 
@@ -372,7 +372,7 @@ class Launcher {
 
 static std::shared_ptr<Launcher> c_Launcher;
 
-Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
+Cherry::Application* Cherry::CreateApplication(int argc, char** argv) {
   Cherry::ApplicationSpecification spec;
 
   std::string name = "Vortex Launcher";
@@ -419,12 +419,41 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
       VortexMaker::OpenURL("https://fund.infinite.si/");
     }
 
+    static bool theme_is_black = true;
+    if (theme_is_black) {
+      CherryNextComponent.SetProperty("size_image_x", "13");
+      CherryNextComponent.SetProperty("size_image_y", "13");
+      CherryNextComponent.SetProperty("padding_x", "3");
+      CherryNextComponent.SetProperty("padding_y", "3");
+      CherryNextComponent.SetProperty("color_bg", "#663649AA");
+      CherryNextComponent.SetProperty("color_border", "#663649FF");
+      CherryNextComponent.SetProperty("color_text", "#CBCBCB");
+      if (CherryKit::ButtonImageText("WHITE", Cherry::GetPath("resources/imgs/icons/launcher/heart.png"))
+              .GetDataAs<bool>("isClicked")) {
+        theme_is_black = false;
+        CherryApp.SetTheme("light");
+      }
+    } else {
+      CherryNextComponent.SetProperty("size_image_x", "13");
+      CherryNextComponent.SetProperty("size_image_y", "13");
+      CherryNextComponent.SetProperty("padding_x", "3");
+      CherryNextComponent.SetProperty("padding_y", "3");
+      CherryNextComponent.SetProperty("color_bg", "#663649AA");
+      CherryNextComponent.SetProperty("color_border", "#663649FF");
+      CherryNextComponent.SetProperty("color_text", "#CBCBCB");
+      if (CherryKit::ButtonImageText("WHITE", Cherry::GetPath("resources/imgs/icons/launcher/heart.png"))
+              .GetDataAs<bool>("isClicked")) {
+        theme_is_black = true;
+        CherryApp.SetTheme("dark");
+      }
+    }
+
     CherryGUI::GetFont()->Scale = oldsize;
     CherryGUI::PopFont();
     CherryGUI::SetCursorPosY(CherryGUI::GetCursorPosY() + 2.0f);
   });
 
-  Cherry::Application *app = new Cherry::Application(spec);
+  Cherry::Application* app = new Cherry::Application(spec);
 
   app->SetFavIconPath(Cherry::GetPath("resources/imgs/icon.png"));
   app->AddFont("Consola", Cherry::GetPath("resources/fonts/consola.ttf"), 17.0f);
@@ -444,6 +473,8 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
 
   app->SetDefaultLocale("en");
 
+  app->AddTheme(CherryThemes::Dark());
+  app->AddTheme(CherryThemes::Light());
   app->SetLocale(VortexMaker::GetLanguage());
 
   /*static std::shared_ptr<Cherry::ImageButtonSimple> btn_close =
@@ -467,7 +498,7 @@ Cherry::Application *Cherry::CreateApplication(int argc, char **argv) {
 
     CherryGUI::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(12.0f, 8.0f));
     CherryGUI::PushStyleVar(ImGuiStyleVar_PopupRounding, 3.0f);
-    VxContext &ctx = *CVortexMaker;
+    VxContext& ctx = *CVortexMaker;
     /*if(ctx.launcher_update_available)
     {
         static bool close_toast = false;
