@@ -37,7 +37,7 @@ static std::vector<std::shared_ptr<VortexVersion>> all_versions_for_project;
 #include <stdlib.h>
 #endif
 
-bool EndsWith(const std::string &value, const std::string &suffix) {
+bool EndsWith(const std::string& value, const std::string& suffix) {
   if (suffix.size() > value.size())
     return false;
   return std::equal(suffix.rbegin(), suffix.rend(), value.rbegin());
@@ -369,7 +369,7 @@ namespace VortexLauncher {
 
     if (VortexMaker::GetCurrentContext()->IO.sys_projects.empty()) {
       if (CherryKit::BlockVerticalCustom(
-              []() {},
+              []() { },
               100.0f,
               100.0f,
               {
@@ -914,7 +914,7 @@ namespace VortexLauncher {
       }
 
       if (news_blocks.empty()) {
-        for (const auto &article : VortexMaker::GetCurrentContext()->IO.news) {
+        for (const auto& article : VortexMaker::GetCurrentContext()->IO.news) {
           if (!article.image_link.empty() &&
               (EndsWith(article.image_link, ".png") || EndsWith(article.image_link, ".jpg")) &&
               (article.image_link.find("http://") == 0 || article.image_link.find("https://") == 0)) {
@@ -979,7 +979,7 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
 */
   }
 
-  WelcomeWindow::WelcomeWindow(const std::string &name) {
+  WelcomeWindow::WelcomeWindow(const std::string& name) {
     m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
     m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/icons/misc/icon_home.png"));
     m_AppWindow->SetClosable(false);
@@ -1032,13 +1032,13 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
   }
 
   std::vector<std::shared_ptr<EnvProject>> WelcomeWindow::GetMostRecentProjects(
-      const std::vector<std::shared_ptr<EnvProject>> &projects,
+      const std::vector<std::shared_ptr<EnvProject>>& projects,
       size_t maxCount) {
     auto sortedProjects = projects;
     std::sort(
         sortedProjects.begin(),
         sortedProjects.end(),
-        [](const std::shared_ptr<EnvProject> &a, const std::shared_ptr<EnvProject> &b) {
+        [](const std::shared_ptr<EnvProject>& a, const std::shared_ptr<EnvProject>& b) {
           return a->lastOpened > b->lastOpened;
         });
 
@@ -1048,22 +1048,22 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
     return sortedProjects;
   }
 
-  void WelcomeWindow::AddChild(const std::string &child_name, const WelcomeWindowChild &child) {
+  void WelcomeWindow::AddChild(const std::string& child_name, const WelcomeWindowChild& child) {
     m_Childs[child_name] = child;
   }
 
-  void WelcomeWindow::RemoveChild(const std::string &child_name) {
+  void WelcomeWindow::RemoveChild(const std::string& child_name) {
     auto it = m_Childs.find(child_name);
     if (it != m_Childs.end()) {
       m_Childs.erase(it);
     }
   }
 
-  std::shared_ptr<Cherry::AppWindow> &WelcomeWindow::GetAppWindow() {
+  std::shared_ptr<Cherry::AppWindow>& WelcomeWindow::GetAppWindow() {
     return m_AppWindow;
   }
 
-  std::shared_ptr<WelcomeWindow> WelcomeWindow::Create(const std::string &name) {
+  std::shared_ptr<WelcomeWindow> WelcomeWindow::Create(const std::string& name) {
     auto instance = std::shared_ptr<WelcomeWindow>(new WelcomeWindow(name));
     instance->SetupRenderCallback();
     return instance;
@@ -1078,7 +1078,7 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
     });
   }
 
-  WelcomeWindowChild *WelcomeWindow::GetChild(const std::string &child_name) {
+  WelcomeWindowChild* WelcomeWindow::GetChild(const std::string& child_name) {
     auto it = m_Childs.find(child_name);
     if (it != m_Childs.end()) {
       return &it->second;
@@ -1091,8 +1091,13 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
     const float splitterWidth = 1.5f;
 
     std::string label = "left_pane" + m_AppWindow->m_Name;
-    CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
-    CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#00000000"));
+    if (CherryApp.GetTheme() == "dark_vortex") {
+      CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
+      CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#00000000"));
+    } else {
+      CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#FFFFFF"));
+      CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#EDEDED"));
+    }
     CherryGUI::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
     CherryGUI::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0.0f, 0.0f));
     CherryGUI::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
@@ -1109,10 +1114,18 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
     CherryGUI::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(7, 7));
 
     CherryKit::Space(3.0f);
-    CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#343434"));
-    CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#232323"));
-    CherryGUI::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#343434"));
-    CherryGUI::PushStyleColor(ImGuiCol_ButtonActive, Cherry::HexToRGBA("#454545"));
+
+    if (CherryApp.GetTheme() == "dark_vortex") {
+      CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#343434"));
+      CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#232323"));
+      CherryGUI::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#343434"));
+      CherryGUI::PushStyleColor(ImGuiCol_ButtonActive, Cherry::HexToRGBA("#454545"));
+    } else {
+      CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#FFFFFF"));
+      CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#DFDFDF99"));
+      CherryGUI::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#DFDFDF55"));
+      CherryGUI::PushStyleColor(ImGuiCol_ButtonActive, Cherry::HexToRGBA("#FFFFFF"));
+    }
 
     CherryStyle::AddMarginX(6.0f);
     if (CherryGUI::ImageSizeButtonWithText(
@@ -1413,10 +1426,10 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
         if (all_versions_for_project.empty()) {
           CherryGUI::Text(Cherry::GetLocale("loc.windows.welcome.no_versions_available").c_str());
         } else {
-          std::vector<const char *> version_names;
+          std::vector<const char*> version_names;
           version_names.reserve(all_versions_for_project.size());
 
-          for (const auto &v : all_versions_for_project) {
+          for (const auto& v : all_versions_for_project) {
             version_names.push_back(v->name.c_str());
           }
 

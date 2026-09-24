@@ -444,7 +444,7 @@ Cherry::Application* Cherry::CreateApplication(int argc, char** argv) {
       if (CherryKit::ButtonImageText("WHITE", Cherry::GetPath("resources/imgs/icons/launcher/heart.png"))
               .GetDataAs<bool>("isClicked")) {
         theme_is_black = true;
-        CherryApp.SetTheme("dark");
+        CherryApp.SetTheme("dark_vortex");
       }
     }
 
@@ -473,7 +473,7 @@ Cherry::Application* Cherry::CreateApplication(int argc, char** argv) {
 
   app->SetDefaultLocale("en");
 
-  app->AddTheme(CherryThemes::Dark());
+  app->AddTheme(CherryThemes::DarkVortex());
   app->AddTheme(CherryThemes::Light());
   app->SetLocale(VortexMaker::GetLanguage());
 
