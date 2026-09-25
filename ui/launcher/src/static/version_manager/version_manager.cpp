@@ -53,7 +53,7 @@ namespace VortexLauncher {
     CherryGUI::EndDisabled();
   }
 
-  VersionManager::VersionManager(const std::string &name) {
+  VersionManager::VersionManager(const std::string& name) {
     m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
     m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/vortex_logo.png"));
 
@@ -394,13 +394,13 @@ namespace VortexLauncher {
   }
 
   std::vector<std::shared_ptr<EnvProject>> VersionManager::GetMostRecentProjects(
-      const std::vector<std::shared_ptr<EnvProject>> &projects,
+      const std::vector<std::shared_ptr<EnvProject>>& projects,
       size_t maxCount) {
     auto sortedProjects = projects;
     std::sort(
         sortedProjects.begin(),
         sortedProjects.end(),
-        [](const std::shared_ptr<EnvProject> &a, const std::shared_ptr<EnvProject> &b) {
+        [](const std::shared_ptr<EnvProject>& a, const std::shared_ptr<EnvProject>& b) {
           return a->lastOpened > b->lastOpened;
         });
 
@@ -410,22 +410,22 @@ namespace VortexLauncher {
     return sortedProjects;
   }
 
-  void VersionManager::AddChild(const std::string &child_name, const VersionManagerChild &child) {
+  void VersionManager::AddChild(const std::string& child_name, const VersionManagerChild& child) {
     m_Childs[child_name] = child;
   }
 
-  void VersionManager::RemoveChild(const std::string &child_name) {
+  void VersionManager::RemoveChild(const std::string& child_name) {
     auto it = m_Childs.find(child_name);
     if (it != m_Childs.end()) {
       m_Childs.erase(it);
     }
   }
 
-  std::shared_ptr<Cherry::AppWindow> &VersionManager::GetAppWindow() {
+  std::shared_ptr<Cherry::AppWindow>& VersionManager::GetAppWindow() {
     return m_AppWindow;
   }
 
-  std::shared_ptr<VersionManager> VersionManager::Create(const std::string &name) {
+  std::shared_ptr<VersionManager> VersionManager::Create(const std::string& name) {
     auto instance = std::shared_ptr<VersionManager>(new VersionManager(name));
     instance->SetupRenderCallback();
     return instance;
@@ -440,7 +440,7 @@ namespace VortexLauncher {
     });
   }
 
-  VersionManagerChild *VersionManager::GetChild(const std::string &child_name) {
+  VersionManagerChild* VersionManager::GetChild(const std::string& child_name) {
     auto it = m_Childs.find(child_name);
     if (it != m_Childs.end()) {
       return &it->second;

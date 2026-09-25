@@ -179,9 +179,10 @@ class Launcher {
     spec.Height = 800;
     spec.DisableResize = true;
     spec.Width = 1350;
-    spec.CustomTitlebar = true;
-    spec.DisableWindowManagerTitleBar = true;
+    spec.CustomTitlebar = false;
+    spec.DisableWindowManagerTitleBar = false;
     spec.WindowOnlyClosable = true;
+    spec.DisableTitle = true;
     spec.RenderMode = Cherry::WindowRenderingMethod::SimpleWindow;
     spec.UniqueAppWindowName = settings_win->GetAppWindow()->m_Name;
 
@@ -390,7 +391,7 @@ Cherry::Application* Cherry::CreateApplication(int argc, char** argv) {
   spec.RenderMode = WindowRenderingMethod::SimpleWindow;
   spec.DefaultWindowName = "?loc:loc.window_names.welcome";
   spec.UniqueAppWindowName = "?loc:loc.window_names.welcome";
-  spec.DisableTitle = true;
+  spec.DisableTitle = false;
   spec.WindowSaves = false;
   spec.IconPath = Cherry::GetPath("resources/imgs/icon.png");
   spec.UseAudio();

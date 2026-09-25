@@ -17,7 +17,7 @@
 
 namespace VortexLauncher {
 
-  static void saveVortexVersions(const std::vector<std::string> &paths, const std::string &jsonFilePath) {
+  static void saveVortexVersions(const std::vector<std::string>& paths, const std::string& jsonFilePath) {
     nlohmann::json jsonData;
     jsonData["vortex_versions_pools"] = paths;
 
@@ -27,18 +27,18 @@ namespace VortexLauncher {
     }
   }
 
-  static void loadVortexVersions(std::vector<std::string> &paths, const std::string &jsonFilePath) {
+  static void loadVortexVersions(std::vector<std::string>& paths, const std::string& jsonFilePath) {
     std::ifstream file(jsonFilePath);
     if (file) {
       nlohmann::json jsonData;
       file >> jsonData;
-      for (const auto &path : jsonData["vortex_versions_pools"]) {
+      for (const auto& path : jsonData["vortex_versions_pools"]) {
         paths.push_back(path.get<std::string>());
       }
     }
   }
 
-  static void saveTemplates(const std::vector<std::string> &paths, const std::string &jsonFilePath) {
+  static void saveTemplates(const std::vector<std::string>& paths, const std::string& jsonFilePath) {
     nlohmann::json jsonData;
     jsonData["templates_pools"] = paths;
 
@@ -48,18 +48,18 @@ namespace VortexLauncher {
     }
   }
 
-  static void loadTemplates(std::vector<std::string> &paths, const std::string &jsonFilePath) {
+  static void loadTemplates(std::vector<std::string>& paths, const std::string& jsonFilePath) {
     std::ifstream file(jsonFilePath);
     if (file) {
       nlohmann::json jsonData;
       file >> jsonData;
-      for (const auto &path : jsonData["templates_pools"]) {
+      for (const auto& path : jsonData["templates_pools"]) {
         paths.push_back(path.get<std::string>());
       }
     }
   }
 
-  static void saveContents(const std::vector<std::string> &paths, const std::string &jsonFilePath) {
+  static void saveContents(const std::vector<std::string>& paths, const std::string& jsonFilePath) {
     nlohmann::json jsonData;
     jsonData["contents_pools"] = paths;
 
@@ -69,17 +69,17 @@ namespace VortexLauncher {
     }
   }
 
-  static void loadContents(std::vector<std::string> &paths, const std::string &jsonFilePath) {
+  static void loadContents(std::vector<std::string>& paths, const std::string& jsonFilePath) {
     std::ifstream file(jsonFilePath);
     if (file) {
       nlohmann::json jsonData;
       file >> jsonData;
-      for (const auto &path : jsonData["contents_pools"]) {
+      for (const auto& path : jsonData["contents_pools"]) {
         paths.push_back(path.get<std::string>());
       }
     }
   }
-  static void saveModules(const std::vector<std::string> &paths, const std::string &jsonFilePath) {
+  static void saveModules(const std::vector<std::string>& paths, const std::string& jsonFilePath) {
     nlohmann::json jsonData;
     jsonData["modules_pools"] = paths;
 
@@ -89,18 +89,18 @@ namespace VortexLauncher {
     }
   }
 
-  static void loadModules(std::vector<std::string> &paths, const std::string &jsonFilePath) {
+  static void loadModules(std::vector<std::string>& paths, const std::string& jsonFilePath) {
     std::ifstream file(jsonFilePath);
     if (file) {
       nlohmann::json jsonData;
       file >> jsonData;
-      for (const auto &path : jsonData["modules_pools"]) {
+      for (const auto& path : jsonData["modules_pools"]) {
         paths.push_back(path.get<std::string>());
       }
     }
   }
 
-  static void savePlugins(const std::vector<std::string> &paths, const std::string &jsonFilePath) {
+  static void savePlugins(const std::vector<std::string>& paths, const std::string& jsonFilePath) {
     nlohmann::json jsonData;
     jsonData["plugins_pools"] = paths;
 
@@ -110,18 +110,18 @@ namespace VortexLauncher {
     }
   }
 
-  static void loadPlugins(std::vector<std::string> &paths, const std::string &jsonFilePath) {
+  static void loadPlugins(std::vector<std::string>& paths, const std::string& jsonFilePath) {
     std::ifstream file(jsonFilePath);
     if (file) {
       nlohmann::json jsonData;
       file >> jsonData;
-      for (const auto &path : jsonData["plugins_pools"]) {
+      for (const auto& path : jsonData["plugins_pools"]) {
         paths.push_back(path.get<std::string>());
       }
     }
   }
 
-  static void saveProjects(const std::vector<std::string> &projectPaths, const std::string &jsonFilePath) {
+  static void saveProjects(const std::vector<std::string>& projectPaths, const std::string& jsonFilePath) {
     nlohmann::json jsonData;
     jsonData["projects_pools"] = projectPaths;
 
@@ -131,17 +131,17 @@ namespace VortexLauncher {
     }
   }
 
-  static void loadProjects(std::vector<std::string> &projectPaths, const std::string &jsonFilePath) {
+  static void loadProjects(std::vector<std::string>& projectPaths, const std::string& jsonFilePath) {
     std::ifstream file(jsonFilePath);
     if (file) {
       nlohmann::json jsonData;
       file >> jsonData;
-      for (const auto &path : jsonData["projects_pools"]) {
+      for (const auto& path : jsonData["projects_pools"]) {
         projectPaths.push_back(path.get<std::string>());
       }
     }
   }
-  void PathListEditor(const std::string &type, std::vector<std::string> *list, std::string *newPath) {
+  void PathListEditor(const std::string& type, std::vector<std::string>* list, std::string* newPath) {
     if (!list || !newPath)
       return;
 
@@ -198,7 +198,7 @@ namespace VortexLauncher {
     return configPath;
   }
 
-  nlohmann::json LoadConfig(const std::string &filePath) {
+  nlohmann::json LoadConfig(const std::string& filePath) {
     std::ifstream file(filePath);
     nlohmann::json config;
     if (file.is_open()) {
@@ -209,7 +209,7 @@ namespace VortexLauncher {
     return config;
   }
 
-  void SaveConfig(const std::string &filePath, const nlohmann::json &config) {
+  void SaveConfig(const std::string& filePath, const nlohmann::json& config) {
     std::ofstream file(filePath);
     if (file.is_open()) {
       file << config.dump(4);
@@ -260,7 +260,7 @@ namespace VortexLauncher {
     saveVortexVersions(m_VortexVersionPoolsPaths, path + "vortex_versions_pools.json");
   }
 
-  MainSettings::MainSettings(const std::string &name) {
+  MainSettings::MainSettings(const std::string& name) {
     m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
     m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/icons/misc/icon_home.png"));
 
@@ -579,13 +579,13 @@ namespace VortexLauncher {
   }
 
   std::vector<std::shared_ptr<EnvProject>> MainSettings::GetMostRecentProjects(
-      const std::vector<std::shared_ptr<EnvProject>> &projects,
+      const std::vector<std::shared_ptr<EnvProject>>& projects,
       size_t maxCount) {
     auto sortedProjects = projects;
     std::sort(
         sortedProjects.begin(),
         sortedProjects.end(),
-        [](const std::shared_ptr<EnvProject> &a, const std::shared_ptr<EnvProject> &b) {
+        [](const std::shared_ptr<EnvProject>& a, const std::shared_ptr<EnvProject>& b) {
           return a->lastOpened > b->lastOpened;
         });
 
@@ -595,22 +595,22 @@ namespace VortexLauncher {
     return sortedProjects;
   }
 
-  void MainSettings::AddChild(const std::string &child_name, const MainSettingsChild &child) {
+  void MainSettings::AddChild(const std::string& child_name, const MainSettingsChild& child) {
     m_Childs[child_name] = child;
   }
 
-  void MainSettings::RemoveChild(const std::string &child_name) {
+  void MainSettings::RemoveChild(const std::string& child_name) {
     auto it = m_Childs.find(child_name);
     if (it != m_Childs.end()) {
       m_Childs.erase(it);
     }
   }
 
-  std::shared_ptr<Cherry::AppWindow> &MainSettings::GetAppWindow() {
+  std::shared_ptr<Cherry::AppWindow>& MainSettings::GetAppWindow() {
     return m_AppWindow;
   }
 
-  std::shared_ptr<MainSettings> MainSettings::Create(const std::string &name) {
+  std::shared_ptr<MainSettings> MainSettings::Create(const std::string& name) {
     auto instance = std::shared_ptr<MainSettings>(new MainSettings(name));
     instance->SetupRenderCallback();
     return instance;
@@ -625,7 +625,7 @@ namespace VortexLauncher {
     });
   }
 
-  MainSettingsChild *MainSettings::GetChild(const std::string &child_name) {
+  MainSettingsChild* MainSettings::GetChild(const std::string& child_name) {
     auto it = m_Childs.find(child_name);
     if (it != m_Childs.end()) {
       return &it->second;
@@ -647,12 +647,11 @@ namespace VortexLauncher {
     CherryGUI::BeginChild(label.c_str(), ImVec2(leftPaneWidth, 0), true, NULL);
 
     CherryGUI::SetCursorPosY(CherryGUI::GetCursorPosY() + 5.0f);
-    CherryGUI::SetCursorPosX(CherryGUI::GetCursorPosX() + 5.0f);
-    CherryGUI::Image(Cherry::GetTexture(Cherry::GetPath("resources/imgs/settings2.png")), ImVec2(280, 142));
+    // CherryGUI::Image(Cherry::GetTexture(Cherry::GetPath("resources/imgs/settings2.png")), ImVec2(280, 142));
 
     // CherryStyle::SetPadding(7.0f);
 
-    for (const auto &child : m_Childs) {
+    for (const auto& child : m_Childs) {
       if (child.first == m_SelectedChildName) {
         // opt.hex_text_idle = "#FFFFFFFF";
       } else {

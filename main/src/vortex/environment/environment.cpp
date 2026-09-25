@@ -5,7 +5,7 @@ namespace fs = std::filesystem;
 
 VORTEX_API void VortexMaker::CheckBlankProject() {
   // Get reference to the Vortex context
-  VxContext &ctx = *CVortexMaker;
+  VxContext& ctx = *CVortexMaker;
 
   for (auto template_pool : ctx.IO.sys_templates_pools) {
     std::string blank_project_path;
@@ -296,7 +296,7 @@ VORTEX_API void VortexMaker::InitEnvironment() {
           throw std::runtime_error("Copy command failed with exit code " + std::to_string(res));
         }
         VortexMaker::LogInfo("Core", "Path '" + blank_template_path + "' created with success.");
-      } catch (const std::exception &ex) {
+      } catch (const std::exception& ex) {
         VortexMaker::LogError("Core", "Error while creating folder '" + blank_template_path + "'");
         VortexMaker::LogError("Core", ex.what());
       }
@@ -314,7 +314,7 @@ VORTEX_API void VortexMaker::InitEnvironment() {
 }
 void VortexMaker::DetectPlatform() {
   // Get reference to the Vortex context
-  VxContext &ctx = *CVortexMaker;
+  VxContext& ctx = *CVortexMaker;
 
 #if defined(_WIN32) || defined(_WIN64)
   ctx.platform = "windows";
@@ -331,7 +331,7 @@ void VortexMaker::DetectPlatform() {
 
 void VortexMaker::DetectArch() {
   // Get reference to the Vortex context
-  VxContext &ctx = *CVortexMaker;
+  VxContext& ctx = *CVortexMaker;
 
 #if defined(__x86_64__) || defined(_M_X64)
   ctx.arch = "x86_64";
@@ -350,7 +350,7 @@ void VortexMaker::DetectArch() {
 #endif
 }
 
-std::chrono::system_clock::time_point addTimeoutToTime(const std::string &time_str, const std::string &timeout) {
+std::chrono::system_clock::time_point addTimeoutToTime(const std::string& time_str, const std::string& timeout) {
   std::tm tm = {};
   std::stringstream ss(time_str);
   ss >> std::get_time(&tm, "%Y-%m-%dT%H:%M:%S");
@@ -383,7 +383,7 @@ VORTEX_API void VortexMaker::UpdateSessions() {
   }
 
   // Get reference to the Vortex context
-  VxContext &ctx = *CVortexMaker;
+  VxContext& ctx = *CVortexMaker;
 
   std::ifstream config_file(config_path);
   nlohmann::json config;
@@ -401,7 +401,7 @@ VORTEX_API void VortexMaker::UpdateSessions() {
 
 VORTEX_API void VortexMaker::RefreshVortexDists() {
   // Get reference to the Vortex context
-  VxContext &ctx = *CVortexMaker;
+  VxContext& ctx = *CVortexMaker;
 
   // Set path depending on platform
   std::string path;
@@ -428,7 +428,7 @@ VORTEX_API void VortexMaker::RefreshVortexDists() {
     for (auto dist : json_data["vortex_dists"]) {
       ctx.IO.sys_vortex_dists.push_back(dist);
     }
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     // Print error if an exception occurs
     VortexMaker::LogError("Error: ", e.what());
   }
@@ -436,7 +436,7 @@ VORTEX_API void VortexMaker::RefreshVortexDists() {
 
 VORTEX_API void VortexMaker::RefreshVortexLauncherDists() {
   // Get reference to the Vortex context
-  VxContext &ctx = *CVortexMaker;
+  VxContext& ctx = *CVortexMaker;
 
   // Set path depending on platform
   std::string path;
@@ -458,7 +458,7 @@ VORTEX_API void VortexMaker::RefreshVortexLauncherDists() {
     // Load JSON data from the project configuration file
     auto json_data = VortexMaker::DumpJSON(json_file);
     ctx.IO.sys_vortexlauncher_dist = json_data["vortexlauncher_dist"].get<std::string>();
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     // Print error if an exception occurs
     VortexMaker::LogError("Error: ", e.what());
   }
@@ -466,7 +466,7 @@ VORTEX_API void VortexMaker::RefreshVortexLauncherDists() {
 
 VORTEX_API void VortexMaker::RefreshEnvironmentProjectsPools() {
   // Get reference to the Vortex context
-  VxContext &ctx = *CVortexMaker;
+  VxContext& ctx = *CVortexMaker;
 
   // Set path depending on platform
   std::string path;
@@ -493,7 +493,7 @@ VORTEX_API void VortexMaker::RefreshEnvironmentProjectsPools() {
     for (auto pool : json_data["projects_pools"]) {
       ctx.IO.sys_projects_pools.push_back(pool);
     }
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     // Print error if an exception occurs
     VortexMaker::LogError("Error: ", e.what());
   }
@@ -501,7 +501,7 @@ VORTEX_API void VortexMaker::RefreshEnvironmentProjectsPools() {
 
 VORTEX_API void VortexMaker::RefreshEnvironmentModulesPools() {
   // Get reference to the Vortex context
-  VxContext &ctx = *CVortexMaker;
+  VxContext& ctx = *CVortexMaker;
 
   // Set path depending on platform
   std::string path;
@@ -528,7 +528,7 @@ VORTEX_API void VortexMaker::RefreshEnvironmentModulesPools() {
     for (auto pool : json_data["modules_pools"]) {
       ctx.IO.sys_modules_pools.push_back(pool);
     }
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     // Print error if an exception occurs
     VortexMaker::LogError("Error: ", e.what());
   }
@@ -536,7 +536,7 @@ VORTEX_API void VortexMaker::RefreshEnvironmentModulesPools() {
 
 VORTEX_API void VortexMaker::RefreshEnvironmentContentsPools() {
   // Get reference to the Vortex context
-  VxContext &ctx = *CVortexMaker;
+  VxContext& ctx = *CVortexMaker;
 
   // Set path depending on platform
   std::string path;
@@ -563,7 +563,7 @@ VORTEX_API void VortexMaker::RefreshEnvironmentContentsPools() {
     for (auto pool : json_data["contents_pools"]) {
       ctx.IO.sys_contents_pools.push_back(pool);
     }
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     // Print error if an exception occurs
     VortexMaker::LogError("Error: ", e.what());
   }
@@ -571,7 +571,7 @@ VORTEX_API void VortexMaker::RefreshEnvironmentContentsPools() {
 
 VORTEX_API void VortexMaker::RefreshEnvironmentTemplatesPools() {
   // Get reference to the Vortex context
-  VxContext &ctx = *CVortexMaker;
+  VxContext& ctx = *CVortexMaker;
 
   // Set path depending on platform
   std::string path;
@@ -598,7 +598,7 @@ VORTEX_API void VortexMaker::RefreshEnvironmentTemplatesPools() {
     for (auto pool : json_data["templates_pools"]) {
       ctx.IO.sys_templates_pools.push_back(pool);
     }
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     // Print error if an exception occurs
     VortexMaker::LogError("Error: ", e.what());
   }
@@ -606,7 +606,7 @@ VORTEX_API void VortexMaker::RefreshEnvironmentTemplatesPools() {
 
 VORTEX_API void VortexMaker::RefreshEnvironmentPluginsPools() {
   // Get reference to the Vortex context
-  VxContext &ctx = *CVortexMaker;
+  VxContext& ctx = *CVortexMaker;
 
   // Set path depending on platform
   std::string path;
@@ -633,13 +633,13 @@ VORTEX_API void VortexMaker::RefreshEnvironmentPluginsPools() {
     for (auto pool : json_data["plugins_pools"]) {
       ctx.IO.sys_plugins_pools.push_back(pool);
     }
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     // Print error if an exception occurs
     VortexMaker::LogError("Error: ", e.what());
   }
 }
 
-VORTEX_API bool VortexMaker::TestVortexExecutable(const std::string &path) {
+VORTEX_API bool VortexMaker::TestVortexExecutable(const std::string& path) {
   std::array<char, 128> buffer;
   std::string result;
   std::string command = path + " -test";
@@ -659,8 +659,8 @@ VORTEX_API bool VortexMaker::TestVortexExecutable(const std::string &path) {
   return (result.find("ok") != std::string::npos) && (return_code == 0);
 }
 
-VORTEX_API bool VortexMaker::CheckIfVortexVersionUtilityExist(const std::string &version, std::string &path) {
-  VxContext &ctx = *CVortexMaker;
+VORTEX_API bool VortexMaker::CheckIfVortexVersionUtilityExist(const std::string& version, std::string& path) {
+  VxContext& ctx = *CVortexMaker;
 
   size_t pos = version.find('.');
   std::string majorMinor = version;
@@ -671,7 +671,7 @@ VORTEX_API bool VortexMaker::CheckIfVortexVersionUtilityExist(const std::string 
     }
   }
 
-  for (auto &ver : ctx.IO.sys_vortex_versions) {
+  for (auto& ver : ctx.IO.sys_vortex_versions) {
     path = ver->path;
     std::string contextVersion = ver->version;
     pos = contextVersion.find('.');
@@ -691,16 +691,16 @@ VORTEX_API bool VortexMaker::CheckIfVortexVersionUtilityExist(const std::string 
 
 VORTEX_API void VortexMaker::RefreshEnvironmentVortexVersion() {
   // Get reference to the Vortex context
-  VxContext &ctx = *CVortexMaker;
+  VxContext& ctx = *CVortexMaker;
   // ctx.IO.available_vortex_versions.clear();
   ctx.IO.sys_vortex_versions.clear();
 
-  for (auto &base_path : VortexMaker::GetCurrentContext()->IO.sys_vortex_versions_pools) {
+  for (auto& base_path : VortexMaker::GetCurrentContext()->IO.sys_vortex_versions_pools) {
     if (!std::filesystem::exists(base_path)) {
       continue;
     }
 
-    for (const auto &entry : std::filesystem::directory_iterator(base_path)) {
+    for (const auto& entry : std::filesystem::directory_iterator(base_path)) {
       if (entry.is_directory()) {
         std::string version_dir = entry.path().filename().string();
         std::string manifest_path = entry.path().string() + "/manifest.json";
@@ -732,14 +732,14 @@ VORTEX_API void VortexMaker::RefreshEnvironmentVortexVersion() {
 
             auto vortex_version = std::make_shared<VortexVersion>();
             vortex_version->version = version;
-            vortex_version->name = version_name;
+            vortex_version->name = proper_name;
             vortex_version->banner = image_path;
             vortex_version->path = entry.path().string();
             vortex_version->working = is_working;
-            vortex_version->proper_name = proper_name;
+            vortex_version->proper_name = version_name;
 
             ctx.IO.sys_vortex_versions.push_back(vortex_version);
-          } catch (const std::exception &e) {
+          } catch (const std::exception& e) {
             std::cout << "FAIL" << std::endl;
             continue;
           }
@@ -753,7 +753,7 @@ VORTEX_API void VortexMaker::RefreshEnvironmentVortexVersion() {
 
 VORTEX_API void VortexMaker::RefreshEnvironmentVortexVersionsPools() {
   // Get reference to the Vortex context
-  VxContext &ctx = *CVortexMaker;
+  VxContext& ctx = *CVortexMaker;
 
   // Set path depending on platform
   std::string path;
@@ -780,18 +780,18 @@ VORTEX_API void VortexMaker::RefreshEnvironmentVortexVersionsPools() {
     for (auto pool : json_data["vortex_versions_pools"]) {
       ctx.IO.sys_vortex_versions_pools.push_back(pool);
     }
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     // Print error if an exception occurs
     VortexMaker::LogError("Error: ", e.what());
   }
 }
 
 void VortexMaker::RefreshEnvironmentProjects() {
-  VxContext &ctx = *CVortexMaker;
+  VxContext& ctx = *CVortexMaker;
 
   ctx.IO.sys_projects.clear();
 
-  for (const auto &pool_path : ctx.IO.sys_projects_pools) {
+  for (const auto& pool_path : ctx.IO.sys_projects_pools) {
     try {
       if (!std::filesystem::exists(pool_path)) {
         VortexMaker::LogError("Error: Pool path does not exist - ", pool_path.c_str());
@@ -803,7 +803,7 @@ void VortexMaker::RefreshEnvironmentProjects() {
         continue;
       }
 
-      for (const auto &entry : std::filesystem::recursive_directory_iterator(pool_path)) {
+      for (const auto& entry : std::filesystem::recursive_directory_iterator(pool_path)) {
         if (entry.is_regular_file() && entry.path().filename() == "vortex.config") {
           try {
             std::cout << "Found vortex.config at: " << entry.path() << std::endl;
@@ -852,18 +852,18 @@ void VortexMaker::RefreshEnvironmentProjects() {
             } else {
               VortexMaker::LogError("Error: Failed to open file - ", entry.path().string());
             }
-          } catch (const std::exception &e) {
+          } catch (const std::exception& e) {
             VortexMaker::LogError("Error reading config file: ", e.what());
           }
         }
       }
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
       VortexMaker::LogError("Error accessing pool path: ", e.what());
     }
   }
 }
 
-VORTEX_API void VortexMaker::OpenFolderInFileManager(const std::string &path) {
+VORTEX_API void VortexMaker::OpenFolderInFileManager(const std::string& path) {
 #if defined(_WIN32) || defined(_WIN64)
   std::string command = "explorer \"" + path + "\"";
   VortexMaker::RunCommand(command.c_str());
@@ -892,16 +892,16 @@ VORTEX_API void VortexMaker::OpenFolderInFileManager(const std::string &path) {
 }
 
 VORTEX_API void VortexMaker::UpdateEnvironmentProject(
-    const std::string &name,
-    const std::string &author,
-    const std::string &version,
-    const std::string &compatibleWith,
-    const std::string &description,
-    const std::string &path,
-    const std::string &logo_path,
-    const std::string &template_name) {
+    const std::string& name,
+    const std::string& author,
+    const std::string& version,
+    const std::string& compatibleWith,
+    const std::string& description,
+    const std::string& path,
+    const std::string& logo_path,
+    const std::string& template_name) {
   // Get reference to the Vortex context
-  VxContext &ctx = *CVortexMaker;
+  VxContext& ctx = *CVortexMaker;
 
   // Set path depending on platform
   std::string sys_path;
@@ -921,7 +921,7 @@ VORTEX_API void VortexMaker::UpdateEnvironmentProject(
 
   // Check if a project with the given name exists
   bool projectExists = false;
-  for (auto &project : json_data["projects"]) {
+  for (auto& project : json_data["projects"]) {
     if (project["name"].get<std::string>() == name) {
       projectExists = true;
       return;
@@ -984,7 +984,7 @@ VORTEX_API bool VortexMaker::IsNotMacOS() {
 
 VORTEX_API void VortexMaker::UpdateEnvironmentProject() {
   // Get reference to the Vortex context
-  VxContext &ctx = *CVortexMaker;
+  VxContext& ctx = *CVortexMaker;
 
   // Set path depending on platform
   std::string path;
@@ -1003,7 +1003,7 @@ VORTEX_API void VortexMaker::UpdateEnvironmentProject() {
     std::string name = ctx.name;
 
     bool projectExists = false;
-    for (auto &project : json_data["projects"]) {
+    for (auto& project : json_data["projects"]) {
       if (project["name"].get<std::string>() == name) {
         // Project exists, update its information
         project["version"] = ctx.project_version;
@@ -1033,15 +1033,15 @@ VORTEX_API void VortexMaker::UpdateEnvironmentProject() {
     std::ofstream output(json_file);
     output << json_data.dump(4);  // Pretty print with indentation
     output.close();
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     // Log error if any exception occurs
     VortexMaker::LogError("Error: ", e.what());
   }
 }
 
-VORTEX_API void VortexMaker::UpdateEnvironmentProject(const std::string &oldname) {
+VORTEX_API void VortexMaker::UpdateEnvironmentProject(const std::string& oldname) {
   // Get reference to the Vortex context
-  VxContext &ctx = *CVortexMaker;
+  VxContext& ctx = *CVortexMaker;
 
   // Set path depending on platform
   std::string path;
@@ -1060,7 +1060,7 @@ VORTEX_API void VortexMaker::UpdateEnvironmentProject(const std::string &oldname
 
     // Check if a project with the old name exists
     bool projectExists = false;
-    for (auto &project : json_data["projects"]) {
+    for (auto& project : json_data["projects"]) {
       if (project["name"].get<std::string>() == oldname) {
         // Project with the old name exists, update its information
         project["name"] = ctx.name;
@@ -1087,14 +1087,14 @@ VORTEX_API void VortexMaker::UpdateEnvironmentProject(const std::string &oldname
     std::ofstream output(json_file);
     output << json_data.dump(4);  // Pretty print with indentation of 4 spaces
     output.close();
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     // Print error if an exception occurs
     VortexMaker::LogError("Error: ", e.what());
   }
 }
 
-VORTEX_API void VortexMaker::PostLatestVortexVersion(const std::shared_ptr<VortexVersion> &version) {
-  VxContext &ctx = *CVortexMaker;
+VORTEX_API void VortexMaker::PostLatestVortexVersion(const std::shared_ptr<VortexVersion>& version) {
+  VxContext& ctx = *CVortexMaker;
 
   std::string path = VortexMaker::getHomeDirectory() + (VortexMaker::IsWindows() ? "\\.vx\\data\\" : "/.vx/data/");
   std::string json_file = path + (VortexMaker::IsWindows() ? "launcher_data.json" : "launcher_data.json");
@@ -1126,7 +1126,7 @@ VORTEX_API void VortexMaker::PostLatestVortexVersion(const std::shared_ptr<Vorte
 }
 
 VORTEX_API VortexVersion VortexMaker::CheckLatestVortexVersion() {
-  VxContext &ctx = *CVortexMaker;
+  VxContext& ctx = *CVortexMaker;
 
   std::string path = VortexMaker::getHomeDirectory() + (VortexMaker::IsWindows() ? "\\.vx\\data\\" : "/.vx/data/");
   std::string json_file = path + (VortexMaker::IsWindows() ? "launcher_data.json" : "launcher_data.json");

@@ -10,7 +10,7 @@ static bool InfoFilter = true;
 
 namespace VortexLauncher {
 
-  LauncherLogUtility::LauncherLogUtility(const std::string &name) {
+  LauncherLogUtility::LauncherLogUtility(const std::string& name) {
     m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
     m_AppWindow->SetIcon("/usr/local/include/Vortex/imgs/vortex.png");
 
@@ -25,11 +25,11 @@ namespace VortexLauncher {
     this->ctx = VortexMaker::GetCurrentContext();
   }
 
-  std::shared_ptr<Cherry::AppWindow> &LauncherLogUtility::GetAppWindow() {
+  std::shared_ptr<Cherry::AppWindow>& LauncherLogUtility::GetAppWindow() {
     return m_AppWindow;
   }
 
-  std::shared_ptr<LauncherLogUtility> LauncherLogUtility::Create(const std::string &name) {
+  std::shared_ptr<LauncherLogUtility> LauncherLogUtility::Create(const std::string& name) {
     auto instance = std::shared_ptr<LauncherLogUtility>(new LauncherLogUtility(name));
     instance->SetupRenderCallback();
     return instance;
@@ -69,7 +69,7 @@ namespace VortexLauncher {
       CherryGUI::TableSetupColumn("Log", ImGuiTableColumnFlags_WidthFixed, TEXT_BASE_WIDTH * 18.0f);
       CherryGUI::TableHeadersRow();
 
-      for (const auto &log : ctx->registered_logs) {
+      for (const auto& log : ctx->registered_logs) {
         if (log->m_level == VxLogLevel::critical && !FatalFilter)
           continue;
         if (log->m_level == VxLogLevel::err && !ErrorFilter)
@@ -116,26 +116,11 @@ namespace VortexLauncher {
     add_button->SetLogoSize(15, 15);
     add_button->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));*/
 
-    if (CherryKit::ButtonImageText("", Cherry::GetPath("resources/imgs/icons/misc/icon_collection.png"))
-            .GetData("isClicked") == "true") {
-      //
-    }
-    if (CherryKit::ButtonImageText("Add", Cherry::GetPath("resources/imgs/icons/misc/icon_add.png")).GetData("isClicked") ==
-        "true") {
-      CherryGUI::OpenPopup("CreationMenu");
-    }
-    CherryGUI::Separator();
     if (CherryGUI::BeginMenu("Filters")) {
       CherryGUI::Checkbox("Show informations", &InfoFilter);
       CherryGUI::Checkbox("Show fatal errors", &FatalFilter);
       CherryGUI::Checkbox("Show errors", &ErrorFilter);
       CherryGUI::Checkbox("Show warnings", &WarnFilter);
-      if (CherryGUI::MenuItem("Build/Rebuild single parts")) {
-        // Behavior
-      }
-      if (CherryGUI::MenuItem("Global build")) {
-        // Behavior
-      }
       CherryGUI::EndMenu();
     }
   }
