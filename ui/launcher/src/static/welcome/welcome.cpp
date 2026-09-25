@@ -224,7 +224,7 @@ namespace VortexLauncher {
 #else
           std::string image_path = "/icon.png";
 #endif
-
+          // TODO error managment
           VortexMaker::CreateProject(
               v_ProjectName,
               v_ProjectAuthor,
@@ -236,6 +236,19 @@ namespace VortexLauncher {
               selected_template_object->m_name);
           project_blocks.clear();
           VortexMaker::RefreshEnvironmentProjects();
+          m_SelectedChildName = "?loc:loc.windows.welcome.open_project";
+          m_SelectedEnvproject = nullptr;
+          for (auto element : VortexMaker::GetCurrentContext()->IO.sys_projects) {
+            if (fs::weakly_canonical(element->path) == fs::weakly_canonical(creation_path)) {
+              m_SelectedEnvproject = element;
+              break;
+            }
+          }
+
+          v_ProjectName = "";
+          v_ProjectAuthor = "";
+          v_ProjectVersion = "";
+          v_ProjectDescription = "";
         } else {
 #ifdef _WIN32
           std::string creation_path = projectPoolsPaths.back() + "\\" + v_ProjectName + "\\";
@@ -262,6 +275,19 @@ namespace VortexLauncher {
                 selected_template_object->m_name);
             project_blocks.clear();
             VortexMaker::RefreshEnvironmentProjects();
+            m_SelectedEnvproject = nullptr;
+            m_SelectedChildName = "?loc:loc.windows.welcome.open_project";
+            for (auto element : VortexMaker::GetCurrentContext()->IO.sys_projects) {
+              if (fs::weakly_canonical(element->path) == fs::weakly_canonical(creation_path)) {
+                m_SelectedEnvproject = element;
+                break;
+              }
+            }
+
+            v_ProjectName = "";
+            v_ProjectAuthor = "";
+            v_ProjectVersion = "";
+            v_ProjectDescription = "";
           } else {
             std::cout << "Unable to create a project, no project pools are founded !" << std::endl;
           }
@@ -1123,9 +1149,16 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
 
     if (CherryApp.GetTheme() == "dark_vortex") {
       CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#343434"));
-      CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#232323"));
       CherryGUI::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#343434"));
       CherryGUI::PushStyleColor(ImGuiCol_ButtonActive, Cherry::HexToRGBA("#454545"));
+
+      // if selected
+      if (m_SelectedChildName == "?loc:loc.windows.welcome.overview") {
+        CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#121212"));
+      } else {
+        CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#232323"));
+      }
+
     } else {
       CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#FFFFFF"));
       CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#DFDFDF99"));
@@ -1134,10 +1167,6 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
     }
 
     CherryStyle::AddMarginX(6.0f);
-    if (m_SelectedChildName == "?loc:loc.windows.welcome.overview") {
-      CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#F8FF7877"));
-    }
-
     if (CherryGUI::ImageSizeButtonWithText(
             Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_home.png")),
             header_width,
@@ -1150,9 +1179,25 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
             ImVec4(1, 1, 1, 1))) {
       m_SelectedChildName = "?loc:loc.windows.welcome.overview";
     }
+    CherryGUI::PopStyleColor(4);
 
-    if (m_SelectedChildName == "?loc:loc.windows.welcome.overview") {
-      CherryGUI::PopStyleColor();
+    if (CherryApp.GetTheme() == "dark_vortex") {
+      CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#343434"));
+      CherryGUI::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#343434"));
+      CherryGUI::PushStyleColor(ImGuiCol_ButtonActive, Cherry::HexToRGBA("#454545"));
+
+      // if selected
+      if (m_SelectedChildName == "?loc:loc.windows.welcome.create_project") {
+        CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#121212"));
+      } else {
+        CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#232323"));
+      }
+
+    } else {
+      CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#FFFFFF"));
+      CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#DFDFDF99"));
+      CherryGUI::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#DFDFDF55"));
+      CherryGUI::PushStyleColor(ImGuiCol_ButtonActive, Cherry::HexToRGBA("#FFFFFF"));
     }
 
     CherryStyle::AddMarginX(6.0f);
@@ -1168,6 +1213,26 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
             ImVec4(1, 1, 1, 1))) {
       m_SelectedChildName = "?loc:loc.windows.welcome.create_project";
     }
+    CherryGUI::PopStyleColor(4);
+
+    if (CherryApp.GetTheme() == "dark_vortex") {
+      CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#343434"));
+      CherryGUI::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#343434"));
+      CherryGUI::PushStyleColor(ImGuiCol_ButtonActive, Cherry::HexToRGBA("#454545"));
+
+      // if selected
+      if (m_SelectedChildName == "?loc:loc.windows.welcome.open_project") {
+        CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#121212"));
+      } else {
+        CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#232323"));
+      }
+
+    } else {
+      CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#FFFFFF"));
+      CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#DFDFDF99"));
+      CherryGUI::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#DFDFDF55"));
+      CherryGUI::PushStyleColor(ImGuiCol_ButtonActive, Cherry::HexToRGBA("#FFFFFF"));
+    }
 
     CherryStyle::AddMarginX(6.0f);
     if (CherryGUI::ImageSizeButtonWithText(
@@ -1182,6 +1247,7 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
             ImVec4(1, 1, 1, 1))) {
       m_SelectedChildName = "?loc:loc.windows.welcome.open_project";
     }
+    CherryGUI::PopStyleColor(4);
 
     CherryStyle::AddMarginY(CherryGUI::GetContentRegionMax().y - 170.0f);
     CherryStyle::AddMarginX(6.0f);
@@ -1191,7 +1257,6 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
         m_SettingsCallback();
       }
     }
-    CherryGUI::PopStyleColor(4);
     CherryGUI::PopStyleVar();
 
     // CherryStyle::SetPadding(7.0f);
