@@ -578,15 +578,13 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png")).GetData("isClicked"
 
       CherryKit::SeparatorText(Cherry::GetLocale("loc.menubar.summary.garage"));
 
-      CherryGUI::BeginDisabled();
       if (CherryGUI::MenuItem(
               Cherry::GetLocale("loc.menubar.menuitem.garage").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.garage_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_net.png")),
               false)) {
-        // c_Launcher->SetDownloadCenterVisibility(!c_Launcher->GetDownloadCenterVisibility());
+        VortexMaker::OpenURL("https://garage.infinite.si/");
       }
-      CherryGUI::EndDisabled();
 
       CherryKit::SeparatorText(Cherry::GetLocale("loc.menubar.summary.manage"));
 
