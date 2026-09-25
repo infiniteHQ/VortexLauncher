@@ -650,11 +650,19 @@ namespace VortexLauncher {
     {
       float x = CherryGUI::GetContentRegionAvail().x;
       float y = x / 4.726f;
-      CherryKit::ImageLocalCentered(Cherry::GetPath("resources/imgs/vortex_banner.png"), x, y);
+      if (CherryApp.GetTheme() == "dark_vortex") {
+        CherryKit::ImageLocalCentered(Cherry::GetPath("resources/imgs/vortex_banner.png"), x, y);
+      } else {
+        CherryKit::ImageLocalCentered(Cherry::GetPath("resources/imgs/vortex_banner_light.png"), x, y);
+      }
       CherryStyle::AddMarginX(20.0f);
       CherryStyle::RemoveMarginY(60.0f);
       Cherry::PushFont("ClashMedium");
-      CherryNextProp("color_text", "#FFFFFF");
+      if (CherryApp.GetTheme() == "dark_vortex") {
+        CherryNextProp("color_text", "#FFFFFF");
+      } else {
+        CherryNextProp("color_text", "#232323");
+      }
       CherryKit::TitleOne(Cherry::GetLocale("loc.windows.welcome.title"));
       Cherry::PopFont();
     }
@@ -1104,9 +1112,7 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
     CherryGUI::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
     CherryGUI::BeginChild(label.c_str(), ImVec2(leftPaneWidth, 0), true, NULL);
 
-    CherryGUI::SetCursorPosY(CherryGUI::GetCursorPosY() + 5.0f);
     CherryGUI::SetCursorPosX(CherryGUI::GetCursorPosX() + 5.0f);
-    CherryGUI::Image(Cherry::GetTexture(Cherry::GetPath("resources/imgs/vortexbanner.png")), ImVec2(280, 142));
 
     const float input_width = leftPaneWidth - 17.0f;
     const float header_width = leftPaneWidth - 27.0f;
@@ -1128,6 +1134,10 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
     }
 
     CherryStyle::AddMarginX(6.0f);
+    if (m_SelectedChildName == "?loc:loc.windows.welcome.overview") {
+      CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#F8FF7877"));
+    }
+
     if (CherryGUI::ImageSizeButtonWithText(
             Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_home.png")),
             header_width,
@@ -1139,6 +1149,10 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
             ImVec4(0, 0, 0, 0),
             ImVec4(1, 1, 1, 1))) {
       m_SelectedChildName = "?loc:loc.windows.welcome.overview";
+    }
+
+    if (m_SelectedChildName == "?loc:loc.windows.welcome.overview") {
+      CherryGUI::PopStyleColor();
     }
 
     CherryStyle::AddMarginX(6.0f);
@@ -1169,17 +1183,10 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
       m_SelectedChildName = "?loc:loc.windows.welcome.open_project";
     }
 
+    CherryStyle::AddMarginY(CherryGUI::GetContentRegionMax().y - 170.0f);
     CherryStyle::AddMarginX(6.0f);
-    if (CherryGUI::ImageSizeButtonWithText(
-            Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_settings.png")),
-            header_width,
-            Cherry::GetLocale("loc.windows.welcome.settings").c_str(),
-            ImVec2(-FLT_MIN, 0.0f),
-            ImVec2(0, 0),
-            ImVec2(1, 1),
-            -1,
-            ImVec4(0, 0, 0, 0),
-            ImVec4(1, 1, 1, 1))) {
+    if (CherryKit::ButtonImage(Cherry::GetPath("resources/imgs/icons/misc/icon_settings.png"))
+            .GetDataAs<bool>("isClicked")) {
       if (m_SettingsCallback) {
         m_SettingsCallback();
       }

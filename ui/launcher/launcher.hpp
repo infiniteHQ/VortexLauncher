@@ -249,9 +249,10 @@ class Launcher {
     spec.MinWidth = 500;
     spec.Height = 550;
     spec.DisableResize = true;
+    spec.DisableMenubar = true;
     spec.Width = 950;
-    spec.CustomTitlebar = true;
-    spec.DisableWindowManagerTitleBar = true;
+    spec.CustomTitlebar = false;
+    spec.DisableWindowManagerTitleBar = false;
     spec.WindowOnlyClosable = true;
     spec.RenderMode = Cherry::WindowRenderingMethod::SimpleWindow;
     spec.UniqueAppWindowName = settings_win->GetAppWindow()->m_Name;
@@ -475,6 +476,7 @@ Cherry::Application* Cherry::CreateApplication(int argc, char** argv) {
 
   app->AddTheme(CherryThemes::DarkVortex());
   app->AddTheme(CherryThemes::Light());
+  app->SetTheme("dark_vortex");  // TODO: From settings
   app->SetLocale(VortexMaker::GetLanguage());
 
   /*static std::shared_ptr<Cherry::ImageButtonSimple> btn_close =
