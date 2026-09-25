@@ -1162,10 +1162,17 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
       }
 
     } else {
-      CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#FFFFFF"));
-      CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#DFDFDF99"));
-      CherryGUI::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#DFDFDF55"));
-      CherryGUI::PushStyleColor(ImGuiCol_ButtonActive, Cherry::HexToRGBA("#FFFFFF"));
+      if (m_SelectedChildName == "?loc:loc.windows.welcome.overview") {
+        CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#FFFFFF"));
+        CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#DFDFDF99"));
+        CherryGUI::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#DFDFDF55"));
+        CherryGUI::PushStyleColor(ImGuiCol_ButtonActive, Cherry::HexToRGBA("#FFFFFF"));
+      } else {
+        CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#FFFFFF00"));
+        CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#DFDFDF00"));
+        CherryGUI::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#DFDFDF55"));
+        CherryGUI::PushStyleColor(ImGuiCol_ButtonActive, Cherry::HexToRGBA("#FFFFFF"));
+      }
     }
 
     CherryStyle::AddMarginX(6.0f);
@@ -1198,10 +1205,17 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
       }
 
     } else {
-      CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#FFFFFF"));
-      CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#DFDFDF99"));
-      CherryGUI::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#DFDFDF55"));
-      CherryGUI::PushStyleColor(ImGuiCol_ButtonActive, Cherry::HexToRGBA("#FFFFFF"));
+      if (m_SelectedChildName == "?loc:loc.windows.welcome.create_project") {
+        CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#FFFFFF"));
+        CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#DFDFDF99"));
+        CherryGUI::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#DFDFDF55"));
+        CherryGUI::PushStyleColor(ImGuiCol_ButtonActive, Cherry::HexToRGBA("#FFFFFF"));
+      } else {
+        CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#FFFFFF00"));
+        CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#DFDFDF00"));
+        CherryGUI::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#DFDFDF55"));
+        CherryGUI::PushStyleColor(ImGuiCol_ButtonActive, Cherry::HexToRGBA("#FFFFFF"));
+      }
     }
 
     CherryStyle::AddMarginX(6.0f);
@@ -1234,10 +1248,17 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
       }
 
     } else {
-      CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#FFFFFF"));
-      CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#DFDFDF99"));
-      CherryGUI::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#DFDFDF55"));
-      CherryGUI::PushStyleColor(ImGuiCol_ButtonActive, Cherry::HexToRGBA("#FFFFFF"));
+      if (m_SelectedChildName == "?loc:loc.windows.welcome.open_project") {
+        CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#FFFFFF"));
+        CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#DFDFDF99"));
+        CherryGUI::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#DFDFDF55"));
+        CherryGUI::PushStyleColor(ImGuiCol_ButtonActive, Cherry::HexToRGBA("#FFFFFF"));
+      } else {
+        CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#FFFFFF00"));
+        CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#DFDFDF00"));
+        CherryGUI::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#DFDFDF55"));
+        CherryGUI::PushStyleColor(ImGuiCol_ButtonActive, Cherry::HexToRGBA("#FFFFFF"));
+      }
     }
 
     CherryStyle::AddMarginX(6.0f);
