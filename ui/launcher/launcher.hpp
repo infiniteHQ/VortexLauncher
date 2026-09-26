@@ -386,6 +386,7 @@ Cherry::Application* Cherry::CreateApplication(int argc, char** argv) {
   spec.IconPath = Cherry::GetPath("resources/imgs/icon.png");
   spec.FavIconPath = Cherry::GetPath("resources/imgs/icon.png");
   spec.CustomTitlebar = true;
+  spec.CustomTitlebarIsLittle = true;
   spec.DisableWindowManagerTitleBar = true;
   spec.WindowOnlyClosable = true;
   spec.RenderMode = WindowRenderingMethod::SimpleWindow;
