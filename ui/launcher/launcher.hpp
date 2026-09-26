@@ -392,7 +392,7 @@ Cherry::Application* Cherry::CreateApplication(int argc, char** argv) {
   spec.RenderMode = WindowRenderingMethod::SimpleWindow;
   spec.DefaultWindowName = "?loc:loc.window_names.welcome";
   spec.UniqueAppWindowName = "?loc:loc.window_names.welcome";
-  spec.DisableTitle = false;
+  spec.DisableTitle = true;
   spec.WindowSaves = false;
   spec.IconPath = Cherry::GetPath("resources/imgs/icon.png");
   spec.UseAudio();
@@ -431,8 +431,7 @@ Cherry::Application* Cherry::CreateApplication(int argc, char** argv) {
       CherryNextComponent.SetProperty("color_bg", "#663649AA");
       CherryNextComponent.SetProperty("color_border", "#663649FF");
       CherryNextComponent.SetProperty("color_text", "#CBCBCB");
-      if (CherryKit::ButtonImageText("WHITE", Cherry::GetPath("resources/imgs/icons/launcher/heart.png"))
-              .GetDataAs<bool>("isClicked")) {
+      if (CherryKit::ButtonImage(Cherry::GetPath("resources/imgs/icons/launcher/heart.png")).GetDataAs<bool>("isClicked")) {
         theme_is_black = false;
         CherryApp.SetTheme("light");
       }
@@ -444,8 +443,7 @@ Cherry::Application* Cherry::CreateApplication(int argc, char** argv) {
       CherryNextComponent.SetProperty("color_bg", "#663649AA");
       CherryNextComponent.SetProperty("color_border", "#663649FF");
       CherryNextComponent.SetProperty("color_text", "#CBCBCB");
-      if (CherryKit::ButtonImageText("WHITE", Cherry::GetPath("resources/imgs/icons/launcher/heart.png"))
-              .GetDataAs<bool>("isClicked")) {
+      if (CherryKit::ButtonImage(Cherry::GetPath("resources/imgs/icons/launcher/heart.png")).GetDataAs<bool>("isClicked")) {
         theme_is_black = true;
         CherryApp.SetTheme("dark_vortex");
       }
@@ -560,6 +558,8 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png")).GetData("isClicked"
       ctx.vortex_update_available = false;
     }*/
 
+    CherryKit::ImageLocal(Cherry::GetPath("resources/imgs/icon_di.png"), 26.0f, 26.0f);
+    CherryStyle::RemoveMarginX(5.0f);
     if (CherryGUI::BeginMenu(Cherry::GetLocale("loc.menubar.menu.vortex").c_str())) {
       CherryKit::SeparatorText(Cherry::GetLocale("loc.menubar.summary.general"));
 
