@@ -103,13 +103,63 @@ elseif(WIN32)
     set(INSTALL_INCLUDE_DIR ${INSTALL_BASE_DIR}/include)
 endif()
 
-# Set the installation directories
-set_target_properties(vortex_launcher PROPERTIES
-    INSTALL_RPATH "$ORIGIN"
-    BUILD_WITH_INSTALL_RPATH TRUE
-    INSTALL_RPATH_USE_LINK_PATH TRUE
-)
+if(APPLE)
+    find_package(Vulkan REQUIRED)
 
+    set(_vk_hints $ENV{VULKAN_SDK}/lib $ENV{VULKAN_SDK}/macOS/lib
+                  /opt/homebrew/lib /usr/local/lib)
+    find_library(MOLTENVK_LIB NAMES libMoltenVK.dylib HINTS ${_vk_hints} NO_DEFAULT_PATH)
+    if(NOT MOLTENVK_LIB)
+        message(FATAL_ERROR "Unable to find libMoltenVK.dylib")
+    endif()
+
+    # symlinks
+    get_filename_component(MOLTENVK_REAL "${MOLTENVK_LIB}" REALPATH)
+    get_filename_component(VKLOADER_REAL "${Vulkan_LIBRARY}" REALPATH)
+
+    # declare MoltenVK as primary driver
+    file(WRITE ${CMAKE_BINARY_DIR}/MoltenVK_icd.json
+"{
+  \"file_format_version\": \"1.0.0\",
+  \"ICD\": {
+    \"library_path\": \"../../libMoltenVK.dylib\",
+    \"api_version\": \"1.2.0\",
+    \"is_portability_driver\": false
+  }
+}
+")
+
+    install(FILES ${MOLTENVK_REAL} DESTINATION ${INSTALL_BIN_DIR} RENAME libMoltenVK.dylib)
+    install(FILES ${VKLOADER_REAL} DESTINATION ${INSTALL_BIN_DIR} RENAME libvulkan.1.dylib)
+    install(FILES ${CMAKE_BINARY_DIR}/MoltenVK_icd.json
+            DESTINATION ${INSTALL_BIN_DIR}/vulkan/icd.d)
+
+    set_target_properties(vortex_launcher PROPERTIES INSTALL_RPATH "@loader_path")
+
+    set(APPLE_CODESIGN_IDENTITY "-" CACHE STRING "Identity")
+    install(CODE "
+        set(_bin \"${INSTALL_BIN_DIR}\")
+        execute_process(COMMAND install_name_tool -id @rpath/libMoltenVK.dylib \${_bin}/libMoltenVK.dylib)
+        execute_process(COMMAND install_name_tool -id @rpath/libvulkan.1.dylib \${_bin}/libvulkan.1.dylib)
+        foreach(_f libMoltenVK.dylib libvulkan.1.dylib vortex_launcher)
+            execute_process(COMMAND codesign --force --options runtime
+                            --sign \"${APPLE_CODESIGN_IDENTITY}\" \${_bin}/\${_f})
+        endforeach()
+    ")
+endif()
+
+# Set the installation directories
+if(APPLE)
+    set_target_properties(vortex_launcher PROPERTIES
+        INSTALL_RPATH "@loader_path"
+        BUILD_WITH_INSTALL_RPATH TRUE
+        INSTALL_RPATH_USE_LINK_PATH FALSE)
+else()
+    set_target_properties(vortex_launcher PROPERTIES
+        INSTALL_RPATH "$ORIGIN"
+        BUILD_WITH_INSTALL_RPATH TRUE
+        INSTALL_RPATH_USE_LINK_PATH TRUE)
+endif()
 set_target_properties(vortex_launcher PROPERTIES
     CMAKE_INSTALL_RPATH "\$ORIGIN"
 )
