@@ -424,26 +424,20 @@ Cherry::Application* Cherry::CreateApplication(int argc, char** argv) {
 
     static bool theme_is_black = true;
     if (theme_is_black) {
-      CherryNextComponent.SetProperty("size_image_x", "13");
-      CherryNextComponent.SetProperty("size_image_y", "13");
-      CherryNextComponent.SetProperty("padding_x", "3");
-      CherryNextComponent.SetProperty("padding_y", "3");
-      CherryNextComponent.SetProperty("color_bg", "#663649AA");
-      CherryNextComponent.SetProperty("color_border", "#663649FF");
-      CherryNextComponent.SetProperty("color_text", "#CBCBCB");
-      if (CherryKit::ButtonImage(Cherry::GetPath("resources/imgs/icons/launcher/heart.png")).GetDataAs<bool>("isClicked")) {
+      CherryNextComponent.SetProperty("size_x", "20");
+      CherryNextComponent.SetProperty("size_y", "20");
+      CherryNextComponent.SetProperty("padding_x", "1");
+      CherryNextComponent.SetProperty("padding_y", "1");
+      if (CherryKit::ButtonImage(Cherry::GetPath("resources/imgs/icons/launcher/light.png")).GetDataAs<bool>("isClicked")) {
         theme_is_black = false;
         CherryApp.SetTheme("light");
       }
     } else {
-      CherryNextComponent.SetProperty("size_image_x", "13");
-      CherryNextComponent.SetProperty("size_image_y", "13");
-      CherryNextComponent.SetProperty("padding_x", "3");
-      CherryNextComponent.SetProperty("padding_y", "3");
-      CherryNextComponent.SetProperty("color_bg", "#663649AA");
-      CherryNextComponent.SetProperty("color_border", "#663649FF");
-      CherryNextComponent.SetProperty("color_text", "#CBCBCB");
-      if (CherryKit::ButtonImage(Cherry::GetPath("resources/imgs/icons/launcher/heart.png")).GetDataAs<bool>("isClicked")) {
+      CherryNextComponent.SetProperty("size_x", "20");
+      CherryNextComponent.SetProperty("size_y", "20");
+      CherryNextComponent.SetProperty("padding_x", "1");
+      CherryNextComponent.SetProperty("padding_y", "1");
+      if (CherryKit::ButtonImage(Cherry::GetPath("resources/imgs/icons/launcher/dark.png")).GetDataAs<bool>("isClicked")) {
         theme_is_black = true;
         CherryApp.SetTheme("dark_vortex");
       }
