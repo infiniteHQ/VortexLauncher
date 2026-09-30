@@ -861,6 +861,8 @@ void VortexMaker::RefreshEnvironmentProjects() {
       VortexMaker::LogError("Error accessing pool path: ", e.what());
     }
   }
+
+  sessions::SyncAndSort(ctx.IO.sys_projects, [](const auto& p) { return p->path; });
 }
 
 VORTEX_API void VortexMaker::OpenFolderInFileManager(const std::string& path) {

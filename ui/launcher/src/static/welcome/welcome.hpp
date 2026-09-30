@@ -17,9 +17,9 @@ namespace VortexLauncher {
     std::string WebLink;
     std::string LogoPath;
     WelcomeWindowChild(
-        const std::function<void()> &rendercallback = []() { },
-        const std::string &logopath = "undefined",
-        const std::string &weblink = "undefined")
+        const std::function<void()>& rendercallback = []() { },
+        const std::string& logopath = "undefined",
+        const std::string& weblink = "undefined")
         : RenderCallback(rendercallback),
           LogoPath(logopath),
           WebLink(weblink) { };
@@ -27,20 +27,23 @@ namespace VortexLauncher {
 
   class WelcomeWindow : public std::enable_shared_from_this<WelcomeWindow> {
    public:
-    WelcomeWindow(const std::string &name);
+    WelcomeWindow(const std::string& name);
 
-    void AddChild(const std::string &child_name, const WelcomeWindowChild &child);
-    void RemoveChild(const std::string &child_name);
-    WelcomeWindowChild *GetChild(const std::string &child_name);
+    void AddChild(const std::string& child_name, const WelcomeWindowChild& child);
+    void RemoveChild(const std::string& child_name);
+    WelcomeWindowChild* GetChild(const std::string& child_name);
 
-    std::shared_ptr<Cherry::AppWindow> &GetAppWindow();
-    static std::shared_ptr<WelcomeWindow> Create(const std::string &name);
+    std::shared_ptr<Cherry::AppWindow>& GetAppWindow();
+    static std::shared_ptr<WelcomeWindow> Create(const std::string& name);
     void SetupRenderCallback();
     void Render();
 
     void WelcomeRender();
     void OpenProjectRender();
     void CreateProjectRender();
+
+    void LaunchSelectedProject();
+    void RequestOpen(std::shared_ptr<EnvProject> project);
 
     void RefreshTemplates() {
       project_templates.clear();
@@ -56,10 +59,10 @@ namespace VortexLauncher {
     std::function<void()> m_CreateProjectCallback;
     std::function<void()> m_OpenProjectCallback;
     std::function<void()> m_SettingsCallback;
-    std::function<void(const std::shared_ptr<EnvProject> &)> m_ProjectCallback;
+    std::function<void(const std::shared_ptr<EnvProject>&)> m_ProjectCallback;
 
     std::vector<std::shared_ptr<EnvProject>> GetMostRecentProjects(
-        const std::vector<std::shared_ptr<EnvProject>> &projects,
+        const std::vector<std::shared_ptr<EnvProject>>& projects,
         size_t maxCount);
     std::vector<std::shared_ptr<EnvProject>> m_RecentProjects;
     std::string m_SelectedChildName;

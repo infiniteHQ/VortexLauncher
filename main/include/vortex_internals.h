@@ -26,6 +26,7 @@
 
 #include "./contents/install.h"
 #include "./contents/interface.h"
+#include "./environment/project_sessions.hpp"
 #include "./modules/interface.h"
 #include "./plugins/interface.h"
 #include "./templates/install.h"

@@ -600,19 +600,7 @@ namespace VortexLauncher {
 
           no_installed_modal_opened = true;
         } else {
-          if (VortexMaker::CheckIfProjectRunning(m_SelectedEnvproject->path)) {
-            already_running_modal_opened = true;
-          } else {
-            auto sys_versions = VortexMaker::GetAllSystemVersions(m_SelectedEnvproject->compatibleWith);
-            if (sys_versions.size() == 1) {
-              std::thread([this, sys_versions]() {
-                VortexMaker::OpenProject(m_SelectedEnvproject->path, sys_versions.front()->name);
-              }).detach();
-            } else {
-              all_versions_for_project = sys_versions;
-              multiple_versions_modal_opened = true;
-            }
-          }
+          RequestOpen(m_SelectedEnvproject);
         }
       }
       CherryGUI::EndChild();
@@ -1120,6 +1108,27 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
     return nullptr;
   }
 
+  void WelcomeWindow::LaunchSelectedProject() {
+    auto sys_versions = VortexMaker::GetAllSystemVersions(m_SelectedEnvproject->compatibleWith);
+    if (sys_versions.size() == 1) {
+      std::thread([path = m_SelectedEnvproject->path, version = sys_versions.front()->name]() {
+        VortexMaker::OpenProject(path, version);
+      }).detach();
+    } else {
+      all_versions_for_project = sys_versions;
+      multiple_versions_modal_opened = true;
+    }
+  }
+
+  void WelcomeWindow::RequestOpen(std::shared_ptr<EnvProject> project) {
+    m_SelectedEnvproject = std::move(project);
+    if (sessions::IsProjectOpen(m_SelectedEnvproject->path)) {
+      already_running_modal_opened = true;
+      return;
+    }
+    LaunchSelectedProject();
+  }
+
   void WelcomeWindow::Render() {
     const float minPaneWidth = 50.0f;
     const float splitterWidth = 1.5f;
@@ -1492,16 +1501,7 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
         Cherry::SetNextComponentProperty("color_bg_hovered", "#C3FF53FF");
         Cherry::SetNextComponentProperty("color_text", "#121212FF");
         if (CherryKit::ButtonText(CherryApp.GetLocale("loc.open")).GetData("isClicked") == "true") {
-          auto sys_versions = VortexMaker::GetAllSystemVersions(m_SelectedEnvproject->compatibleWith);
-          if (sys_versions.size() == 1) {
-            std::thread([this, sys_versions]() {
-              VortexMaker::OpenProject(m_SelectedEnvproject->path, sys_versions.front()->name);
-            }).detach();
-          } else {
-            all_versions_for_project = sys_versions;
-            multiple_versions_modal_opened = true;
-          }
-
+          LaunchSelectedProject();
           CherryGUI::CloseCurrentPopup();
           already_running_modal_opened = false;
         }
