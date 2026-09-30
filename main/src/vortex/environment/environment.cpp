@@ -68,71 +68,58 @@ VORTEX_API void VortexMaker::InitEnvironment() {
   {
     std::string endpath;
 #ifdef _WIN32
+    endpath = "modules\\";
+#else
+    endpath = "modules/";
+#endif
+
+    std::string path = vxBasePath + endpath;
+
+    VortexMaker::createFolderIfNotExists(path);
+  }
+
+  {
+    std::string endpath;
+#ifdef _WIN32
+    endpath = "templates\\";
+#else
+    endpath = "templates/";
+#endif
+
+    std::string path = vxBasePath + endpath;
+    VortexMaker::createFolderIfNotExists(path);
+  }
+
+  {
+    std::string endpath;
+#ifdef _WIN32
+    endpath = "plugins\\";
+#else
+    endpath = "plugins/";
+#endif
+
+    std::string path = vxBasePath + endpath;
+    VortexMaker::createFolderIfNotExists(path);
+  }
+
+  {
+    std::string endpath;
+#ifdef _WIN32
     endpath = "contents\\";
 #else
     endpath = "contents/";
 #endif
 
     std::string path = vxBasePath + endpath;
-
     VortexMaker::createFolderIfNotExists(path);
   }
 
   {
     std::string endpath;
 #ifdef _WIN32
-    endpath = "contents\\modules\\";
+    endpath = "assets\\";
 #else
-    endpath = "contents/modules/";
-#endif
-
-    std::string path = vxBasePath + endpath;
-
-    VortexMaker::createFolderIfNotExists(path);
-  }
-
-  {
-    std::string endpath;
-#ifdef _WIN32
-    endpath = "contents\\templates\\";
-#else
-    endpath = "contents/templates/";
-#endif
-
-    std::string path = vxBasePath + endpath;
-    VortexMaker::createFolderIfNotExists(path);
-  }
-
-  {
-    std::string endpath;
-#ifdef _WIN32
-    endpath = "contents\\plugins\\";
-#else
-    endpath = "contents/plugins/";
-#endif
-
-    std::string path = vxBasePath + endpath;
-    VortexMaker::createFolderIfNotExists(path);
-  }
-
-  {
-    std::string endpath;
-#ifdef _WIN32
-    endpath = "contents\\contents\\";
-#else
-    endpath = "contents/contents/";
-#endif
-
-    std::string path = vxBasePath + endpath;
-    VortexMaker::createFolderIfNotExists(path);
-  }
-
-  {
-    std::string endpath;
-#ifdef _WIN32
-    endpath = "contents\\assets\\";
-#else
-    endpath = "contents/assets/";
+    endpath = "assets/";
 #endif
 
     std::string path = vxBasePath + endpath;
@@ -188,9 +175,9 @@ VORTEX_API void VortexMaker::InitEnvironment() {
 
     std::string content_path;
 #ifdef _WIN32
-    content_path = "contents\\modules/";
+    content_path = "modules/";
 #else
-    content_path = "contents/modules/";
+    content_path = "modules/";
 #endif
 
     nlohmann::json default_data = { { "modules_pools", nlohmann::json::array({ vxBasePath + content_path }) } };
@@ -204,9 +191,9 @@ VORTEX_API void VortexMaker::InitEnvironment() {
 
     std::string content_path;
 #ifdef _WIN32
-    content_path = "contents\\plugins/";
+    content_path = "plugins/";
 #else
-    content_path = "contents/plugins/";
+    content_path = "plugins/";
 #endif
 
     nlohmann::json default_data = { { "plugins_pools", nlohmann::json::array({ vxBasePath + content_path }) } };
@@ -220,9 +207,9 @@ VORTEX_API void VortexMaker::InitEnvironment() {
 
     std::string content_path;
 #ifdef _WIN32
-    content_path = "contents\\templates/";
+    content_path = "templates/";
 #else
-    content_path = "contents/templates/";
+    content_path = "templates/";
 #endif
 
     nlohmann::json default_data = { { "templates_pools", nlohmann::json::array({ vxBasePath + content_path }) } };
@@ -236,9 +223,9 @@ VORTEX_API void VortexMaker::InitEnvironment() {
 
     std::string content_path;
 #ifdef _WIN32
-    content_path = "contents\\contents/";
+    content_path = "contents/";
 #else
-    content_path = "contents/contents/";
+    content_path = "contents/";
 #endif
 
     nlohmann::json default_data = { { "contents_pools", nlohmann::json::array({ vxBasePath + content_path }) } };
@@ -272,7 +259,7 @@ VORTEX_API void VortexMaker::InitEnvironment() {
   }
 
   {
-    std::string path = vxBasePath + "contents/templates";
+    std::string path = vxBasePath + "/templates";
     std::string blank_template_path = path + "/blank_project";
 
 #if defined(_WIN32) || defined(_WIN64)
