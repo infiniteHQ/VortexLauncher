@@ -54,6 +54,7 @@ namespace VortexLauncher {
       }
     }
 
+    int selected_version_index = 0;
     std::unordered_map<std::string, WelcomeWindowChild> m_Childs;
 
     std::function<void()> m_CreateProjectCallback;

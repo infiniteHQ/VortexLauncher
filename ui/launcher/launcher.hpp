@@ -486,11 +486,17 @@ Cherry::Application* Cherry::CreateApplication(int argc, char** argv) {
   app->SetMenubarCallback([=]() {
     ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
     ImVec4 graySeparatorColor = ImVec4(0.4f, 0.4f, 0.4f, 0.5f);
-    ImVec4 darkBackgroundColor = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
-    ImVec4 lightBorderColor = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
-
-    CherryGUI::PushStyleColor(ImGuiCol_PopupBg, darkBackgroundColor);
-    CherryGUI::PushStyleColor(ImGuiCol_Border, lightBorderColor);
+    if (CherryApp.GetTheme() == "dark_vortex") {
+      ImVec4 darkBackgroundColor = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
+      ImVec4 lightBorderColor = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
+      CherryGUI::PushStyleColor(ImGuiCol_PopupBg, darkBackgroundColor);
+      CherryGUI::PushStyleColor(ImGuiCol_Border, lightBorderColor);
+    } else {
+      ImVec4 darkBackgroundColor = ImVec4(0.95f, 0.95f, 0.95f, 1.0f);
+      ImVec4 lightBorderColor = ImVec4(0.8f, 0.8f, 0.8f, 1.0f);
+      CherryGUI::PushStyleColor(ImGuiCol_PopupBg, darkBackgroundColor);
+      CherryGUI::PushStyleColor(ImGuiCol_Border, lightBorderColor);
+    }
 
     CherryGUI::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(12.0f, 8.0f));
     CherryGUI::PushStyleVar(ImGuiStyleVar_PopupRounding, 3.0f);

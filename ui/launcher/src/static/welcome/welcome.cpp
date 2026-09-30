@@ -432,11 +432,19 @@ namespace VortexLauncher {
                   },
                   [element]() {
                     CherryStyle::AddMarginX(5.0f);
-                    Cherry::SetNextComponentProperty("color_text", "#FFFFFF");
+                    if (CherryApp.GetTheme() == "dark_vortex") {
+                      CherryNextProp("color_text", "#FFFFFF");
+                    } else {
+                      CherryNextProp("color_text", "#232323");
+                    }
                     CherryKit::TextSimple(element->name);
                   },
                   [element]() {
-                    Cherry::SetNextComponentProperty("color", "#353535");
+                    if (CherryApp.GetTheme() == "dark_vortex") {
+                      Cherry::SetNextComponentProperty("color", "#353535");
+                    } else {
+                      Cherry::SetNextComponentProperty("color", "#898989");
+                    }
                     CherryKit::Separator();
                     CherryStyle::AddMarginX(5.0f);
 
@@ -490,7 +498,11 @@ namespace VortexLauncher {
 
     CherryGUI::EndChild();
 
-    CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
+    if (CherryApp.GetTheme() == "dark_vortex") {
+      CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
+    } else {
+      CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#ACACAC"));
+    }
     CherryGUI::BeginChild("###rightpan", ImVec2(0, bottom_pan), false, ImGuiWindowFlags_NoScrollbar);
     if (!m_SelectedEnvproject) {
       ImVec2 child_size = CherryGUI::GetContentRegionAvail();
@@ -802,7 +814,11 @@ namespace VortexLauncher {
                   []() { CherryKit::ImageLocalCentered(Cherry::GetPath("resources/imgs/add.png"), 30, 30); },
                   []() { CherryKit::Space(15.0f); },
                   []() {
-                    CherryNextProp("color_text", "#FFFFFF");
+                    if (CherryApp.GetTheme() == "dark_vortex") {
+                      CherryNextProp("color_text", "#FFFFFF");
+                    } else {
+                      CherryNextProp("color_text", "#232323");
+                    }
                     CherryKit::TextCenter(Cherry::GetLocale("loc.windows.welcome.create_a_project"));
                   },
               },
@@ -819,7 +835,11 @@ namespace VortexLauncher {
                   []() { CherryKit::ImageLocalCentered(Cherry::GetPath("resources/imgs/open.png"), 30, 30); },
                   []() { CherryKit::Space(15.0f); },
                   []() {
-                    CherryNextProp("color_text", "#FFFFFF");
+                    if (CherryApp.GetTheme() == "dark_vortex") {
+                      CherryNextProp("color_text", "#FFFFFF");
+                    } else {
+                      CherryNextProp("color_text", "#232323");
+                    }
                     CherryKit::TextCenter(Cherry::GetLocale("loc.windows.welcome.open_a_project"));
                   },
               },
@@ -836,7 +856,11 @@ namespace VortexLauncher {
                   []() { CherryKit::ImageLocalCentered(Cherry::GetPath("resources/imgs/settings.png"), 30, 30); },
                   []() { CherryKit::Space(15.0f); },
                   []() {
-                    CherryNextProp("color_text", "#FFFFFF");
+                    if (CherryApp.GetTheme() == "dark_vortex") {
+                      CherryNextProp("color_text", "#FFFFFF");
+                    } else {
+                      CherryNextProp("color_text", "#232323");
+                    }
                     CherryKit::TextCenter(Cherry::GetLocale("loc.windows.welcome.settings_confs"));
                   },
               },
@@ -853,7 +877,11 @@ namespace VortexLauncher {
                   []() { CherryKit::ImageLocalCentered(Cherry::GetPath("resources/imgs/icons/launcher/docs.png"), 30, 30); },
                   []() { CherryKit::Space(15.0f); },
                   []() {
-                    CherryNextProp("color_text", "#FFFFFF");
+                    if (CherryApp.GetTheme() == "dark_vortex") {
+                      CherryNextProp("color_text", "#FFFFFF");
+                    } else {
+                      CherryNextProp("color_text", "#232323");
+                    }
                     CherryKit::TextCenter(Cherry::GetLocale("loc.windows.welcome.learn_docs"));
                   },
               },
@@ -872,7 +900,11 @@ namespace VortexLauncher {
                   },
                   []() { CherryKit::Space(15.0f); },
                   []() {
-                    CherryNextProp("color_text", "#FFFFFF");
+                    if (CherryApp.GetTheme() == "dark_vortex") {
+                      CherryNextProp("color_text", "#FFFFFF");
+                    } else {
+                      CherryNextProp("color_text", "#232323");
+                    }
                     CherryKit::TextCenter(Cherry::GetLocale("loc.windows.welcome.forums"));
                   },
               },
@@ -889,7 +921,11 @@ namespace VortexLauncher {
                   []() { CherryKit::ImageLocalCentered(Cherry::GetPath("resources/imgs/icons/launcher/web.png"), 30, 30); },
                   []() { CherryKit::Space(15.0f); },
                   []() {
-                    CherryNextProp("color_text", "#FFFFFF");
+                    if (CherryApp.GetTheme() == "dark_vortex") {
+                      CherryNextProp("color_text", "#FFFFFF");
+                    } else {
+                      CherryNextProp("color_text", "#232323");
+                    }
                     CherryKit::TextCenter(Cherry::GetLocale("loc.windows.welcome.whats_news"));
                   },
               },
@@ -1116,6 +1152,14 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
       }).detach();
     } else {
       all_versions_for_project = sys_versions;
+      selected_version_index = 0;
+      const std::string favorite = sessions::GetFavoriteVersion(m_SelectedEnvproject->path);
+      for (size_t i = 0; i < sys_versions.size(); ++i) {
+        if (sys_versions[i]->name == favorite) {
+          selected_version_index = static_cast<int>(i);
+          break;
+        }
+      }
       multiple_versions_modal_opened = true;
     }
   }
@@ -1400,8 +1444,6 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
 
     CherryGUI::EndGroup();
 
-    static int selected_version_index = 0;
-
     static bool user_string_validation = false;
     static std::string string_validation = "";
     if (open_deletion_modal) {
@@ -1559,8 +1601,9 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
         if (CherryKit::ButtonText(CherryApp.GetLocale("loc.open")).GetData("isClicked") == "true") {
           if (!all_versions_for_project.empty()) {
             auto selected_version = all_versions_for_project[selected_version_index];
-            std::thread([this, selected_version]() {
-              VortexMaker::OpenProject(m_SelectedEnvproject->path, selected_version->name);
+            sessions::SetFavoriteVersion(m_SelectedEnvproject->path, selected_version->name);
+            std::thread([path = m_SelectedEnvproject->path, version = selected_version->name]() {
+              VortexMaker::OpenProject(path, version);
             }).detach();
           }
 

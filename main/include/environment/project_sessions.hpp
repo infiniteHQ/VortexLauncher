@@ -103,6 +103,24 @@ namespace sessions {
     return e && IsOpen(*e);
   }
 
+  inline std::string GetFavoriteVersion(const std::string& path) {
+    json list = Load();
+    json* e = Find(list, Key(path));
+    return e ? e->value("favorite_editor_version", "") : "";
+  }
+
+  inline void SetFavoriteVersion(const std::string& path, const std::string& version) {
+    json list = Load();
+    std::string key = Key(path);
+    json* e = Find(list, key);
+    if (!e) {
+      list.push_back({ { "project", key }, { "last_opened", "" }, { "last_ping", "" } });
+      e = &list.back();
+    }
+    (*e)["favorite_editor_version"] = version;
+    Save(list);
+  }
+
   template<class Projects, class PathOf>
   void SyncAndSort(Projects& projects, PathOf path_of) {
     json list = Load();
