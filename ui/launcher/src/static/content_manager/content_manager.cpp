@@ -21,18 +21,18 @@ namespace VortexLauncher {
   static bool import_content_modal_opened = false;
   static std::shared_ptr<ContentInterface> content_to_delete = nullptr;
   bool ContentManager::ItemContentCard(
-      const std::string &name,
-      const std::string &path,
-      const std::string &description,
-      const std::string &size,
+      const std::string& name,
+      const std::string& path,
+      const std::string& description,
+      const std::string& size,
       bool selected,
-      const std::string &logo,
+      const std::string& logo,
       ImU32 bgColor,
       ImU32 borderColor,
       ImU32 lineColor,
       float maxTextWidth,
       float borderRadius,
-      const std::shared_ptr<ContentInterface> &content) {
+      const std::shared_ptr<ContentInterface>& content) {
     bool pressed = false;
 
     float logoSize = 60.0f;
@@ -45,7 +45,7 @@ namespace VortexLauncher {
     float thumbnailIconOffsetY = 30.0f;
 
     float oldfontsize = CherryGUI::GetFont()->Scale;
-    ImFont *oldFont = CherryGUI::GetFont();
+    ImFont* oldFont = CherryGUI::GetFont();
 
     if (selected) {
       bgColor = IM_COL32(80, 80, 240, 255);
@@ -54,7 +54,7 @@ namespace VortexLauncher {
 
     ImVec2 squareSize(logoSize, logoSize);
 
-    const char *originalText = name.c_str();
+    const char* originalText = name.c_str();
     std::string truncatedText = name;
 
     if (CherryGUI::CalcTextSize(originalText).x > maxTextWidth) {
@@ -92,7 +92,7 @@ namespace VortexLauncher {
     CherryGUI::PopStyleVar();
     CherryGUI::PopStyleColor(2);
 
-    ImDrawList *drawList = CherryGUI::GetWindowDrawList();
+    ImDrawList* drawList = CherryGUI::GetWindowDrawList();
 
     drawList->AddRectFilled(cursorPos, ImVec2(cursorPos.x + fixedSize.x, cursorPos.y + fixedSize.y), bgColor, borderRadius);
     drawList->AddRectFilled(
@@ -202,7 +202,7 @@ namespace VortexLauncher {
     CherryKit::Separator();
   }
 
-  ContentManager::ContentManager(const std::string &name) {
+  ContentManager::ContentManager(const std::string& name) {
     m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
     m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/icons/misc/icon_stack.png"));
 
@@ -637,13 +637,13 @@ namespace VortexLauncher {
   }
 
   std::vector<std::shared_ptr<EnvProject>> ContentManager::GetMostRecentProjects(
-      const std::vector<std::shared_ptr<EnvProject>> &projects,
+      const std::vector<std::shared_ptr<EnvProject>>& projects,
       size_t maxCount) {
     auto sortedProjects = projects;
     std::sort(
         sortedProjects.begin(),
         sortedProjects.end(),
-        [](const std::shared_ptr<EnvProject> &a, const std::shared_ptr<EnvProject> &b) {
+        [](const std::shared_ptr<EnvProject>& a, const std::shared_ptr<EnvProject>& b) {
           return a->lastOpened > b->lastOpened;
         });
 
@@ -653,22 +653,22 @@ namespace VortexLauncher {
     return sortedProjects;
   }
 
-  void ContentManager::AddChild(const std::string &child_name, const ContentManagerChild &child) {
+  void ContentManager::AddChild(const std::string& child_name, const ContentManagerChild& child) {
     m_Childs[child_name] = child;
   }
 
-  void ContentManager::RemoveChild(const std::string &child_name) {
+  void ContentManager::RemoveChild(const std::string& child_name) {
     auto it = m_Childs.find(child_name);
     if (it != m_Childs.end()) {
       m_Childs.erase(it);
     }
   }
 
-  std::shared_ptr<Cherry::AppWindow> &ContentManager::GetAppWindow() {
+  std::shared_ptr<Cherry::AppWindow>& ContentManager::GetAppWindow() {
     return m_AppWindow;
   }
 
-  std::shared_ptr<ContentManager> ContentManager::Create(const std::string &name) {
+  std::shared_ptr<ContentManager> ContentManager::Create(const std::string& name) {
     auto instance = std::shared_ptr<ContentManager>(new ContentManager(name));
     instance->SetupRenderCallback();
     return instance;
@@ -683,7 +683,7 @@ namespace VortexLauncher {
     });
   }
 
-  ContentManagerChild *ContentManager::GetChild(const std::string &child_name) {
+  ContentManagerChild* ContentManager::GetChild(const std::string& child_name) {
     auto it = m_Childs.find(child_name);
     if (it != m_Childs.end()) {
       return &it->second;
@@ -710,12 +710,10 @@ namespace VortexLauncher {
     CherryGUI::BeginChild(label.c_str(), ImVec2(leftPaneWidth, 0), true);
 
     CherryGUI::SetCursorPosY(CherryGUI::GetCursorPosY() + 5.0f);
-    CherryGUI::SetCursorPosX(CherryGUI::GetCursorPosX() + 5.0f);
-    CherryGUI::Image(Cherry::GetTexture(Cherry::GetPath("resources/imgs/contents.png")), ImVec2(280, 142));
 
     // CherryStyle::SetPadding(7.0f);
 
-    for (const auto &child : m_Childs) {
+    for (const auto& child : m_Childs) {
       if (child.first == m_SelectedChildName) {
         // opt.hex_text_idle = "#FFFFFFFF";
       } else {

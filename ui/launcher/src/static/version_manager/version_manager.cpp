@@ -60,8 +60,6 @@ namespace VortexLauncher {
     m_AppWindow->SetClosable(true);
     m_AppWindow->m_CloseCallback = [=]() { m_AppWindow->SetVisibility(false); };
 
-    m_AppWindow->SetLeftMenubarCallback([this]() { RenderMenubar(); });
-
     m_AppWindow->m_TabMenuCallback = []() {
       ImVec4 grayColor = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
       ImVec4 graySeparatorColor = ImVec4(0.4f, 0.4f, 0.4f, 0.5f);

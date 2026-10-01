@@ -501,7 +501,7 @@ namespace VortexLauncher {
     if (CherryApp.GetTheme() == "dark_vortex") {
       CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#35353535"));
     } else {
-      CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#ACACAC"));
+      CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA("#DFDFDF"));
     }
     CherryGUI::BeginChild("###rightpan", ImVec2(0, bottom_pan), false, ImGuiWindowFlags_NoScrollbar);
     if (!m_SelectedEnvproject) {

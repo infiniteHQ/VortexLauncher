@@ -12,15 +12,12 @@ namespace VortexLauncher {
 
   LauncherLogUtility::LauncherLogUtility(const std::string& name) {
     m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
-    m_AppWindow->SetIcon("/usr/local/include/Vortex/imgs/vortex.png");
 
     m_AppWindow->SetInternalPaddingX(10.0f);
     m_AppWindow->SetInternalPaddingY(10.0f);
 
     m_AppWindow->SetVisibility(true);
     m_AppWindow->SetCloseCallback([this]() { m_AppWindow->SetVisibility(false); });
-
-    m_AppWindow->SetLeftMenubarCallback([this]() { menubar(); });
 
     this->ctx = VortexMaker::GetCurrentContext();
   }
@@ -45,19 +42,6 @@ namespace VortexLauncher {
   }
 
   void LauncherLogUtility::Render() {
-    float oldsize = CherryGUI::GetFont()->Scale;
-    CherryGUI::GetFont()->Scale *= 1.3;
-    CherryGUI::PushFont(CherryGUI::GetFont());
-
-    CherryGUI::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.5f), "Project contents of : ");
-    CherryGUI::SameLine();
-    // CherryGUI::Text(this->ctx->name.c_str());
-
-    CherryGUI::GetFont()->Scale = oldsize;
-    CherryGUI::PopFont();
-
-    CherryGUI::Separator();
-
     static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders |
                                    ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
     const float TEXT_BASE_WIDTH = CherryGUI::CalcTextSize("A").x;
@@ -103,25 +87,6 @@ namespace VortexLauncher {
   }
 
   void LauncherLogUtility::menubar() {
-    /*static std::shared_ptr<Cherry::ImageTextButtonSimple> refresh_button =
-    std::make_shared<Cherry::ImageTextButtonSimple>("logs_refresh_project_button", "Refresh");
-    refresh_button->SetScale(0.85f);
-    refresh_button->SetInternalMarginX(10.0f);
-    refresh_button->SetLogoSize(15, 15);
-    refresh_button->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_collection.png"));*/
-
-    /*static std::shared_ptr<Cherry::ImageTextButtonSimple> add_button =
-    std::make_shared<Cherry::ImageTextButtonSimple>("logs_create_project_button", "Add"); add_button->SetScale(0.85f);
-    add_button->SetInternalMarginX(10.0f);
-    add_button->SetLogoSize(15, 15);
-    add_button->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"));*/
-
-    if (CherryGUI::BeginMenu("Filters")) {
-      CherryGUI::Checkbox("Show informations", &InfoFilter);
-      CherryGUI::Checkbox("Show fatal errors", &FatalFilter);
-      CherryGUI::Checkbox("Show errors", &ErrorFilter);
-      CherryGUI::Checkbox("Show warnings", &WarnFilter);
-      CherryGUI::EndMenu();
-    }
+    //
   }
 }  // namespace VortexLauncher

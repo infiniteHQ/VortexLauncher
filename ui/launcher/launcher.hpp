@@ -108,11 +108,13 @@ class Launcher {
     spec.Name = name;
     spec.MinHeight = 500;
     spec.MinWidth = 500;
-    spec.Height = 800;
+    spec.Height = 500;
     spec.DisableResize = true;
-    spec.Width = 1350;
+    spec.Width = 900;
     spec.CustomTitlebar = true;
+    spec.CustomTitlebarIsLittle = true;
     spec.DisableWindowManagerTitleBar = true;
+    spec.DisableTitle = true;
     spec.WindowOnlyClosable = true;
     spec.RenderMode = Cherry::WindowRenderingMethod::SimpleWindow;
     spec.UniqueAppWindowName = settings_win->GetAppWindow()->m_Name;
@@ -123,7 +125,7 @@ class Launcher {
       logic_content_manager_counter--;
     };
 
-    spec.MenubarCallback = []() { };
+    spec.MenubarCallback = []() { CherryGUI::Text("Manage logical contents"); };
     spec.WindowSaves = false;
 
     Cherry::AddAppWindow(settings_win->GetAppWindow());
@@ -142,11 +144,13 @@ class Launcher {
     spec.Name = name;
     spec.MinHeight = 500;
     spec.MinWidth = 500;
-    spec.Height = 800;
+    spec.Height = 500;
     spec.DisableResize = true;
-    spec.Width = 1350;
+    spec.Width = 900;
     spec.CustomTitlebar = true;
+    spec.CustomTitlebarIsLittle = true;
     spec.DisableWindowManagerTitleBar = true;
+    spec.DisableTitle = true;
     spec.WindowOnlyClosable = true;
     spec.RenderMode = Cherry::WindowRenderingMethod::SimpleWindow;
     spec.UniqueAppWindowName = settings_win->GetAppWindow()->m_Name;
@@ -157,7 +161,7 @@ class Launcher {
       content_manager_counter--;
     };
 
-    spec.MenubarCallback = []() { };
+    spec.MenubarCallback = []() { CherryGUI::Text("Manage contents"); };
     spec.WindowSaves = false;
 
     Cherry::AddAppWindow(settings_win->GetAppWindow());
@@ -167,8 +171,8 @@ class Launcher {
 
   void SpawnLogsUtility() {
     std::string label = "?loc:loc.window_names.logs_utility" + std::to_string(logs_utility_counter);
-    auto settings_win = LauncherLogUtility::Create(label);
-    settings_win->GetAppWindow()->SetVisibility(true);
+    auto logsutility_win = LauncherLogUtility::Create(label);
+    logsutility_win->GetAppWindow()->SetVisibility(true);
 
     Cherry::ApplicationSpecification spec;
 
@@ -176,27 +180,28 @@ class Launcher {
     spec.Name = name;
     spec.MinHeight = 500;
     spec.MinWidth = 500;
-    spec.Height = 800;
+    spec.Height = 600;
     spec.DisableResize = true;
-    spec.Width = 1350;
-    spec.CustomTitlebar = false;
-    spec.DisableWindowManagerTitleBar = false;
-    spec.WindowOnlyClosable = true;
+    spec.DisableMenubar = true;
     spec.DisableTitle = true;
+    spec.Width = 800;
+    spec.CustomTitlebar = true;
+    spec.CustomTitlebarIsLittle = true;
+    spec.DisableWindowManagerTitleBar = true;
+    spec.WindowOnlyClosable = true;
     spec.RenderMode = Cherry::WindowRenderingMethod::SimpleWindow;
-    spec.UniqueAppWindowName = settings_win->GetAppWindow()->m_Name;
+    spec.UniqueAppWindowName = logsutility_win->GetAppWindow()->m_Name;
 
     spec.UsingCloseCallback = true;
-    spec.CloseCallback = [this, settings_win]() {
-      Cherry::DeleteAppWindow(settings_win->GetAppWindow());
+    spec.CloseCallback = [this, logsutility_win]() {
+      Cherry::DeleteAppWindow(logsutility_win->GetAppWindow());
       logs_utility_counter--;
     };
-
-    spec.MenubarCallback = []() { };
+    spec.MenubarCallback = []() { CherryGUI::Text("Logs Utility"); };
     spec.WindowSaves = false;
 
-    Cherry::AddAppWindow(settings_win->GetAppWindow());
-    settings_win->GetAppWindow()->AttachOnNewWindow(spec);
+    Cherry::AddAppWindow(logsutility_win->GetAppWindow());
+    logsutility_win->GetAppWindow()->AttachOnNewWindow(spec);
     logs_utility_counter++;
   }
 
@@ -209,13 +214,15 @@ class Launcher {
 
     std::string name = "Version Manager";
     spec.Name = name;
-    spec.MinHeight = 300;
-    spec.MinWidth = 300;
+    spec.MinHeight = 500;
+    spec.MinWidth = 500;
     spec.Height = 500;
     spec.DisableResize = true;
-    spec.Width = 800;
+    spec.Width = 1100;
     spec.CustomTitlebar = true;
+    spec.CustomTitlebarIsLittle = true;
     spec.DisableWindowManagerTitleBar = true;
+    spec.DisableTitle = true;
     spec.WindowOnlyClosable = true;
     spec.RenderMode = Cherry::WindowRenderingMethod::SimpleWindow;
     spec.UniqueAppWindowName = settings_win->GetAppWindow()->m_Name;
@@ -229,7 +236,7 @@ class Launcher {
       vortex_versions_counter--;
     };
 
-    spec.MenubarCallback = []() { };
+    spec.MenubarCallback = []() { CherryGUI::Text("Version Manager"); };
     spec.WindowSaves = false;
 
     Cherry::AddAppWindow(settings_win->GetAppWindow());
@@ -251,9 +258,11 @@ class Launcher {
     spec.Height = 550;
     spec.DisableResize = true;
     spec.DisableMenubar = true;
+    spec.DisableTitle = true;
     spec.Width = 950;
-    spec.CustomTitlebar = false;
-    spec.DisableWindowManagerTitleBar = false;
+    spec.CustomTitlebar = true;
+    spec.CustomTitlebarIsLittle = true;
+    spec.DisableWindowManagerTitleBar = true;
     spec.WindowOnlyClosable = true;
     spec.RenderMode = Cherry::WindowRenderingMethod::SimpleWindow;
     spec.UniqueAppWindowName = settings_win->GetAppWindow()->m_Name;
@@ -267,7 +276,7 @@ class Launcher {
       system_settings_counter--;
     };
 
-    spec.MenubarCallback = []() { };
+    spec.MenubarCallback = []() { CherryGUI::Text(Cherry::GetLocale("loc.window_names.settings").c_str()); };
     spec.WindowSaves = false;
 
     Cherry::AddAppWindow(settings_win->GetAppWindow());
