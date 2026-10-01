@@ -38,7 +38,7 @@ static std::string system_desktop = "";
 
 #pragma comment(lib, "advapi32.lib")
 
-std::string computeSHA256Short(const std::string &filepath, size_t length = 10) {
+std::string computeSHA256Short(const std::string& filepath, size_t length = 10) {
   std::ifstream file(filepath, std::ios::binary);
   if (!file)
     return "";
@@ -59,7 +59,7 @@ std::string computeSHA256Short(const std::string &filepath, size_t length = 10) 
   }
 
   while (file.read(buffer.data(), buffer.size()) || file.gcount()) {
-    if (!CryptHashData(hHash, reinterpret_cast<BYTE *>(buffer.data()), static_cast<DWORD>(file.gcount()), 0)) {
+    if (!CryptHashData(hHash, reinterpret_cast<BYTE*>(buffer.data()), static_cast<DWORD>(file.gcount()), 0)) {
       CryptDestroyHash(hHash);
       CryptReleaseContext(hProv, 0);
       return "";
@@ -84,7 +84,7 @@ std::string computeSHA256Short(const std::string &filepath, size_t length = 10) 
   return result.substr(0, length);
 }
 #else
-std::string computeSHA256Short(const std::string &filepath, size_t length = 10) {
+std::string computeSHA256Short(const std::string& filepath, size_t length = 10) {
   std::ifstream file(filepath, std::ios::binary);
   if (!file)
     return "";
@@ -167,10 +167,10 @@ std::string getLinuxDistroName() {
   return distro;
 }
 std::string getLinuxDesktopEnvAndDisplayServer() {
-  const char *xdgDesktop = std::getenv("XDG_CURRENT_DESKTOP");
-  const char *desktopSession = std::getenv("DESKTOP_SESSION");
-  const char *waylandDisplay = std::getenv("WAYLAND_DISPLAY");
-  const char *x11Display = std::getenv("DISPLAY");
+  const char* xdgDesktop = std::getenv("XDG_CURRENT_DESKTOP");
+  const char* desktopSession = std::getenv("DESKTOP_SESSION");
+  const char* waylandDisplay = std::getenv("WAYLAND_DISPLAY");
+  const char* x11Display = std::getenv("DISPLAY");
 
   std::string de;
   if (xdgDesktop) {
@@ -209,7 +209,7 @@ std::string getLinuxDesktopEnvAndDisplayServer() {
 #endif
 
 namespace VortexLauncher {
-  AboutAppWindow::AboutAppWindow(const std::string &name) {
+  AboutAppWindow::AboutAppWindow(const std::string& name) {
     m_AppWindow = std::make_shared<Cherry::AppWindow>(name, name);
     m_AppWindow->SetIcon(Cherry::GetPath("resources/imgs/icons/misc/icon_home.png"));
 
@@ -226,11 +226,11 @@ namespace VortexLauncher {
     std::shared_ptr<Cherry::AppWindow> win = m_AppWindow;
   }
 
-  std::shared_ptr<Cherry::AppWindow> &AboutAppWindow::GetAppWindow() {
+  std::shared_ptr<Cherry::AppWindow>& AboutAppWindow::GetAppWindow() {
     return m_AppWindow;
   }
 
-  std::shared_ptr<AboutAppWindow> AboutAppWindow::Create(const std::string &name) {
+  std::shared_ptr<AboutAppWindow> AboutAppWindow::Create(const std::string& name) {
     auto instance = std::shared_ptr<AboutAppWindow>(new AboutAppWindow(name));
     instance->SetupRenderCallback();
     return instance;
@@ -260,7 +260,11 @@ namespace VortexLauncher {
     CherryStyle::AddMarginY(5.0f);
     CherryGUI::BeginChild("aboutchild", ImVec2(430, 0));  // cherry api
 
-    Cherry::SetNextComponentProperty("color_text", "#FFFFFF");
+    if (CherryApp.GetTheme() == "dark_vortex") {
+      CherryNextProp("color_text", "#FFFFFF");
+    } else {
+      CherryNextProp("color_text", "#232323");
+    }
     CherryKit::TextSimple("Vortex Launcher");
 
     std::string vortex_launcher_version = VORTEXLAUNCHER_VERSION;
