@@ -100,9 +100,61 @@ namespace VortexLauncher {
     }
 
     // imgui helpers
+    struct Palette {
+      ImU32 card_bg, card_border, name, sub, desc, logo_bg, logo_text;
+      ImU32 btn_bg, btn_hover, btn_border, btn_fg, btn_off_bg, btn_off_fg;
+      ImU32 icon_hover, icon_active, icon_tint;
+      ImU32 side_sel, side_hover, side_text, side_text_sel, side_count;
+      ImU32 row_hover;
+      ImVec4 pane_bg, title, body;
+    };
+
+    const Palette& Pal() {
+      static const Palette dark = {
+        IM_COL32(34, 34, 36, 255),      IM_COL32(58, 58, 62, 255),          IM_COL32(245, 245, 247, 255),
+        IM_COL32(120, 120, 126, 255),   IM_COL32(155, 155, 160, 255),       IM_COL32(24, 24, 26, 255),
+        IM_COL32(200, 200, 205, 255),   IM_COL32(46, 46, 50, 255),          IM_COL32(64, 64, 68, 255),
+        IM_COL32(70, 70, 76, 255),      IM_COL32(225, 225, 228, 255),       IM_COL32(32, 32, 34, 255),
+        IM_COL32(110, 110, 114, 255),   IM_COL32(255, 255, 255, 26),        IM_COL32(255, 255, 255, 48),
+        IM_COL32(255, 255, 255, 255),   IM_COL32(69, 69, 72, 255),          IM_COL32(50, 50, 54, 255),
+        IM_COL32(169, 169, 172, 255),   IM_COL32(255, 255, 255, 255),       IM_COL32(110, 110, 114, 255),
+        IM_COL32(44, 44, 47, 255),      ImVec4(0.21f, 0.21f, 0.21f, 0.21f), ImVec4(0.47f, 0.47f, 0.47f, 1.0f),
+        ImVec4(0.6f, 0.6f, 0.6f, 1.0f),
+      };
+      static const Palette light = {
+        IM_COL32(255, 255, 255, 255),      IM_COL32(210, 210, 217, 255),    IM_COL32(28, 28, 32, 255),
+        IM_COL32(125, 125, 133, 255),      IM_COL32(95, 95, 104, 255),      IM_COL32(236, 236, 241, 255),
+        IM_COL32(70, 70, 78, 255),         IM_COL32(240, 240, 244, 255),    IM_COL32(226, 226, 233, 255),
+        IM_COL32(200, 200, 208, 255),      IM_COL32(40, 40, 46, 255),       IM_COL32(246, 246, 249, 255),
+        IM_COL32(160, 160, 168, 255),      IM_COL32(0, 0, 0, 18),           IM_COL32(0, 0, 0, 36),
+        IM_COL32(45, 45, 52, 255),         IM_COL32(214, 214, 222, 255),    IM_COL32(228, 228, 235, 255),
+        IM_COL32(88, 88, 97, 255),         IM_COL32(18, 18, 22, 255),       IM_COL32(140, 140, 149, 255),
+        IM_COL32(244, 244, 248, 255),      ImVec4(0.0f, 0.0f, 0.0f, 0.05f), ImVec4(0.30f, 0.30f, 0.34f, 1.0f),
+        ImVec4(0.28f, 0.28f, 0.32f, 1.0f),
+      };
+      return CherryApp.GetTheme() == "dark_vortex" ? dark : light;
+    }
+
+    ImU32 WithAlpha(ImU32 col, unsigned alpha) {
+      return (col & 0x00FFFFFF) | (alpha << 24);
+    }
 
     ImVec2 Off(const ImVec2& p, float x, float y) {
       return ImVec2(p.x + x, p.y + y);
+    }
+
+    std::string Lower(std::string s) {
+      std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return (char)std::tolower(c); });
+      return s;
+    }
+
+    bool Matches(const ContentEntry& e, const std::string& query) {
+      if (query.empty()) {
+        return true;
+      }
+      std::string needle = Lower(query);
+      return Lower(e.name).find(needle) != std::string::npos || Lower(e.proper_name).find(needle) != std::string::npos ||
+             Lower(e.description).find(needle) != std::string::npos;
     }
 
     std::string Ellipsize(const std::string& s, float max_w) {
@@ -125,7 +177,7 @@ namespace VortexLauncher {
         ImDrawFlags flags) {
       ImTextureID tex = Cherry::GetTexture(path);
       if (!tex) {
-        dl->AddRectFilled(min, max, IM_COL32(52, 52, 56, 255), rounding, flags);
+        dl->AddRectFilled(min, max, Pal().logo_bg, rounding, flags);
         return;
       }
 
@@ -152,7 +204,8 @@ namespace VortexLauncher {
     }
 
     void DrawLogo(ImDrawList* dl, const ContentEntry& e, const ImVec2& p, float s) {
-      dl->AddRectFilled(p, Off(p, s, s), IM_COL32(24, 24, 26, 255), 6.0f);
+      const Palette& pal = Pal();
+      dl->AddRectFilled(p, Off(p, s, s), pal.logo_bg, 6.0f);
 
       ImTextureID tex = e.logo.empty() ? nullptr : Cherry::GetTexture(Cherry::GetPath(e.logo));
       if (tex) {
@@ -162,10 +215,11 @@ namespace VortexLauncher {
 
       std::string initials = e.proper_name.size() >= 2 ? e.proper_name.substr(0, 2) : "??";
       ImVec2 ts = ImGui::CalcTextSize(initials.c_str());
-      dl->AddText(Off(p, (s - ts.x) * 0.5f, (s - ts.y) * 0.5f), IM_COL32(200, 200, 205, 255), initials.c_str());
+      dl->AddText(Off(p, (s - ts.x) * 0.5f, (s - ts.y) * 0.5f), pal.logo_text, initials.c_str());
     }
 
-    bool IconButton(const char* id, const std::string& icon_path, float size) {
+    bool IconButton(const char* id, const std::string& icon_path, float size, bool active = false) {
+      const Palette& pal = Pal();
       ImVec2 p = ImGui::GetCursorScreenPos();
       bool clicked = ImGui::InvisibleButton(id, ImVec2(size, size));
       bool hovered = ImGui::IsItemHovered();
@@ -173,15 +227,18 @@ namespace VortexLauncher {
 
       if (hovered) {
         ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-        dl->AddRectFilled(p, Off(p, size, size), IM_COL32(255, 255, 255, 26), 4.0f);
+      }
+      if (active || hovered) {
+        dl->AddRectFilled(p, Off(p, size, size), active ? pal.icon_active : pal.icon_hover, 4.0f);
       }
       if (ImTextureID tex = Cherry::GetTexture(icon_path)) {
-        dl->AddImage(tex, Off(p, 4, 4), Off(p, size - 4, size - 4));
+        dl->AddImage(tex, Off(p, 4, 4), Off(p, size - 4, size - 4), ImVec2(0, 0), ImVec2(1, 1), pal.icon_tint);
       }
       return clicked;
     }
 
     bool IconTextButton(const char* id, const std::string& icon_path, const char* label, bool enabled = true) {
+      const Palette& pal = Pal();
       const float pad_x = 10.0f;
       const float pad_y = 5.0f;
       const float icon = 14.0f;
@@ -202,20 +259,20 @@ namespace VortexLauncher {
       }
 
       ImDrawList* dl = ImGui::GetWindowDrawList();
-      ImU32 bg = !enabled ? IM_COL32(32, 32, 34, 255) : hovered ? IM_COL32(64, 64, 68, 255) : IM_COL32(46, 46, 50, 255);
-      ImU32 fg = enabled ? IM_COL32(225, 225, 228, 255) : IM_COL32(110, 110, 114, 255);
+      ImU32 bg = !enabled ? pal.btn_off_bg : hovered ? pal.btn_hover : pal.btn_bg;
+      ImU32 fg = enabled ? pal.btn_fg : pal.btn_off_fg;
 
       if (hovered && enabled) {
         ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
       }
 
       dl->AddRectFilled(p, Off(p, size.x, size.y), bg, 5.0f);
-      dl->AddRect(p, Off(p, size.x, size.y), IM_COL32(70, 70, 76, 255), 5.0f);
+      dl->AddRect(p, Off(p, size.x, size.y), pal.btn_border, 5.0f);
 
       float x = p.x + pad_x;
       if (!icon_path.empty()) {
         if (ImTextureID tex = Cherry::GetTexture(icon_path)) {
-          ImU32 tint = enabled ? IM_COL32_WHITE : IM_COL32(255, 255, 255, 90);
+          ImU32 tint = enabled ? pal.icon_tint : WithAlpha(pal.icon_tint, 90);
           dl->AddImage(
               tex,
               ImVec2(x, p.y + (size.y - icon) * 0.5f),
@@ -236,6 +293,7 @@ namespace VortexLauncher {
         const std::string& label,
         const std::string& count,
         bool selected) {
+      const Palette& pal = Pal();
       const float h = 30.0f;
       float w = ImGui::GetContentRegionAvail().x;
       ImVec2 p = ImGui::GetCursorScreenPos();
@@ -248,24 +306,25 @@ namespace VortexLauncher {
         ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
       }
       if (selected || hovered) {
-        dl->AddRectFilled(p, Off(p, w, h), selected ? IM_COL32(69, 69, 72, 255) : IM_COL32(50, 50, 54, 255), 5.0f);
+        dl->AddRectFilled(p, Off(p, w, h), selected ? pal.side_sel : pal.side_hover, 5.0f);
       }
 
       float x = p.x + 8.0f;
       if (ImTextureID tex = Cherry::GetTexture(icon_path)) {
-        dl->AddImage(tex, ImVec2(x, p.y + 7.0f), ImVec2(x + 16.0f, p.y + 23.0f));
+        dl->AddImage(tex, ImVec2(x, p.y + 7.0f), ImVec2(x + 16.0f, p.y + 23.0f), ImVec2(0, 0), ImVec2(1, 1), pal.icon_tint);
       }
       x += 26.0f;
 
       float ty = p.y + (h - ImGui::GetFontSize()) * 0.5f;
-      dl->AddText(ImVec2(x, ty), selected ? IM_COL32(255, 255, 255, 255) : IM_COL32(169, 169, 172, 255), label.c_str());
+      dl->AddText(ImVec2(x, ty), selected ? pal.side_text_sel : pal.side_text, label.c_str());
 
       if (!count.empty()) {
         ImVec2 cs = ImGui::CalcTextSize(count.c_str());
-        dl->AddText(ImVec2(p.x + w - 8.0f - cs.x, ty), IM_COL32(110, 110, 114, 255), count.c_str());
+        dl->AddText(ImVec2(p.x + w - 8.0f - cs.x, ty), pal.side_count, count.c_str());
       }
       return clicked;
     }
+
   }  // namespace
 
   void LogicalContentManager::BuildKinds() {
@@ -665,6 +724,7 @@ namespace VortexLauncher {
 
   void LogicalContentManager::DrawCard(const ContentKind& kind, const ContentEntry& e, float w, float h) {
     auto& st = m_States[kind.id];
+    const Palette& pal = Pal();
     ImDrawList* dl = ImGui::GetWindowDrawList();
     ImVec2 o = ImGui::GetCursorScreenPos();
 
@@ -675,8 +735,8 @@ namespace VortexLauncher {
     std::string key = kind.id + "|" + e.path + "|" + e.version;
     ImGui::PushID(key.c_str());
 
-    dl->AddRectFilled(o, Off(o, w, h), IM_COL32(34, 34, 36, 255), rounding);
-    dl->AddRect(o, Off(o, w, h), IM_COL32(58, 58, 62, 255), rounding);
+    dl->AddRectFilled(o, Off(o, w, h), pal.card_bg, rounding);
+    dl->AddRect(o, Off(o, w, h), pal.card_border, rounding);
 
     float text_x = pad;
     float title_y = 0.0f;
@@ -701,20 +761,13 @@ namespace VortexLauncher {
     float name_w = (w - pad) - text_x - vs.x - 8.0f;
     std::string name = Ellipsize(e.proper_name.empty() ? e.name : e.proper_name, name_w);
 
-    dl->AddText(Off(o, text_x, title_y), IM_COL32(245, 245, 247, 255), name.c_str());
-    dl->AddText(Off(o, w - pad - vs.x, title_y), IM_COL32(120, 120, 126, 255), ver.c_str());
+    dl->AddText(Off(o, text_x, title_y), pal.name, name.c_str());
+    dl->AddText(Off(o, w - pad - vs.x, title_y), pal.sub, ver.c_str());
 
     ImVec2 desc_min = Off(o, pad, desc_y);
     ImVec2 desc_max = Off(o, w - pad, desc_y + font * 2.0f + 2.0f);
     dl->PushClipRect(desc_min, desc_max, true);
-    dl->AddText(
-        ImGui::GetFont(),
-        font,
-        desc_min,
-        IM_COL32(155, 155, 160, 255),
-        e.description.c_str(),
-        nullptr,
-        desc_max.x - desc_min.x);
+    dl->AddText(ImGui::GetFont(), font, desc_min, pal.desc, e.description.c_str(), nullptr, desc_max.x - desc_min.x);
     dl->PopClipRect();
 
     const float btn = 24.0f;
@@ -732,7 +785,7 @@ namespace VortexLauncher {
       ImGui::EndTooltip();
     }
     ImVec2 qs = ImGui::CalcTextSize("(?)");
-    dl->AddText(Off(info_pos, (btn - qs.x) * 0.5f, (btn - qs.y) * 0.5f), IM_COL32(130, 130, 136, 255), "(?)");
+    dl->AddText(Off(info_pos, (btn - qs.x) * 0.5f, (btn - qs.y) * 0.5f), pal.sub, "(?)");
 
     ImGui::SetCursorScreenPos(Off(o, w - pad - btn, actions_y));
     if (IconButton("delete", Cherry::GetPath("resources/imgs/trash.png"), btn)) {
@@ -750,12 +803,80 @@ namespace VortexLauncher {
     ImGui::PopID();
   }
 
+  void LogicalContentManager::DrawRow(const ContentKind& kind, const ContentEntry& e, float w) {
+    auto& st = m_States[kind.id];
+    const Palette& pal = Pal();
+    ImDrawList* dl = ImGui::GetWindowDrawList();
+    ImVec2 o = ImGui::GetCursorScreenPos();
+
+    const float h = 56.0f;
+    const float pad = 12.0f;
+    const float btn = 24.0f;
+    const float logo = 36.0f;
+    const float rounding = 6.0f;
+
+    std::string key = kind.id + "|row|" + e.path + "|" + e.version;
+    ImGui::PushID(key.c_str());
+
+    bool hovered = ImGui::IsMouseHoveringRect(o, Off(o, w, h));
+    dl->AddRectFilled(o, Off(o, w, h), hovered ? pal.row_hover : pal.card_bg, rounding);
+    dl->AddRect(o, Off(o, w, h), pal.card_border, rounding);
+
+    DrawLogo(dl, e, Off(o, pad, (h - logo) * 0.5f), logo);
+
+    float text_x = pad + logo + 12.0f;
+    float actions_w = btn * 3.0f + 12.0f;
+    float text_w = w - text_x - actions_w - pad - 8.0f;
+
+    std::string ver = e.version.empty() ? "" : "  v" + e.version;
+    ImVec2 vs = ImGui::CalcTextSize(ver.c_str());
+    std::string name = Ellipsize(e.proper_name.empty() ? e.name : e.proper_name, text_w - vs.x);
+    ImVec2 ns = ImGui::CalcTextSize(name.c_str());
+
+    dl->AddText(Off(o, text_x, 9.0f), pal.name, name.c_str());
+    dl->AddText(Off(o, text_x + ns.x, 9.0f), pal.sub, ver.c_str());
+    dl->AddText(Off(o, text_x, 30.0f), pal.desc, Ellipsize(e.description, text_w).c_str());
+
+    float ax = w - pad - btn;
+    float ay = (h - btn) * 0.5f;
+
+    ImGui::SetCursorScreenPos(Off(o, ax, ay));
+    if (IconButton("delete", Cherry::GetPath("resources/imgs/trash.png"), btn)) {
+      st.to_delete = e;
+      st.delete_request = true;
+    }
+
+    ImGui::SetCursorScreenPos(Off(o, ax - btn - 6.0f, ay));
+    if (IconButton("open", Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"), btn)) {
+      VortexMaker::OpenFolderInFileManager(e.path);
+    }
+
+    ImGui::SetCursorScreenPos(Off(o, ax - (btn + 6.0f) * 2.0f, ay));
+    ImVec2 info_pos = ImGui::GetCursorScreenPos();
+    ImGui::InvisibleButton("info", ImVec2(btn, btn));
+    if (ImGui::IsItemHovered()) {
+      ImGui::BeginTooltip();
+      ImGui::Text("%d supported Vortex version(s)", (int)e.supported_versions.size());
+      for (const auto& v : e.supported_versions) {
+        ImGui::TextDisabled("%s", v.c_str());
+      }
+      ImGui::EndTooltip();
+    }
+    ImVec2 qs = ImGui::CalcTextSize("(?)");
+    dl->AddText(Off(info_pos, (btn - qs.x) * 0.5f, (btn - qs.y) * 0.5f), pal.sub, "(?)");
+
+    ImGui::SetCursorScreenPos(o);
+    ImGui::Dummy(ImVec2(w, h + 6.0f));
+    ImGui::PopID();
+  }
+
   void LogicalContentManager::RenderKind(const ContentKind& kind) {
     auto& st = m_States[kind.id];
+    const Palette& pal = Pal();
     bool offline = VortexMaker::GetCurrentContext()->disconnected;
 
     Cherry::PushFont("ClashBold");
-    ImGui::TextColored(ImVec4(0.47f, 0.47f, 0.47f, 1.0f), "All %s in the system", kind.label.c_str());
+    ImGui::TextColored(pal.title, "All %s in the system", kind.label.c_str());
     Cherry::PopFont();
     ImGui::Spacing();
 
@@ -779,6 +900,20 @@ namespace VortexLauncher {
     }
 
     ImGui::Spacing();
+
+    ImGui::SetNextItemWidth(260.0f);
+    ImGui::InputTextWithHint(("##search_" + kind.id).c_str(), "Search...", st.search, IM_ARRAYSIZE(st.search));
+
+    ImGui::SameLine(ImGui::GetContentRegionMax().x - 58.0f);
+    if (IconButton("##view_cards", Cherry::GetPath("resources/imgs/icons/misc/icon_thumbnails.png"), 26.0f, !m_ListView)) {
+      m_ListView = false;
+    }
+    ImGui::SameLine(0.0f, 6.0f);
+    if (IconButton("##view_list", Cherry::GetPath("resources/imgs/icons/misc/icon_lines.png"), 26.0f, m_ListView)) {
+      m_ListView = true;
+    }
+
+    ImGui::Spacing();
     ImGui::Separator();
     ImGui::Spacing();
 
@@ -791,19 +926,39 @@ namespace VortexLauncher {
       return;
     }
 
+    std::string query = st.search;
+    std::vector<const ContentEntry*> shown;
+    for (const auto& e : st.entries) {
+      if (Matches(e, query)) {
+        shown.push_back(&e);
+      }
+    }
+
+    if (shown.empty()) {
+      ImGui::TextDisabled("No result for \"%s\".", st.search);
+      return;
+    }
+
+    float avail = ImGui::GetContentRegionAvail().x;
+
+    if (m_ListView) {
+      for (const auto* e : shown) {
+        DrawRow(kind, *e, avail);
+      }
+      return;
+    }
+
     const float card_w = 270.0f;
     const float card_h = kind.banner_card ? 190.0f : 124.0f;
     const float gap = 14.0f;
-
-    float avail = ImGui::GetContentRegionAvail().x;
     int cols = (std::max)(1, (int)((avail + gap) / (card_w + gap)));
 
     int i = 0;
-    for (const auto& e : st.entries) {
+    for (const auto* e : shown) {
       if (i % cols != 0) {
         ImGui::SameLine(0.0f, gap);
       }
-      DrawCard(kind, e, card_w, card_h);
+      DrawCard(kind, *e, card_w, card_h);
       i++;
     }
   }
@@ -823,14 +978,16 @@ namespace VortexLauncher {
         "Help",
         LogicalContentManagerChild(
             []() {
+              const Palette& pal = Pal();
+
               Cherry::PushFont("ClashBold");
-              ImGui::TextColored(ImVec4(0.74f, 0.74f, 0.74f, 1.0f), "Understanding the Vortex approach.");
+              ImGui::TextColored(pal.title, "Understanding the Vortex approach.");
               Cherry::PopFont();
               ImGui::Spacing();
               ImGui::Separator();
               ImGui::Spacing();
 
-              ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.6f, 0.6f, 0.6f, 1.0f));
+              ImGui::PushStyleColor(ImGuiCol_Text, pal.body);
               ImGui::PushTextWrapPos(0.0f);
               ImGui::TextUnformatted(
                   "Logical content consists of modular components that add features to a project and the Vortex Editor. "

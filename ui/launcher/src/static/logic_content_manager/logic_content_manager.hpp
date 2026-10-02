@@ -63,6 +63,7 @@ namespace VortexLauncher {
     std::vector<PendingInstall> pending;
     std::string pending_pool;
     ContentEntry to_delete;
+    char search[128] = "";
     bool delete_request = false;
     bool conflict_request = false;
   };
@@ -105,7 +106,9 @@ namespace VortexLauncher {
     void RenderConflictModal(const ContentKind& kind);
     void RenderDeleteModal(const ContentKind& kind);
     void DrawCard(const ContentKind& kind, const ContentEntry& e, float w, float h);
+    void DrawRow(const ContentKind& kind, const ContentEntry& e, float w);
 
+    bool m_ListView = false;
     std::vector<ContentKind> m_Kinds;
     std::map<std::string, KindState> m_States;
     std::vector<StagedItem> m_StagedQueue;
