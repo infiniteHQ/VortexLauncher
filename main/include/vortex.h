@@ -8,7 +8,7 @@
 // Versions & Build identification
 //_____________________________________________________________________________
 // (Integer encoded as XYYZZ for use in #if preprocessor conditionals, e.g. '#if VORTEXLAUNCHER_VERSION_NUM >= 1.5.0')
-#define VORTEXLAUNCHER_VERSION     "1.5.5"
+#define VORTEXLAUNCHER_VERSION     "1.6.0"
 #define VORTEXLAUNCHER_VERSION_NUM 010503  // Major.Medium.Minor
 
 //_____________________________________________________________________________
@@ -36,13 +36,13 @@
 #include <stdio.h>   // NULL
 #include <sys/stat.h>
 #ifdef _WIN32
-#include <windows.h>
 #include <shellapi.h>
+#include <windows.h>
 
 #elif defined(__APPLE__)
-#include <sys/types.h>
 #include <sys/sysctl.h>
 #include <sys/time.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #elif defined(__linux__)
@@ -169,10 +169,10 @@ struct VxContext;
 //_____________________________________________________________________________
 
 // Callback and functions types
-typedef void *(
-    *VortexMakerMemAllocFunc)(size_t sz, void *user_data);  // Function signature for VortexMaker::SetAllocatorFunctions()
+typedef void* (
+    *VortexMakerMemAllocFunc)(size_t sz, void* user_data);  // Function signature for VortexMaker::SetAllocatorFunctions()
 typedef void (
-    *VortexMakerMemFreeFunc)(void *ptr, void *user_data);  // Function signature for VortexMaker::SetAllocatorFunctions()
+    *VortexMakerMemFreeFunc)(void* ptr, void* user_data);  // Function signature for VortexMaker::SetAllocatorFunctions()
 
 #define DEFAULT_VERSION_NAME "Vortex Editor"
 
@@ -186,89 +186,89 @@ typedef void (
 namespace VortexMaker {
   // Main project/context manipulation
   // Definitions : /src/vortex.cpp
-  VORTEX_API VxContext *CreateContext();
-  VORTEX_API void DestroyContext(VxContext *context = NULL);
-  VORTEX_API VxContext *GetCurrentContext();
-  VORTEX_API void SetCurrentContext(VxContext *context);
+  VORTEX_API VxContext* CreateContext();
+  VORTEX_API void DestroyContext(VxContext* context = NULL);
+  VORTEX_API VxContext* GetCurrentContext();
+  VORTEX_API void SetCurrentContext(VxContext* context);
 
-  VORTEX_API void InitProject(const nlohmann::json &main_config);
+  VORTEX_API void InitProject(const nlohmann::json& main_config);
 
-  std::string GetPath(const std::string &path);
+  std::string GetPath(const std::string& path);
   std::string CookPath(std::string_view input_path);
 
 #ifdef _WIN32
-  std::string convertPathToWindowsStyle(const std::string &path);
+  std::string convertPathToWindowsStyle(const std::string& path);
 #endif
 
   VORTEX_API void DetectPlatformVendor();
   VORTEX_API void GetPlatformVendor();
 
-  VORTEX_API void UpdateProjectData(const std::string &old_name, const std::string &path);
+  VORTEX_API void UpdateProjectData(const std::string& old_name, const std::string& path);
   VORTEX_API void FinishProcess();
 
   // Logger functions
   // Definitions : /src/vortex/logger/logger.cpp
-  VORTEX_API void LogInfo(const std::string &scope, const std::string &message);
+  VORTEX_API void LogInfo(const std::string& scope, const std::string& message);
 #define VXINFO(scope, message) LogInfo(scope, message);
 
-  VORTEX_API void LogInfo(const std::string &pool_name, const std::string &scope, const std::string &message);
+  VORTEX_API void LogInfo(const std::string& pool_name, const std::string& scope, const std::string& message);
 #define VXPOOLINFO(pool_name, scope, message) LogInfo(pool_name, scope, message);
 
-  VORTEX_API void LogWarn(const std::string &scope, const std::string &message);
+  VORTEX_API void LogWarn(const std::string& scope, const std::string& message);
 #define VXWARN(scope, message) LogWarn(scope, message);
 
-  VORTEX_API void LogError(const std::string &scope, const std::string &message);
+  VORTEX_API void LogError(const std::string& scope, const std::string& message);
 #define VXERROR(scope, message) LogError(scope, message);
 
-  VORTEX_API void LogFatal(const std::string &scope, const std::string &message);
+  VORTEX_API void LogFatal(const std::string& scope, const std::string& message);
 #define VXFATAL(scope, message) LogFatal(scope, message);
 
-  VORTEX_API void CreateSessionTopic(const std::string &post_topic);
-  VORTEX_API void DeleteSessionTopic(const std::string &post_topic);
-  VORTEX_API void PostSessionState(const std::string &post_topic);
-  VORTEX_API void PostSessionCoreDump(const std::string &post_topic);
-  VORTEX_API nlohmann::json GetLastModuleOfLastSession(const std::string &post_topic);
-  VORTEX_API nlohmann::json GetLastSession(const std::string &post_topic);
+  VORTEX_API void CreateSessionTopic(const std::string& post_topic);
+  VORTEX_API void DeleteSessionTopic(const std::string& post_topic);
+  VORTEX_API void PostSessionState(const std::string& post_topic);
+  VORTEX_API void PostSessionCoreDump(const std::string& post_topic);
+  VORTEX_API nlohmann::json GetLastModuleOfLastSession(const std::string& post_topic);
+  VORTEX_API nlohmann::json GetLastSession(const std::string& post_topic);
 
   VORTEX_API void InitEnvironment();
   VORTEX_API void CheckBlankProject();
 
-  VORTEX_API std::shared_ptr<VxLogger> CreateLogPool(const std::string &pool_name);
+  VORTEX_API std::shared_ptr<VxLogger> CreateLogPool(const std::string& pool_name);
   VORTEX_API std::shared_ptr<VxLogger> CreateGlobalLogger();
   VORTEX_API std::shared_ptr<VxLogger> CreateConsoleLogger();
   VORTEX_API void DropLoggers();
 
-  VORTEX_API void InstallPluginToSystem(const std::string &path, const std::string &pool_path);
-  VORTEX_API void InstallModuleToSystem(const std::string &path, const std::string &pool_path);
-  VORTEX_API void InstallModule(const std::string &module_name, const std::string &version, bool &restart_modules);
-  VORTEX_API std::vector<std::string> SearchFiles(const std::string &path, const std::string &filename);
-  VORTEX_API std::vector<std::string> SearchFiles(const std::string &path, const std::string &filename, int recursions);
-  VORTEX_API std::vector<std::string> SearchSystemFiles(const std::string &path, const std::string &filename);
+  VORTEX_API void InstallPluginToSystem(const std::string& path, const std::string& pool_path);
+  VORTEX_API void InstallModuleToSystem(const std::string& path, const std::string& pool_path);
+  VORTEX_API void InstallModule(const std::string& module_name, const std::string& version, bool& restart_modules);
+  VORTEX_API std::vector<std::string> SearchFiles(const std::string& path, const std::string& filename);
+  VORTEX_API std::vector<std::string> SearchFiles(const std::string& path, const std::string& filename, int recursions);
+  VORTEX_API std::vector<std::string> SearchSystemFiles(const std::string& path, const std::string& filename);
   VORTEX_API std::string
-  SearchFilesRecursive(const fs::path &chemin, const std::string &filename, std::vector<std::string> &file);
+  SearchFilesRecursive(const fs::path& chemin, const std::string& filename, std::vector<std::string>& file);
   VORTEX_API std::string SearchFilesRecursive(
-      const fs::path &chemin,
-      const std::string &filename,
-      std::vector<std::string> &file,
+      const fs::path& chemin,
+      const std::string& filename,
+      std::vector<std::string>& file,
       int recursions,
       int counter);
-  bool DebugCheckVersionAndDataLayout(const char *version);
+  bool DebugCheckVersionAndDataLayout(const char* version);
 
   VORTEX_API std::time_t GetLastBootTime();
 
-  VORTEX_API void ImportProject(const std::string &path, const std::string &pool_path);
+  VORTEX_API void ImportProject(const std::string& path, const std::string& pool_path);
   VORTEX_API void FindpProjectsInDirectoryRecursively(
-      const std::string &directory,
-      std::vector<std::shared_ptr<EnvProject>> &projects,
-      std::atomic<bool> &stillSearching,
-      std::string &elapsedTime);
+      const std::string& directory,
+      std::vector<std::shared_ptr<EnvProject>>& projects,
+      std::atomic<bool>& stillSearching,
+      std::string& elapsedTime);
 
-  VORTEX_API bool CheckProjectInDirectory(const std::string &path);
-  VORTEX_API std::vector<std::shared_ptr<EnvProject>> FindProjectInFolder(const std::string &path);
-  VORTEX_API bool executeInChildProcess(const std::string &command);
+  VORTEX_API bool CheckProjectInDirectory(const std::string& path);
+  VORTEX_API std::vector<std::shared_ptr<EnvProject>> FindProjectInFolder(const std::string& path);
+  VORTEX_API bool executeInChildProcess(const std::string& command);
   VORTEX_API void RefreshActiveSessions();
 
-  VORTEX_API void clean_sessions(const std::string &max_save_time);
+  VORTEX_API void clean_sessions(const std::string& max_save_time);
   VORTEX_API void clear_all_active_sessions();
   VORTEX_API void InitializePlatformVendor();
   VORTEX_API bool IsLinux();
@@ -278,16 +278,16 @@ namespace VortexMaker {
   VORTEX_API bool IsMacOs();
   VORTEX_API bool IsNotMacOS();
 
-  VORTEX_API nlohmann::json DumpJSON(const std::string &file);
-  VORTEX_API void PopulateJSON(const nlohmann::json &json_data, const std::string &file);
+  VORTEX_API nlohmann::json DumpJSON(const std::string& file);
+  VORTEX_API void PopulateJSON(const nlohmann::json& json_data, const std::string& file);
 
   VORTEX_API std::vector<std::shared_ptr<EnvProject>> GetRecentProjects(int number);
-  VORTEX_API void DeleteProject(const std::string &path, const std::string &project_name);
-  VORTEX_API void RemoveSystemProjectEntry(const std::string &project_name);
+  VORTEX_API void DeleteProject(const std::string& path, const std::string& project_name);
+  VORTEX_API void RemoveSystemProjectEntry(const std::string& project_name);
 
-  VORTEX_API VortexVersion CheckVersionAvailibility(const std::string &version);
+  VORTEX_API VortexVersion CheckVersionAvailibility(const std::string& version);
 
-  VORTEX_API void OpenURL(const std::string &url);
+  VORTEX_API void OpenURL(const std::string& url);
 
   VORTEX_API void UpdateSessions();
   VORTEX_API void RefreshVortexDists();
@@ -302,79 +302,79 @@ namespace VortexMaker {
   VORTEX_API void RefreshEnvironmentVortexVersion();
   VORTEX_API void UpdateEnvironmentProject();
   VORTEX_API void UpdateEnvironmentProject(
-      const std::string &name,
-      const std::string &author,
-      const std::string &version,
-      const std::string &compatibleWith,
-      const std::string &description,
-      const std::string &path,
-      const std::string &logo_path,
-      const std::string &template_name);
-  VORTEX_API void UpdateEnvironmentProject(const std::string &oldname);
+      const std::string& name,
+      const std::string& author,
+      const std::string& version,
+      const std::string& compatibleWith,
+      const std::string& description,
+      const std::string& path,
+      const std::string& logo_path,
+      const std::string& template_name);
+  VORTEX_API void UpdateEnvironmentProject(const std::string& oldname);
 
   VORTEX_API std::string gen_random(const int len);
   VORTEX_API std::string getHomeDirectory();
-  VORTEX_API void createFolderIfNotExists(const std::string &path);
-  VORTEX_API void createJsonFileIfNotExists(const std::string &filename, const nlohmann::json &defaultData);
+  VORTEX_API void createFolderIfNotExists(const std::string& path);
+  VORTEX_API void createJsonFileIfNotExists(const std::string& filename, const nlohmann::json& defaultData);
 
-  VORTEX_API bool CheckIfProjectRunning(const std::string &path);
-  VORTEX_API void OpenProject(const std::string &path, const std::string &version);
+  VORTEX_API bool CheckIfProjectRunning(const std::string& path);
+  VORTEX_API void OpenProject(const std::string& path, const std::string& version);
 
 #ifdef _WIN32
-  VORTEX_API int RunCommand(const std::string &command);
+  VORTEX_API int RunCommand(const std::string& command);
 #else
-  VORTEX_API int RunCommand(const std::string &command);
+  VORTEX_API int RunCommand(const std::string& command);
 #endif
 
-  VORTEX_API void CreateProject(const std::string &name, const std::string &path);
+  VORTEX_API void CreateProject(const std::string& name, const std::string& path);
   VORTEX_API void CreateProject(
-      const std::string &name,
-      const std::string &author,
-      const std::string &version,
-      const std::string &project_version,
-      const std::string &description,
-      const std::string &path,
-      const std::string &logo_path,
-      const std::string &template_name);
+      const std::string& name,
+      const std::string& author,
+      const std::string& version,
+      const std::string& project_version,
+      const std::string& description,
+      const std::string& path,
+      const std::string& logo_path,
+      const std::string& template_name);
 
   VORTEX_API std::string getCurrentTimeStamp();
 
-  VORTEX_API void OpenFolderInFileManager(const std::string &path);
+  VORTEX_API void OpenFolderInFileManager(const std::string& path);
 
   VORTEX_API void UpdateVortexLauncherWebData();                             // Fetch latests versions of the Vortex Launcher
   VORTEX_API void UpdateVortexWebData();                                     // Fetch all available versions of Vortex.
-  VORTEX_API void UpdateVortexNews(const std::vector<std::string> &topics);  // Fetch all news
+  VORTEX_API void UpdateVortexNews(const std::vector<std::string>& topics);  // Fetch all news
 
-  VORTEX_API std::vector<int> SplitVersion(const std::string &version);
-  VORTEX_API bool IsVersionGreater(const std::string &manifestVersion, const std::string &requestVersion);
-  VORTEX_API std::string NormalizeVersion(const std::string &version);
+  VORTEX_API std::vector<int> SplitVersion(const std::string& version);
+  VORTEX_API bool IsVersionGreater(const std::string& manifestVersion, const std::string& requestVersion);
+  VORTEX_API std::string NormalizeVersion(const std::string& version);
 
-  VORTEX_API void PostLatestVortexVersion(const std::shared_ptr<VortexVersion> &version);
+  VORTEX_API void PostLatestVortexVersion(const std::shared_ptr<VortexVersion>& version);
   VORTEX_API VortexVersion CheckLatestVortexVersion();
 
-  VORTEX_API std::vector<std::shared_ptr<VortexVersion>> GetAllSystemVersions(const std::string &compatibleWith);
-  VORTEX_API void OpenLauncherUpdater(const std::string &path, const std::string &dist);
+  VORTEX_API std::vector<std::shared_ptr<VortexVersion>> GetAllSystemVersions(const std::string& compatibleWith);
+  VORTEX_API void OpenLauncherUpdater(const std::string& path, const std::string& dist);
 
   VORTEX_API std::string GetDefaultSelectedLanguage();
   VORTEX_API std::string DetectSystemLanguage();
 
-  VORTEX_API void SetLanguage(const std::string &language);
+  VORTEX_API void SetLanguage(const std::string& language);
   VORTEX_API std::string GetLanguage();
 
-  VORTEX_API void OpenVortexUninstaller(const std::string &path);
+  VORTEX_API void OpenVortexUninstaller(const std::string& path);
   VORTEX_API void OpenVortexInstaller(
-      const std::string &version,
-      const std::string &arch,
-      const std::string &dist,
-      const std::string &platform);
-  VORTEX_API bool TestVortexExecutable(const std::string &path);
+      const std::string& version,
+      const std::string& arch,
+      const std::string& dist,
+      const std::string& platform);
+  VORTEX_API bool TestVortexExecutable(const std::string& path);
 
-  VORTEX_API bool CheckIfVortexVersionUtilityExist(const std::string &version, std::string &path);
+  VORTEX_API bool CheckIfVortexVersionUtilityExist(const std::string& version, std::string& path);
 
   void DetectPlatform();
   void DetectArch();
 
-  bool DebugCheckVersionAndDataLayout(const char *version);
+  bool DebugCheckVersionAndDataLayout(const char* version);
 
   // Memory Allocators
   // - Those functions are not reliant on the current context.
@@ -383,27 +383,27 @@ namespace VortexMaker {
   //   for each static/DLL boundary you are calling from. Read "Context and Memory Allocators" section of VortexMaker.cpp
   //   for more details.
   VORTEX_API void
-  SetAllocatorFunctions(VortexMakerMemAllocFunc alloc_func, VortexMakerMemFreeFunc free_func, void *user_data = NULL);
+  SetAllocatorFunctions(VortexMakerMemAllocFunc alloc_func, VortexMakerMemFreeFunc free_func, void* user_data = NULL);
   VORTEX_API void
-  GetAllocatorFunctions(VortexMakerMemAllocFunc *p_alloc_func, VortexMakerMemFreeFunc *p_free_func, void **p_user_data);
-  VORTEX_API void *MemAlloc(size_t size);
-  VORTEX_API void MemFree(void *ptr);
+  GetAllocatorFunctions(VortexMakerMemAllocFunc* p_alloc_func, VortexMakerMemFreeFunc* p_free_func, void** p_user_data);
+  VORTEX_API void* MemAlloc(size_t size);
+  VORTEX_API void MemFree(void* ptr);
 
 }  // namespace VortexMaker
 //_____________________________________________________________________________
 
 struct VxNewWrapper { };
-inline void *operator new(size_t, VxNewWrapper, void *ptr) {
+inline void* operator new(size_t, VxNewWrapper, void* ptr) {
   return ptr;
 }
-inline void operator delete(void *, VxNewWrapper, void *) {
+inline void operator delete(void*, VxNewWrapper, void*) {
 }  // This is only required so we can use the symmetrical new()
 #define VX_ALLOC(_SIZE)        VortexMaker::MemAlloc(_SIZE)
 #define VX_FREE(_PTR)          VortexMaker::MemFree(_PTR)
 #define VX_PLACEMENT_NEW(_PTR) new (VxNewWrapper(), _PTR)
 #define VX_NEW(_TYPE)          new (VxNewWrapper(), VortexMaker::MemAlloc(sizeof(_TYPE))) _TYPE
 template<typename T>
-void VX_DELETE(T *p) {
+void VX_DELETE(T* p) {
   if (p) {
     p->~T();
     VortexMaker::MemFree(p);
@@ -430,17 +430,17 @@ template<typename T>
 struct hVector {
   int Size;
   int Capacity;
-  T *Data;
+  T* Data;
 
   // Provide standard typedefs but we don't use them ourselves.
   typedef T value_type;
-  typedef value_type *iterator;
-  typedef const value_type *const_iterator;
+  typedef value_type* iterator;
+  typedef const value_type* const_iterator;
 
   // Constructors, destructor
   inline hVector(std::initializer_list<T> initList) : Size(0), Capacity(0), Data(nullptr) {
     reserve(initList.size());
-    for (const T &value : initList) {
+    for (const T& value : initList) {
       new (&Data[Size++]) T(value);
     }
   }
@@ -448,12 +448,12 @@ struct hVector {
     Size = Capacity = 0;
     Data = NULL;
   }
-  inline hVector(const hVector<T> &src) {
+  inline hVector(const hVector<T>& src) {
     Size = Capacity = 0;
     Data = NULL;
     operator=(src);
   }
-  inline hVector<T> &operator=(const hVector<T> &src) {
+  inline hVector<T>& operator=(const hVector<T>& src) {
     clear();
     resize(src.Size);
     if (src.Data)
@@ -499,51 +499,51 @@ struct hVector {
   inline int capacity() const {
     return Capacity;
   }
-  inline T &operator[](int i) {
+  inline T& operator[](int i) {
     VX_ASSERT(i >= 0 && i < Size);
     return Data[i];
   }
-  inline const T &operator[](int i) const {
+  inline const T& operator[](int i) const {
     VX_ASSERT(i >= 0 && i < Size);
     return Data[i];
   }
 
-  inline T *begin() {
+  inline T* begin() {
     return Data;
   }
-  inline const T *begin() const {
+  inline const T* begin() const {
     return Data;
   }
-  inline T *end() {
+  inline T* end() {
     return Data + Size;
   }
-  inline const T *end() const {
+  inline const T* end() const {
     return Data + Size;
   }
-  inline T &front() {
+  inline T& front() {
     VX_ASSERT(Size > 0);
     return Data[0];
   }
-  inline const T &front() const {
+  inline const T& front() const {
     VX_ASSERT(Size > 0);
     return Data[0];
   }
-  inline T &back() {
+  inline T& back() {
     VX_ASSERT(Size > 0);
     return Data[Size - 1];
   }
-  inline const T &back() const {
+  inline const T& back() const {
     VX_ASSERT(Size > 0);
     return Data[Size - 1];
   }
-  inline void swap(hVector<T> &rhs) {
+  inline void swap(hVector<T>& rhs) {
     int rhs_size = rhs.Size;
     rhs.Size = Size;
     Size = rhs_size;
     int rhs_cap = rhs.Capacity;
     rhs.Capacity = Capacity;
     Capacity = rhs_cap;
-    T *rhs_data = rhs.Data;
+    T* rhs_data = rhs.Data;
     rhs.Data = Data;
     Data = rhs_data;
   }
@@ -558,7 +558,7 @@ struct hVector {
     Size = new_size;
   }
 
-  inline void resize(int new_size, const T &v) {
+  inline void resize(int new_size, const T& v) {
     if (new_size > Capacity)
       reserve(_grow_capacity(new_size));
     if (new_size > Size) {
@@ -575,7 +575,7 @@ struct hVector {
   inline void reserve(int new_capacity) {
     if (new_capacity <= Capacity)
       return;
-    T *new_data = (T *)VX_ALLOC((size_t)new_capacity * sizeof(T));
+    T* new_data = (T*)VX_ALLOC((size_t)new_capacity * sizeof(T));
     if (Data) {
       memcpy(new_data, Data, (size_t)Size * sizeof(T));
       VX_FREE(Data);
@@ -588,13 +588,13 @@ struct hVector {
       return;
     if (Data)
       VX_FREE(Data);
-    Data = (T *)VX_ALLOC((size_t)new_capacity * sizeof(T));
+    Data = (T*)VX_ALLOC((size_t)new_capacity * sizeof(T));
     Capacity = new_capacity;
   }
 
   // NB: It is illegal to call push_back/push_front/insert with a reference pointing inside the hVector data itself! e.g.
   // v.push_back(v[10]) is forbidden.
-  inline void push_back(const T &v) {
+  inline void push_back(const T& v) {
     if (Size == Capacity)
       reserve(_grow_capacity(Size + 1));
     new (&Data[Size]) T(v);
@@ -604,14 +604,14 @@ struct hVector {
     VX_ASSERT(Size > 0);
     Size--;
   }
-  inline void push_front(const T &v) {
+  inline void push_front(const T& v) {
     if (Size == 0)
       push_back(v);
     else
       insert(Data, v);
   }
 
-  inline T *erase(const T *it) {
+  inline T* erase(const T* it) {
     VX_ASSERT(it >= Data && it < Data + Size);
     const ptrdiff_t off = it - Data;
     Data[off].~T();
@@ -619,7 +619,7 @@ struct hVector {
     Size--;
     return Data + off;
   }
-  inline T *erase(const T *it, const T *it_last) {
+  inline T* erase(const T* it, const T* it_last) {
     VX_ASSERT(it >= Data && it < Data + Size && it_last >= it && it_last <= Data + Size);
     const ptrdiff_t count = it_last - it;
     const ptrdiff_t off = it - Data;
@@ -627,7 +627,7 @@ struct hVector {
     Size -= (int)count;
     return Data + off;
   }
-  inline T *erase_unsorted(const T *it) {
+  inline T* erase_unsorted(const T* it) {
     VX_ASSERT(it >= Data && it < Data + Size);
     const ptrdiff_t off = it - Data;
     if (it < Data + Size - 1)
@@ -635,7 +635,7 @@ struct hVector {
     Size--;
     return Data + off;
   }
-  inline T *insert(const T *it, const T &v) {
+  inline T* insert(const T* it, const T& v) {
     VX_ASSERT(it >= Data && it <= Data + Size);
     const ptrdiff_t off = it - Data;
     if (Size == Capacity)
@@ -646,17 +646,17 @@ struct hVector {
     Size++;
     return Data + off;
   }
-  inline bool contains(const T &v) const {
-    const T *data = Data;
-    const T *data_end = Data + Size;
+  inline bool contains(const T& v) const {
+    const T* data = Data;
+    const T* data_end = Data + Size;
     while (data < data_end)
       if (*data++ == v)
         return true;
     return false;
   }
-  inline T *find(const T &v) {
-    T *data = Data;
-    const T *data_end = Data + Size;
+  inline T* find(const T& v) {
+    T* data = Data;
+    const T* data_end = Data + Size;
     while (data < data_end)
       if (*data == v)
         break;
@@ -664,9 +664,9 @@ struct hVector {
         ++data;
     return data;
   }
-  inline const T *find(const T &v) const {
-    const T *data = Data;
-    const T *data_end = Data + Size;
+  inline const T* find(const T& v) const {
+    const T* data = Data;
+    const T* data_end = Data + Size;
     while (data < data_end)
       if (*data == v)
         break;
@@ -674,31 +674,31 @@ struct hVector {
         ++data;
     return data;
   }
-  inline int find_index(const T &v) const {
-    const T *data_end = Data + Size;
-    const T *it = find(v);
+  inline int find_index(const T& v) const {
+    const T* data_end = Data + Size;
+    const T* it = find(v);
     if (it == data_end)
       return -1;
     const ptrdiff_t off = it - Data;
     return (int)off;
   }
-  inline bool find_erase(const T &v) {
-    const T *it = find(v);
+  inline bool find_erase(const T& v) {
+    const T* it = find(v);
     if (it < Data + Size) {
       erase(it);
       return true;
     }
     return false;
   }
-  inline bool find_erase_unsorted(const T &v) {
-    const T *it = find(v);
+  inline bool find_erase_unsorted(const T& v) {
+    const T* it = find(v);
     if (it < Data + Size) {
       erase_unsorted(it);
       return true;
     }
     return false;
   }
-  inline int index_from_ptr(const T *it) const {
+  inline int index_from_ptr(const T* it) const {
     VX_ASSERT(it >= Data && it < Data + Size);
     const ptrdiff_t off = it - Data;
     return (int)off;
@@ -719,7 +719,7 @@ class hMap {
   hVector<KeyValuePair> data;
 
  public:
-  inline void insert(const K &key, const V &value) {
+  inline void insert(const K& key, const V& value) {
     for (int i = 0; i < data.size(); ++i) {
       if (data[i].key == key) {
         data[i].value = value;
@@ -731,7 +731,7 @@ class hMap {
     pair.value = value;
     data.push_back(pair);
   }
-  inline bool find(const K &key, V &value) const {
+  inline bool find(const K& key, V& value) const {
     for (int i = 0; i < data.size(); ++i) {
       if (data[i].key == key) {
         value = data[i].value;
@@ -740,7 +740,7 @@ class hMap {
     }
     return false;
   }
-  inline bool remove(const K &key) {
+  inline bool remove(const K& key) {
     for (int i = 0; i < data.size(); ++i) {
       if (data[i].key == key) {
         data.erase(data.begin() + i);
@@ -752,7 +752,7 @@ class hMap {
   inline int size() const {
     return data.size();
   }
-  inline const V &find(const K &key) const {
+  inline const V& find(const K& key) const {
     for (int i = 0; i < data.size(); ++i) {
       if (data[i].key == key) {
         return data[i].value;
@@ -760,7 +760,7 @@ class hMap {
     }
     throw std::out_of_range("Key not found in hMap");
   }
-  inline const V &at(const K &key) const {
+  inline const V& at(const K& key) const {
     for (int i = 0; i < data.size(); ++i) {
       if (data[i].key == key) {
         return data[i].value;
@@ -769,7 +769,7 @@ class hMap {
     throw std::out_of_range("Key not found in hMap");
   }
 
-  bool operator!=(const K &key) const {
+  bool operator!=(const K& key) const {
     for (int i = 0; i < data.size(); ++i) {
       if (data[i].key == key) {
         return false;
@@ -777,7 +777,7 @@ class hMap {
     }
     return true;
   }
-  V &operator[](const K &key) {
+  V& operator[](const K& key) {
     for (int i = 0; i < data.size(); ++i) {
       if (data[i].key == key) {
         return data[i].value;
@@ -804,11 +804,11 @@ class hMap {
 };
 //=============================================================================
 
-constexpr unsigned int str2int(const char *str, int h = 0) {
+constexpr unsigned int str2int(const char* str, int h = 0) {
   return !str[h] ? 5381 : (str2int(str, h + 1) * 33) ^ str[h];
 }
 
-static long stringtoint(const char *s) {
+static long stringtoint(const char* s) {
   long i;
   i = 0;
   while (*s >= '0' && *s <= '9') {
@@ -827,7 +827,7 @@ struct hString {
 
   hString() : Data(nullptr), Size(0), Capacity(0) {
   }
-  hString(const char *str) {
+  hString(const char* str) {
     this->append(str);
   }
   hString(int intValue) {
@@ -836,23 +836,23 @@ struct hString {
     this->append(buffer);
   }
 
-  size_t find(const char *substr, size_t start = 0) const {
+  size_t find(const char* substr, size_t start = 0) const {
     if (Buf.Data == nullptr || substr == nullptr || start >= Buf.Size) {
       return npos;
     }
-    const char *result = std::strstr(Buf.Data + start, substr);
+    const char* result = std::strstr(Buf.Data + start, substr);
     if (result == nullptr) {
       return npos;
     }
     return result - Buf.Data;
   }
-  size_t rfind(const char *substr, size_t start = npos) const {
+  size_t rfind(const char* substr, size_t start = npos) const {
     if (Buf.Data == nullptr || substr == nullptr) {
       return npos;
     }
     size_t searchStart = (start == npos) ? Size - 1 : (std::min)(start, Size - 1);
     for (size_t i = searchStart; i < Size; --i) {
-      const char *result = std::strstr(Buf.Data + i, substr);
+      const char* result = std::strstr(Buf.Data + i, substr);
       if (result != nullptr) {
         return i;
       }
@@ -871,7 +871,7 @@ struct hString {
     result.append(Buf.Data + pos, Buf.Data + pos + len);
     return result;
   }
-  size_t find_first_of(const char *charsToFind, size_t start = 0) const {
+  size_t find_first_of(const char* charsToFind, size_t start = 0) const {
     if (Data == nullptr || charsToFind == nullptr || start >= Size) {
       return npos;
     }
@@ -889,10 +889,10 @@ struct hString {
   void push_back(char c) {
     Buf.push_back(c);
   }
-  const char *begin() const {
+  const char* begin() const {
     return Buf.Data ? &Buf.front() : EmptyString;
   }
-  const char *end() const {
+  const char* end() const {
     return Buf.Data ? &Buf.back() : EmptyString;
   }
   int size() const {
@@ -905,7 +905,7 @@ struct hString {
     if (capacity <= Capacity) {
       return;
     }
-    char *newData = new char[capacity];
+    char* newData = new char[capacity];
     if (Data) {
       memcpy(newData, Data, Size);
       delete[] Data;
@@ -921,17 +921,17 @@ struct hString {
       Capacity = 0;
     }
   }
-  const char *c_str() const {
+  const char* c_str() const {
     return Buf.Data ? Buf.Data : EmptyString;
   }
 
-  VORTEX_API void append(const char *str, const char *str_end = NULL);
+  VORTEX_API void append(const char* str, const char* str_end = NULL);
 
   inline char operator[](int i) const {
     VX_ASSERT(Buf.Data != NULL);
     return Buf.Data[i];
   }
-  bool operator==(const char *str) const {
+  bool operator==(const char* str) const {
     if (Buf.Data == nullptr && str == nullptr) {
       return true;
     }
@@ -940,49 +940,49 @@ struct hString {
     }
     return strcmp(Buf.Data, str) == 0;
   }
-  bool operator==(const hString &other) const {
+  bool operator==(const hString& other) const {
     return operator==(other.c_str());
   }
-  hString &operator=(const char *str) {
+  hString& operator=(const char* str) {
     this->clear();
     this->append(str);
     return *this;
   }
-  hString &operator+=(int value) {
+  hString& operator+=(int value) {
     char strValue[12];
     snprintf(strValue, sizeof(strValue), "%d", value);
     this->append(strValue);
     return *this;
   }
-  hString &operator+=(const char *str) {
+  hString& operator+=(const char* str) {
     this->append(str);
     return *this;
   }
-  hString &operator+=(const hString &other) {
+  hString& operator+=(const hString& other) {
     this->append(other.c_str());
     return *this;
   }
-  bool operator!=(const char *rhs) const {
+  bool operator!=(const char* rhs) const {
     return strcmp(Data, rhs) != 0;
   }
-  friend hString operator+(const char *lhs, const hString &rhs) {
+  friend hString operator+(const char* lhs, const hString& rhs) {
     hString result(lhs);
     result.append(rhs.c_str());
     return result;
   }
-  friend hString operator+(const hString &lhs, const char *rhs) {
+  friend hString operator+(const hString& lhs, const char* rhs) {
     hString result(lhs);
     result.append(rhs);
     return result;
   }
-  friend hString operator+(const hString &lhs, const hString &rhs) {
+  friend hString operator+(const hString& lhs, const hString& rhs) {
     hString result(lhs);
     result.append(rhs.c_str());
     return result;
   }
 
   static const size_t npos = static_cast<size_t>(-1);
-  char *Data;
+  char* Data;
   size_t Size;
   size_t Capacity;
 };
@@ -1015,20 +1015,20 @@ class hArgs {
   hArgs() { };
 
   template<typename T>
-  void add(const hString &tag, T value) {
+  void add(const hString& tag, T value) {
     arguments[tag] = new ArgumentHolder<T>(value);
     registered_arguments.push_back(tag);
   }
   template<typename T>
-  T get(const hString &tag, const T &defaultT) const {
+  T get(const hString& tag, const T& defaultT) const {
     if (registered_arguments.contains(tag)) {
       auto it = arguments.find(tag);
-      return dynamic_cast<ArgumentHolder<T> *>(it)->getValue();
+      return dynamic_cast<ArgumentHolder<T>*>(it)->getValue();
     }
     return defaultT;
   }
 
-  void remove(const hString &tag) {
+  void remove(const hString& tag) {
     if (arguments.find(tag)) {
       auto it = arguments.find(tag);
       delete it;
@@ -1039,14 +1039,14 @@ class hArgs {
   }
 
   ~hArgs() {
-    for (const auto &pair : arguments) {
+    for (const auto& pair : arguments) {
       delete pair.value;
     }
   }
 
   hVector<hString> registered_arguments;
 
-  hMap<hString, ArgumentBase *> arguments;
+  hMap<hString, ArgumentBase*> arguments;
 };
 //=============================================================================
 
@@ -1056,15 +1056,15 @@ class VortexNet {
   ~VortexNet();
 
   bool CheckNet();
-  std::string GET(const std::string &url);
-  std::string POST(const std::string &url, const std::string &body, const std::string &contentType = "application/json");
+  std::string GET(const std::string& url);
+  std::string POST(const std::string& url, const std::string& body, const std::string& contentType = "application/json");
 
  private:
   std::string Request(
-      const std::string &url,
-      const std::string &method,
-      const std::string &body = "",
-      const std::string &contentType = "");
+      const std::string& url,
+      const std::string& method,
+      const std::string& body = "",
+      const std::string& contentType = "");
 };
 
 #endif  // #ifndef VORTEX_DISABLE
