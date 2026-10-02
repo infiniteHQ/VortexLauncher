@@ -599,19 +599,11 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png")).GetData("isClicked"
       CherryKit::SeparatorText(Cherry::GetLocale("loc.menubar.summary.manage"));
 
       if (CherryGUI::MenuItem(
-              Cherry::GetLocale("loc.menubar.menuitem.logical_contents").c_str(),
-              Cherry::GetLocale("loc.menubar.menuitem.logical_contents_desc").c_str(),
+              Cherry::GetLocale("loc.menubar.menuitem.contents").c_str(),
+              Cherry::GetLocale("loc.menubar.menuitem.contents_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_bricksearch.png")),
               false)) {
         c_Launcher->SpawnLogicContentManager();
-      }
-
-      if (CherryGUI::MenuItem(
-              Cherry::GetLocale("loc.menubar.menuitem.static_contents").c_str(),
-              Cherry::GetLocale("loc.menubar.menuitem.static_contents_desc").c_str(),
-              Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_stack.png")),
-              false)) {
-        c_Launcher->SpawnContentManager();
       }
 
       if (CherryGUI::MenuItem(
@@ -633,19 +625,13 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png")).GetData("isClicked"
       }
 
       if (CherryGUI::MenuItem(
-              Cherry::GetLocale("loc.menubar.menuitem.about_contributors").c_str(),
-              Cherry::GetLocale("loc.menubar.menuitem.about_contributors_desc").c_str(),
-              Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_people.png")),
-              false)) {
-        VortexMaker::OpenURL("https://vortex.infinite.si/contributors");
-      }
-
-      if (CherryGUI::MenuItem(
               Cherry::GetLocale("loc.menubar.menuitem.documentation").c_str(),
               Cherry::GetLocale("loc.menubar.menuitem.documentation_desc").c_str(),
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_book.png")),
               false)) {
-        VortexMaker::OpenURL("https://vortex.infinite.si/learn");
+        VortexMaker::OpenURL(
+            "https://vortex.infinite.si/"
+            "docpage?version=1.0&content_name=introduction&section=get_started&page_name=introduction");
       }
 
       CherryGUI::EndMenu();
