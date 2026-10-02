@@ -58,7 +58,7 @@ static void OpenFolderInFileManager(std::string path) {
 #error "OS not supported!"
 #endif
 }
-static void saveVortexVersions(const std::vector<std::string> &paths, const std::string &jsonFilePath) {
+static void saveVortexVersions(const std::vector<std::string>& paths, const std::string& jsonFilePath) {
   nlohmann::json jsonData;
   jsonData["vortex_versions_pools"] = paths;
 
@@ -68,18 +68,18 @@ static void saveVortexVersions(const std::vector<std::string> &paths, const std:
   }
 }
 
-static void loadVortexVersions(std::vector<std::string> &paths, const std::string &jsonFilePath) {
+static void loadVortexVersions(std::vector<std::string>& paths, const std::string& jsonFilePath) {
   std::ifstream file(jsonFilePath);
   if (file) {
     nlohmann::json jsonData;
     file >> jsonData;
-    for (const auto &path : jsonData["vortex_versions_pools"]) {
+    for (const auto& path : jsonData["vortex_versions_pools"]) {
       paths.push_back(path.get<std::string>());
     }
   }
 }
 
-static void saveTemplates(const std::vector<std::string> &paths, const std::string &jsonFilePath) {
+static void saveTemplates(const std::vector<std::string>& paths, const std::string& jsonFilePath) {
   nlohmann::json jsonData;
   jsonData["templates_pools"] = paths;
 
@@ -89,18 +89,18 @@ static void saveTemplates(const std::vector<std::string> &paths, const std::stri
   }
 }
 
-static void loadTemplates(std::vector<std::string> &paths, const std::string &jsonFilePath) {
+static void loadTemplates(std::vector<std::string>& paths, const std::string& jsonFilePath) {
   std::ifstream file(jsonFilePath);
   if (file) {
     nlohmann::json jsonData;
     file >> jsonData;
-    for (const auto &path : jsonData["templates_pools"]) {
+    for (const auto& path : jsonData["templates_pools"]) {
       paths.push_back(path.get<std::string>());
     }
   }
 }
 
-static void saveModules(const std::vector<std::string> &paths, const std::string &jsonFilePath) {
+static void saveModules(const std::vector<std::string>& paths, const std::string& jsonFilePath) {
   nlohmann::json jsonData;
   jsonData["modules_pools"] = paths;
 
@@ -110,18 +110,18 @@ static void saveModules(const std::vector<std::string> &paths, const std::string
   }
 }
 
-static void loadModules(std::vector<std::string> &paths, const std::string &jsonFilePath) {
+static void loadModules(std::vector<std::string>& paths, const std::string& jsonFilePath) {
   std::ifstream file(jsonFilePath);
   if (file) {
     nlohmann::json jsonData;
     file >> jsonData;
-    for (const auto &path : jsonData["modules_pools"]) {
+    for (const auto& path : jsonData["modules_pools"]) {
       paths.push_back(path.get<std::string>());
     }
   }
 }
 
-static void saveProjects(const std::vector<std::string> &projectPaths, const std::string &jsonFilePath) {
+static void saveProjects(const std::vector<std::string>& projectPaths, const std::string& jsonFilePath) {
   nlohmann::json jsonData;
   jsonData["projects_pools"] = projectPaths;
 
@@ -131,18 +131,18 @@ static void saveProjects(const std::vector<std::string> &projectPaths, const std
   }
 }
 
-static void loadProjects(std::vector<std::string> &projectPaths, const std::string &jsonFilePath) {
+static void loadProjects(std::vector<std::string>& projectPaths, const std::string& jsonFilePath) {
   std::ifstream file(jsonFilePath);
   if (file) {
     nlohmann::json jsonData;
     file >> jsonData;
-    for (const auto &path : jsonData["projects_pools"]) {
+    for (const auto& path : jsonData["projects_pools"]) {
       projectPaths.push_back(path.get<std::string>());
     }
   }
 }
 
-static bool isOnlySpacesOrEmpty(const char *str) {
+static bool isOnlySpacesOrEmpty(const char* str) {
   if (str == nullptr || std::strlen(str) == 0) {
     return true;
   }
@@ -155,13 +155,13 @@ static bool isOnlySpacesOrEmpty(const char *str) {
   return true;
 }
 
-static std::string toLowerCase(const std::string &str) {
+static std::string toLowerCase(const std::string& str) {
   std::string result = str;
   std::transform(result.begin(), result.end(), result.begin(), ::tolower);
   return result;
 }
 
-static int levenshteinDistance(const std::string &s1, const std::string &s2) {
+static int levenshteinDistance(const std::string& s1, const std::string& s2) {
   const size_t m = s1.size();
   const size_t n = s2.size();
   std::vector<std::vector<int>> dp(m + 1, std::vector<int>(n + 1));
@@ -181,7 +181,7 @@ static int levenshteinDistance(const std::string &s1, const std::string &s2) {
   return dp[m][n];
 }
 
-static bool hasCommonLetters(const std::string &s1, const std::string &s2) {
+static bool hasCommonLetters(const std::string& s1, const std::string& s2) {
   std::unordered_set<char> set1(s1.begin(), s1.end());
   for (char c : s2) {
     if (set1.find(c) != set1.end()) {
@@ -191,7 +191,7 @@ static bool hasCommonLetters(const std::string &s1, const std::string &s2) {
   return false;
 }
 
-static bool areStringsSimilar(const std::string &s1, const std::string &s2, double threshold) {
+static bool areStringsSimilar(const std::string& s1, const std::string& s2, double threshold) {
   std::string lower_s1 = toLowerCase(s1);
   std::string lower_s2 = toLowerCase(s2);
 
@@ -206,7 +206,7 @@ static bool areStringsSimilar(const std::string &s1, const std::string &s2, doub
   return similarity >= threshold;
 }
 
-static void MyButton(const std::string &name, int w, int h) {
+static void MyButton(const std::string& name, int w, int h) {
   ImVec2 squareSize(w, h);
   ImVec2 totalSize(squareSize.x, squareSize.y + 5);
   ImVec2 cursorPos = CherryGUI::GetCursorScreenPos();
@@ -219,7 +219,7 @@ static void MyButton(const std::string &name, int w, int h) {
     CherryGUI::SetMouseCursor(ImGuiMouseCursor_Hand);
   }
 
-  ImDrawList *drawList = CherryGUI::GetWindowDrawList();
+  ImDrawList* drawList = CherryGUI::GetWindowDrawList();
 
   if (!name.empty()) {
     drawList->AddImage(Cherry::GetTexture(name), cursorPos, ImVec2(cursorPos.x + squareSize.x, cursorPos.y + squareSize.y));
@@ -239,10 +239,10 @@ static void MyButton(const std::string &name, int w, int h) {
 }
 
 static void DrawHighlightedText(
-    ImDrawList *drawList,
+    ImDrawList* drawList,
     ImVec2 textPos,
-    const char *text,
-    const char *search,
+    const char* text,
+    const char* search,
     ImU32 highlightColor,
     ImU32 textColor,
     ImU32 highlightTextColor) {
@@ -251,8 +251,8 @@ static void DrawHighlightedText(
     return;
   }
 
-  const char *start = text;
-  const char *found = strstr(start, search);
+  const char* start = text;
+  const char* found = strstr(start, search);
   while (found) {
     if (found > start) {
       std::string preText(start, found);
@@ -277,18 +277,18 @@ static void DrawHighlightedText(
 }
 
 static void VersionButton(
-    const std::string &envproject,
+    const std::string& envproject,
     int xsize = 100,
     int ysize = 100,
-    const std::string &version = "",
-    const std::string &path = Cherry::GetPath("resources/imgs/vortex_banner_unknow.png"),
+    const std::string& version = "",
+    const std::string& path = Cherry::GetPath("resources/imgs/vortex_banner_unknow.png"),
     bool beta = false,
-    const std::function<void()> &callback = []() { }) {
+    const std::function<void()>& callback = []() { }) {
   ImVec2 squareSize(xsize, ysize);
 
-  const char *originalText = envproject.c_str();
+  const char* originalText = envproject.c_str();
   char truncatedText[32];
-  const char *versionText = version.c_str();
+  const char* versionText = version.c_str();
 
   if (strlen(originalText) > 24) {
     strncpy(truncatedText, originalText, 8);
@@ -314,7 +314,7 @@ static void VersionButton(
     CherryGUI::SetMouseCursor(ImGuiMouseCursor_Hand);
   }
 
-  ImDrawList *drawList = CherryGUI::GetWindowDrawList();
+  ImDrawList* drawList = CherryGUI::GetWindowDrawList();
 
   if (!envproject.empty() && std::filesystem::exists(envproject)) {
     drawList->AddImage(
@@ -371,19 +371,19 @@ static void VersionButton(
 }
 
 static void DownloadableVersionButton(
-    const std::string &envproject,
+    const std::string& envproject,
     int xsize = 100,
     int ysize = 100,
-    const std::string &version = "?",
-    const std::string &path = "resources/imgs/vortex_banner_unknow.png",
+    const std::string& version = "?",
+    const std::string& path = "resources/imgs/vortex_banner_unknow.png",
     std::string installedpath = "none",
-    const std::string &dist = "none",
-    const std::string &arch = "none",
-    const std::string &plat = "none") {
+    const std::string& dist = "none",
+    const std::string& arch = "none",
+    const std::string& plat = "none") {
   ImVec2 squareSize(xsize, ysize);
-  const char *originalText = envproject.c_str();
+  const char* originalText = envproject.c_str();
   char truncatedText[32];
-  const char *versionText = version.c_str();
+  const char* versionText = version.c_str();
   bool exist = VortexMaker::CheckIfVortexVersionUtilityExist(version, installedpath);
 
   if (strlen(originalText) > 24) {
@@ -401,7 +401,7 @@ static void DownloadableVersionButton(
 
   CherryGUI::BeginGroup();
   ImVec2 cursorPos = CherryGUI::GetCursorScreenPos();
-  ImDrawList *drawList = CherryGUI::GetWindowDrawList();
+  ImDrawList* drawList = CherryGUI::GetWindowDrawList();
 
   if (cursorPos.x + totalSize.x > windowVisibleX2) {
     CherryGUI::NewLine();
@@ -474,7 +474,7 @@ static void DownloadableVersionButton(
   ImVec2 dotButtonPos = ImVec2(smallRectPos.x + smallRectSize.x + 15, smallRectPos.y);
   CherryGUI::SetCursorScreenPos(dotButtonPos);
 
-  VxContext *ctx = VortexMaker::GetCurrentContext();
+  VxContext* ctx = VortexMaker::GetCurrentContext();
   if (exist) {
     {
       CherryGUI::BeginDisabled();
@@ -559,16 +559,16 @@ static void DownloadableVersionButton(
 }
 
 static void InstalledVersionButton(
-    const std::string &path,
-    const std::string &envproject,
+    const std::string& path,
+    const std::string& envproject,
     int xsize = 100,
     int ysize = 100,
-    const std::string &version = "?",
-    const std::string &bannerpath = "resources/imgs/vortex_banner_unknow.png") {
+    const std::string& version = "?",
+    const std::string& bannerpath = "resources/imgs/vortex_banner_unknow.png") {
   ImVec2 squareSize(xsize, ysize);
-  const char *originalText = envproject.c_str();
+  const char* originalText = envproject.c_str();
   char truncatedText[32];
-  const char *versionText = version.c_str();
+  const char* versionText = version.c_str();
 
   if (strlen(originalText) > 24) {
     strncpy(truncatedText, originalText, 8);
@@ -585,7 +585,7 @@ static void InstalledVersionButton(
 
   CherryGUI::BeginGroup();
   ImVec2 cursorPos = CherryGUI::GetCursorScreenPos();
-  ImDrawList *drawList = CherryGUI::GetWindowDrawList();
+  ImDrawList* drawList = CherryGUI::GetWindowDrawList();
 
   if (cursorPos.x + totalSize.x > windowVisibleX2) {
     CherryGUI::NewLine();
@@ -655,9 +655,9 @@ static void InstalledVersionButton(
 static void ProjectImportButton(const std::shared_ptr<EnvProject> envproject, int xsize = 100, int ysize = 100) {
   ImVec2 squareSize(xsize, ysize);
 
-  const char *originalText = envproject->name.c_str();
+  const char* originalText = envproject->name.c_str();
   char truncatedText[12];
-  const char *versionText = envproject->compatibleWith.c_str();
+  const char* versionText = envproject->compatibleWith.c_str();
 
   if (strlen(originalText) > 8) {
     strncpy(truncatedText, originalText, 8);
@@ -680,7 +680,7 @@ static void ProjectImportButton(const std::shared_ptr<EnvProject> envproject, in
     CherryGUI::SetMouseCursor(ImGuiMouseCursor_Hand);
   }
 
-  ImDrawList *drawList = CherryGUI::GetWindowDrawList();
+  ImDrawList* drawList = CherryGUI::GetWindowDrawList();
 
   if (!envproject->logoPath.empty()) {
     drawList->AddImage(
@@ -737,7 +737,7 @@ static void ProjectImportButton(const std::shared_ptr<EnvProject> envproject, in
 static void TemplateButton(const std::shared_ptr<TemplateInterface> templateinterface) {
   ImVec2 squareSize(100, 100);
 
-  const char *originalText = templateinterface->m_proper_name.c_str();
+  const char* originalText = templateinterface->m_proper_name.c_str();
   char truncatedText[12];
 
   if (strlen(originalText) > 8) {
@@ -762,7 +762,7 @@ static void TemplateButton(const std::shared_ptr<TemplateInterface> templateinte
     CherryGUI::SetMouseCursor(ImGuiMouseCursor_Hand);
   }
 
-  ImDrawList *drawList = CherryGUI::GetWindowDrawList();
+  ImDrawList* drawList = CherryGUI::GetWindowDrawList();
 
   std::string logo_path = templateinterface->m_logo_path;
 
@@ -782,14 +782,18 @@ static void TemplateButton(const std::shared_ptr<TemplateInterface> templateinte
   drawList->AddText(versionTextPos, IM_COL32(255, 255, 255, 255), templateinterface->m_group.c_str());
 
   ImVec2 textPos = ImVec2(cursorPos.x + (squareSize.x - textSize.x) / 2, cursorPos.y + squareSize.y + 5);
-  drawList->AddText(textPos, IM_COL32(255, 255, 255, 255), truncatedText);
+  if (CherryApp.GetTheme() == "dark_vortex") {
+    drawList->AddText(textPos, IM_COL32(255, 255, 255, 255), truncatedText);
+  } else {
+    drawList->AddText(textPos, IM_COL32(23, 23, 23, 255), truncatedText);
+  }
 
   float windowVisibleX2 = CherryGUI::GetWindowPos().x + CherryGUI::GetWindowContentRegionMax().x;
   if (cursorPos.x + totalSize.x < windowVisibleX2)
     CherryGUI::SameLine();
 }
 
-static void MyBanner(const std::string &path) {
+static void MyBanner(const std::string& path) {
   // addTexture(path, path);
   ImVec2 squareSize(300, 70);
 
@@ -802,7 +806,7 @@ static void MyBanner(const std::string &path) {
     CherryGUI::SetMouseCursor(ImGuiMouseCursor_Hand);
   }
 
-  ImDrawList *drawList = CherryGUI::GetWindowDrawList();
+  ImDrawList* drawList = CherryGUI::GetWindowDrawList();
 
   // getTexture(path, drawList, cursorPos, squareSize);
   // CherryGUI::Image(path, drawList, cursorPos, squareSize);
