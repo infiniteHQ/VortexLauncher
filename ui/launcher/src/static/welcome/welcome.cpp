@@ -2256,97 +2256,143 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
     }
 
     if (no_installed_modal_opened) {
-      CherryGUI::OpenPopup(Cherry::GetLocale("loc.windows.welcome.no_version").c_str());
+      const CreatePalette pal = GetCreatePalette();
+      const std::string popup_title = Cherry::GetLocale("loc.windows.welcome.no_version");
+
+      CherryGUI::OpenPopup(popup_title.c_str());
 
       ImVec2 main_window_size = CherryGUI::GetWindowSize();
       ImVec2 window_pos = CherryGUI::GetWindowPos();
 
-      CherryGUI::SetNextWindowPos(ImVec2(window_pos.x + (main_window_size.x * 0.5f) - 200, window_pos.y + 150));
+      CherryGUI::SetNextWindowPos(ImVec2(window_pos.x + (main_window_size.x * 0.5f) - 220, window_pos.y + 150));
+      CherryGUI::SetNextWindowSize(ImVec2(440, 0), ImGuiCond_Always);
 
-      CherryGUI::SetNextWindowSize(ImVec2(400, 0), ImGuiCond_Always);
+      CherryGUI::PushStyleVar(ImGuiStyleVar_WindowRounding, 10.0f);
+      CherryGUI::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20.0f, 18.0f));
+      CherryGUI::PushStyleColor(ImGuiCol_PopupBg, Cherry::HexToRGBA(pal.card));
+      CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA(pal.border));
+      CherryGUI::PushStyleColor(ImGuiCol_Separator, Cherry::HexToRGBA(pal.sep));
 
       if (CherryGUI::BeginPopupModal(
-              Cherry::GetLocale("loc.windows.welcome.no_version").c_str(),
+              popup_title.c_str(),
               NULL,
               ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove)) {
-        CherryKit::TitleFour(Cherry::GetLocale("loc.windows.welcome.no_version").c_str());
+        Cherry::PushFont("ClashBold");
+        CherryNextProp("color_text", pal.text);
+        CherryKit::TitleFour(popup_title);
+        Cherry::PopFont();
+
         {
           std::string text_label = Cherry::GetLocale("loc.windows.welcome.no_version_1") + " \"" +
                                    no_installed_project_name + "\"" + Cherry::GetLocale("loc.windows.welcome.no_version_2") +
                                    +"\"" + no_installed_version + "\"" +
                                    Cherry::GetLocale("loc.windows.welcome.no_version_1");
-          CherryGUI::TextWrapped(text_label.c_str());
+          CherryGUI::PushStyleColor(ImGuiCol_Text, Cherry::HexToRGBA(pal.sub));
+          CherryGUI::TextWrapped("%s", text_label.c_str());
+          CherryGUI::PopStyleColor();
         }
+        CherryGUI::Spacing();
         CherryGUI::Separator();
+        CherryGUI::Spacing();
 
         if (no_installed_version_available.version != "") {
+          Cherry::PushFont("ClashBold");
+          CherryNextProp("color_text", pal.text);
           CherryKit::TitleFive(Cherry::GetLocale("loc.all_projects"));
+          Cherry::PopFont();
 
           {
             CherryGUI::BeginChild(
-                "LOGO_", ImVec2(160, 40), false, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoScrollbar);
+                "LOGO_", ImVec2(130, 42), false, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoScrollbar);
             MyButton(Cherry::GetHttpPath(no_installed_version_available.banner), 120, 40);
             CherryGUI::EndChild();
             CherryGUI::SameLine();
           }
           {
-            ImGuiID _id = CherryGUI::GetID("INFO_PANEL");
-            CherryGUI::BeginChild(_id, ImVec2(0, 50), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBackground);
-            CherryGUI::SetCursorPosY(CherryGUI::GetStyle().ItemSpacing.y);
-            {
-              float fontScale = 0.9f;
-              float oldFontSize = CherryGUI::GetFont()->Scale;
-              CherryGUI::GetFont()->Scale = fontScale;
-              CherryGUI::PushFont(CherryGUI::GetFont());
+            CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Cherry::HexToRGBA(pal.panel));
+            CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA(pal.border));
+            CherryGUI::PushStyleVar(ImGuiStyleVar_ChildRounding, 8.0f);
+            CherryGUI::BeginChild(CherryGUI::GetID("INFO_PANEL"), ImVec2(0, 52), true, ImGuiWindowFlags_NoScrollbar);
+            CherryGUI::SetCursorPosY(CherryGUI::GetStyle().ItemSpacing.y + 2.0f);
 
-              CherryGUI::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.9f), no_installed_version_available.name.c_str());
+            CherryStyle::PushFontSize(0.9f);
+            CherryGUI::PushStyleColor(ImGuiCol_Text, Cherry::HexToRGBA(pal.text));
+            CherryGUI::TextUnformatted(no_installed_version_available.name.c_str());
+            CherryGUI::PopStyleColor();
+            CherryStyle::PopFontSize();
 
-              CherryGUI::GetFont()->Scale = oldFontSize;
-              CherryGUI::PopFont();
-            }
-
-            // Space(2.0f);
-            {
-              float fontScale = 0.8f;
-              float oldFontSize = CherryGUI::GetFont()->Scale;
-              CherryGUI::GetFont()->Scale = fontScale;
-              CherryGUI::PushFont(CherryGUI::GetFont());
-
-              CherryGUI::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.5f), "Version: ");
-              CherryGUI::SameLine();
-              CherryGUI::TextColored(ImVec4(1.0f, 0.8f, 0.8f, 0.8f), no_installed_version_available.version.c_str());
-
-              CherryGUI::GetFont()->Scale = oldFontSize;
-              CherryGUI::PopFont();
-            }
+            CherryStyle::PushFontSize(0.8f);
+            CherryGUI::PushStyleColor(ImGuiCol_Text, Cherry::HexToRGBA(pal.sub));
+            CherryGUI::TextUnformatted("Version:");
+            CherryGUI::PopStyleColor();
+            CherryGUI::SameLine();
+            CreatePill(no_installed_version_available.version, pal.accent, pal.accentText);
+            CherryStyle::PopFontSize();
 
             CherryGUI::EndChild();
+            CherryGUI::PopStyleVar();
+            CherryGUI::PopStyleColor(2);
           }
 
-          CherryGUI::Separator();
-
-          CherryGUI::TextWrapped(Cherry::GetLocale("loc.windows.welcome.can_install_version").c_str());
+          CherryGUI::Spacing();
+          CherryGUI::PushStyleColor(ImGuiCol_Text, Cherry::HexToRGBA(pal.sub));
+          CherryGUI::TextWrapped("%s", Cherry::GetLocale("loc.windows.welcome.can_install_version").c_str());
+          CherryGUI::PopStyleColor();
         } else {
+          CherryGUI::PushStyleColor(ImGuiCol_Text, Cherry::HexToRGBA(pal.danger));
           if (!VortexMaker::GetCurrentContext()->disconnected) {
-            CherryGUI::TextWrapped(Cherry::GetLocale("loc.windows.welcome.cannot_find_version").c_str());
+            CherryGUI::TextWrapped("%s", Cherry::GetLocale("loc.windows.welcome.cannot_find_version").c_str());
           } else {
-            CherryGUI::TextWrapped(Cherry::GetLocale("loc.windows.welcome.cannot_find_version_offline").c_str());
+            CherryGUI::TextWrapped("%s", Cherry::GetLocale("loc.windows.welcome.cannot_find_version_offline").c_str());
           }
+          CherryGUI::PopStyleColor();
         }
 
+        CherryGUI::Spacing();
         CherryGUI::Separator();
+        CherryGUI::Spacing();
 
-        if (CherryGUI::Button(Cherry::GetLocale("loc.close").c_str())) {
+        auto styled_button = [&](const char* label, const char* bg, const char* bg_hover, const char* fg) -> bool {
+          CherryGUI::PushStyleVar(ImGuiStyleVar_FrameRounding, 8.0f);
+          CherryGUI::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(14.0f, 7.0f));
+          CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA(bg));
+          CherryGUI::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA(bg_hover));
+          CherryGUI::PushStyleColor(ImGuiCol_ButtonActive, Cherry::HexToRGBA(bg_hover));
+          CherryGUI::PushStyleColor(ImGuiCol_Text, Cherry::HexToRGBA(fg));
+          const bool clicked = CherryGUI::Button(label);
+          CherryGUI::PopStyleColor(4);
+          CherryGUI::PopStyleVar(2);
+          return clicked;
+        };
+
+        const char* neutral_hover = pal.dark ? "#3A3A3A" : "#D2D2D2";
+        const char* accent_hover = pal.dark ? "#C3FF53" : "#4FA800";
+
+        if (styled_button(Cherry::GetLocale("loc.close").c_str(), pal.pillBg, neutral_hover, pal.pillText)) {
           CherryGUI::CloseCurrentPopup();
           no_installed_modal_opened = false;
         }
+
+        if (!VortexMaker::GetCurrentContext()->disconnected) {
+          CherryGUI::SameLine();
+          const bool can_search = static_cast<bool>(m_SearchVersionCallback);
+          if (!can_search)
+            CherryGUI::BeginDisabled();
+          if (styled_button("Search official versions", pal.pillBg, neutral_hover, pal.text)) {
+            m_SearchVersionCallback(no_installed_version);
+            CherryGUI::CloseCurrentPopup();
+            no_installed_modal_opened = false;
+          }
+          if (!can_search)
+            CherryGUI::EndDisabled();
+          if (CherryGUI::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
+            CherryGUI::SetTooltip("Open the Version Manager filtered on \"%s\"", no_installed_version.c_str());
+          }
+        }
+
         if (no_installed_version_available.version != "") {
           CherryGUI::SameLine();
-          CherryGUI::PushStyleColor(ImGuiCol_Text, Cherry::HexToRGBA("#232323FF"));
-          CherryGUI::PushStyleColor(ImGuiCol_Button, Cherry::HexToRGBA("#B1FF31FF"));
-          CherryGUI::PushStyleColor(ImGuiCol_ButtonHovered, Cherry::HexToRGBA("#FFFFFFFF"));
-          CherryGUI::PushStyleColor(ImGuiCol_Border, Cherry::HexToRGBA("#FFFFFFFF"));
-          if (CherryGUI::Button(Cherry::GetLocale("loc.install_and_open").c_str())) {
+          if (styled_button(Cherry::GetLocale("loc.install_and_open").c_str(), pal.accent, accent_hover, pal.accentText)) {
             std::thread([this]() {
               VortexMaker::OpenVortexInstaller(
                   no_installed_version_available.version,
@@ -2355,11 +2401,13 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
                   no_installed_version_available.plat);
             }).detach();
           }
-          CherryGUI::PopStyleColor(4);
         }
 
         CherryGUI::EndPopup();
       }
+
+      CherryGUI::PopStyleColor(3);
+      CherryGUI::PopStyleVar(2);
     }
   }
 

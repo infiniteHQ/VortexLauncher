@@ -519,4 +519,14 @@ namespace VortexLauncher {
     }
   }
 
+  void VersionManager::OpenWithSearch(const std::string& query) {
+    std::strncpy(g_Search, query.c_str(), sizeof(g_Search) - 1);
+    g_Search[sizeof(g_Search) - 1] = '\0';
+    g_Filter = VFilter::All;
+    g_ConfirmDelete = -1;
+    m_SelectedChildName = "Installed versions";
+    RefreshVortexVersions();
+    if (m_AppWindow)
+      m_AppWindow->SetVisibility(true);
+  }
 }  // namespace VortexLauncher

@@ -56,6 +56,9 @@ class Launcher {
 
     // Welcome
     welcome_window = WelcomeWindow::Create("?loc:loc.window_names.welcome");
+
+    welcome_window->m_SearchVersionCallback = [this](const std::string& query) { this->SpawnVersionManager(query); };
+
     welcome_window->m_ProjectCallback = [this](const std::shared_ptr<EnvProject>& project) {
       welcome_window->m_SelectedChildName = "?loc:loc.windows.welcome.open_project";
       welcome_window->m_SelectedEnvproject = project;
@@ -205,10 +208,19 @@ class Launcher {
     logs_utility_counter++;
   }
 
-  void SpawnVersionManager() {
+  void SpawnVersionManager(const std::string& search = "") {
+    if (auto existing = version_manager.lock()) {
+      if (!search.empty()) {
+        existing->OpenWithSearch(search);
+      }
+      CherryGUI::SetWindowFocus(existing->GetAppWindow()->m_IdName.c_str());
+      return;
+    }
+
     std::string label = "?loc:loc.window_names.version_manager" + std::to_string(vortex_versions_counter);
     auto settings_win = VersionManager::Create(label);
     settings_win->GetAppWindow()->SetVisibility(true);
+    version_manager = settings_win;
 
     Cherry::ApplicationSpecification spec;
 
@@ -233,6 +245,7 @@ class Launcher {
     spec.UsingCloseCallback = true;
     spec.CloseCallback = [this, settings_win]() {
       Cherry::DeleteAppWindow(settings_win->GetAppWindow());
+      version_manager.reset();
       vortex_versions_counter--;
     };
 
@@ -242,6 +255,8 @@ class Launcher {
     Cherry::AddAppWindow(settings_win->GetAppWindow());
     settings_win->GetAppWindow()->AttachOnNewWindow(spec);
     vortex_versions_counter++;
+
+    settings_win->OpenWithSearch(search);
   }
 
   void SpawnMainSettings(const std::string child = "") {
@@ -376,6 +391,7 @@ class Launcher {
   // std::shared_ptr<DownloadCenter> download_center;
   std::shared_ptr<WelcomeWindow> welcome_window;
   std::shared_ptr<AboutAppWindow> about_window;
+  std::weak_ptr<VersionManager> version_manager;
 
   bool offline = false;
   std::vector<std::string> topics = { "vortex1", "vortex2" };
@@ -517,16 +533,16 @@ Cherry::Application* Cherry::CreateApplication(int argc, char** argv) {
       ImGuiToast toast(ImGuiToastType::Info, 100000,
 
 [](){
-/*static std::shared_ptr<Cherry::ImageTextButtonSimple> btn = std::make_shared<Cherry::ImageTextButtonSimple>("UpdateButton",
-"Update launcher"); btn->SetScale(0.85f); btn->SetInternalMarginX(10.0f); btn->SetLogoSize(15, 15);
+/*static std::shared_ptr<Cherry::ImageTextButtonSimple> btn =
+std::make_shared<Cherry::ImageTextButtonSimple>("UpdateButton", "Update launcher"); btn->SetScale(0.85f);
+btn->SetInternalMarginX(10.0f); btn->SetLogoSize(15, 15);
 btn->SetImagePath(Cherry::GetPath("resources/imgs/icons/misc/icon_upgrade.png"));*
 
 
 },
 []() { return (CherryKit::ButtonImageText("",
-Cherry::GetPath("resources/imgs/icons/misc/icon_close.png")).GetData("isClicked") == "true"); },  // Wrap Render in a lambda
-nullptr,
-Cherry::GetTexture(Cherry::GetPath("resources/imgs/icon_update.png"))
+Cherry::GetPath("resources/imgs/icons/misc/icon_close.png")).GetData("isClicked") == "true"); },  // Wrap Render in a
+lambda nullptr, Cherry::GetTexture(Cherry::GetPath("resources/imgs/icon_update.png"))
 );
 
       toast.setTitle("Update Vortex Launcher");
