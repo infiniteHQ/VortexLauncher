@@ -48,7 +48,7 @@ namespace VortexLauncher {
     void RefreshTemplates() {
       project_templates.clear();
       for (auto tem : VortexMaker::GetCurrentContext()->IO.sys_templates) {
-        if (tem->m_type == "project") {
+        if (tem->m_type == "project" || tem->m_type == "tool") {
           project_templates.push_back(tem);
         }
       }

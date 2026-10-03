@@ -595,18 +595,15 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png")).GetData("isClicked"
 
         // Cherry::Application::Get().Close();
       }
-
-      CherryKit::SeparatorText(Cherry::GetLocale("loc.menubar.summary.garage"));
+      CherryKit::SeparatorText(Cherry::GetLocale("loc.menubar.summary.manage"));
 
       if (CherryGUI::MenuItem(
-              Cherry::GetLocale("loc.menubar.menuitem.garage").c_str(),
-              Cherry::GetLocale("loc.menubar.menuitem.garage_desc").c_str(),
-              Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_net.png")),
+              Cherry::GetLocale("loc.menubar.menuitem.vortex_versions").c_str(),
+              Cherry::GetLocale("loc.menubar.menuitem.vortex_versions_desc").c_str(),
+              Cherry::GetTexture(Cherry::GetPath("resources/imgs/favicon.png")),
               false)) {
-        VortexMaker::OpenURL("https://garage.infinite.si/");
+        c_Launcher->SpawnVersionManager();
       }
-
-      CherryKit::SeparatorText(Cherry::GetLocale("loc.menubar.summary.manage"));
 
       if (CherryGUI::MenuItem(
               Cherry::GetLocale("loc.menubar.menuitem.contents").c_str(),
@@ -614,14 +611,6 @@ Cherry::GetPath("resources/imgs/icons/misc/icon_close.png")).GetData("isClicked"
               Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_bricksearch.png")),
               false)) {
         c_Launcher->SpawnLogicContentManager();
-      }
-
-      if (CherryGUI::MenuItem(
-              Cherry::GetLocale("loc.menubar.menuitem.vortex_versions").c_str(),
-              Cherry::GetLocale("loc.menubar.menuitem.vortex_versions_desc").c_str(),
-              Cherry::GetTexture(Cherry::GetPath("resources/imgs/icons/misc/icon_versions.png")),
-              false)) {
-        c_Launcher->SpawnVersionManager();
       }
 
       CherryKit::SeparatorText(Cherry::GetLocale("loc.menubar.summary.other"));
