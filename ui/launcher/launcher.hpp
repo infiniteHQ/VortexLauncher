@@ -447,24 +447,18 @@ Cherry::Application* Cherry::CreateApplication(int argc, char** argv) {
       VortexMaker::OpenURL("https://fund.infinite.si/");
     }
 
-    static bool theme_is_black = true;
-    if (theme_is_black) {
+    {
+      const bool is_dark = (CherryApp.GetTheme() == "dark_vortex");
       CherryNextComponent.SetProperty("size_x", "20");
       CherryNextComponent.SetProperty("size_y", "20");
       CherryNextComponent.SetProperty("padding_x", "1");
       CherryNextComponent.SetProperty("padding_y", "1");
-      if (CherryKit::ButtonImage(Cherry::GetPath("resources/imgs/icons/launcher/light.png")).GetDataAs<bool>("isClicked")) {
-        theme_is_black = false;
-        CherryApp.SetTheme("light");
-      }
-    } else {
-      CherryNextComponent.SetProperty("size_x", "20");
-      CherryNextComponent.SetProperty("size_y", "20");
-      CherryNextComponent.SetProperty("padding_x", "1");
-      CherryNextComponent.SetProperty("padding_y", "1");
-      if (CherryKit::ButtonImage(Cherry::GetPath("resources/imgs/icons/launcher/dark.png")).GetDataAs<bool>("isClicked")) {
-        theme_is_black = true;
-        CherryApp.SetTheme("dark_vortex");
+      if (CherryKit::ButtonImage(
+              Cherry::GetPath(
+                  is_dark ? "resources/imgs/icons/launcher/light.png" : "resources/imgs/icons/launcher/dark.png"))
+              .GetDataAs<bool>("isClicked")) {
+        VortexMaker::SetTheme(is_dark ? "light" : "dark");
+        ApplyThemePreference(true);
       }
     }
 
@@ -495,7 +489,7 @@ Cherry::Application* Cherry::CreateApplication(int argc, char** argv) {
 
   app->AddTheme(CherryThemes::DarkVortex());
   app->AddTheme(CherryThemes::Light());
-  app->SetTheme("dark_vortex");  // TODO: From settings
+  app->SetTheme(VortexMaker::ResolveTheme());
   app->SetLocale(VortexMaker::GetLanguage());
 
   /*static std::shared_ptr<Cherry::ImageButtonSimple> btn_close =

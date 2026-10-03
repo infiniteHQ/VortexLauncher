@@ -20,7 +20,7 @@
 //-----------------------------------------------------------------------------
 // Current runtime pointer.
 #ifndef CVortexMaker
-VxContext *CVortexMaker = NULL;
+VxContext* CVortexMaker = NULL;
 #endif
 
 // Memory Allocator functions. Use SetAllocatorFunctions() to change them.
@@ -41,7 +41,7 @@ VxContext *CVortexMaker = NULL;
  * @param user_data Unused user data pointer (required by Vortex allocator signature).
  * @return A pointer to the allocated memory, or nullptr if allocation fails.
  */
-static void *MallocWrapper(size_t size, void *user_data) {
+static void* MallocWrapper(size_t size, void* user_data) {
   VX_UNUSED(user_data);  // Unused parameter
   return malloc(size);   // Call standard malloc
 }
@@ -55,7 +55,7 @@ static void *MallocWrapper(size_t size, void *user_data) {
  * @param ptr Pointer to the memory block to deallocate.
  * @param user_data Unused user data pointer (required by Vortex allocator signature).
  */
-static void FreeWrapper(void *ptr, void *user_data) {
+static void FreeWrapper(void* ptr, void* user_data) {
   VX_UNUSED(user_data);  // Unused parameter
   free(ptr);             // Call standard free
 }
@@ -72,7 +72,7 @@ static void FreeWrapper(void *ptr, void *user_data) {
  * @param user_data Unused user data parameter.
  * @return Always returns nullptr, triggering an assertion.
  */
-static void *MallocWrapper(size_t size, void *user_data) {
+static void* MallocWrapper(size_t size, void* user_data) {
   VX_UNUSED(size);       // Unused parameter
   VX_UNUSED(user_data);  // Unused parameter
   VX_ASSERT(0);          // Trigger assertion, should not be called
@@ -88,7 +88,7 @@ static void *MallocWrapper(size_t size, void *user_data) {
  * @param ptr Unused pointer parameter.
  * @param user_data Unused user data parameter.
  */
-static void FreeWrapper(void *ptr, void *user_data) {
+static void FreeWrapper(void* ptr, void* user_data) {
   VX_UNUSED(ptr);        // Unused parameter
   VX_UNUSED(user_data);  // Unused parameter
   VX_ASSERT(0);          // Trigger assertion, should not be called
@@ -98,7 +98,7 @@ static void FreeWrapper(void *ptr, void *user_data) {
 
 static VortexMakerMemAllocFunc CVxAllocatorAllocFunc = MallocWrapper;
 static VortexMakerMemFreeFunc CVxAllocatorFreeFunc = FreeWrapper;
-static void *CVxAllocatorUserData = NULL;
+static void* CVxAllocatorUserData = NULL;
 
 /**
  * @brief CreateContext creates a new Vortex context.
@@ -108,12 +108,12 @@ static void *CVxAllocatorUserData = NULL;
  *
  * @return A pointer to the newly created Vortex context.
  */
-VORTEX_API VxContext *VortexMaker::CreateContext() {
+VORTEX_API VxContext* VortexMaker::CreateContext() {
   // Save the previous context before creating a new one
-  VxContext *prev_ctx = GetCurrentContext();
+  VxContext* prev_ctx = GetCurrentContext();
 
   // Allocate memory for the new context
-  VxContext *ctx = VX_NEW(VxContext);
+  VxContext* ctx = VX_NEW(VxContext);
 
   // Set the current context to the newly created context
   SetCurrentContext(ctx);
@@ -134,7 +134,7 @@ VORTEX_API VxContext *VortexMaker::CreateContext() {
  *
  * @param ctx A pointer to the Vortex context to be set as the current context.
  */
-void VortexMaker::SetCurrentContext(VxContext *ctx) {
+void VortexMaker::SetCurrentContext(VxContext* ctx) {
 #ifdef USE_CURRENT_CONTEXT_FUNC
   // If custom thread-based control is enabled, call the custom function
   USE_CURRENT_CONTEXT_FUNC(ctx);
@@ -152,9 +152,9 @@ void VortexMaker::SetCurrentContext(VxContext *ctx) {
  *
  * @param ctx A pointer to the Vortex context to be destroyed. If nullptr, the current context will be destroyed.
  */
-VORTEX_API void VortexMaker::DestroyContext(VxContext *ctx) {
+VORTEX_API void VortexMaker::DestroyContext(VxContext* ctx) {
   // Save the previous context before destroying the specified context
-  VxContext *prev_ctx = GetCurrentContext();
+  VxContext* prev_ctx = GetCurrentContext();
 
   // If no context is provided, destroy the current context
   if (ctx == nullptr)
@@ -172,16 +172,16 @@ VORTEX_API void VortexMaker::DestroyContext(VxContext *ctx) {
 
 VORTEX_API std::string VortexMaker::getHomeDirectory() {
   if (VortexMaker::IsLinux() || VortexMaker::IsMacOs()) {
-    const char *homePath = std::getenv("HOME");
+    const char* homePath = std::getenv("HOME");
     if (homePath == nullptr) {
       throw std::runtime_error("HOME environment variable not set");
     }
     return std::string(homePath);
   } else if (VortexMaker::IsWindows()) {
-    const char *homePath = std::getenv("USERPROFILE");
+    const char* homePath = std::getenv("USERPROFILE");
     if (homePath == nullptr) {
-      const char *homeDrive = std::getenv("HOMEDRIVE");
-      const char *homePathEnv = std::getenv("HOMEPATH");
+      const char* homeDrive = std::getenv("HOMEDRIVE");
+      const char* homePathEnv = std::getenv("HOMEPATH");
       if (homeDrive == nullptr || homePathEnv == nullptr) {
         throw std::runtime_error("HOMEPATH environment variables not set");
       }
@@ -208,10 +208,10 @@ std::string generateSessionID() {
 }
 
 void addSessionToJson(
-    const std::string &session_id,
-    const std::string &version,
-    const std::string &user,
-    const std::string &path) {
+    const std::string& session_id,
+    const std::string& version,
+    const std::string& user,
+    const std::string& path) {
   // Set path depending on platform
   std::string json_path;
   if (VortexMaker::IsWindows()) {
@@ -246,7 +246,7 @@ void addSessionToJson(
 }
 
 // TODO : In editor (if the launcher is stopped before the editor.)
-void removeSessionFromJson(const std::string &session_id) {
+void removeSessionFromJson(const std::string& session_id) {
   // Set path depending on platform
   std::string json_path;
   if (VortexMaker::IsWindows()) {
@@ -277,7 +277,7 @@ void removeSessionFromJson(const std::string &session_id) {
   file_out << active_sessions.dump(4);  // Pretty print with indentation
 }
 
-VORTEX_API bool VortexMaker::CheckIfProjectRunning(const std::string &path) {
+VORTEX_API bool VortexMaker::CheckIfProjectRunning(const std::string& path) {
   // Set path depending on platform
   std::string json_path;
   if (VortexMaker::IsWindows()) {
@@ -299,7 +299,7 @@ VORTEX_API bool VortexMaker::CheckIfProjectRunning(const std::string &path) {
   }
 
   // Check if the session with the given path is currently running
-  for (const auto &session : active_sessions["sessions"]) {
+  for (const auto& session : active_sessions["sessions"]) {
     if (session.contains("session_path") && session["session_path"] == path) {
       return true;  // Project is running
     }
@@ -314,7 +314,7 @@ VORTEX_API bool VortexMaker::CheckIfProjectRunning(const std::string &path) {
 #include <unistd.h>
 #endif
 
-std::string escapeQuotes(const std::string &command) {
+std::string escapeQuotes(const std::string& command) {
   std::string escapedCommand;
   for (char c : command) {
     if (c == '"') {
@@ -328,7 +328,7 @@ std::string escapeQuotes(const std::string &command) {
 
 // Called from Vortex Launcher if the session reached the maximum time of session saving delay
 // max_save_time format : 42[mi/d/mo/y] ex: 30mi = 30 minutes ; 5d = 5 Days ; 1mo = 1 month
-void VortexMaker::clean_sessions(const std::string &max_save_time) {
+void VortexMaker::clean_sessions(const std::string& max_save_time) {
   // Parse max_save_time into a duration in seconds
   int value = 0;
   std::string unit;
@@ -363,7 +363,7 @@ void VortexMaker::clean_sessions(const std::string &max_save_time) {
 
   auto now = std::chrono::system_clock::now();
 
-  for (const auto &entry : std::filesystem::directory_iterator(sessions_dir)) {
+  for (const auto& entry : std::filesystem::directory_iterator(sessions_dir)) {
     if (!entry.is_directory())
       continue;
 
@@ -419,7 +419,7 @@ void VortexMaker::clear_all_active_sessions() {
   }
 }
 
-bool VortexMaker::executeInChildProcess(const std::string &command) {
+bool VortexMaker::executeInChildProcess(const std::string& command) {
 #ifdef _WIN32
   STARTUPINFOA si = { 0 };
   PROCESS_INFORMATION pi = { 0 };
@@ -433,7 +433,9 @@ bool VortexMaker::executeInChildProcess(const std::string &command) {
 
   if (!CreateProcessA(
           NULL, commandLine, NULL, NULL, FALSE, CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP, NULL, NULL, &si, &pi)) {
-    VortexMaker::LogError("Child process loader", "Error while creating process for command: " + command + " Error: " + std::to_string(GetLastError()));
+    VortexMaker::LogError(
+        "Child process loader",
+        "Error while creating process for command: " + command + " Error: " + std::to_string(GetLastError()));
     return false;
   }
 
@@ -453,8 +455,8 @@ bool VortexMaker::executeInChildProcess(const std::string &command) {
     // In child process
     std::vector<std::string> args = { "bash", "-c", command };
 
-    std::vector<char *> cArgs;
-    for (auto &arg : args) {
+    std::vector<char*> cArgs;
+    for (auto& arg : args) {
       cArgs.push_back(&arg[0]);
     }
     cArgs.push_back(nullptr);
@@ -478,13 +480,13 @@ bool VortexMaker::executeInChildProcess(const std::string &command) {
 #endif
 }
 
-std::string convertPathToWindowsStyle(const std::string &path) {
+std::string convertPathToWindowsStyle(const std::string& path) {
   std::string windowsPath = path;
   std::replace(windowsPath.begin(), windowsPath.end(), '/', '\\');
   return windowsPath;
 }
 
-VORTEX_API std::vector<std::shared_ptr<VortexVersion>> VortexMaker::GetAllSystemVersions(const std::string &compatibleWith) {
+VORTEX_API std::vector<std::shared_ptr<VortexVersion>> VortexMaker::GetAllSystemVersions(const std::string& compatibleWith) {
   std::vector<std::shared_ptr<VortexVersion>> versions;
 
   for (auto v : VortexMaker::GetCurrentContext()->IO.sys_vortex_versions) {
@@ -496,7 +498,7 @@ VORTEX_API std::vector<std::shared_ptr<VortexVersion>> VortexMaker::GetAllSystem
   return versions;
 }
 
-VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::string &name) {
+VORTEX_API void VortexMaker::OpenProject(const std::string& path, const std::string& name) {
   std::string session_id = generateSessionID();
   // addSessionToJson(session_id, name, "user", path);
 
@@ -514,12 +516,11 @@ VORTEX_API void VortexMaker::OpenProject(const std::string &path, const std::str
   }
 
   std::string command;
-if (VortexMaker::IsWindows()) {command = "cmd.exe /C \"\"" +
-          vortex_path + "\\bin\\vx.bat\" \"" +
-          project_path + "\"\"";
-} else {
-  command = vortex_path + "/bin/vx.sh" + " \"" + project_path + "\"";
-}
+  if (VortexMaker::IsWindows()) {
+    command = "cmd.exe /C \"\"" + vortex_path + "\\bin\\vx.bat\" \"" + project_path + "\"\"";
+  } else {
+    command = vortex_path + "/bin/vx.sh" + " \"" + project_path + "\"";
+  }
 
   VortexMaker::executeInChildProcess(command);
   return;
@@ -549,7 +550,7 @@ VORTEX_API void VortexMaker::RefreshActiveSessions() {
   nlohmann::json filtered_sessions;
   filtered_sessions["sessions"] = nlohmann::json::array();
 
-  for (const auto &session : active_sessions["sessions"]) {
+  for (const auto& session : active_sessions["sessions"]) {
     if (session.contains("session_start_at")) {
       std::time_t start_time = session["session_start_at"];
       if (start_time >= lastBoot) {
@@ -572,7 +573,7 @@ VORTEX_API std::time_t VortexMaker::GetLastBootTime() {
   struct timeval boottime;
   size_t size = sizeof(boottime);
 
-  int mib[2] = {CTL_KERN, KERN_BOOTTIME};
+  int mib[2] = { CTL_KERN, KERN_BOOTTIME };
 
   if (sysctl(mib, 2, &boottime, &size, nullptr, 0) == 0) {
     return static_cast<std::time_t>(boottime.tv_sec);
@@ -595,8 +596,7 @@ VORTEX_API std::time_t VortexMaker::GetLastBootTime() {
 #endif
 }
 
-
-std::string escapeSpaces(const std::string &input) {
+std::string escapeSpaces(const std::string& input) {
   std::string escaped;
   for (char c : input) {
     if (c == ' ') {
@@ -608,8 +608,8 @@ std::string escapeSpaces(const std::string &input) {
   return escaped;
 }
 
-VORTEX_API void VortexMaker::OpenVortexUninstaller(const std::string &path) {
-  VxContext &ctx = *CVortexMaker;
+VORTEX_API void VortexMaker::OpenVortexUninstaller(const std::string& path) {
+  VxContext& ctx = *CVortexMaker;
 
   std::string quotedPath = "\"" + path + "\"";
 
@@ -628,11 +628,11 @@ VORTEX_API void VortexMaker::OpenVortexUninstaller(const std::string &path) {
 }
 
 VORTEX_API void VortexMaker::OpenVortexInstaller(
-    const std::string &version,
-    const std::string &arch,
-    const std::string &dist,
-    const std::string &platform) {
-  VxContext &ctx = *CVortexMaker;
+    const std::string& version,
+    const std::string& arch,
+    const std::string& dist,
+    const std::string& platform) {
+  VxContext& ctx = *CVortexMaker;
 
   std::string command;
 
@@ -655,8 +655,8 @@ VORTEX_API void VortexMaker::OpenVortexInstaller(
   }
 }
 
-VORTEX_API void VortexMaker::OpenLauncherUpdater(const std::string &path, const std::string &dist) {
-  VxContext &ctx = *CVortexMaker;
+VORTEX_API void VortexMaker::OpenLauncherUpdater(const std::string& path, const std::string& dist) {
+  VxContext& ctx = *CVortexMaker;
 
   std::string command;
 
@@ -691,7 +691,7 @@ VORTEX_API void VortexMaker::OpenLauncherUpdater(const std::string &path, const 
 void VortexMaker::SetAllocatorFunctions(
     VortexMakerMemAllocFunc alloc_func,
     VortexMakerMemFreeFunc free_func,
-    void *user_data) {
+    void* user_data) {
   // Set the custom allocator functions and user data for VortexMaker
   CVxAllocatorAllocFunc = alloc_func;
   CVxAllocatorFreeFunc = free_func;
@@ -710,9 +710,9 @@ void VortexMaker::SetAllocatorFunctions(
  * @param p_user_data Pointer to store the user data.
  */
 void VortexMaker::GetAllocatorFunctions(
-    VortexMakerMemAllocFunc *p_alloc_func,
-    VortexMakerMemFreeFunc *p_free_func,
-    void **p_user_data) {
+    VortexMakerMemAllocFunc* p_alloc_func,
+    VortexMakerMemFreeFunc* p_free_func,
+    void** p_user_data) {
   // Retrieve the allocator functions and user data from the VortexMaker
   *p_alloc_func = CVxAllocatorAllocFunc;
   *p_free_func = CVxAllocatorFreeFunc;
@@ -720,7 +720,7 @@ void VortexMaker::GetAllocatorFunctions(
 }
 
 #ifdef _WIN32
-std::string VortexMaker::convertPathToWindowsStyle(const std::string &path) {
+std::string VortexMaker::convertPathToWindowsStyle(const std::string& path) {
   std::string windowsPath = path;
   std::replace(windowsPath.begin(), windowsPath.end(), '/', '\\');
   return windowsPath;
@@ -752,7 +752,7 @@ std::string VortexMaker::CookPath(std::string_view input_path) {
   return (input_path.empty() || input_path[0] == '/') ? std::string(input_path) : root_path + "/" + std::string(input_path);
 }
 
-std::string VortexMaker::GetPath(const std::string &path) {
+std::string VortexMaker::GetPath(const std::string& path) {
 #ifdef _WIN32
   return VortexMaker::convertPathToWindowsStyle(VortexMaker::CookPath(path));
 #else
@@ -765,7 +765,7 @@ std::string VortexMaker::GetPath(const std::string &path) {
 
 #include <string>
 
-int VortexMaker::RunCommand(const std::string &command) {
+int VortexMaker::RunCommand(const std::string& command) {
   STARTUPINFOA si = { sizeof(si) };
   PROCESS_INFORMATION pi;
   si.dwFlags = STARTF_USESHOWWINDOW;
@@ -792,12 +792,12 @@ int VortexMaker::RunCommand(const std::string &command) {
 #else
 #include <cstdlib>
 
-int VortexMaker::RunCommand(const std::string &command) {
+int VortexMaker::RunCommand(const std::string& command) {
   return std::system(command.c_str());
 }
 #endif
 
-VORTEX_API void VortexMaker::InstallPluginToSystem(const std::string &path, const std::string &pool_path) {
+VORTEX_API void VortexMaker::InstallPluginToSystem(const std::string& path, const std::string& pool_path) {
   std::string plugins_path = pool_path;
   std::string json_file = path + "/plugin.json";
 
@@ -828,13 +828,13 @@ VORTEX_API void VortexMaker::InstallPluginToSystem(const std::string &path, cons
       std::string cmd = "cp -r " + path + "/* " + plugins_path;
       system(cmd.c_str());
     }
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     // Print error if an exception occurs
     std::cerr << "Error: " << e.what() << std::endl;
   }
 }
 
-VORTEX_API void VortexMaker::InstallModuleToSystem(const std::string &path, const std::string &pool_path) {
+VORTEX_API void VortexMaker::InstallModuleToSystem(const std::string& path, const std::string& pool_path) {
   std::string modules_path = pool_path;
   std::string json_file = path + "/module.json";
 
@@ -865,16 +865,16 @@ VORTEX_API void VortexMaker::InstallModuleToSystem(const std::string &path, cons
       std::string cmd = "cp -r " + path + "/* " + modules_path;
       system(cmd.c_str());
     }
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     // Print error if an exception occurs
     std::cerr << "Error: " << e.what() << std::endl;
   }
 }
 
-VortexVersion VortexMaker::CheckVersionAvailibility(const std::string &version) {
-  VxContext &ctx = *CVortexMaker;
+VortexVersion VortexMaker::CheckVersionAvailibility(const std::string& version) {
+  VxContext& ctx = *CVortexMaker;
 
-  for (auto &available_version : ctx.latest_vortex_versions) {
+  for (auto& available_version : ctx.latest_vortex_versions) {
     if (available_version.version == version) {
       return available_version;
     }
@@ -905,9 +905,9 @@ VORTEX_API std::string VortexMaker::DetectSystemLanguage() {
     return lang;
   }
 #else
-  const char *envVars[] = { "LC_ALL", "LANG", "LC_MESSAGES" };
+  const char* envVars[] = { "LC_ALL", "LANG", "LC_MESSAGES" };
   for (auto var : envVars) {
-    const char *val = std::getenv(var);
+    const char* val = std::getenv(var);
     if (val && *val) {
       std::string s(val);
 
@@ -938,7 +938,7 @@ VORTEX_API std::string VortexMaker::GetDefaultSelectedLanguage() {
   return "en";
 }
 
-VORTEX_API void VortexMaker::OpenURL(const std::string &url) {
+VORTEX_API void VortexMaker::OpenURL(const std::string& url) {
 #if defined(_WIN32)
   ShellExecuteA(NULL, "open", url.c_str(), NULL, NULL, SW_SHOWNORMAL);
 #elif defined(__APPLE__)
@@ -952,7 +952,7 @@ VORTEX_API void VortexMaker::OpenURL(const std::string &url) {
 #endif
 }
 
-VORTEX_API void VortexMaker::SetLanguage(const std::string &language) {
+VORTEX_API void VortexMaker::SetLanguage(const std::string& language) {
   std::string vxBasePath;
   std::string vortexProjectsPath;
   std::string homeDir = VortexMaker::getHomeDirectory();
@@ -1015,6 +1015,151 @@ VORTEX_API std::string VortexMaker::GetLanguage() {
   return defaultLang;
 }
 
+namespace {
+
+  std::string ThemeConfigFile() {
+    const std::string home = VortexMaker::getHomeDirectory();
+    const char sep = VortexMaker::IsWindows() ? '\\' : '/';
+    const std::string dir = home + sep + ".vx" + sep + "configs" + sep;
+    std::error_code ec;
+    std::filesystem::create_directories(dir, ec);
+    return dir + "theme.json";
+  }
+
+  std::string NormalizeTheme(std::string t) {
+    std::transform(t.begin(), t.end(), t.begin(), [](unsigned char c) { return (char)std::tolower(c); });
+    if (t == "light")
+      return "light";
+    if (t == "system")
+      return "system";
+    return "dark";
+  }
+
+  std::string g_ThemePref;
+  bool g_ThemeLoaded = false;
+
+#if !defined(_WIN32)
+  std::string CaptureCommandOutput(const char* cmd) {
+    std::string out;
+    FILE* pipe = popen(cmd, "r");
+    if (!pipe)
+      return out;
+    char buf[256];
+    while (fgets(buf, sizeof(buf), pipe))
+      out += buf;
+    pclose(pipe);
+    return out;
+  }
+
+  std::string ThemeLowerCopy(std::string s) {
+    std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return (char)std::tolower(c); });
+    return s;
+  }
+#endif
+
+}  // namespace
+
+VORTEX_API std::string VortexMaker::GetDefaultSelectedTheme() {
+  return "dark";
+}
+
+VORTEX_API void VortexMaker::SetTheme(const std::string& theme) {
+  const std::string normalized = NormalizeTheme(theme);
+
+  nlohmann::json jsonData;
+  const std::string file = ThemeConfigFile();
+  {
+    std::ifstream inFile(file);
+    if (inFile.is_open()) {
+      try {
+        inFile >> jsonData;
+      } catch (...) {
+        jsonData = nlohmann::json::object();
+      }
+    }
+  }
+
+  jsonData["theme"] = normalized;
+  std::ofstream outFile(file);
+  outFile << jsonData.dump(4);
+  outFile.close();
+
+  g_ThemePref = normalized;
+  g_ThemeLoaded = true;
+}
+
+VORTEX_API std::string VortexMaker::GetTheme() {
+  if (g_ThemeLoaded)
+    return g_ThemePref;
+
+  const std::string file = ThemeConfigFile();
+  std::ifstream inFile(file);
+  if (inFile.is_open()) {
+    nlohmann::json jsonData;
+    try {
+      inFile >> jsonData;
+      if (jsonData.contains("theme") && jsonData["theme"].is_string()) {
+        g_ThemePref = NormalizeTheme(jsonData["theme"].get<std::string>());
+        g_ThemeLoaded = true;
+        return g_ThemePref;
+      }
+    } catch (...) {
+    }
+  }
+
+  const std::string def = GetDefaultSelectedTheme();
+  SetTheme(def);
+  return def;
+}
+
+VORTEX_API bool VortexMaker::IsSystemThemeDark() {
+#if defined(_WIN32)
+  DWORD value = 1;  // 1 = light
+  DWORD size = sizeof(value);
+  LONG res = RegGetValueW(
+      HKEY_CURRENT_USER,
+      L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
+      L"AppsUseLightTheme",
+      RRF_RT_REG_DWORD,
+      nullptr,
+      &value,
+      &size);
+  if (res == ERROR_SUCCESS)
+    return value == 0;
+  return true;
+#elif defined(__APPLE__)
+  const std::string out = RunCommand("defaults read -g AppleInterfaceStyle 2>/dev/null");
+  return LowerCopy(out).find("dark") != std::string::npos;
+#else
+  std::string scheme =
+      ThemeLowerCopy(CaptureCommandOutput("gsettings get org.gnome.desktop.interface color-scheme 2>/dev/null"));
+  if (scheme.find("prefer-dark") != std::string::npos)
+    return true;
+  if (scheme.find("prefer-light") != std::string::npos)
+    return false;
+
+  std::string gtk = ThemeLowerCopy(CaptureCommandOutput("gsettings get org.gnome.desktop.interface gtk-theme 2>/dev/null"));
+  if (!gtk.empty())
+    return gtk.find("dark") != std::string::npos;
+
+  if (!gtk.empty())
+    return gtk.find("dark") != std::string::npos;
+
+  return true;
+#endif
+}
+
+VORTEX_API std::string VortexMaker::ResolveTheme() {
+  const std::string pref = GetTheme();
+  bool dark = true;
+  if (pref == "light") {
+    dark = false;
+  } else if (pref == "system") {
+    dark = IsSystemThemeDark();
+  }
+  return dark ? "dark_vortex" : "light";
+}
+
 /**
  * @brief Get the current Vortex context.
  *
@@ -1023,7 +1168,7 @@ VORTEX_API std::string VortexMaker::GetLanguage() {
  *
  * @return A pointer to the current Vortex context.
  */
-VORTEX_API VxContext *VortexMaker::GetCurrentContext() {
+VORTEX_API VxContext* VortexMaker::GetCurrentContext() {
   return CVortexMaker;  // Return the current Vortex context pointer
 }
 
@@ -1037,13 +1182,13 @@ VORTEX_API VxContext *VortexMaker::GetCurrentContext() {
  * @param size The size of memory to allocate.
  * @return A pointer to the allocated memory, or nullptr if allocation fails.
  */
-void *VortexMaker::MemAlloc(size_t size) {
+void* VortexMaker::MemAlloc(size_t size) {
   // Call the Vortex memory allocator function pointer to allocate memory
-  void *ptr = (*CVxAllocatorAllocFunc)(size, CVxAllocatorUserData);
+  void* ptr = (*CVxAllocatorAllocFunc)(size, CVxAllocatorUserData);
 
 #ifndef VX_DISABLE_DEBUG_TOOLS
   // Check if IMGUI debug tools are enabled and CVortexMaker is valid
-  if (VxContext *ctx = CVortexMaker) {
+  if (VxContext* ctx = CVortexMaker) {
     // Call the debug allocation hook to handle debug information
     DebugAllocHook(&ctx->debugAllocInfo, ptr, size);
   }
@@ -1053,9 +1198,9 @@ void *VortexMaker::MemAlloc(size_t size) {
 }
 
 // Vx_FREE() == VortexMaker::MemFree()
-void VortexMaker::MemFree(void *ptr) {
+void VortexMaker::MemFree(void* ptr) {
   if (ptr)
-    if (VxContext *ctx = CVortexMaker)
+    if (VxContext* ctx = CVortexMaker)
       ctx->IO.MetricsActiveAllocations--;
   return (*CVxAllocatorFreeFunc)(ptr, CVxAllocatorUserData);
 }
@@ -1063,7 +1208,7 @@ void VortexMaker::MemFree(void *ptr) {
 // We record the number of allocation in recent frames, as a way to
 // audit/sanitize our guiding principles of "no allocations on idle/repeating
 // frames"
-void VortexMaker::DebugAllocHook(VortexMakerDebugAllocInfo *info, void *ptr, size_t size) {
+void VortexMaker::DebugAllocHook(VortexMakerDebugAllocInfo* info, void* ptr, size_t size) {
   // VortexMakerDebugAllocEntry* entry = &info->LastEntriesBuf[info->LastEntriesIdx];
   VX_UNUSED(ptr);
 
@@ -1117,7 +1262,7 @@ char hString::EmptyString[1] = { 0 };
  * @param str Pointer to the beginning of the string to append.
  * @param str_end Pointer to the end of the string to append (optional).
  */
-void hString::append(const char *str, const char *str_end) {
+void hString::append(const char* str, const char* str_end) {
   // Calculate the length of the string
   int len = str_end ? (int)(str_end - str) : (int)strlen(str);
 
@@ -1151,7 +1296,7 @@ void hString::append(const char *str, const char *str_end) {
  * @param version The version string to check.
  * @return True if the version string matches, false otherwise.
  */
-bool VortexMaker::DebugCheckVersionAndDataLayout(const char *version) {
+bool VortexMaker::DebugCheckVersionAndDataLayout(const char* version) {
   bool error = false;
 
   // Check if the provided version string matches the defined VORTEX_VERSION
@@ -1201,20 +1346,20 @@ bool VortexNet::CheckNet() {
 #endif
 }
 
-std::string VortexNet::GET(const std::string &url) {
+std::string VortexNet::GET(const std::string& url) {
   return Request(url, "GET");
 }
 
-std::string VortexNet::POST(const std::string &url, const std::string &body, const std::string &contentType) {
+std::string VortexNet::POST(const std::string& url, const std::string& body, const std::string& contentType) {
   return Request(url, "POST", body, contentType);
 }
 
 std::string VortexNet::Request(
-    const std::string &url,
-    const std::string &method,
-    const std::string &body,
-    const std::string &contentType) {
-  naettReq *req = nullptr;
+    const std::string& url,
+    const std::string& method,
+    const std::string& body,
+    const std::string& contentType) {
+  naettReq* req = nullptr;
 
   if (method == "GET") {
     std::cout << "GET request\n";
@@ -1238,7 +1383,7 @@ std::string VortexNet::Request(
     return "";
   }
 
-  naettRes *res = naettMake(req);
+  naettRes* res = naettMake(req);
   if (!res) {
     std::cerr << "Failed to make request\n";
     naettFree(req);
@@ -1258,7 +1403,7 @@ std::string VortexNet::Request(
   }
 
   int length = 0;
-  const char *responseBody = static_cast<const char *>(naettGetBody(res, &length));
+  const char* responseBody = static_cast<const char*>(naettGetBody(res, &length));
   std::string result;
 
   if (responseBody && length > 0) {

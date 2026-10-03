@@ -157,6 +157,10 @@
         {"loc.windows.settings.update_dist_settings":"Paramètres des mises à jour & distribution"},
         {"loc.windows.settings.syspath_settings":"Paramètres des chemins système"},
         {"loc.windows.settings.no_settings":"Aucun paramètre pour le moment. Travail en cours"},
-        {"loc.window_names.welcome":"Bienvenue dans Vortex !"}
+        {"loc.window_names.welcome":"Bienvenue dans Vortex !"},
+        {"loc.windows.settings.selected_theme":"Thème"},
+        {"loc.windows.settings.theme_dark":"Sombre"},
+        {"loc.windows.settings.theme_light":"Clair"},
+        {"loc.windows.settings.theme_system":"Suivre le système"}
     ]
 }

@@ -35,6 +35,7 @@
 #include <stddef.h>  // NULL
 #include <stdio.h>   // NULL
 #include <sys/stat.h>
+
 #ifdef _WIN32
 #include <shellapi.h>
 #include <windows.h>
@@ -51,8 +52,10 @@
 #endif
 
 #include <algorithm>
+#include <cctype>
 #include <chrono>
 #include <condition_variable>
+#include <cstdio>
 #include <cstring>  // strchr, strncpy
 #include <ctime>
 #include <filesystem>
@@ -360,6 +363,12 @@ namespace VortexMaker {
 
   VORTEX_API void SetLanguage(const std::string& language);
   VORTEX_API std::string GetLanguage();
+
+  VORTEX_API void SetTheme(const std::string& theme);
+  VORTEX_API std::string GetTheme();
+  VORTEX_API std::string GetDefaultSelectedTheme();
+  VORTEX_API bool IsSystemThemeDark();
+  VORTEX_API std::string ResolveTheme();
 
   VORTEX_API void OpenVortexUninstaller(const std::string& path);
   VORTEX_API void OpenVortexInstaller(

@@ -397,9 +397,49 @@ namespace VortexLauncher {
               Cherry::PopFont();
               CherryNextProp("color", "#252525");
               CherryKit::Separator();
-              CherryKit::TextSimple(Cherry::GetLocale("loc.windows.settings.no_settings"));
+
+              static const char* theme_ids[3] = { "dark", "light", "system" };
+              static std::vector<std::pair<std::string, std::string>> options;
+              static int selected = 0;
+
+              options.clear();
+              options.push_back(
+                  { Cherry::GetLocale("loc.windows.settings.theme_dark"),
+                    Cherry::GetPath("resources/imgs/icons/launcher/dark.png") });
+              options.push_back(
+                  { Cherry::GetLocale("loc.windows.settings.theme_light"),
+                    Cherry::GetPath("resources/imgs/icons/launcher/light.png") });
+              options.push_back(
+                  { Cherry::GetLocale("loc.windows.settings.theme_system"),
+                    Cherry::GetPath("resources/imgs/icons/misc/icon_settings.png") });
+
+              const std::string pref = VortexMaker::GetTheme();
+              int current = 0;
+              for (int i = 0; i < 3; i++) {
+                if (pref == theme_ids[i])
+                  current = i;
+              }
+              selected = current;
+
+              CherryKit::TableSimple(
+                  "Settings",
+                  {
+                      CherryKit::KeyValCustom(
+                          Cherry::GetLocale("loc.windows.settings.selected_theme"),
+                          [&]() {
+                            CherryNextComponent.SetProperty("size_x", CherryGUI::GetContentRegionAvail().x);
+                            CherryKit::ComboImageText("", options, selected);
+                            selected = CherryLastComponent.GetPropertyAs<int>("selected");
+                          }),
+                  });
+
+              if (selected != current && selected >= 0 && selected < 3) {
+                VortexMaker::SetTheme(theme_ids[selected]);
+                ApplyThemePreference(true);
+              }
             },
             Cherry::GetPath("resources/imgs/paint.png")));
+
     this->AddChild(
         "?loc:loc.windows.settings.child.sys_paths",
         MainSettingsChild(
