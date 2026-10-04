@@ -3,6 +3,43 @@
 
 namespace fs = std::filesystem;
 
+#ifdef __APPLE__
+#include <mach-o/dyld.h>
+#include <limits.h>
+#include <vector>
+
+static std::string VX_FindBlankProjectSourceMac() {
+  std::vector<std::string> candidates;
+
+  candidates.push_back(VortexMaker::GetPath("resources/templates/blank_project"));
+
+  char buf[PATH_MAX];
+  uint32_t size = sizeof(buf);
+  if (_NSGetExecutablePath(buf, &size) == 0) {
+    fs::path exeDir = fs::weakly_canonical(fs::path(buf)).parent_path();
+
+    candidates.push_back((exeDir / ".." / "Resources" / "resources" / "templates" / "blank_project").string());
+    candidates.push_back((exeDir / ".." / "Resources" / "templates" / "blank_project").string());
+
+    candidates.push_back((exeDir / "resources" / "templates" / "blank_project").string());
+    candidates.push_back((exeDir / ".." / "resources" / "templates" / "blank_project").string());
+    candidates.push_back((exeDir / ".." / ".." / "resources" / "templates" / "blank_project").string());
+  }
+
+  candidates.push_back("/Applications/Vortex.app/Contents/Resources/resources/templates/blank_project");
+  candidates.push_back("/opt/Vortex/resources/templates/blank_project");
+  candidates.push_back("/usr/local/share/Vortex/resources/templates/blank_project");
+
+  for (const auto& c : candidates) {
+    std::error_code ec;
+    if (!c.empty() && fs::exists(c, ec) && fs::is_directory(c, ec)) {
+      return fs::weakly_canonical(c, ec).string();
+    }
+  }
+  return "";
+}
+#endif
+
 VORTEX_API void VortexMaker::CheckBlankProject() {
   // Get reference to the Vortex context
   VxContext& ctx = *CVortexMaker;
@@ -267,6 +304,11 @@ VORTEX_API void VortexMaker::InitEnvironment() {
     blank_template_path = VortexMaker::convertPathToWindowsStyle(blank_template_path);
 #endif
 
+#ifdef __APPLE__
+    path = (fs::path(vxBasePath) / "templates").string();
+    blank_template_path = (fs::path(path) / "blank_project").string();
+#endif
+
     if (!fs::exists(blank_template_path)) {
       try {
         std::string cmd;
@@ -274,6 +316,14 @@ VORTEX_API void VortexMaker::InitEnvironment() {
 #ifdef _WIN32
         cmd = "xcopy \"" + VortexMaker::GetPath("resources/templates") + "\\blank_project\" \"" + path +
               "\\blank_project\\\" /E /I /Y /Q";
+#elif defined(__APPLE__)
+        std::string source = VX_FindBlankProjectSourceMac();
+        if (source.empty()) {
+          throw std::runtime_error(
+              "Unable to locate resources/templates/blank_project (checked app bundle, executable dir and system paths)");
+        }
+        fs::create_directories(path);
+        cmd = "cp -R \"" + source + "\" \"" + path + "/\"";
 #else
         cmd = "cp -r \"" + VortexMaker::GetPath("resources/templates/blank_project") + "\" \"" + path + "\"";
 #endif
@@ -289,7 +339,6 @@ VORTEX_API void VortexMaker::InitEnvironment() {
       }
     }
   }
-
   {
     std::string path = vxBasePath + "data/";
     std::string file = path + "projects.json";
