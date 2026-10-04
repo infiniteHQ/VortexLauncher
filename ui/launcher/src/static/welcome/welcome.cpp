@@ -190,6 +190,63 @@ namespace {
 #endif
   }
 
+  const std::unordered_map<std::string, std::string>& ProjectLastOpenedMap(
+      const std::vector<std::shared_ptr<EnvProject>>& projects) {
+    static std::unordered_map<std::string, std::string> cache;
+    static double last_refresh = -100.0;
+    const double now = CherryGUI::GetTime();
+    if (now - last_refresh > 1.0) {
+      last_refresh = now;
+      cache.clear();
+
+      std::unordered_map<std::string, std::string> by_key;
+      for (auto& e : sessions::Load()) {
+        by_key[e.value("project", "")] = e.value("last_opened", "");
+      }
+      for (auto& p : projects) {
+        if (!p)
+          continue;
+        auto it = by_key.find(sessions::Key(p->path));
+        cache[p->path] = (it != by_key.end()) ? it->second : std::string();
+      }
+    }
+    return cache;
+  }
+
+  std::vector<std::shared_ptr<EnvProject>> RecentProjectsBySession(size_t max_count) {
+    const auto& all = VortexMaker::GetCurrentContext()->IO.sys_projects;
+    const auto& last_opened = ProjectLastOpenedMap(all);
+
+    std::vector<std::shared_ptr<EnvProject>> out;
+    for (auto& p : all) {
+      if (!p)
+        continue;
+      auto it = last_opened.find(p->path);
+      if (it != last_opened.end() && !it->second.empty())
+        out.push_back(p);
+    }
+
+    std::stable_sort(
+        out.begin(), out.end(), [&](const std::shared_ptr<EnvProject>& a, const std::shared_ptr<EnvProject>& b) {
+          return last_opened.at(a->path) > last_opened.at(b->path);
+        });
+
+    if (out.size() > max_count)
+      out.resize(max_count);
+    return out;
+  }
+
+  std::string FormatLastOpened(const std::string& path) {
+    const auto& all = VortexMaker::GetCurrentContext()->IO.sys_projects;
+    const auto& last_opened = ProjectLastOpenedMap(all);
+    auto it = last_opened.find(path);
+    if (it == last_opened.end() || it->second.empty())
+      return "";
+    std::string s = it->second;
+    std::replace(s.begin(), s.end(), 'T', ' ');
+    return s.substr(0, 16);
+  }
+
 }  // namespace
 
 namespace VortexLauncher {
@@ -926,13 +983,21 @@ namespace VortexLauncher {
       }
       items.push_back(e);
     }
-    std::sort(items.begin(), items.end(), [&](const std::shared_ptr<EnvProject>& a, const std::shared_ptr<EnvProject>& b) {
-      switch (sort_mode) {
-        case 1: return LowerStr(a->name) < LowerStr(b->name);
-        case 2: return VersionLess(b->compatibleWith, a->compatibleWith);
-        default: return a->lastOpened > b->lastOpened;
-      }
-    });
+
+    static const std::string kNever;
+    const auto& last_opened = ProjectLastOpenedMap(all_projects);
+    auto last_of = [&](const std::shared_ptr<EnvProject>& p) -> const std::string& {
+      auto it = last_opened.find(p->path);
+      return it != last_opened.end() ? it->second : kNever;
+    };
+    std::stable_sort(
+        items.begin(), items.end(), [&](const std::shared_ptr<EnvProject>& a, const std::shared_ptr<EnvProject>& b) {
+          switch (sort_mode) {
+            case 1: return LowerStr(a->name) < LowerStr(b->name);
+            case 2: return VersionLess(b->compatibleWith, a->compatibleWith);
+            default: return last_of(a) > last_of(b);
+          }
+        });
 
     project_blocks.clear();
 
@@ -956,6 +1021,7 @@ namespace VortexLauncher {
         m_SelectedChildName = "?loc:loc.windows.welcome.create_project";
       }
     } else if (skip_frame) {
+      // recreate item on incoming frame...
     } else if (items.empty()) {
       CherryKit::Space(30.0f);
       CherryNextProp("color_text", pal.sub);
@@ -1362,7 +1428,7 @@ namespace VortexLauncher {
     std::vector<Cherry::Component> blocks;
 
     if (blocks.empty()) {
-      auto recentProjects = VortexMaker::GetRecentProjects(4);
+      auto recentProjects = RecentProjectsBySession(4);
 
       int i = 0;
       for (auto project : recentProjects) {
@@ -1383,7 +1449,7 @@ namespace VortexLauncher {
                         CherryStyle::AddMarginX(5.0f);
                         CherryStyle::RemoveMarginY(5.0f);
                         CherryStyle::PushFontSize(0.70f);
-                        CherryKit::TextSimple(project->lastOpened);
+                        CherryKit::TextSimple(FormatLastOpened(project->path));
                         CherryStyle::PopFontSize();
                       },
                   },
