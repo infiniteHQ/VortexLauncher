@@ -831,7 +831,7 @@ namespace VortexLauncher {
       Cherry::SetNextComponentProperty("color_text", std::string(pal.accentText));
     }
     if (CherryKit::ButtonImageText(
-            CherryID("open_search_toggle"), "Search", Cherry::GetPath("resources/imgs/icons/misc/icon_magnifying_glass.png"))
+            CherryID("open_search_toggle"), "", Cherry::GetPath("resources/imgs/icons/misc/icon_magnifying_glass.png"))
             .GetData("isClicked") == "true") {
       show_filters = !show_filters;
       if (!show_filters) {

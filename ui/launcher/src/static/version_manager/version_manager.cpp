@@ -172,7 +172,7 @@ namespace VortexLauncher {
         CherryNextComponent.SetProperty("padding_y", "5.0f");
 
         if (!r.installed) {
-          CherryGUI::SetCursorPosY(15.0f);
+          CherryGUI::SetCursorPosY(20.0f);
           if (CherryKit::ButtonImageText(
                   CherryID("vm_install"),
                   Cherry::GetLocale("loc.install"),
@@ -185,7 +185,7 @@ namespace VortexLauncher {
             }).detach();
           }
         } else {
-          CherryGUI::SetCursorPosY(15.0f);
+          CherryGUI::SetCursorPosY(20.0f);
           if (CherryKit::ButtonImageText(
                   CherryID("vm_folder"), "", Cherry::GetPath("resources/imgs/icons/misc/icon_foldersearch.png"))
                   .GetData("isClicked") == "true") {
@@ -194,7 +194,7 @@ namespace VortexLauncher {
 
           if (canReinstall) {
             CherryGUI::SameLine(0.0f, 8.0f);
-            CherryGUI::SetCursorPosY(15.0f);
+            CherryGUI::SetCursorPosY(19.0f);
             if (CherryKit::ButtonImageText(
                     CherryID("vm_reinstall"),
                     Cherry::GetLocale("loc.reinstall"),
@@ -211,7 +211,7 @@ namespace VortexLauncher {
 
           if (!r.sysPath.empty()) {
             CherryGUI::SameLine(0.0f, 8.0f);
-            CherryGUI::SetCursorPosY(15.0f);
+            CherryGUI::SetCursorPosY(19.0f);
             const bool confirming = (g_ConfirmDelete == idx);
             if (confirming)
               CherryNextProp("color_text", th.danger);
@@ -281,8 +281,10 @@ namespace VortexLauncher {
           CherryNextProp("color_text", th.subText);
           CherryKit::TextSimple(g_Search[0] ? "No installed version matches your search." : "No version installed yet.");
         }
-        for (const auto& r : installed)
+        for (const auto& r : installed) {
+          CherryStyle::AddMarginX(5.0f);
           RenderCard(r, idx++, th);
+        }
       }
 
       if (g_Filter != VFilter::Installed) {
@@ -294,8 +296,10 @@ namespace VortexLauncher {
           CherryNextProp("color_text", th.subText);
           CherryKit::TextSimple(g_Search[0] ? "No downloadable version matches your search." : "Everything is up to date.");
         }
-        for (const auto& r : available)
+        for (const auto& r : available) {
+          CherryStyle::AddMarginX(5.0f);
           RenderCard(r, idx++, th);
+        }
       }
     }
 
@@ -323,17 +327,7 @@ namespace VortexLauncher {
         nAvailable++;
     }
 
-    CherryStyle::AddMarginX(10.0f);
-    CherryGUI::SameLine(0.0f, 0.0f);
-    CherryNextComponent.SetProperty("padding_y", "6.0f");
-    CherryNextComponent.SetProperty("padding_x", "10.0f");
-    if (CherryKit::ButtonImageText(
-            CherryID("vm_import"),
-            Cherry::GetLocale("loc.import"),
-            Cherry::GetPath("resources/imgs/icons/misc/icon_import.png"))
-            .GetData("isClicked") == "true") {
-      m_WipNotification = true;  // TODO
-    }
+    CherryStyle::AddMarginX(20.0f);
 
     CherryGUI::SameLine(0.0f, 8.0f);
     CherryNextComponent.SetProperty("padding_y", "6.0f");
@@ -491,14 +485,6 @@ namespace VortexLauncher {
   }
 
   void VersionManager::Render() {
-    CherryKit::NotificationButton(
-        &m_WipNotification,
-        4,
-        "info",
-        "Work in progress",
-        "This feature is not available yet. Thanks for your patience.",
-        []() { });
-
     if (!m_SelectedChildName.empty()) {
       CherryStyle::RemoveMarginY(9.0f);
       if (CherryGUI::BeginChild(

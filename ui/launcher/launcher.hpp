@@ -107,7 +107,7 @@ class Launcher {
 
     Cherry::ApplicationSpecification spec;
 
-    std::string name = "Manage logical contents";
+    std::string name = "Manage system contents";
     spec.Name = name;
     spec.MinHeight = 500;
     spec.MinWidth = 500;
@@ -128,7 +128,7 @@ class Launcher {
       logic_content_manager_counter--;
     };
 
-    spec.MenubarCallback = []() { CherryGUI::Text("Manage logical contents"); };
+    spec.MenubarCallback = []() { CherryGUI::Text("Manage system contents"); };
     spec.WindowSaves = false;
 
     Cherry::AddAppWindow(settings_win->GetAppWindow());

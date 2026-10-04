@@ -893,11 +893,6 @@ namespace VortexLauncher {
     if (IconTextButton("##paste", Cherry::GetPath("resources/imgs/icons/misc/icon_lightning.png"), "Paste", !offline)) {
       SpawnFlashWindow("flash");
     }
-    ImGui::SameLine(0.0f, 8.0f);
-
-    if (IconTextButton("##browse", Cherry::GetPath("resources/imgs/icons/misc/icon_net.png"), "Browse")) {
-      m_WipNotification = true;
-    }
 
     ImGui::Spacing();
 
