@@ -223,32 +223,6 @@ namespace VortexLauncher {
     m_RecentProjects = GetMostRecentProjects(VortexMaker::GetCurrentContext()->IO.sys_projects, 4);
 
     this->AddChild(
-        "Help",
-        ContentManagerChild(
-            [this]() {
-              Cherry::PushFont("ClashBold");
-              CherryNextProp("color_text", "#BCBCBC");
-              CherryKit::TitleFive("Understanding the Vortex approach.");
-              Cherry::PopFont();
-
-              CherryNextProp("color", "#252525");
-              CherryKit::Separator();
-              CherryNextProp("color_text", "#999999");
-              CherryKit::TextWrapped(
-                  "Vortex allows you to install contents directly onto your system, making them accessible in your projects "
-                  "or at the project creation. Static content consists of elements you can create, import, and export—often "
-                  "with the help of modules or plugins. These contents are frequently interactive within the content "
-                  "browser.");
-              if (CherryKit::ButtonImageTextImage(
-                      "Learn and Documentation",
-                      Cherry::GetPath("resources/imgs/icons/launcher/docs.png"),
-                      Cherry::GetPath("resources/imgs/weblink.png"))
-                      .GetData("isClicked") == "true") {
-                VortexMaker::OpenURL("https://vortex.infinite.si/learn");
-              }
-            },
-            Cherry::GetPath("resources/imgs/help.png")));
-    this->AddChild(
         "Contents",
         ContentManagerChild(
             [this]() {

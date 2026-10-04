@@ -890,7 +890,7 @@ namespace VortexLauncher {
     }
     ImGui::SameLine(0.0f, 8.0f);
 
-    if (IconTextButton("##paste", Cherry::GetPath("resources/imgs/icons/misc/icon_lightning.png"), "Paste", !offline)) {
+    if (IconTextButton("##paste", Cherry::GetPath("resources/imgs/icons/misc/icon_lightning.png"), "", !offline)) {
       SpawnFlashWindow("flash");
     }
 
@@ -968,38 +968,6 @@ namespace VortexLauncher {
 
     m_SelectedChildName = "Plugins";
     m_RecentProjects = GetMostRecentProjects(VortexMaker::GetCurrentContext()->IO.sys_projects, 4);
-
-    this->AddChild(
-        "Help",
-        LogicalContentManagerChild(
-            []() {
-              const Palette& pal = Pal();
-
-              Cherry::PushFont("ClashBold");
-              ImGui::TextColored(pal.title, "Understanding the Vortex approach.");
-              Cherry::PopFont();
-              ImGui::Spacing();
-              ImGui::Separator();
-              ImGui::Spacing();
-
-              ImGui::PushStyleColor(ImGuiCol_Text, pal.body);
-              ImGui::PushTextWrapPos(0.0f);
-              ImGui::TextUnformatted(
-                  "Logical content consists of modular components that add features to a project and the Vortex Editor. "
-                  "The Vortex Editor alone simply provides the project context and enables all logical and static "
-                  "content to communicate with each other. The editor guarantees interoperability between components. "
-                  "It allows all parts to interact and provides essential utilities like content managers, project "
-                  "settings, and the content browser—along with logging and debugging tools.");
-              ImGui::PopTextWrapPos();
-              ImGui::PopStyleColor();
-              ImGui::Spacing();
-
-              if (IconTextButton(
-                      "##docs", Cherry::GetPath("resources/imgs/icons/launcher/docs.png"), "Learn and Documentation")) {
-                VortexMaker::OpenURL("https://vortex.infinite.si/learn");
-              }
-            },
-            Cherry::GetPath("resources/imgs/help.png")));
 
     BuildKinds();
     for (const auto& kind : m_Kinds) {
