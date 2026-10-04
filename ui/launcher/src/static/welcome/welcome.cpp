@@ -390,7 +390,8 @@ namespace VortexLauncher {
             if (extra > 0) {
               CherryGUI::SameLine(0.0f, 6.0f);
               CherryNextProp("color_text", pal.sub);
-              CherryKit::TextSimple("(+" + std::to_string(extra) + ")");
+              CherryStyle::AddMarginY(2.0f);
+              CherryKit::TextSimple("+" + std::to_string(extra));
             }
           }
           CherryNextProp("color_text", pal.sub);
