@@ -302,7 +302,6 @@ namespace VortexLauncher {
         }
       }
     }
-
   }  // namespace
 
   void VersionManager::ModulesRender() {

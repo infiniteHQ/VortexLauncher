@@ -26,6 +26,7 @@
 
 #include "./contents/install.h"
 #include "./contents/interface.h"
+#include "./environment/launcher_version_refresh.hpp"
 #include "./environment/project_sessions.hpp"
 #include "./modules/interface.h"
 #include "./plugins/interface.h"

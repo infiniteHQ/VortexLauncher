@@ -105,8 +105,8 @@ void PrintHeader() {
   std::cout << std::endl;
 }
 
-VxContext *InitBlankRuntime(bool logger) {
-  VxContext *ctx = VortexMaker::CreateContext();
+VxContext* InitBlankRuntime(bool logger) {
+  VxContext* ctx = VortexMaker::CreateContext();
 
   ctx->disconnected = true;
   ctx->web_fetched = false;
@@ -151,9 +151,10 @@ VxContext *InitBlankRuntime(bool logger) {
   // VortexMaker::CreateSessionTopic(ctx->state.session_id);
 
   // Initialize environment
-  VortexMaker::InitEnvironment();
   VortexMaker::DetectPlatform();
   VortexMaker::DetectArch();
+  VortexMaker::CheckLauncherVersionAndRefresh();
+  VortexMaker::InitEnvironment();
   VortexMaker::RefreshActiveSessions();
   VortexMaker::UpdateSessions();
 
@@ -184,7 +185,7 @@ VxContext *InitBlankRuntime(bool logger) {
  * @brief : Entry point of main Vortex runtime command.
  */
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   // Check command-line arguments for --install, -i, --download, -d
   bool installFlag = false;
   bool downloadFlag = false;
@@ -201,7 +202,7 @@ int main(int argc, char *argv[]) {
     }
   }
   PrintHeader();
-  VxContext *ctx = InitBlankRuntime(true);
+  VxContext* ctx = InitBlankRuntime(true);
 
   VortexMaker::LogInfo("Bootstrapp", "Opening the graphical interface...");
 
@@ -213,7 +214,7 @@ int main(int argc, char *argv[]) {
 #ifdef _WIN32
 #include <windows.h>
 
-extern int main(int argc, char *argv[]);
+extern int main(int argc, char* argv[]);
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   return main(__argc, __argv);

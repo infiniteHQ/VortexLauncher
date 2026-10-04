@@ -292,6 +292,7 @@ namespace VortexMaker {
 
   VORTEX_API void OpenURL(const std::string& url);
 
+  VORTEX_API void RefreshEnvironmentForLauncher();
   VORTEX_API void UpdateSessions();
   VORTEX_API void RefreshVortexDists();
   VORTEX_API void RefreshVortexLauncherDists();

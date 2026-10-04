@@ -170,6 +170,63 @@ VORTEX_API void VortexMaker::DestroyContext(VxContext* ctx) {
   VX_DELETE(ctx);
 }
 
+void VortexMaker::RefreshEnvironmentForLauncher() {
+  LogInfo("Core", "Refresh default blank template...");
+
+  try {
+    namespace fs = std::filesystem;
+
+    const std::string home = getHomeDirectory();
+    if (home.empty()) {
+      LogWarn("Core", "Home directory unavailable, skipping blank template refresh");
+      return;
+    }
+
+    const fs::path templates_dir = fs::path(home) / ".vx" / "templates";
+    const fs::path target = templates_dir / "blank_project";
+
+    std::error_code ec;
+
+    const fs::file_status status = fs::symlink_status(target, ec);
+    if (ec || !fs::exists(status)) {
+      LogInfo("Core", "No blank template to refresh");
+      return;
+    }
+
+    if (fs::is_symlink(status)) {
+      fs::remove(target, ec);
+      if (ec)
+        LogWarn("Core", "Unable to remove blank template link: " + ec.message());
+      else
+        LogInfo("Core", "Blank template link removed");
+      return;
+    }
+
+    if (!fs::is_directory(status)) {
+      LogWarn("Core", "Blank template path is not a directory, skipping: " + target.string());
+      return;
+    }
+
+    const fs::path canonical_dir = fs::weakly_canonical(templates_dir, ec);
+    const fs::path canonical_target = fs::weakly_canonical(target, ec);
+    if (ec || canonical_target.filename() != "blank_project" || canonical_target.parent_path() != canonical_dir) {
+      LogWarn("Core", "Blank template path check failed, skipping removal");
+      return;
+    }
+
+    const std::uintmax_t removed = fs::remove_all(canonical_target, ec);
+    if (ec)
+      LogWarn("Core", "Unable to fully remove blank template: " + ec.message());
+    else
+      LogInfo("Core", "Blank template removed (" + std::to_string(removed) + " entries), it will be regenerated");
+
+  } catch (const std::exception& e) {
+    LogWarn("Core", std::string("Blank template refresh failed: ") + e.what());
+  } catch (...) {
+    LogWarn("Core", "Blank template refresh failed with an unknown error");
+  }
+}
+
 VORTEX_API std::string VortexMaker::getHomeDirectory() {
   if (VortexMaker::IsLinux() || VortexMaker::IsMacOs()) {
     const char* homePath = std::getenv("HOME");
