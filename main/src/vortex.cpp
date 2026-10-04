@@ -1185,8 +1185,9 @@ VORTEX_API bool VortexMaker::IsSystemThemeDark() {
     return value == 0;
   return true;
 #elif defined(__APPLE__)
-  const std::string out = RunCommand("defaults read -g AppleInterfaceStyle 2>/dev/null");
-  return LowerCopy(out).find("dark") != std::string::npos;
+  const std::string out =
+      ThemeLowerCopy(CaptureCommandOutput("defaults read -g AppleInterfaceStyle 2>/dev/null"));
+  return out.find("dark") != std::string::npos;
 #else
   std::string scheme =
       ThemeLowerCopy(CaptureCommandOutput("gsettings get org.gnome.desktop.interface color-scheme 2>/dev/null"));
@@ -1195,10 +1196,8 @@ VORTEX_API bool VortexMaker::IsSystemThemeDark() {
   if (scheme.find("prefer-light") != std::string::npos)
     return false;
 
-  std::string gtk = ThemeLowerCopy(CaptureCommandOutput("gsettings get org.gnome.desktop.interface gtk-theme 2>/dev/null"));
-  if (!gtk.empty())
-    return gtk.find("dark") != std::string::npos;
-
+  std::string gtk =
+      ThemeLowerCopy(CaptureCommandOutput("gsettings get org.gnome.desktop.interface gtk-theme 2>/dev/null"));
   if (!gtk.empty())
     return gtk.find("dark") != std::string::npos;
 

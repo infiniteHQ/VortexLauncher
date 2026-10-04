@@ -14,9 +14,9 @@
 #include <ctime>
 #include <filesystem>
 #include <fstream>
-#include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
+#include "vortex.h"
 
 #ifndef VORTEX_PROJECT_SESSION_HPP
 #define VORTEX_PROJECT_SESSION_HPP
