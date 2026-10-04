@@ -699,10 +699,7 @@ namespace VortexLauncher {
           CherryNextProp("color_text", pal.danger);
           CherryKit::TextSimple("A folder with this name already exists in the destination.");
           break;
-        case NameStatus::Ok:
-          CherryNextProp("color_text", pal.ok);
-          CherryKit::TextSimple("Name available.");
-          break;
+        case NameStatus::Ok: break;
       }
 
       CherryGUI::Unindent(14.0f);
@@ -1164,7 +1161,7 @@ namespace VortexLauncher {
             }
           }
 
-          CherryGUI::SetCursorPos(ImVec2(row_w - 200.0f, (row_h - 32.0f) * 0.5f));
+          CherryGUI::SetCursorPos(ImVec2(row_w - 200.0f, (row_h - 24.0f) * 0.5f));
           Cherry::SetNextComponentProperty("padding_x", "8");
           Cherry::SetNextComponentProperty("padding_y", "5");
           if (CherryKit::ButtonImageText(

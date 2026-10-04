@@ -313,6 +313,146 @@ namespace VortexLauncher {
       res.success = true;
       return res;
     }
+
+    struct FlashPalette {
+      bool dark;
+      const char* card;
+      const char* border;
+      const char* text;
+      const char* sub;
+      const char* field;
+      const char* pillBg;
+      const char* pillText;
+      const char* neutral;
+      const char* neutralHover;
+      const char* accent;
+      const char* accentHover;
+      const char* accentText;
+      const char* danger;
+      const char* warn;
+    };
+
+    FlashPalette GetFlashPalette() {
+      if (CherryApp.GetTheme() == "dark_vortex") {
+        return { true,      "#232323", "#333333", "#FFFFFF", "#8A8A8A", "#1B1B1B", "#303030", "#BBBBBB",
+                 "#2E2E2E", "#3A3A3A", "#B1FF31", "#C3FF53", "#121212", "#EE5555", "#EEAA55" };
+      }
+      return { false,     "#FFFFFF", "#D8D8D8", "#232323", "#6B6B6B", "#F1F1F1", "#E6E6E6", "#444444",
+               "#E6E6E6", "#D2D2D2", "#3E8E00", "#4FA800", "#FFFFFF", "#D32F2F", "#C77700" };
+    }
+
+    ImVec4 Col(const char* hex) {
+      return Cherry::HexToRGBA(hex);
+    }
+
+    void ColoredText(const char* hex, const std::string& text) {
+      ImGui::PushStyleColor(ImGuiCol_Text, Col(hex));
+      ImGui::TextUnformatted(text.c_str());
+      ImGui::PopStyleColor();
+    }
+
+    void WrappedText(const char* hex, const std::string& text, float wrap_x) {
+      ImGui::PushTextWrapPos(wrap_x);
+      ColoredText(hex, text);
+      ImGui::PopTextWrapPos();
+    }
+
+    void CenteredText(const char* hex, const std::string& text) {
+      float w = ImGui::CalcTextSize(text.c_str()).x;
+      ImGui::SetCursorPosX((std::max)(0.0f, (ImGui::GetWindowWidth() - w) * 0.5f));
+      ColoredText(hex, text);
+    }
+
+    bool ActionButton(const char* label, const char* bg, const char* hover, const char* fg, float width, float height) {
+      ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 10.0f);
+      ImGui::PushStyleColor(ImGuiCol_Button, Col(bg));
+      ImGui::PushStyleColor(ImGuiCol_ButtonHovered, Col(hover));
+      ImGui::PushStyleColor(ImGuiCol_ButtonActive, Col(hover));
+      ImGui::PushStyleColor(ImGuiCol_Text, Col(fg));
+      bool clicked = ImGui::Button(label, ImVec2(width, height));
+      ImGui::PopStyleColor(4);
+      ImGui::PopStyleVar();
+      return clicked;
+    }
+
+    void Pill(const std::string& text, const char* bg, const char* fg) {
+      ImVec2 ts = ImGui::CalcTextSize(text.c_str());
+      ImVec2 size(ts.x + 16.0f, ts.y + 6.0f);
+      ImVec2 p = ImGui::GetCursorScreenPos();
+      ImDrawList* dl = ImGui::GetWindowDrawList();
+      dl->AddRectFilled(p, ImVec2(p.x + size.x, p.y + size.y), Cherry::HexToImU32(bg), size.y * 0.5f);
+      dl->AddText(ImVec2(p.x + 8.0f, p.y + 3.0f), Cherry::HexToImU32(fg), text.c_str());
+      ImGui::Dummy(size);
+    }
+
+    void Spinner(float radius, const char* hex) {
+      ImVec2 p = ImGui::GetCursorScreenPos();
+      ImVec2 c(p.x + radius, p.y + radius);
+      float a = (float)ImGui::GetTime() * 6.0f;
+      ImDrawList* dl = ImGui::GetWindowDrawList();
+      dl->PathClear();
+      dl->PathArcTo(c, radius, a, a + 4.5f, 24);
+      dl->PathStroke(Cherry::HexToImU32(hex), 0, 3.0f);
+      ImGui::Dummy(ImVec2(radius * 2.0f, radius * 2.0f));
+    }
+
+    template<class Texture>
+    void RoundedImage(Texture texture, ImVec2 size, float rounding) {
+      ImVec2 p = ImGui::GetCursorScreenPos();
+      ImGui::GetWindowDrawList()->AddImageRounded(
+          texture, p, ImVec2(p.x + size.x, p.y + size.y), ImVec2(0.0f, 0.0f), ImVec2(1.0f, 1.0f), IM_COL32_WHITE, rounding);
+      ImGui::Dummy(size);
+    }
+
+    struct CardScope {
+      ImDrawList* draw_list = nullptr;
+      ImVec2 origin;
+      float width = 0.0f;
+      float pad = 16.0f;
+      float inner_w = 0.0f;
+      float wrap_x = 0.0f;
+    };
+
+    CardScope BeginCard() {
+      CardScope c;
+      c.draw_list = ImGui::GetWindowDrawList();
+      c.width = ImGui::GetContentRegionAvail().x;
+      c.inner_w = c.width - c.pad * 2.0f;
+      c.wrap_x = ImGui::GetCursorPosX() + c.width - c.pad;
+      c.origin = ImGui::GetCursorScreenPos();
+      c.draw_list->ChannelsSplit(2);
+      c.draw_list->ChannelsSetCurrent(1);
+      ImGui::BeginGroup();
+      ImGui::Dummy(ImVec2(0.0f, c.pad));
+      ImGui::Indent(c.pad);
+      return c;
+    }
+
+    void EndCard(const CardScope& c, const FlashPalette& pal) {
+      ImGui::Unindent(c.pad);
+      ImGui::Dummy(ImVec2(0.0f, c.pad));
+      ImGui::EndGroup();
+      ImVec2 max(c.origin.x + c.width, ImGui::GetItemRectMax().y);
+      c.draw_list->ChannelsSetCurrent(0);
+      c.draw_list->AddRectFilled(c.origin, max, Cherry::HexToImU32(pal.card), 14.0f);
+      c.draw_list->AddRect(c.origin, max, Cherry::HexToImU32(pal.border), 14.0f);
+      c.draw_list->ChannelsMerge();
+    }
+
+    void PushFieldStyle(const FlashPalette& pal) {
+      ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 10.0f);
+      ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(12.0f, 9.0f));
+      ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
+      ImGui::PushStyleColor(ImGuiCol_FrameBg, Col(pal.field));
+      ImGui::PushStyleColor(ImGuiCol_Border, Col(pal.border));
+      ImGui::PushStyleColor(ImGuiCol_Text, Col(pal.text));
+      ImGui::PushStyleColor(ImGuiCol_PopupBg, Col(pal.card));
+    }
+
+    void PopFieldStyle() {
+      ImGui::PopStyleColor(4);
+      ImGui::PopStyleVar(3);
+    }
   }  // namespace
 
   void StageProgress::Set(State s, const std::string& text, const std::string& path) {
@@ -461,7 +601,19 @@ namespace VortexLauncher {
   }
 
   void ContentFlashWindow::Render() {
+    const FlashPalette pal = GetFlashPalette();
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(14.0f, 12.0f));
+    ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
     ImGui::BeginChild("##flash_content", ImVec2(0.0f, 0.0f), true);
+    ImGui::PopStyleColor();
+    ImGui::PopStyleVar();
+
+    Cherry::PushFont("ClashBold");
+    ColoredText(pal.text, "Install from a FlashLink");
+    Cherry::PopFont();
+    ColoredText(pal.sub, "Install a module, plugin, content or template shared with a FlashLink.");
+    ImGui::Dummy(ImVec2(0.0f, 8.0f));
 
     if (m_Mode == "flash") {
       if (!m_ClipboardChecked) {
@@ -472,29 +624,60 @@ namespace VortexLauncher {
         }
       }
     } else {
-      ImGui::TextUnformatted("Paste a flash code");
-      ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - 90.0f);
-      ImGui::InputTextWithHint("##flashlink_input", "Paste flashlink here...", m_Input, IM_ARRAYSIZE(m_Input));
+      const float paste_w = 76.0f;
+      const float search_w = 88.0f;
+      const float gap = ImGui::GetStyle().ItemSpacing.x;
+      const float row_h = ImGui::GetFontSize() + 18.0f;
+
+      PushFieldStyle(pal);
+      ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - paste_w - search_w - gap * 2.0f);
+      bool submitted = ImGui::InputTextWithHint(
+          "##flashlink_input",
+          "Paste your flashlink code here...",
+          m_Input,
+          IM_ARRAYSIZE(m_Input),
+          ImGuiInputTextFlags_EnterReturnsTrue);
+      PopFieldStyle();
+
       ImGui::SameLine();
-      if (ImGui::Button("Search", ImVec2(80.0f, 0.0f))) {
+      if (ActionButton("Paste", pal.neutral, pal.neutralHover, pal.text, paste_w, row_h)) {
+        const char* clipboard = ImGui::GetClipboardText();
+        if (clipboard) {
+          std::snprintf(m_Input, IM_ARRAYSIZE(m_Input), "%s", clipboard);
+        }
+      }
+      ImGui::SameLine();
+      if (ActionButton("Search", pal.accent, pal.accentHover, pal.accentText, search_w, row_h) || submitted) {
         m_Error = TryProcess(m_Input) ? "" : "Invalid flashlink code.";
       }
       if (!m_Error.empty()) {
-        ImGui::TextColored(ImVec4(1.0f, 0.55f, 0.55f, 1.0f), "%s", m_Error.c_str());
+        ImGui::Dummy(ImVec2(0.0f, 2.0f));
+        ColoredText(pal.danger, m_Error);
       }
     }
 
+    ImGui::Dummy(ImVec2(0.0f, 6.0f));
+    ImGui::PushStyleColor(ImGuiCol_Separator, Col(pal.border));
     ImGui::Separator();
+    ImGui::PopStyleColor();
+    ImGui::Dummy(ImVec2(0.0f, 8.0f));
 
     switch (m_State.load()) {
       case State::Waiting: {
-        ImGui::TextDisabled(m_Mode == "flash" ? "Click on a FlashLink icon first." : "Enter a code above.");
+        ImGui::Dummy(ImVec2(0.0f, 28.0f));
+        CenteredText(pal.sub, m_Mode == "flash" ? "Click on a FlashLink icon first." : "Enter a code above.");
+        ImGui::Dummy(ImVec2(0.0f, 28.0f));
         break;
       }
 
       case State::Loading: {
-        static const char* frames[] = { "|", "/", "-", "\\" };
-        ImGui::Text("Searching %s", frames[(int)(ImGui::GetTime() / 0.15f) % 4]);
+        const float radius = 14.0f;
+        ImGui::Dummy(ImVec2(0.0f, 24.0f));
+        ImGui::SetCursorPosX((ImGui::GetWindowWidth() - radius * 2.0f) * 0.5f);
+        Spinner(radius, pal.accent);
+        ImGui::Dummy(ImVec2(0.0f, 4.0f));
+        CenteredText(pal.sub, "Searching...");
+        ImGui::Dummy(ImVec2(0.0f, 24.0f));
         break;
       }
 
@@ -504,8 +687,14 @@ namespace VortexLauncher {
           std::lock_guard<std::mutex> lock(m_Mutex);
           error = m_Result.error;
         }
-        ImGui::TextColored(ImVec4(1.0f, 0.45f, 0.45f, 1.0f), "An error occurred");
-        ImGui::TextWrapped("%s", error.c_str());
+        CardScope card = BeginCard();
+        Cherry::PushFont("ClashBold");
+        ColoredText(pal.danger, "An error occurred");
+        Cherry::PopFont();
+        ImGui::Dummy(ImVec2(0.0f, 2.0f));
+        WrappedText(pal.text, error, card.wrap_x);
+        EndCard(card, pal);
+        ImGui::Dummy(ImVec2(0.0f, 10.0f));
         break;
       }
 
@@ -519,24 +708,36 @@ namespace VortexLauncher {
         float avail_w = ImGui::GetContentRegionAvail().x;
 
         if (!res.info.banner_link.empty()) {
-          ImGui::Image(Cherry::GetTexture(Cherry::GetHttpPath(res.info.banner_link)), ImVec2(avail_w, 120.0f));
+          RoundedImage(Cherry::GetTexture(Cherry::GetHttpPath(res.info.banner_link)), ImVec2(avail_w, 120.0f), 14.0f);
+          ImGui::Dummy(ImVec2(0.0f, 8.0f));
         }
 
-        ImGui::BeginGroup();
+        CardScope info = BeginCard();
         if (!res.info.picture_link.empty()) {
-          ImGui::Image(Cherry::GetTexture(Cherry::GetHttpPath(res.info.picture_link)), ImVec2(64.0f, 64.0f));
-          ImGui::SameLine();
+          RoundedImage(Cherry::GetTexture(Cherry::GetHttpPath(res.info.picture_link)), ImVec2(64.0f, 64.0f), 14.0f);
+          ImGui::SameLine(0.0f, 14.0f);
         }
         ImGui::BeginGroup();
-        ImGui::SetWindowFontScale(1.3f);
-        ImGui::TextUnformatted(res.info.proper_name.empty() ? "Unknown" : res.info.proper_name.c_str());
-        ImGui::SetWindowFontScale(1.0f);
-        ImGui::TextDisabled("%s  -  %s", res.info.name.c_str(), m_Kind.kind_id.c_str());
-        ImGui::EndGroup();
+        ImGui::Dummy(ImVec2(0.0f, 4.0f));
+        Cherry::PushFont("ClashBold");
+        ColoredText(pal.text, res.info.proper_name.empty() ? "Unknown" : res.info.proper_name);
+        Cherry::PopFont();
+        std::string kind_label = m_Kind.kind_id;
+        if (!kind_label.empty()) {
+          kind_label[0] = (char)std::toupper((unsigned char)kind_label[0]);
+        }
+        Pill(kind_label, pal.accent, pal.accentText);
+        ImGui::SameLine(0.0f, 8.0f);
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 3.0f);
+        ColoredText(pal.sub, res.info.name);
         ImGui::EndGroup();
 
-        ImGui::TextWrapped("%s", res.info.description.c_str());
-        ImGui::Separator();
+        if (!res.info.description.empty()) {
+          ImGui::Dummy(ImVec2(0.0f, 8.0f));
+          WrappedText(pal.sub, res.info.description, info.wrap_x);
+        }
+        EndCard(info, pal);
+        ImGui::Dummy(ImVec2(0.0f, 10.0f));
 
         std::vector<std::string> labels;
         for (const auto& r : res.releases) {
@@ -548,27 +749,37 @@ namespace VortexLauncher {
           m_ReleaseIndex = 0;
         }
 
-        ImGui::TextUnformatted("Version :");
+        CardScope install = BeginCard();
+
+        ColoredText(pal.sub, "Version");
+        PushFieldStyle(pal);
+        ImGui::SetNextItemWidth(install.inner_w);
         if (ImGui::BeginCombo("##release_combo", labels[m_ReleaseIndex].c_str())) {
           for (int i = 0; i < (int)labels.size(); i++) {
-            if (ImGui::Selectable(labels[i].c_str(), i == m_ReleaseIndex)) {
+            std::string option = i == 0 ? labels[i] + "   - latest" : labels[i];
+            if (ImGui::Selectable(option.c_str(), i == m_ReleaseIndex)) {
               m_ReleaseIndex = i;
             }
           }
           ImGui::EndCombo();
         }
+        PopFieldStyle();
 
         std::vector<std::string> pools = m_PoolsOf(m_Kind.kind_id);
         if (pools.empty()) {
-          ImGui::TextColored(
-              ImVec4(1.0f, 0.75f, 0.3f, 1.0f), "No %s pool configured on this system.", m_Kind.kind_id.c_str());
+          ImGui::Dummy(ImVec2(0.0f, 8.0f));
+          WrappedText(pal.warn, "No " + m_Kind.kind_id + " pool configured on this system.", install.wrap_x);
+          EndCard(install, pal);
           break;
         }
         if (m_PoolIndex < 0 || m_PoolIndex >= (int)pools.size()) {
           m_PoolIndex = 0;
         }
 
-        ImGui::TextUnformatted("Install in pool :");
+        ImGui::Dummy(ImVec2(0.0f, 6.0f));
+        ColoredText(pal.sub, "Install in");
+        PushFieldStyle(pal);
+        ImGui::SetNextItemWidth(install.inner_w);
         if (ImGui::BeginCombo("##pool_combo", pools[m_PoolIndex].c_str())) {
           for (int i = 0; i < (int)pools.size(); i++) {
             if (ImGui::Selectable(pools[i].c_str(), i == m_PoolIndex)) {
@@ -577,14 +788,15 @@ namespace VortexLauncher {
           }
           ImGui::EndCombo();
         }
+        PopFieldStyle();
 
-        ImGui::Spacing();
+        ImGui::Dummy(ImVec2(0.0f, 12.0f));
 
         bool working = m_Progress && m_Progress->state.load() == StageProgress::State::Working;
         if (working) {
           ImGui::BeginDisabled();
         }
-        if (ImGui::Button("Download and install", ImVec2(avail_w, 0.0f))) {
+        if (ActionButton("Download and install", pal.accent, pal.accentHover, pal.accentText, install.inner_w, 40.0f)) {
           StartInstall(res.releases[m_ReleaseIndex], pools[m_PoolIndex]);
         }
         if (working) {
@@ -592,10 +804,9 @@ namespace VortexLauncher {
         }
 
         if (m_Progress) {
+          ImGui::Dummy(ImVec2(0.0f, 6.0f));
           switch (m_Progress->state.load()) {
-            case StageProgress::State::Error:
-              ImGui::TextColored(ImVec4(1.0f, 0.45f, 0.45f, 1.0f), "%s", m_Progress->Error().c_str());
-              break;
+            case StageProgress::State::Error: WrappedText(pal.danger, m_Progress->Error(), install.wrap_x); break;
             case StageProgress::State::Done:
               if (!m_Notified) {
                 m_Notified = true;
@@ -603,15 +814,26 @@ namespace VortexLauncher {
                 Cherry::DeleteAppWindow(m_AppWindow);
               }
               break;
-            default: ImGui::TextUnformatted(m_Progress->Status().c_str()); break;
+            default:
+              if (working) {
+                Spinner(8.0f, pal.accent);
+                ImGui::SameLine(0.0f, 8.0f);
+              }
+              WrappedText(pal.sub, m_Progress->Status(), install.wrap_x);
+              break;
           }
         }
+        EndCard(install, pal);
+        ImGui::Dummy(ImVec2(0.0f, 10.0f));
         break;
       }
     }
 
+    ImGui::PushStyleColor(ImGuiCol_Separator, Col(pal.border));
     ImGui::Separator();
-    if (ImGui::Button("Close", ImVec2(ImGui::GetContentRegionAvail().x, 0.0f))) {
+    ImGui::PopStyleColor();
+    ImGui::Dummy(ImVec2(0.0f, 6.0f));
+    if (ActionButton("Close", pal.neutral, pal.neutralHover, pal.text, ImGui::GetContentRegionAvail().x, 36.0f)) {
       Cherry::DeleteAppWindow(m_AppWindow);
     }
 
