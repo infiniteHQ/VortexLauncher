@@ -480,25 +480,63 @@ bool VortexMaker::executeInChildProcess(const std::string& command) {
 #ifdef _WIN32
   STARTUPINFOA si = { 0 };
   PROCESS_INFORMATION pi = { 0 };
-  si.cb = sizeof(STARTUPINFOA);
+  si.cb = sizeof(si);
   si.dwFlags = STARTF_USESHOWWINDOW;
   si.wShowWindow = SW_HIDE;
 
-  char commandLine[4096];
-  strncpy(commandLine, command.c_str(), sizeof(commandLine) - 1);
-  commandLine[sizeof(commandLine) - 1] = '\0';
+  std::vector<char> cmdLine(command.begin(), command.end());
+  cmdLine.push_back('\0');
 
-  if (!CreateProcessA(
-          NULL, commandLine, NULL, NULL, FALSE, CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP, NULL, NULL, &si, &pi)) {
-    VortexMaker::LogError(
-        "Child process loader",
-        "Error while creating process for command: " + command + " Error: " + std::to_string(GetLastError()));
+  HANDLE job = CreateJobObjectA(NULL, NULL);
+  HANDLE iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 1);
+  if (!job || !iocp) {
+    VortexMaker::LogError("Child process loader", "Job creation failed: " + std::to_string(GetLastError()));
+    if (job) CloseHandle(job);
+    if (iocp) CloseHandle(iocp);
     return false;
   }
 
+  JOBOBJECT_ASSOCIATE_COMPLETION_PORT port = {};
+  port.CompletionKey = job;
+  port.CompletionPort = iocp;
+  SetInformationJobObject(job, JobObjectAssociateCompletionPortInformation, &port, sizeof(port));
+
+  if (!CreateProcessA(
+          NULL, cmdLine.data(), NULL, NULL, FALSE,
+          CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP | CREATE_SUSPENDED,
+          NULL, NULL, &si, &pi)) {
+    VortexMaker::LogError(
+        "Child process loader",
+        "Error while creating process for command: " + command + " Error: " + std::to_string(GetLastError()));
+    CloseHandle(job);
+    CloseHandle(iocp);
+    return false;
+  }
+
+  if (!AssignProcessToJobObject(job, pi.hProcess)) {
+    VortexMaker::LogError("Child process loader", "AssignProcessToJobObject failed: " + std::to_string(GetLastError()));
+  }
+  ResumeThread(pi.hThread);
+
+  DWORD msg = 0;
+  ULONG_PTR key = 0;
+  LPOVERLAPPED ov = nullptr;
+  while (GetQueuedCompletionStatus(iocp, &msg, &key, &ov, INFINITE)) {
+    if ((HANDLE)key == job && msg == JOB_OBJECT_MSG_ACTIVE_PROCESS_ZERO) break;
+  }
+
+  DWORD exitCode = 1;
+  GetExitCodeProcess(pi.hProcess, &exitCode);
+
   CloseHandle(pi.hProcess);
   CloseHandle(pi.hThread);
+  CloseHandle(iocp);
+  CloseHandle(job);
 
+  if (exitCode != 0) {
+    std::cerr << "Child process failed with status: " << exitCode << std::endl;
+    return false;
+  }
   return true;
 #else
   pid_t pid = fork();
