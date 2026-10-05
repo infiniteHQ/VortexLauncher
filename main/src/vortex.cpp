@@ -822,15 +822,35 @@ std::string VortexMaker::convertPathToWindowsStyle(const std::string& path) {
 }
 #endif
 
+#ifdef __APPLE__
+#include <mach-o/dyld.h>
+#endif
+
 std::string VortexMaker::CookPath(std::string_view input_path) {
   static const std::string root_path = []() {
     std::string path;
+
 #ifdef _WIN32
     char result[MAX_PATH];
     if (GetModuleFileNameA(NULL, result, MAX_PATH))
       path = std::filesystem::path(result).parent_path().string();
     else
       std::cerr << "Failed to get root path" << std::endl;
+
+#elif defined(__APPLE__)
+    uint32_t size = 0;
+    _NSGetExecutablePath(nullptr, &size);
+    std::vector<char> buf(size + 1, '\0');
+
+    if (_NSGetExecutablePath(buf.data(), &size) == 0) {
+      char resolved[PATH_MAX];
+      if (realpath(buf.data(), resolved))
+        path = std::filesystem::path(resolved).parent_path().string();
+      else
+        path = std::filesystem::path(buf.data()).parent_path().string();
+    } else {
+      std::cerr << "Failed to get root path" << std::endl;
+    }
 #else
     char result[PATH_MAX];
     ssize_t count = readlink("/proc/self/exe", result, sizeof(result) - 1);
@@ -844,7 +864,9 @@ std::string VortexMaker::CookPath(std::string_view input_path) {
     return path;
   }();
 
-  return (input_path.empty() || input_path[0] == '/') ? std::string(input_path) : root_path + "/" + std::string(input_path);
+  return (input_path.empty() || input_path[0] == '/')
+             ? std::string(input_path)
+             : root_path + "/" + std::string(input_path);
 }
 
 std::string VortexMaker::GetPath(const std::string& path) {

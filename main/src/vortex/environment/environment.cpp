@@ -374,7 +374,7 @@ void VortexMaker::DetectArch() {
 #elif defined(__i386__) || defined(_M_IX86)
   ctx.arch = "x86";
 #elif defined(__aarch64__) || defined(_M_ARM64)
-  ctx.arch = "arm64";
+  ctx.arch = "arm";
 #elif defined(__arm__) || defined(_M_ARM)
   ctx.arch = "arm";
 #elif defined(__riscv)
