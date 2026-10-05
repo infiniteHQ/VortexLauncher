@@ -48,7 +48,7 @@ static std::string test;
 // helpers
 namespace {
 
-  struct CreatePalette {
+  struct UiPalette  {
     bool dark;
     const char* card;
     const char* cardHover;
@@ -65,7 +65,7 @@ namespace {
     const char* panel;
   };
 
-  CreatePalette GetCreatePalette() {
+  UiPalette  GetCreatePalette() {
     if (CherryApp.GetTheme() == "dark_vortex") {
       return { true,      "#232323", "#2C2C2C", "#333333", "#FFFFFF", "#8A8A8A", "#2A2A2A",
                "#303030", "#BBBBBB", "#B1FF31", "#121212", "#EE5555", "#B1FF31", "#35353535" };
@@ -174,7 +174,7 @@ namespace {
     return state;
   }
 
-  const char* ProjectStateColor(int state, const CreatePalette& pal) {
+  const char* ProjectStateColor(int state, const UiPalette& pal) {
     if (state == 0)
       return pal.sub;
     if (state == 1)
@@ -252,7 +252,7 @@ namespace {
 namespace VortexLauncher {
 
   void WelcomeWindow::CreateProjectRender() {
-    const CreatePalette pal = GetCreatePalette();
+    const UiPalette pal = GetCreatePalette();
 
     static char search[128] = "";
     static int filter = -1;
@@ -711,7 +711,7 @@ namespace VortexLauncher {
   }
 
   void WelcomeWindow::OpenProjectRender() {
-    const CreatePalette pal = GetCreatePalette();
+    const UiPalette pal = GetCreatePalette();
 
     static bool show_filters = false;
     static char search[128] = "";
@@ -2320,7 +2320,7 @@ CherryKit::GridSimple(150.0f, 150.0f, &last_versions_blocks);
     }
 
     if (no_installed_modal_opened) {
-      const CreatePalette pal = GetCreatePalette();
+      const UiPalette pal = GetCreatePalette();
       const std::string popup_title = Cherry::GetLocale("loc.windows.welcome.no_version");
 
       CherryGUI::OpenPopup(popup_title.c_str());
