@@ -48,7 +48,7 @@ static std::string test;
 // helpers
 namespace {
 
-  struct UiPalette  {
+  struct UiPalette {
     bool dark;
     const char* card;
     const char* cardHover;
@@ -65,7 +65,7 @@ namespace {
     const char* panel;
   };
 
-  UiPalette  GetCreatePalette() {
+  UiPalette GetCreatePalette() {
     if (CherryApp.GetTheme() == "dark_vortex") {
       return { true,      "#232323", "#2C2C2C", "#333333", "#FFFFFF", "#8A8A8A", "#2A2A2A",
                "#303030", "#BBBBBB", "#B1FF31", "#121212", "#EE5555", "#B1FF31", "#35353535" };
@@ -493,6 +493,10 @@ namespace VortexLauncher {
         advanced_params = !advanced_params;
       }
 
+      auto& versions = selected_template_object->m_compatible_versions;
+      auto it = std::find(versions.begin(), versions.end(), m_DefaultVortexVersion);
+      int default_version_index = (it != versions.end()) ? (int)std::distance(versions.begin(), it) : 0;
+
       if (advanced_params) {
         Cherry::SetNextComponentProperty("header_visible", "false");
         CherryKit::TableSimple(
@@ -504,7 +508,8 @@ namespace VortexLauncher {
                 CherryKit::KeyValComboString(
                     CherryID("VersionSelector"),
                     Cherry::GetLocale("loc.vortex_version"),
-                    &selected_template_object->m_compatible_versions),
+                    &selected_template_object->m_compatible_versions,
+                    default_version_index),
                 CherryKit::KeyValComboString(
                     CherryID("PathSelector"),
                     Cherry::GetLocale("loc.project_path"),

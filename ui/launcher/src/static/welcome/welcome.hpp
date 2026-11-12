@@ -86,6 +86,8 @@ namespace VortexLauncher {
     int selected;
     float leftPaneWidth = 290.0f;
     float middlePaneWidth = 500.0f;
+
+    std::string m_DefaultVortexVersion = "1.0";  // TODO in the main settings and let the user change it ?
   };
 }  // namespace VortexLauncher
 
