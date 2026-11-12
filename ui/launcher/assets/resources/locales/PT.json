@@ -86,7 +86,9 @@
         {"loc.menubar.menuitem.main_settings_desc":"Configurar o Vortex"},
         {"loc.menubar.menuitem.switch_language":"Mudar idioma"},
         {"loc.menubar.menuitem.switch_language_desc":"Selecionar outro idioma"},
-        
+        {"loc.menubar.menuitem.contents":"Gerenciar os conteúdos instalados no sistema"},
+        {"loc.menubar.menuitem.contents_desc":"Gerencie seus plugins, módulos e modelos"},
+
         {"loc.window_names.welcome":"Bem-vindo ao Vortex!"},
         {"loc.window_names.project_manager":"Gerenciador de projetos"},
         {"loc.window_names.settings":"Configurações principais"},
@@ -159,6 +161,10 @@
         {"loc.windows.settings.update_dist_settings":"Configurações de atualização & distribuição"},
         {"loc.windows.settings.syspath_settings":"Configurações de caminhos do sistema"},
         {"loc.windows.settings.no_settings":"Nenhuma configuração no momento. Em desenvolvimento"},
-        {"loc.window_names.welcome":"Bem-vindo ao Vortex!"}
+        {"loc.window_names.welcome":"Bem-vindo ao Vortex!"},
+        {"loc.windows.settings.selected_theme":"Tema"},
+        {"loc.windows.settings.theme_dark":"Escuro"},
+        {"loc.windows.settings.theme_light":"Claro"},
+        {"loc.windows.settings.theme_system":"Seguir o sistema"}
     ]
 }

@@ -86,7 +86,9 @@
         {"loc.menubar.menuitem.main_settings_desc":"Määritä Vortex"},
         {"loc.menubar.menuitem.switch_language":"Vaihda kieli"},
         {"loc.menubar.menuitem.switch_language_desc":"Valitse toinen kieli"},
-        
+        {"loc.menubar.menuitem.contents":"Hallitse järjestelmään asennettuja sisältöjä"},
+        {"loc.menubar.menuitem.contents_desc":"Hallitse laajennuksia, moduuleja ja malleja"},
+
         {"loc.window_names.welcome":"Tervetuloa Vortexiin!"},
         {"loc.window_names.project_manager":"Projektinhallinta"},
         {"loc.window_names.settings":"Pääasetukset"},
@@ -159,6 +161,10 @@
         {"loc.windows.settings.update_dist_settings":"Päivitys- & jakeluasetukset"},
         {"loc.windows.settings.syspath_settings":"Järjestelmäpolkuasetukset"},
         {"loc.windows.settings.no_settings":"Ei asetuksia tällä hetkellä. Kehityksessä"},
-        {"loc.window_names.welcome":"Tervetuloa Vortexiin!"}
+        {"loc.window_names.welcome":"Tervetuloa Vortexiin!"},
+        {"loc.windows.settings.selected_theme":"Teema"},
+        {"loc.windows.settings.theme_dark":"Tumma"},
+        {"loc.windows.settings.theme_light":"Vaalea"},
+        {"loc.windows.settings.theme_system":"Seuraa järjestelmää"}
     ]
 }

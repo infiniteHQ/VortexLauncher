@@ -86,7 +86,9 @@
         {"loc.menubar.menuitem.main_settings_desc":"Ställ in Vortex"},
         {"loc.menubar.menuitem.switch_language":"Byt språk"},
         {"loc.menubar.menuitem.switch_language_desc":"Välj ett annat språk"},
-        
+        {"loc.menubar.menuitem.contents":"Hantera innehåll installerat på systemet"},
+        {"loc.menubar.menuitem.contents_desc":"Hantera dina plugins, moduler och mallar"},
+
         {"loc.window_names.welcome":"Välkommen till Vortex!"},
         {"loc.window_names.project_manager":"Projekthanterare"},
         {"loc.window_names.settings":"Huvudinställningar"},
@@ -159,6 +161,10 @@
         {"loc.windows.settings.update_dist_settings":"Inställningar för uppdateringar & distribution"},
         {"loc.windows.settings.syspath_settings":"Systemvägsinställningar"},
         {"loc.windows.settings.no_settings":"Inga inställningar för tillfället. Arbete pågår"},
-        {"loc.window_names.welcome":"Välkommen till Vortex!"}
+        {"loc.window_names.welcome":"Välkommen till Vortex!"},
+        {"loc.windows.settings.selected_theme":"Tema"},
+        {"loc.windows.settings.theme_dark":"Mörkt"},
+        {"loc.windows.settings.theme_light":"Ljust"},
+        {"loc.windows.settings.theme_system":"Följ systemet"}
     ]
 }
