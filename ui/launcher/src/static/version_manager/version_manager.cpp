@@ -210,21 +210,13 @@ namespace VortexLauncher {
           if (!r.sysPath.empty()) {
             CherryGUI::SameLine(0.0f, 8.0f);
             CherryGUI::SetCursorPosY(19.0f);
-            const bool confirming = (g_ConfirmDelete == idx);
-            if (confirming)
-              CherryNextProp("color_text", th.danger);
             if (CherryKit::ButtonImageText(
-                    CherryID(confirming ? "vm_delete_confirm" : "vm_delete"),
-                    confirming ? "Confirm ?" : Cherry::GetLocale("loc.delete"),
+                    CherryID("vm_delete"),
+                    Cherry::GetLocale("loc.delete"),
                     Cherry::GetPath("resources/imgs/trash.png"))
                     .GetData("isClicked") == "true") {
-              if (confirming) {
-                g_ConfirmDelete = -1;
-                std::string path = r.sysPath;
-                std::thread([path, onInstalled]() { VortexMaker::OpenVortexUninstaller(path, onInstalled); }).detach();
-              } else {
-                g_ConfirmDelete = idx;
-              }
+              std::string path = r.sysPath;
+              std::thread([path, onInstalled]() { VortexMaker::OpenVortexUninstaller(path, onInstalled); }).detach();
             }
           }
         }
