@@ -7,6 +7,14 @@
 #include <iostream>
 #include <string>
 #include <unordered_set>
+
+#include <atomic>
+#include <thread>
+
+static std::atomic<bool> g_CreateBusy{ false };
+static std::atomic<bool> g_CreateDone{ false };
+static std::string g_CreatePath;
+
 static std::vector<bool> selectedRows(finded_projects.size(), false);
 
 std::vector<std::string> modules_projects;
@@ -213,6 +221,19 @@ namespace {
     return cache;
   }
 
+  void Spinner(const char* colorHex, float radius = 7.0f, float thickness = 2.0f) {
+    const float h = CherryGUI::GetTextLineHeight() + 6.0f;
+    ImVec2 p = CherryGUI::GetCursorScreenPos();
+    ImVec2 c(p.x + radius + 2.0f, p.y + h * 0.5f);
+    const float a0 = (float)CherryGUI::GetTime() * 6.0f;
+
+    ImDrawList* dl = CherryGUI::GetWindowDrawList();
+    dl->PathClear();
+    dl->PathArcTo(c, radius, a0, a0 + 4.2f, 24);
+    dl->PathStroke(Cherry::HexToImU32(colorHex), 0, thickness);
+    CherryGUI::Dummy(ImVec2(radius * 2.0f + 4.0f, h));
+  }
+
   std::vector<std::shared_ptr<EnvProject>> RecentProjectsBySession(size_t max_count) {
     const auto& all = VortexMaker::GetCurrentContext()->IO.sys_projects;
     const auto& last_opened = ProjectLastOpenedMap(all);
@@ -262,6 +283,31 @@ namespace VortexLauncher {
     const float right_w = 360.0f;
     const float total_x = CherryGUI::GetContentRegionAvail().x;
 
+    if (g_CreateDone.exchange(false)) {
+      project_blocks.clear();
+      VortexMaker::RefreshEnvironmentProjects();
+      m_SelectedChildName = "?loc:loc.windows.welcome.open_project";
+      m_SelectedEnvproject = nullptr;
+
+      std::error_code ec;
+      const auto target = fs::weakly_canonical(g_CreatePath, ec);
+      for (auto& element : VortexMaker::GetCurrentContext()->IO.sys_projects) {
+        if (!element) continue;
+        std::error_code ec2;
+        if (fs::weakly_canonical(element->path, ec2) == target) {
+          m_SelectedEnvproject = element;
+          break;
+        }
+      }
+
+      v_ProjectName = "";
+      v_ProjectAuthor = "";
+      v_ProjectVersion = "";
+      v_ProjectDescription = "";
+      needs_suggest = true;
+      g_CreateBusy = false;
+    }
+    
     CherryStyle::AddMarginX(5.0f);
     CherryGUI::BeginChild("###create_left", ImVec2(total_x - right_w - 5.0f, 0), false, ImGuiWindowFlags_NoBackground);
 
@@ -595,110 +641,58 @@ if (HasVersion(selected_template_object->m_compatible_versions, m_DefaultVortexV
       CherryKit::InputString("####create_project_name", &v_ProjectName);
       CherryGUI::SameLine();
 
-      const bool can_create = (status == NameStatus::Ok);
+      const bool busy = g_CreateBusy.load();
+      const bool can_create = (status == NameStatus::Ok) && !busy;
       if (!can_create)
         CherryGUI::BeginDisabled();
 
-      if (CherryKit::ButtonImageText(Cherry::GetLocale("loc.create"), Cherry::GetPath("resources/base/add.png"))
-                  .GetData("isClicked") == "true" &&
-          can_create) {
-        std::string vx_version;
-
-        vx_version = effective_version.empty() ? "Undefined" : effective_version;
-        if (Cherry::GetData(CherryID("PathSelector"), "selected_string") != "undefined") {
-#ifdef _WIN32
-          std::string creation_path = Cherry::GetData(CherryID("PathSelector"), "selected_string") + "\\" + v_ProjectName;
-          creation_path = VortexMaker::convertPathToWindowsStyle(creation_path);
-#else
-          std::string creation_path = Cherry::GetData(CherryID("PathSelector"), "selected_string") + "/" + v_ProjectName;
-#endif
-
-#ifdef _WIN32
-          std::string image_path = "\\icon.png";
-#else
-          std::string image_path = "/icon.png";
-#endif
-          // TODO error managment
-          VortexMaker::CreateProject(
-              v_ProjectName,
-              v_ProjectAuthor,
-              vx_version,
-              v_ProjectVersion,
-              v_ProjectDescription,
-              creation_path,
-              creation_path + image_path,
-              selected_template_object->m_name);
-          project_blocks.clear();
-          VortexMaker::RefreshEnvironmentProjects();
-          m_SelectedChildName = "?loc:loc.windows.welcome.open_project";
-          m_SelectedEnvproject = nullptr;
-
-          std::error_code ec;
-          const auto target = fs::weakly_canonical(creation_path, ec);
-          for (auto& element : VortexMaker::GetCurrentContext()->IO.sys_projects) {
-            if (!element) continue;
-            std::error_code ec2;
-            if (fs::weakly_canonical(element->path, ec2) == target) {
-              m_SelectedEnvproject = element;
-              break;
-            }
-          }
-
-          v_ProjectName = "";
-          v_ProjectAuthor = "";
-          v_ProjectVersion = "";
-          v_ProjectDescription = "";
-        } else {
-#ifdef _WIN32
-          std::string creation_path = projectPoolsPaths.back() + "\\" + v_ProjectName + "\\";
-          creation_path = VortexMaker::convertPathToWindowsStyle(creation_path);
-#else
-          std::string creation_path = projectPoolsPaths.back() + "/" + v_ProjectName + "/";
-#endif
-
-#ifdef _WIN32
-          std::string image_path = "\\icon.png";
-#else
-          std::string image_path = "/icon.png";
-#endif
-
-          if (!projectPoolsPaths.empty()) {
-            VortexMaker::CreateProject(
-                v_ProjectName,
-                v_ProjectAuthor,
-                vx_version,
-                v_ProjectVersion,
-                v_ProjectDescription,
-                creation_path,
-                creation_path + image_path,
-                selected_template_object->m_name);
-            project_blocks.clear();
-            VortexMaker::RefreshEnvironmentProjects();
-            m_SelectedEnvproject = nullptr;
-            m_SelectedChildName = "?loc:loc.windows.welcome.open_project";
-            for (auto element : VortexMaker::GetCurrentContext()->IO.sys_projects) {
-              if (fs::weakly_canonical(element->path) == fs::weakly_canonical(creation_path)) {
-                m_SelectedEnvproject = element;
-                break;
-              }
-            }
-
-            v_ProjectName = "";
-            v_ProjectAuthor = "";
-            v_ProjectVersion = "";
-            v_ProjectDescription = "";
-          } else {
-            std::cout << "Unable to create a project, no project pools are founded !" << std::endl;
-          }
-        }
-        if (v_ProjectName.empty())
-          needs_suggest = true;
-      }
+      const bool create_clicked =
+          CherryKit::ButtonImageText(Cherry::GetLocale("loc.create"), Cherry::GetPath("resources/base/add.png"))
+              .GetData("isClicked") == "true";
 
       if (!can_create)
         CherryGUI::EndDisabled();
 
-      switch (status) {
+      if (busy) {
+        CherryGUI::SameLine(0.0f, 8.0f);
+        Spinner(pal.accent);
+      }
+
+      if (create_clicked && can_create) {
+        if (dest_base.empty()) {
+          std::cout << "Unable to create a project, no project pools are founded !" << std::endl;
+        } else {
+          std::string creation_path = (fs::path(dest_base) / v_ProjectName).string();
+      #ifdef _WIN32
+          creation_path = VortexMaker::convertPathToWindowsStyle(creation_path);
+          const std::string image_path = "\\icon.png";
+      #else
+          const std::string image_path = "/icon.png";
+      #endif
+          const std::string vx_version = effective_version.empty() ? "Undefined" : effective_version;
+
+          g_CreatePath = creation_path;
+          g_CreateBusy = true;
+
+          std::thread([pname = v_ProjectName,
+                      author = v_ProjectAuthor,
+                      vx_version,
+                      pversion = v_ProjectVersion,
+                      desc = v_ProjectDescription,
+                      creation_path,
+                      icon = creation_path + image_path,
+                      tpl = selected_template_object->m_name]() {
+            try {
+              VortexMaker::CreateProject(pname, author, vx_version, pversion, desc, creation_path, icon, tpl);
+            } catch (const std::exception& e) {
+              std::cout << "CreateProject failed: " << e.what() << std::endl;
+            }
+            g_CreateDone = true;
+          }).detach();
+        }
+      }
+
+        switch (busy ? NameStatus::Ok : status) {
         case NameStatus::Empty:
           CherryNextProp("color_text", pal.sub);
           CherryKit::TextSimple("Enter a name for your project.");
