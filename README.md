@@ -52,8 +52,7 @@ Vortex is a playground built by the Infinite community. It includes an editor, a
 ### Compatibility
 ![✅ Ready](https://img.shields.io/badge/Microsoft%20Windows-Fully%20Compatible-green?longCache=true&style=for-the-badge)
 ![✅ Ready](https://img.shields.io/badge/Linux-Fully%20Compatible-green?longCache=true&style=for-the-badge)
-![✅ Ready](https://img.shields.io/badge/MacOS-WIP-orange?longCache=true&style=for-the-badge)
-- WARNING : **Microsoft Windows 10/11** (You need the Microsoft Visual C++ Redistributable 17 (https://aka.ms/vs/17/release/vc_redist.x64.exe). This Microsoft dependency will be added in the installer in the future.)
+![✅ Ready](https://img.shields.io/badge/MacOS-Fully%20Compatible-green?longCache=true&style=for-the-badge)
 
 ### License
 The Vortex Launcher is licensed under the **Apache License 2.0** see [LICENSE](https://github.com/infiniteHQ/VortexLauncher/blob/main/LICENSE) for more information.
