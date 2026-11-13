@@ -409,6 +409,10 @@ namespace VortexLauncher {
         CherryGUI::PopID();
 
         if (card_clicked) {
+          if (!selected_template_object || selected_template_object->m_name != tpl->m_name){
+            advanced_params = false;
+          }
+
           selected_template_object = tpl;
           std::sort(
               selected_template_object->m_compatible_versions.begin(),
@@ -446,14 +450,15 @@ namespace VortexLauncher {
     } else {
       CherryGUI::Indent(14.0f);
       const float inner_w = CherryGUI::GetContentRegionAvail().x - 14.0f;
-
-      std::string effective_version = LatestVersion(selected_template_object->m_compatible_versions);
-      {
-        std::string sel = Cherry::GetData(CherryID("VersionSelector"), "selected_string");
-        if (sel != "undefined" && HasVersion(selected_template_object->m_compatible_versions, sel)) {
-          effective_version = sel;
-        }
-      }
+std::string effective_version = LatestVersion(selected_template_object->m_compatible_versions);
+if (HasVersion(selected_template_object->m_compatible_versions, m_DefaultVortexVersion))
+  effective_version = m_DefaultVortexVersion;
+{
+  std::string sel = Cherry::GetData(CherryID("VersionSelector"), "selected_string");
+  if (advanced_params && sel != "undefined" &&
+      HasVersion(selected_template_object->m_compatible_versions, sel))
+    effective_version = sel;
+}
 
       CherryStyle::AddMarginY(14.0f);
       CherryKit::ImageLocal(selected_template_object->m_logo_path, 50.0f, 50.0f);
@@ -627,8 +632,13 @@ namespace VortexLauncher {
           VortexMaker::RefreshEnvironmentProjects();
           m_SelectedChildName = "?loc:loc.windows.welcome.open_project";
           m_SelectedEnvproject = nullptr;
-          for (auto element : VortexMaker::GetCurrentContext()->IO.sys_projects) {
-            if (fs::weakly_canonical(element->path) == fs::weakly_canonical(creation_path)) {
+
+          std::error_code ec;
+          const auto target = fs::weakly_canonical(creation_path, ec);
+          for (auto& element : VortexMaker::GetCurrentContext()->IO.sys_projects) {
+            if (!element) continue;
+            std::error_code ec2;
+            if (fs::weakly_canonical(element->path, ec2) == target) {
               m_SelectedEnvproject = element;
               break;
             }

@@ -214,7 +214,7 @@ namespace VortexLauncher {
             if (confirming)
               CherryNextProp("color_text", th.danger);
             if (CherryKit::ButtonImageText(
-                    CherryID("vm_delete"),
+                    CherryID(confirming ? "vm_delete_confirm" : "vm_delete"),
                     confirming ? "Confirm ?" : Cherry::GetLocale("loc.delete"),
                     Cherry::GetPath("resources/imgs/trash.png"))
                     .GetData("isClicked") == "true") {

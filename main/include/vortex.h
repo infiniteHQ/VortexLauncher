@@ -37,8 +37,8 @@
 #include <sys/stat.h>
 
 #ifdef _WIN32
-#include <shellapi.h>
 #include <windows.h>
+#include <shellapi.h>
 
 #elif defined(__APPLE__)
 #include <sys/sysctl.h>
