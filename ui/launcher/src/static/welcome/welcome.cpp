@@ -663,12 +663,14 @@ if (HasVersion(selected_template_object->m_compatible_versions, m_DefaultVortexV
           std::cout << "Unable to create a project, no project pools are founded !" << std::endl;
         } else {
           std::string creation_path = (fs::path(dest_base) / v_ProjectName).string();
-      #ifdef _WIN32
+          #ifdef _WIN32
           creation_path = VortexMaker::convertPathToWindowsStyle(creation_path);
-          const std::string image_path = "\\icon.png";
-      #else
+          if (creation_path.back() != '\\')
+            creation_path += '\\';
+          const std::string image_path = "icon.png";
+          #else
           const std::string image_path = "/icon.png";
-      #endif
+          #endif
           const std::string vx_version = effective_version.empty() ? "Undefined" : effective_version;
 
           g_CreatePath = creation_path;

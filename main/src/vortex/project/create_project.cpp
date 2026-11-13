@@ -118,11 +118,7 @@ VORTEX_API void VortexMaker::CreateProject(
   VortexMaker::createFolderIfNotExists(path);
   VortexMaker::InstallTemplate(template_name, path);
 
-#ifdef _WIN32
-  std::string config_file = path + "vortex.config";
-#else
-  std::string config_file = path + "/vortex.config";
-#endif
+  std::string config_file = (fs::path(path) / "vortex.config").string();
 
   // Load JSON data from the project configuration file
   auto config_data = VortexMaker::DumpJSON(config_file);
