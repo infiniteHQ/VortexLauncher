@@ -130,7 +130,7 @@ namespace VortexLauncher {
              Lower(r.dist).find(q) != std::string::npos || Lower(r.plat).find(q) != std::string::npos;
     }
 
-    void RenderCard(const Row& r, int idx, const Theme& th) {
+    void RenderCard(const Row& r, int idx, const Theme& th, const std::function<void()>& onInstalled) {
       CherryGUI::PushID(idx);
       CherryGUI::PushStyleColor(ImGuiCol_ChildBg, Hex(th.card));
       CherryGUI::PushStyleColor(ImGuiCol_Border, Hex(th.cardBorder));
@@ -179,9 +179,8 @@ namespace VortexLauncher {
                   Cherry::GetPath("resources/imgs/icons/misc/icon_add.png"))
                   .GetData("isClicked") == "true") {
             Row c = r;
-            std::thread([c]() {
-              VortexMaker::OpenVortexInstaller(c.onName, c.onArch, c.onDist, c.onPlat);
-              VortexMaker::RefreshEnvironmentVortexVersion();
+            std::thread([c, onInstalled]() {
+              VortexMaker::OpenVortexInstaller(c.onName, c.onArch, c.onDist, c.onPlat, onInstalled);
             }).detach();
           }
         } else {
@@ -201,10 +200,9 @@ namespace VortexLauncher {
                     Cherry::GetPath("resources/imgs/icons/misc/icon_settings.png"))
                     .GetData("isClicked") == "true") {
               Row c = r;
-              std::thread([c]() {
-                VortexMaker::OpenVortexUninstaller(c.sysPath.empty() ? c.onPath : c.sysPath);
-                VortexMaker::OpenVortexInstaller(c.onName, c.onArch, c.onDist, c.onPlat);
-                VortexMaker::RefreshEnvironmentVortexVersion();
+              std::thread([c, onInstalled]() {
+                VortexMaker::OpenVortexUninstaller(c.sysPath.empty() ? c.onPath : c.sysPath, onInstalled);
+                VortexMaker::OpenVortexInstaller(c.onName, c.onArch, c.onDist, c.onPlat, onInstalled);
               }).detach();
             }
           }
@@ -223,10 +221,7 @@ namespace VortexLauncher {
               if (confirming) {
                 g_ConfirmDelete = -1;
                 std::string path = r.sysPath;
-                std::thread([path]() {
-                  VortexMaker::OpenVortexUninstaller(path);
-                  VortexMaker::RefreshEnvironmentVortexVersion();
-                }).detach();
+                std::thread([path, onInstalled]() { VortexMaker::OpenVortexUninstaller(path, onInstalled); }).detach();
               } else {
                 g_ConfirmDelete = idx;
               }
@@ -258,7 +253,7 @@ namespace VortexLauncher {
     }
 
     template<class List>
-    void RenderVersionList(const List& versions, bool offline, const Theme& th) {
+    void RenderVersionList(const List& versions, bool offline, const Theme& th, const std::function<void()>& onInstalled) {
       std::vector<Row> installed, available;
       for (const auto& v : versions) {
         Row r = BuildRow(v);
@@ -283,7 +278,7 @@ namespace VortexLauncher {
         }
         for (const auto& r : installed) {
           CherryStyle::AddMarginX(5.0f);
-          RenderCard(r, idx++, th);
+          RenderCard(r, idx++, th, onInstalled);
         }
       }
 
@@ -298,7 +293,7 @@ namespace VortexLauncher {
         }
         for (const auto& r : available) {
           CherryStyle::AddMarginX(5.0f);
-          RenderCard(r, idx++, th);
+          RenderCard(r, idx++, th, onInstalled);
         }
       }
     }
@@ -417,13 +412,16 @@ namespace VortexLauncher {
         "Installed versions",
         VersionManagerChild(
             [this]() {
+              if (m_NeedRefresh.exchange(false))
+                RefreshVortexVersions();
+
               const Theme th = GetTheme();
               CherryStyle::AddMarginY(8.0f);
               RenderMenubar();
 
               const bool offline = VortexMaker::GetCurrentContext()->disconnected;
               CherryStyle::AddMarginX(10.0f);
-              RenderVersionList(m_VortexVersions, offline, th);
+              RenderVersionList(m_VortexVersions, offline, th, [this]() { m_NeedRefresh = true; });
             },
             Cherry::GetPath("resources/imgs/stack.png")));
   }

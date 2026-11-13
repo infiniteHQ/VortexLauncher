@@ -48,9 +48,13 @@ namespace VortexLauncher {
     std::function<void()> m_OpenProjectCallback;
     std::function<void()> m_SettingsCallback;
     std::function<void(const std::shared_ptr<EnvProject>&)> m_ProjectCallback;
-
+    std::atomic<bool> m_NeedRefresh{ false };
     std::vector<VxVersion> m_VortexVersions;
     void RefreshVortexVersions() {
+      // refresh the backend first
+      VortexMaker::RefreshEnvironmentVortexVersion();
+
+      // then the frontend
       m_VortexVersions.clear();
 
       for (auto v : VortexMaker::GetCurrentContext()->IO.sys_vortex_versions) {

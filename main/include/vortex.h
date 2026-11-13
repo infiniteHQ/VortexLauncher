@@ -37,8 +37,8 @@
 #include <sys/stat.h>
 
 #ifdef _WIN32
-#include <windows.h>
 #include <shellapi.h>
+#include <windows.h>
 
 #elif defined(__APPLE__)
 #include <sys/sysctl.h>
@@ -371,12 +371,16 @@ namespace VortexMaker {
   VORTEX_API bool IsSystemThemeDark();
   VORTEX_API std::string ResolveTheme();
 
-  VORTEX_API void OpenVortexUninstaller(const std::string& path);
+  VORTEX_API void OpenVortexUninstaller(
+      const std::string& path,
+      const std::function<void()>& callback_if_success = []() { });
   VORTEX_API void OpenVortexInstaller(
       const std::string& version,
       const std::string& arch,
       const std::string& dist,
-      const std::string& platform);
+      const std::string& platform,
+      const std::function<void()>& callback_if_success = []() { });
+
   VORTEX_API bool TestVortexExecutable(const std::string& path);
 
   VORTEX_API bool CheckIfVortexVersionUtilityExist(const std::string& version, std::string& path);

@@ -491,8 +491,10 @@ bool VortexMaker::executeInChildProcess(const std::string& command) {
   HANDLE iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 1);
   if (!job || !iocp) {
     VortexMaker::LogError("Child process loader", "Job creation failed: " + std::to_string(GetLastError()));
-    if (job) CloseHandle(job);
-    if (iocp) CloseHandle(iocp);
+    if (job)
+      CloseHandle(job);
+    if (iocp)
+      CloseHandle(iocp);
     return false;
   }
 
@@ -502,9 +504,16 @@ bool VortexMaker::executeInChildProcess(const std::string& command) {
   SetInformationJobObject(job, JobObjectAssociateCompletionPortInformation, &port, sizeof(port));
 
   if (!CreateProcessA(
-          NULL, cmdLine.data(), NULL, NULL, FALSE,
+          NULL,
+          cmdLine.data(),
+          NULL,
+          NULL,
+          FALSE,
           CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP | CREATE_SUSPENDED,
-          NULL, NULL, &si, &pi)) {
+          NULL,
+          NULL,
+          &si,
+          &pi)) {
     VortexMaker::LogError(
         "Child process loader",
         "Error while creating process for command: " + command + " Error: " + std::to_string(GetLastError()));
@@ -522,7 +531,8 @@ bool VortexMaker::executeInChildProcess(const std::string& command) {
   ULONG_PTR key = 0;
   LPOVERLAPPED ov = nullptr;
   while (GetQueuedCompletionStatus(iocp, &msg, &key, &ov, INFINITE)) {
-    if ((HANDLE)key == job && msg == JOB_OBJECT_MSG_ACTIVE_PROCESS_ZERO) break;
+    if ((HANDLE)key == job && msg == JOB_OBJECT_MSG_ACTIVE_PROCESS_ZERO)
+      break;
   }
 
   DWORD exitCode = 1;
@@ -703,7 +713,9 @@ std::string escapeSpaces(const std::string& input) {
   return escaped;
 }
 
-VORTEX_API void VortexMaker::OpenVortexUninstaller(const std::string& path) {
+VORTEX_API void VortexMaker::OpenVortexUninstaller(
+    const std::string& path,
+    const std::function<void()>& callback_if_success) {
   VxContext& ctx = *CVortexMaker;
 
   std::string quotedPath = "\"" + path + "\"";
@@ -717,6 +729,9 @@ VORTEX_API void VortexMaker::OpenVortexUninstaller(const std::string& path) {
 
   if (success) {
     std::cout << "Uninstallation succeeded." << std::endl;
+    if (callback_if_success) {
+      callback_if_success();
+    }
   } else {
     std::cerr << "Uninstallation failed." << std::endl;
   }
@@ -726,7 +741,8 @@ VORTEX_API void VortexMaker::OpenVortexInstaller(
     const std::string& version,
     const std::string& arch,
     const std::string& dist,
-    const std::string& platform) {
+    const std::string& platform,
+    const std::function<void()>& callback_if_success) {
   VxContext& ctx = *CVortexMaker;
 
   std::string command;
@@ -745,6 +761,9 @@ VORTEX_API void VortexMaker::OpenVortexInstaller(
 
   if (success) {
     std::cout << "Installation succeeded." << std::endl;
+    if (callback_if_success) {
+      callback_if_success();
+    }
   } else {
     std::cerr << "Installation failed." << std::endl;
   }
@@ -864,9 +883,7 @@ std::string VortexMaker::CookPath(std::string_view input_path) {
     return path;
   }();
 
-  return (input_path.empty() || input_path[0] == '/')
-             ? std::string(input_path)
-             : root_path + "/" + std::string(input_path);
+  return (input_path.empty() || input_path[0] == '/') ? std::string(input_path) : root_path + "/" + std::string(input_path);
 }
 
 std::string VortexMaker::GetPath(const std::string& path) {
@@ -1245,8 +1262,7 @@ VORTEX_API bool VortexMaker::IsSystemThemeDark() {
     return value == 0;
   return true;
 #elif defined(__APPLE__)
-  const std::string out =
-      ThemeLowerCopy(CaptureCommandOutput("defaults read -g AppleInterfaceStyle 2>/dev/null"));
+  const std::string out = ThemeLowerCopy(CaptureCommandOutput("defaults read -g AppleInterfaceStyle 2>/dev/null"));
   return out.find("dark") != std::string::npos;
 #else
   std::string scheme =
@@ -1256,8 +1272,7 @@ VORTEX_API bool VortexMaker::IsSystemThemeDark() {
   if (scheme.find("prefer-light") != std::string::npos)
     return false;
 
-  std::string gtk =
-      ThemeLowerCopy(CaptureCommandOutput("gsettings get org.gnome.desktop.interface gtk-theme 2>/dev/null"));
+  std::string gtk = ThemeLowerCopy(CaptureCommandOutput("gsettings get org.gnome.desktop.interface gtk-theme 2>/dev/null"));
   if (!gtk.empty())
     return gtk.find("dark") != std::string::npos;
 
